@@ -1,0 +1,13 @@
+node_modules
+.pnp.cjs
+.pnp.loader.mjs
+.pnpm-store
+.turbo
+.dist
+build
+coverage
+dist
+.env
+.env.*
+.DS_Store
+*.log
