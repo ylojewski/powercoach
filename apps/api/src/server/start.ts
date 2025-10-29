@@ -1,8 +1,9 @@
 import process from 'node:process'
-import type { Signals } from 'node:process'
 
 import { buildApp } from '../app'
 import { loadConfig } from '../core'
+
+type Signals = Exclude<Parameters<typeof process.kill>[1], number>
 
 export async function start() {
   const config = loadConfig()

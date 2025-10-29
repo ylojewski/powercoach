@@ -1,5 +1,6 @@
 import process from 'node:process'
-import type { ProcessEnv } from 'node:process'
+
+type ProcessEnv = typeof process.env
 
 import { config as loadEnv } from 'dotenv'
 

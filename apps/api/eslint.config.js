@@ -5,6 +5,9 @@ import importPlugin from 'eslint-plugin-import'
 import prettierConfig from 'eslint-config-prettier'
 
 export default [
+  {
+    ignores: ['dist']
+  },
   js.configs.recommended,
   {
     files: ['**/*.{ts,tsx}'],

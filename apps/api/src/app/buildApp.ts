@@ -1,8 +1,9 @@
 import { randomUUID } from 'node:crypto'
+import type { IncomingMessage, ServerResponse } from 'node:http'
 
 import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox'
 import Fastify from 'fastify'
-import type { FastifyInstance } from 'fastify'
+import type { FastifyInstance, RawServerDefault } from 'fastify'
 
 import { buildLogger, loadConfig, type AppConfig } from '../core'
 import { healthModule } from '../modules'
@@ -12,7 +13,15 @@ export interface BuildAppOptions {
   config?: AppConfig
 }
 
-export async function buildApp(options: BuildAppOptions = {}): Promise<FastifyInstance> {
+type AppFastifyInstance = FastifyInstance<
+  RawServerDefault,
+  IncomingMessage,
+  ServerResponse,
+  ReturnType<typeof buildLogger>,
+  TypeBoxTypeProvider
+>
+
+export async function buildApp(options: BuildAppOptions = {}): Promise<AppFastifyInstance> {
   const config = options.config ?? loadConfig()
   const logger = buildLogger({ level: config.LOG_LEVEL, nodeEnv: config.NODE_ENV })
 
