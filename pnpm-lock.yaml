@@ -17,6 +17,12 @@ importers:
       '@commitlint/config-conventional':
         specifier: ^20.0.0
         version: 20.0.0
+      '@power/commitlint-config':
+        specifier: workspace:*
+        version: link:packages/commitlint-config
+      '@power/lint-staged-config':
+        specifier: workspace:*
+        version: link:packages/lint-staged-config
       husky:
         specifier: ^9.1.7
         version: 9.1.7
@@ -57,6 +63,18 @@ importers:
       '@fastify/type-provider-typebox':
         specifier: ^6.1.0
         version: 6.1.0(typebox@1.0.43)
+      '@power/eslint-config':
+        specifier: workspace:*
+        version: link:../../packages/eslint-config
+      '@power/prettier-config':
+        specifier: workspace:*
+        version: link:../../packages/prettier-config
+      '@power/tsconfig':
+        specifier: workspace:*
+        version: link:../../packages/tsconfig
+      '@power/tsup-config':
+        specifier: workspace:*
+        version: link:../../packages/tsup-config
       '@types/node':
         specifier: ^22.7.4
         version: 22.18.13
@@ -93,6 +111,46 @@ importers:
       vitest:
         specifier: ^2.1.2
         version: 2.1.9(@types/node@22.18.13)
+
+  packages/changeset-config: {}
+
+  packages/commitlint-config:
+    dependencies:
+      '@commitlint/config-conventional':
+        specifier: ^20.0.0
+        version: 20.0.0
+
+  packages/eslint-config:
+    dependencies:
+      '@eslint/js':
+        specifier: ^9.0.0
+        version: 9.38.0
+      '@typescript-eslint/eslint-plugin':
+        specifier: ^8.0.0
+        version: 8.46.2(@typescript-eslint/parser@8.46.2(eslint@9.38.0(jiti@2.6.1))(typescript@5.9.3))(eslint@9.38.0(jiti@2.6.1))(typescript@5.9.3)
+      '@typescript-eslint/parser':
+        specifier: ^8.0.0
+        version: 8.46.2(eslint@9.38.0(jiti@2.6.1))(typescript@5.9.3)
+      eslint:
+        specifier: ^9.0.0
+        version: 9.38.0(jiti@2.6.1)
+      eslint-config-prettier:
+        specifier: ^9.0.0
+        version: 9.1.2(eslint@9.38.0(jiti@2.6.1))
+      eslint-plugin-import:
+        specifier: ^2.0.0
+        version: 2.32.0(@typescript-eslint/parser@8.46.2(eslint@9.38.0(jiti@2.6.1))(typescript@5.9.3))(eslint@9.38.0(jiti@2.6.1))
+      typescript:
+        specifier: '>=5.0.0'
+        version: 5.9.3
+
+  packages/lint-staged-config: {}
+
+  packages/prettier-config: {}
+
+  packages/tsconfig: {}
+
+  packages/tsup-config: {}
 
 packages:
 

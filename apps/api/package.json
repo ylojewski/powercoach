@@ -24,6 +24,10 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@power/eslint-config": "workspace:*",
+    "@power/prettier-config": "workspace:*",
+    "@power/tsup-config": "workspace:*",
+    "@power/tsconfig": "workspace:*",
     "@eslint/js": "^9.38.0",
     "@fastify/type-provider-typebox": "^6.1.0",
     "@types/node": "^22.7.4",
@@ -40,6 +44,6 @@
     "vitest": "^2.1.2"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": "20"
   }
 }

@@ -1,4 +1,4 @@
-module.exports = {
+export const config = {
   singleQuote: true,
   semi: false,
   trailingComma: 'none',

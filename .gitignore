@@ -7,6 +7,8 @@ node_modules
 build
 coverage
 dist
+!packages/*-config/dist
+!packages/*-config/dist/**
 .env
 .env.*
 !.env.example
