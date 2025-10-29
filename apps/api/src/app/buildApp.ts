@@ -13,7 +13,7 @@ export interface BuildAppOptions {
   config?: AppConfig
 }
 
-type AppFastifyInstance = FastifyInstance<
+export type AppFastifyInstance = FastifyInstance<
   RawServerDefault,
   IncomingMessage,
   ServerResponse,

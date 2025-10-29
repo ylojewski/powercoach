@@ -2,10 +2,10 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "@power/tsconfig/base",
   "compilerOptions": {
-    "rootDir": "src",
+    "rootDir": ".",
     "outDir": "dist",
     "types": ["vitest/globals", "node"],
-    "baseUrl": "./src"
+    "baseUrl": "."
   },
   "include": ["src", "test", "*.ts"],
   "exclude": ["dist", "node_modules"]

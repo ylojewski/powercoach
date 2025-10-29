@@ -1,10 +1,11 @@
-import type { FastifyInstance } from 'fastify'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+
+import type { AppFastifyInstance } from '../src/app'
 
 import { createTestApp } from './setup'
 
 describe('GET /v1/health', () => {
-  let app: FastifyInstance
+  let app: AppFastifyInstance
 
   beforeAll(async () => {
     app = await createTestApp()

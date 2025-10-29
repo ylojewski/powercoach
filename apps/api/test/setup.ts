@@ -1,8 +1,6 @@
-import type { FastifyInstance } from 'fastify'
+import { buildApp, type AppFastifyInstance } from '../src/app'
 
-import { buildApp } from '../src/app'
-
-export async function createTestApp(): Promise<FastifyInstance> {
+export async function createTestApp(): Promise<AppFastifyInstance> {
   const app = await buildApp({
     config: {
       NODE_ENV: 'test',
