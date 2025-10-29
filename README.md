@@ -1,6 +1,11 @@
 # Power Monorepo
 
-This repository is managed with [Turborepo](https://turbo.build/). The root package declares the applications under `apps/` and shared packages under `packages/` as workspaces, enabling incremental builds and caching across the monorepo.
+This repository is managed with [Turborepo](https://turbo.build/). The root package declares the applications under `apps/` and
+shared packages under `packages/` as workspaces, enabling incremental builds and caching across the monorepo.
+
+## Projects
+
+- [`@power/api`](./apps/api) – Fastify HTTP API with health-check endpoint and opinionated architecture.
 
 ## Getting started
 
