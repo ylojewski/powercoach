@@ -1,4 +1,4 @@
-import { config } from '@power/tsup-config'
+import { config } from '@power/config/tsup'
 import { defineConfig } from 'tsup'
 
 export default defineConfig({

@@ -38,9 +38,4 @@ export const typescriptConfig = {
   }
 }
 
-export const config = [
-  ignoreConfig,
-  js.configs.recommended,
-  typescriptConfig,
-  prettierConfig
-]
+export const config = [ignoreConfig, js.configs.recommended, typescriptConfig, prettierConfig]

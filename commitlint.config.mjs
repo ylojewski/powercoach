@@ -1,3 +1,3 @@
-import { config } from '@power/commitlint-config'
+import { config } from '@power/config/commitlint'
 
 export default config
