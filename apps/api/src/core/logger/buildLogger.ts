@@ -11,18 +11,18 @@ export function buildLogger({ level, nodeEnv }: BuildLoggerOptions) {
   const options: LoggerOptions = {
     level,
     redact: {
-      paths: ['req.headers.authorization', 'req.headers.cookie'],
-      censor: '[REDACTED]'
+      censor: '[REDACTED]',
+      paths: ['req.headers.authorization', 'req.headers.cookie']
     }
   }
 
   if (isDevLike) {
     options.transport = {
-      target: 'pino-pretty',
       options: {
         colorize: true,
         translateTime: 'SYS:standard'
-      }
+      },
+      target: 'pino-pretty'
     }
   }
 

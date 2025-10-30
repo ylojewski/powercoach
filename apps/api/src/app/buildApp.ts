@@ -26,17 +26,17 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<AppFastif
   const logger = buildLogger({ level: config.LOG_LEVEL, nodeEnv: config.NODE_ENV })
 
   const app = Fastify({
-    logger,
-    disableRequestLogging: true,
-    requestIdHeader: 'x-request-id',
-    requestIdLogLabel: 'reqId',
-    genReqId: (request) => request.headers['x-request-id']?.toString() ?? randomUUID(),
     ajv: {
       customOptions: {
-        removeAdditional: 'all',
-        coerceTypes: false
+        coerceTypes: false,
+        removeAdditional: 'all'
       }
-    }
+    },
+    disableRequestLogging: true,
+    genReqId: (request) => request.headers['x-request-id']?.toString() ?? randomUUID(),
+    logger,
+    requestIdHeader: 'x-request-id',
+    requestIdLogLabel: 'reqId'
   }).withTypeProvider<TypeBoxTypeProvider>()
 
   app.decorate('config', config)

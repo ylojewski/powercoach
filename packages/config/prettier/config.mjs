@@ -1,8 +1,11 @@
+import sortJsonPlugin from 'prettier-plugin-sort-json'
+
 export const config = {
-  singleQuote: true,
-  semi: false,
-  trailingComma: 'none',
+  arrowParens: 'always',
+  plugins: [sortJsonPlugin],
   printWidth: 100,
+  semi: false,
+  singleQuote: true,
   tabWidth: 2,
-  arrowParens: 'always'
+  trailingComma: 'none'
 }

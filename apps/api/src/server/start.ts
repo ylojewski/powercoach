@@ -39,9 +39,9 @@ export async function start() {
   })
 
   try {
-    const address = await app.listen({ port: config.PORT, host: config.HOST })
+    const address = await app.listen({ host: config.HOST, port: config.PORT })
     app.log.info({ address }, 'Server listening')
-    return { app, address }
+    return { address, app }
   } catch (error) {
     app.log.error({ err: error }, 'Unable to start server')
     process.exit(1)

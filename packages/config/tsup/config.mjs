@@ -1,7 +1,7 @@
 export const config = {
-  format: ['esm'],
-  dts: true,
-  sourcemap: true,
   clean: true,
+  dts: true,
+  format: ['esm'],
+  sourcemap: true,
   target: 'node20'
 }
