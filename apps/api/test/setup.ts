@@ -1,4 +1,4 @@
-import { buildApp, type AppFastifyInstance } from '../src/app'
+import { buildApp, type AppFastifyInstance } from '@/app'
 
 export async function createTestApp(): Promise<AppFastifyInstance> {
   const app = await buildApp({

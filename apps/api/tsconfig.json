@@ -4,7 +4,11 @@
     "rootDir": ".",
     "outDir": "dist",
     "types": ["vitest/globals", "node"],
-    "baseUrl": "."
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@test/*": ["test/*"]
+    }
   },
   "exclude": ["dist", "node_modules"],
   "extends": "@power/config/tsconfig.base.json",
