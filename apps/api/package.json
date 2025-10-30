@@ -6,8 +6,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "dev": "tsx src/server/index.ts",
-    "start": "node dist/server/index.js",
+    "dev": "tsx watch src/server/start.ts",
     "build": "tsup --config tsup.config.ts",
     "lint": "eslint . --fix",
     "format": "prettier . --write",
