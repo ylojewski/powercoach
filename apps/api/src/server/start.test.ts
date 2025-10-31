@@ -1,5 +1,3 @@
-import { readdirSync } from 'node:fs'
-import { dirname, join } from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
@@ -146,14 +144,8 @@ describe('start', () => {
 
     const originalNodeEnv = process.env.NODE_ENV
     const originalArgv = process.argv.slice()
-    const serverDir = dirname(fileURLToPath(import.meta.url))
-    const scriptFilename = readdirSync(serverDir).find((file) => /^start\.[^.]+$/.test(file))
-
-    if (!scriptFilename) {
-      throw new Error('Unable to locate start module filename')
-    }
-
-    const scriptPath = join(serverDir, scriptFilename)
+    const scriptModuleUrl = import.meta.url.replace(/\.test(?=\.[^.]+$)/, '')
+    const scriptPath = fileURLToPath(scriptModuleUrl)
 
     process.env.NODE_ENV = 'development'
     process.argv = [process.argv[0], scriptPath]

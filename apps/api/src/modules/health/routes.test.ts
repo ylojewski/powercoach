@@ -19,14 +19,17 @@ describe('registerHealthRoutes', () => {
     expect(route).toHaveBeenCalledTimes(1)
 
     const [[config]] = route.mock.calls
-    const { handler, method, schema, url } = config
+    const { handler } = config
 
-    expect(method).toBe('GET')
-    expect(url).toBe('/')
-    expect(schema).toStrictEqual({
-      response: {
-        200: { $ref: `${HEALTH_RESPONSE_SCHEMA_ID}#` }
-      }
+    expect(config).toStrictEqual({
+      handler,
+      method: 'GET',
+      schema: {
+        response: {
+          200: { $ref: `${HEALTH_RESPONSE_SCHEMA_ID}#` }
+        }
+      },
+      url: '/'
     })
     expect(await handler()).toEqual(healthStatus)
     expect(getHealthStatus).toHaveBeenCalled()
