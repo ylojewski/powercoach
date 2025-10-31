@@ -1,3 +1,4 @@
+import { ZodError } from 'zod'
 import { envSchema } from './envSchema'
 
 describe('envSchema', () => {
@@ -13,13 +14,26 @@ describe('envSchema', () => {
   })
 
   it('rejects invalid values', () => {
-    const result = envSchema.safeParse({
+    const invalidEnvironment = {
+      HOST: '0.0.0.0',
       LOG_LEVEL: 'verbose',
+      NODE_ENV: 'development',
       PORT: -1
-    })
+    } as const
 
-    expect(result.success).toBe(false)
-    expect(result.error.issues).toEqual([
+    let thrown: unknown
+
+    expect(() => {
+      try {
+        envSchema.parse(invalidEnvironment)
+      } catch (error) {
+        thrown = error
+        throw error
+      }
+    }).toThrowError(ZodError)
+
+    expect(thrown).toBeInstanceOf(ZodError)
+    expect((thrown as ZodError).issues).toEqual([
       expect.objectContaining({
         code: 'invalid_enum_value',
         options: ['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'],

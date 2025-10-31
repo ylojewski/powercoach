@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "noEmit": true,
+    "tsBuildInfoFile": "./node_modules/.cache/api.vitest.tsbuildinfo"
+  },
+  "extends": "@powercoach/config/tsconfig.vitest.json",
+  "include": ["src/**/*.test.ts", "test/**/*.ts"]
+}

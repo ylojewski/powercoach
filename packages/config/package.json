@@ -15,7 +15,6 @@
     "./changeset.config.json": "./changeset/config.json",
     "./commitlint": "./commitlint/index.js",
     "./eslint": "./eslint/index.js",
-    "./eslint/vitest": "./eslint/vitest.js",
     "./lint-staged": "./lint-staged/index.js",
     "./prettier": "./prettier/index.js",
     "./tsconfig.base.json": "./ts/base.json",

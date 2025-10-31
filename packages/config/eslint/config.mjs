@@ -47,6 +47,7 @@ export const typescriptConfig = {
     parser: tsparser,
     parserOptions: {
       project: ['./tsconfig.json'],
+      projectService: true,
       sourceType: 'module'
     }
   },

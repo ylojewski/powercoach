@@ -10,7 +10,7 @@
     "build": "tsup --config tsup.config.ts",
     "lint": "eslint . --fix",
     "format": "prettier . --write",
-    "test": "vitest run --reporter=verbose",
+    "test": "vitest run --coverage --reporter=verbose",
     "test:watch": "vitest"
   },
   "dependencies": {

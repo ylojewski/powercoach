@@ -8,5 +8,12 @@ describe('healthResponseSchema', () => {
       additionalProperties: false,
       type: 'object'
     })
+
+    expect(healthResponseSchema.properties).toMatchObject({
+      ok: { type: 'boolean' },
+      uptime: { minimum: 0, type: 'number' }
+    })
+    expect(Object.keys(healthResponseSchema.properties ?? {})).toEqual(['ok', 'uptime'])
+    expect(healthResponseSchema.required).toEqual(['ok', 'uptime'])
   })
 })

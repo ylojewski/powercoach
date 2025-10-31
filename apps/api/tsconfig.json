@@ -10,6 +10,11 @@
     }
   },
   "exclude": ["dist", "node_modules"],
-  "extends": "@powercoach/config/tsconfig.vitest.json",
-  "include": ["src", "test", "*.ts"]
+  "extends": "@powercoach/config/tsconfig.base.json",
+  "include": ["src", "test", "*.ts"],
+  "references": [
+    {
+      "path": "./tsconfig.vitest.json"
+    }
+  ]
 }
