@@ -21,7 +21,7 @@ jobs:
     strategy:
       matrix:
         node-version: [20]
-    name: Node ${{ matrix.node-version }}
+    name: Powercoach monorepo
     env:
       TURBO_TELEMETRY_DISABLED: "1"
     steps:
