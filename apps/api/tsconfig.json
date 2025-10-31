@@ -11,6 +11,6 @@
     }
   },
   "exclude": ["dist", "node_modules"],
-  "extends": "@power/config/tsconfig.base.json",
+  "extends": "@powercoach/config/tsconfig.base.json",
   "include": ["src", "test", "*.ts"]
 }

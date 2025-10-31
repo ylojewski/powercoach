@@ -1,3 +1,3 @@
-import { config } from '@power/config/prettier'
+import { config } from '@powercoach/config/prettier'
 
 export default config

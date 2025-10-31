@@ -1,3 +1,3 @@
-import { config } from '@power/config/lint-staged'
+import { config } from '@powercoach/config/lint-staged'
 
 export default config
