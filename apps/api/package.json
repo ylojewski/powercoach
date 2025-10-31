@@ -1,5 +1,5 @@
 {
-  "name": "@power/api",
+  "name": "@powercoach/api",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -25,7 +25,7 @@
   "devDependencies": {
     "@eslint/js": "^9.38.0",
     "@fastify/type-provider-typebox": "^6.1.0",
-    "@power/config": "workspace:*",
+    "@powercoach/config": "workspace:*",
     "@types/node": "^22.7.4",
     "@typescript-eslint/eslint-plugin": "^8.10.0",
     "@typescript-eslint/parser": "^8.10.0",

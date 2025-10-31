@@ -1,4 +1,4 @@
-# @power/api
+# @powercoach/api
 
 State-of-the-art Fastify API powered by Turborepo.
 

@@ -17,7 +17,7 @@ importers:
       '@commitlint/config-conventional':
         specifier: ^20.0.0
         version: 20.0.0
-      '@power/config':
+      '@powercoach/config':
         specifier: workspace:*
         version: link:packages/config
       husky:
@@ -60,7 +60,7 @@ importers:
       '@fastify/type-provider-typebox':
         specifier: ^6.1.0
         version: 6.1.0(typebox@1.0.43)
-      '@power/config':
+      '@powercoach/config':
         specifier: workspace:*
         version: link:../../packages/config
       '@types/node':

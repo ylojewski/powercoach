@@ -1,8 +1,8 @@
-# Power Monorepo
+# Powercoach Monorepo
 
 Monorepo Fastify API powered by TypeScript and pnpm, orchestrated with Turborepo for scalable builds and developer workflows.
 
-[![CI](https://github.com/y4nnL/power/actions/workflows/ci.yml/badge.svg)](https://github.com/y4nnL/power/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![CI](https://github.com/ylojewski/powercoach/actions/workflows/ci.yml/badge.svg)](https://github.com/ylojewski/powercoach/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 **Topics:** monorepo · turborepo · fastify · typescript · pnpm
 
@@ -11,7 +11,7 @@ shared packages under `packages/` as workspaces, enabling incremental builds and
 
 ## Projects
 
-- [`@power/api`](./apps/api) – Fastify HTTP API with health-check endpoint and opinionated architecture.
+- [`@powercoach/api`](./apps/api) – Fastify HTTP API with health-check endpoint and opinionated architecture.
 
 ## Getting started
 
