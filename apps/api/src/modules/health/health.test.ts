@@ -11,10 +11,6 @@ vi.mock('@fastify/sensible', () => ({
   default: vi.fn(async () => undefined)
 }))
 
-vi.mock('fastify-plugin', () => ({
-  default: (plugin: unknown) => plugin
-}))
-
 describe('GET /v1/health', () => {
   let app: AppFastifyInstance
 
