@@ -1,5 +1,6 @@
 import process from 'node:process'
 import { setTimeout as delay } from 'node:timers/promises'
+import { fileURLToPath } from 'node:url'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const buildAppMock = vi.fn()
@@ -132,6 +133,52 @@ describe('start', () => {
     expect(app.log.error).toHaveBeenCalledWith({ err: expect.any(Error) }, 'Unable to start server')
     expect(processExitSpy).toHaveBeenCalledWith(1)
 
+    processExitSpy.mockRestore()
+  })
+
+  it('auto starts when executed directly outside the test environment', async () => {
+    loadConfigMock.mockReturnValue({ HOST: '0.0.0.0', PORT: 3000 })
+
+    const originalNodeEnv = process.env.NODE_ENV
+    const originalArgv = process.argv.slice()
+    const scriptPath = fileURLToPath(new URL('../../src/server/start.ts', import.meta.url))
+
+    process.env.NODE_ENV = 'development'
+    process.argv = [process.argv[0], scriptPath]
+
+    const processOnSpy = vi.spyOn(process, 'on').mockImplementation(() => process)
+    const processExitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
+
+    const app = {
+      close: vi.fn().mockResolvedValue(undefined),
+      listen: vi.fn().mockResolvedValue('http://localhost:3000'),
+      log: {
+        error: vi.fn(),
+        info: vi.fn()
+      }
+    }
+
+    buildAppMock.mockResolvedValue(app)
+
+    await import('../../src/server/start')
+
+    await delay(0)
+
+    expect(loadConfigMock).toHaveBeenCalledTimes(1)
+    expect(app.listen).toHaveBeenCalledWith({ host: '0.0.0.0', port: 3000 })
+    expect(app.log.info).toHaveBeenCalledWith(
+      { address: 'http://localhost:3000' },
+      'Server listening'
+    )
+
+    if (originalNodeEnv === undefined) {
+      delete process.env.NODE_ENV
+    } else {
+      process.env.NODE_ENV = originalNodeEnv
+    }
+    process.argv = originalArgv
+
+    processOnSpy.mockRestore()
     processExitSpy.mockRestore()
   })
 })
