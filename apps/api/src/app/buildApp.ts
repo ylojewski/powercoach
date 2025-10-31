@@ -3,7 +3,7 @@ import Fastify from 'fastify'
 import { randomUUID } from 'node:crypto'
 import { buildLogger, loadConfig, type AppConfig } from '../core'
 import { healthModule } from '../modules'
-import { sensiblePlugin } from '../plugins'
+import { helmetPlugin, sensiblePlugin } from '../plugins'
 import type { FastifyInstance, RawServerDefault } from 'fastify'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 
@@ -43,6 +43,7 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<AppFastif
     reply.header('x-request-id', request.id)
   })
 
+  await app.register(helmetPlugin)
   await app.register(sensiblePlugin)
   await app.register(healthModule, { prefix: '/v1/health' })
 
