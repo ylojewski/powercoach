@@ -32,7 +32,7 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<AppFastif
     },
     disableRequestLogging: true,
     genReqId: (request) => request.headers['x-request-id']?.toString() ?? randomUUID(),
-    logger,
+    loggerInstance: logger,
     requestIdHeader: 'x-request-id',
     requestIdLogLabel: 'reqId'
   }).withTypeProvider<TypeBoxTypeProvider>()
