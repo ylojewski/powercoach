@@ -2,11 +2,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const registerHealthRoutes = vi.fn()
 
-vi.mock('../../../src/modules/health/routes', () => ({
+vi.mock('./routes', () => ({
   registerHealthRoutes
 }))
 
-const { healthResponseSchema } = await import('../../../src/modules/health/schemas')
+const { healthResponseSchema } = await import('./schemas')
 
 describe('healthModule', () => {
   beforeEach(() => {
@@ -14,7 +14,7 @@ describe('healthModule', () => {
   })
 
   it('adds schema and registers routes', async () => {
-    const { healthModule } = await import('../../../src/modules/health/plugin')
+    const { healthModule } = await import('./plugin')
     const addSchema = vi.fn()
     const app = { addSchema }
 

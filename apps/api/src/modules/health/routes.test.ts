@@ -2,17 +2,17 @@ import { describe, expect, it, vi } from 'vitest'
 
 const healthStatus = { ok: true, uptime: 42 }
 
-vi.mock('../../../src/modules/health/service', () => ({
+vi.mock('./service', () => ({
   getHealthStatus: vi.fn(() => healthStatus)
 }))
 
-const { getHealthStatus } = await import('../../../src/modules/health/service')
+const { getHealthStatus } = await import('./service')
 
-const { HEALTH_RESPONSE_SCHEMA_ID } = await import('../../../src/modules/health/schemas')
+const { HEALTH_RESPONSE_SCHEMA_ID } = await import('./schemas')
 
 describe('registerHealthRoutes', () => {
   it('registers the health check route', async () => {
-    const { registerHealthRoutes } = await import('../../../src/modules/health/routes')
+    const { registerHealthRoutes } = await import('./routes')
     const route = vi.fn()
     const app = { route }
 

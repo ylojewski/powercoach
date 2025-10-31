@@ -12,7 +12,7 @@ vi.mock('fastify-plugin', () => ({
 
 describe('sensiblePlugin', () => {
   it('registers the sensible plugin', async () => {
-    const { sensiblePlugin } = await import('../../src/plugins/sensible.plugin')
+    const { sensiblePlugin } = await import('./sensible.plugin')
     const register = vi.fn().mockResolvedValue(undefined)
     const app = { register }
 

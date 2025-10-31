@@ -16,7 +16,7 @@ describe('helmetPlugin', () => {
   })
 
   it('registers helmet with relaxed CSP outside production', async () => {
-    const { helmetPlugin } = await import('../../src/plugins/helmet.plugin')
+    const { helmetPlugin } = await import('./helmet.plugin')
     const register = vi.fn().mockResolvedValue(undefined)
     const app = { config: { NODE_ENV: 'development' }, register }
 
@@ -29,7 +29,7 @@ describe('helmetPlugin', () => {
   })
 
   it('registers helmet without overriding CSP in production', async () => {
-    const { helmetPlugin } = await import('../../src/plugins/helmet.plugin')
+    const { helmetPlugin } = await import('./helmet.plugin')
     const register = vi.fn().mockResolvedValue(undefined)
     const app = { config: { NODE_ENV: 'production' }, register }
 

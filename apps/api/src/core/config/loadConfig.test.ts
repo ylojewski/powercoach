@@ -4,7 +4,7 @@ vi.mock('dotenv', () => ({
   config: vi.fn()
 }))
 
-const envModulePath = '../../src/core/config/loadConfig'
+const envModulePath = './loadConfig'
 
 describe('loadConfig', () => {
   beforeEach(async () => {

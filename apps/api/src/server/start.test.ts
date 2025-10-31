@@ -6,11 +6,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 const buildAppMock = vi.fn()
 const loadConfigMock = vi.fn()
 
-vi.mock('../../src/app', () => ({
+vi.mock('../app', () => ({
   buildApp: buildAppMock
 }))
 
-vi.mock('../../src/core', () => ({
+vi.mock('../core', () => ({
   loadConfig: loadConfigMock
 }))
 
@@ -51,7 +51,7 @@ describe('start', () => {
 
     buildAppMock.mockResolvedValue(app)
 
-    const { start } = await import('../../src/server/start')
+    const { start } = await import('./start')
 
     const result = await start()
 
@@ -126,7 +126,7 @@ describe('start', () => {
 
     buildAppMock.mockResolvedValue(app)
 
-    const { start } = await import('../../src/server/start')
+    const { start } = await import('./start')
 
     await start()
 
@@ -141,7 +141,7 @@ describe('start', () => {
 
     const originalNodeEnv = process.env.NODE_ENV
     const originalArgv = process.argv.slice()
-    const scriptPath = fileURLToPath(new URL('../../src/server/start.ts', import.meta.url))
+    const scriptPath = fileURLToPath(new URL('./start.ts', import.meta.url))
 
     process.env.NODE_ENV = 'development'
     process.argv = [process.argv[0], scriptPath]
@@ -160,7 +160,7 @@ describe('start', () => {
 
     buildAppMock.mockResolvedValue(app)
 
-    await import('../../src/server/start')
+    await import('./start')
 
     await delay(0)
 

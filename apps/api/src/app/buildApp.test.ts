@@ -127,12 +127,12 @@ function mockFastify() {
 }
 
 function mockDependencies() {
-  vi.doMock('../../src/plugins', () => ({
+  vi.doMock('../plugins', () => ({
     helmetPlugin: helmetPluginMock,
     sensiblePlugin: sensiblePluginMock
   }))
 
-  vi.doMock('../../src/modules', () => ({
+  vi.doMock('../modules', () => ({
     healthModule: healthModuleMock
   }))
 }
@@ -148,16 +148,16 @@ describe('buildApp', () => {
 
   afterEach(() => {
     vi.unmock('fastify')
-    vi.unmock('../../src/plugins')
-    vi.unmock('../../src/modules')
-    vi.unmock('../../src/core')
+    vi.unmock('../plugins')
+    vi.unmock('../modules')
+    vi.unmock('../core')
   })
 
   it('builds an app using the provided configuration', async () => {
     mockFastify()
     mockDependencies()
 
-    const { buildApp } = await import('../../src/app/buildApp')
+    const { buildApp } = await import('./buildApp')
     const config = {
       HOST: '127.0.0.1',
       LOG_LEVEL: 'info',
@@ -214,15 +214,15 @@ describe('buildApp', () => {
     }
 
     const loadConfigMock = vi.fn(() => config)
-    vi.doMock('../../src/core', async () => {
-      const actual = await vi.importActual<typeof import('../../src/core')>('../../src/core')
+    vi.doMock('../core', async () => {
+      const actual = await vi.importActual<typeof import('../core')>('../core')
       return {
         ...actual,
         loadConfig: loadConfigMock
       }
     })
 
-    const { buildApp } = await import('../../src/app/buildApp')
+    const { buildApp } = await import('./buildApp')
 
     const app = await buildApp()
 

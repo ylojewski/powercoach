@@ -17,7 +17,7 @@ describe('buildLogger', () => {
   })
 
   it('creates a production logger without transport', async () => {
-    const { buildLogger } = await import('../../src/core/logger/buildLogger')
+    const { buildLogger } = await import('./buildLogger')
 
     buildLogger({ level: 'info', nodeEnv: 'production' })
 
@@ -32,7 +32,7 @@ describe('buildLogger', () => {
   })
 
   it('enables pretty transport outside production', async () => {
-    const { buildLogger } = await import('../../src/core/logger/buildLogger')
+    const { buildLogger } = await import('./buildLogger')
 
     buildLogger({ level: 'debug', nodeEnv: 'development' })
 

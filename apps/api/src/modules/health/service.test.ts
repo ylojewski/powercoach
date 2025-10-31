@@ -1,6 +1,6 @@
 import process from 'node:process'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { getHealthStatus } from '../../../src/modules/health/service'
+import { getHealthStatus } from './service'
 
 describe('getHealthStatus', () => {
   afterEach(() => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { envSchema } from '../../src/core/config/envSchema'
+import { envSchema } from './envSchema'
 
 describe('envSchema', () => {
   it('applies defaults when variables are missing', () => {

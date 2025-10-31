@@ -1,8 +1,8 @@
 import { createTestApp } from '@test/setup'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import type { AppFastifyInstance } from '@/app'
-import '../src/index'
-import '../src/server'
+import '../../index'
+import '../../server'
 
 vi.mock('@fastify/helmet', () => ({
   default: vi.fn(async () => undefined)
