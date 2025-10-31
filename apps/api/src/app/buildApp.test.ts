@@ -1,5 +1,3 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-
 interface InjectOptions {
   headers?: Record<string, string>
   url: string
@@ -147,10 +145,10 @@ describe('buildApp', () => {
   })
 
   afterEach(() => {
-    vi.unmock('fastify')
-    vi.unmock('../plugins')
-    vi.unmock('../modules')
-    vi.unmock('../core')
+    vi.doUnmock('fastify')
+    vi.doUnmock('../plugins')
+    vi.doUnmock('../modules')
+    vi.doUnmock('../core')
   })
 
   it('builds an app using the provided configuration', async () => {
@@ -230,6 +228,26 @@ describe('buildApp', () => {
 
     const [instance] = fastifyInstances
     expect(instance.decorate).toHaveBeenCalledWith('config', config)
+
+    await app.close()
+  })
+
+  it('serves the health endpoint with a real Fastify instance', async () => {
+    const { buildApp } = await import('./buildApp')
+
+    const app = await buildApp({
+      config: {
+        HOST: '127.0.0.1',
+        LOG_LEVEL: 'fatal',
+        NODE_ENV: 'test',
+        PORT: 0
+      }
+    })
+
+    const response = await app.inject({ method: 'GET', url: '/v1/health' })
+
+    expect(response.statusCode).toBe(200)
+    expect(response.json()).toMatchObject({ ok: true, uptime: expect.any(Number) })
 
     await app.close()
   })

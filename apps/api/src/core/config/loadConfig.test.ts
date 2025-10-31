@@ -1,5 +1,3 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-
 vi.mock('dotenv', () => ({
   config: vi.fn()
 }))
@@ -10,6 +8,55 @@ describe('loadConfig', () => {
   beforeEach(async () => {
     vi.resetModules()
     vi.clearAllMocks()
+  })
+
+  it('loads configuration from process.env by default', async () => {
+    const original = {
+      HOST: process.env.HOST,
+      LOG_LEVEL: process.env.LOG_LEVEL,
+      NODE_ENV: process.env.NODE_ENV,
+      PORT: process.env.PORT
+    }
+
+    process.env.HOST = 'localhost'
+    process.env.LOG_LEVEL = 'info'
+    process.env.NODE_ENV = 'production'
+    process.env.PORT = '4000'
+
+    const dotenv = await import('dotenv')
+    const { loadConfig } = await import(envModulePath)
+
+    expect(loadConfig()).toEqual({
+      HOST: 'localhost',
+      LOG_LEVEL: 'info',
+      NODE_ENV: 'production',
+      PORT: 4000
+    })
+    expect(dotenv.config).toHaveBeenCalledTimes(1)
+
+    if (original.HOST === undefined) {
+      delete process.env.HOST
+    } else {
+      process.env.HOST = original.HOST
+    }
+
+    if (original.LOG_LEVEL === undefined) {
+      delete process.env.LOG_LEVEL
+    } else {
+      process.env.LOG_LEVEL = original.LOG_LEVEL
+    }
+
+    if (original.NODE_ENV === undefined) {
+      delete process.env.NODE_ENV
+    } else {
+      process.env.NODE_ENV = original.NODE_ENV
+    }
+
+    if (original.PORT === undefined) {
+      delete process.env.PORT
+    } else {
+      process.env.PORT = original.PORT
+    }
   })
 
   it('loads configuration using provided environment variables', async () => {

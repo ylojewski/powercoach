@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import Fastify from 'fastify'
 
 const sensibleMock = vi.fn()
 
@@ -6,18 +6,18 @@ vi.mock('@fastify/sensible', () => ({
   default: sensibleMock
 }))
 
-vi.mock('fastify-plugin', () => ({
-  default: (plugin: unknown) => plugin
-}))
-
 describe('sensiblePlugin', () => {
   it('registers the sensible plugin', async () => {
     const { sensiblePlugin } = await import('./sensible.plugin')
-    const register = vi.fn().mockResolvedValue(undefined)
-    const app = { register }
+    const app = Fastify()
 
-    await sensiblePlugin(app as never)
+    try {
+      await app.register(sensiblePlugin)
 
-    expect(register).toHaveBeenCalledWith(sensibleMock)
+      expect(sensibleMock).toHaveBeenCalledTimes(1)
+      expect(sensibleMock.mock.calls[0][1]).toEqual({})
+    } finally {
+      await app.close()
+    }
   })
 })

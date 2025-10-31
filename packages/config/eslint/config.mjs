@@ -3,6 +3,7 @@ import tseslint from '@typescript-eslint/eslint-plugin'
 import tsparser from '@typescript-eslint/parser'
 import prettierConfig from 'eslint-config-prettier'
 import importPlugin from 'eslint-plugin-import'
+import globals from 'globals'
 
 const strictRules = tseslint.configs.strict?.rules ?? {}
 const stylisticRules = tseslint.configs.stylistic?.rules ?? {}
@@ -68,3 +69,13 @@ export const config = [
   typescriptConfig,
   prettierConfig
 ]
+
+export const vitestConfig = {
+  files: ['**/*.test.{ts,tsx}', '**/__tests__/**/*.{ts,tsx}'],
+  languageOptions: {
+    globals: {
+      ...globals.node,
+      ...globals.vitest
+    }
+  }
+}

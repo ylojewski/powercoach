@@ -1,5 +1,3 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-
 const registerHealthRoutes = vi.fn()
 
 vi.mock('./routes', () => ({

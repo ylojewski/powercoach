@@ -1,5 +1,3 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-
 const pinoInstance = { level: '', options: {} as Record<string, unknown> }
 
 const pinoMock = vi.fn((options: unknown) => {

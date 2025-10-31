@@ -1,5 +1,3 @@
-import { describe, expect, it, vi } from 'vitest'
-
 const healthStatus = { ok: true, uptime: 42 }
 
 vi.mock('./service', () => ({
@@ -18,18 +16,18 @@ describe('registerHealthRoutes', () => {
 
     registerHealthRoutes(app as never)
 
-    expect(route).toHaveBeenCalledWith({
-      handler: expect.any(Function),
-      method: 'GET',
-      schema: {
-        response: {
-          200: { $ref: `${HEALTH_RESPONSE_SCHEMA_ID}#` }
-        }
-      },
-      url: '/'
-    })
+    expect(route).toHaveBeenCalledTimes(1)
 
-    const { handler } = route.mock.calls[0][0]
+    const [[config]] = route.mock.calls
+    const { handler, method, schema, url } = config
+
+    expect(method).toBe('GET')
+    expect(url).toBe('/')
+    expect(schema).toStrictEqual({
+      response: {
+        200: { $ref: `${HEALTH_RESPONSE_SCHEMA_ID}#` }
+      }
+    })
     expect(await handler()).toEqual(healthStatus)
     expect(getHealthStatus).toHaveBeenCalled()
   })

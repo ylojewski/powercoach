@@ -1,5 +1,4 @@
 import { createTestApp } from '@test/setup'
-import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import type { AppFastifyInstance } from '@/app'
 import '../../index'
 import '../../server'

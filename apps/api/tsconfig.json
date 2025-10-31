@@ -3,7 +3,6 @@
   "compilerOptions": {
     "rootDir": ".",
     "outDir": "dist",
-    "types": ["vitest/globals", "node"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
@@ -11,6 +10,6 @@
     }
   },
   "exclude": ["dist", "node_modules"],
-  "extends": "@powercoach/config/tsconfig.base.json",
+  "extends": "@powercoach/config/tsconfig.vitest.json",
   "include": ["src", "test", "*.ts"]
 }

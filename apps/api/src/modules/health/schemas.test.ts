@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest'
 import { HEALTH_RESPONSE_SCHEMA_ID, healthResponseSchema } from './schemas'
 
 describe('healthResponseSchema', () => {

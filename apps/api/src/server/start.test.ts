@@ -1,7 +1,7 @@
+import { readdirSync } from 'node:fs'
+import { dirname, join } from 'node:path'
 import process from 'node:process'
-import { setTimeout as delay } from 'node:timers/promises'
 import { fileURLToPath } from 'node:url'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const buildAppMock = vi.fn()
 const loadConfigMock = vi.fn()
@@ -15,6 +15,11 @@ vi.mock('../core', () => ({
 }))
 
 describe('start', () => {
+  const flushAsync = async () => {
+    await Promise.resolve()
+    await Promise.resolve()
+  }
+
   beforeEach(() => {
     vi.resetModules()
     buildAppMock.mockReset()
@@ -69,7 +74,7 @@ describe('start', () => {
       throw new Error('SIGINT handler not registered')
     }
     sigintHandler('SIGINT')
-    await delay(0)
+    await flushAsync()
 
     expect(app.log.info).toHaveBeenCalledWith({ signal: 'SIGINT' }, 'Received shutdown signal')
     expect(app.close).toHaveBeenCalledTimes(1)
@@ -82,7 +87,7 @@ describe('start', () => {
     }
     app.close.mockRejectedValueOnce(new Error('close failed'))
     sigtermHandler('SIGTERM')
-    await delay(0)
+    await flushAsync()
 
     expect(app.log.error).toHaveBeenCalledWith(
       { err: expect.any(Error) },
@@ -95,7 +100,7 @@ describe('start', () => {
       throw new Error('Unhandled rejection handler not registered')
     }
     rejectionHandler('boom')
-    await delay(0)
+    await flushAsync()
     expect(app.log.error).toHaveBeenCalledWith({ reason: 'boom' }, 'Unhandled rejection')
 
     const exceptionHandler = handlers.get('uncaughtException')
@@ -103,7 +108,7 @@ describe('start', () => {
       throw new Error('Uncaught exception handler not registered')
     }
     exceptionHandler(new Error('crash'))
-    await delay(0)
+    await flushAsync()
     expect(app.log.error).toHaveBeenCalledWith({ err: expect.any(Error) }, 'Uncaught exception')
 
     processOnSpy.mockRestore()
@@ -141,7 +146,14 @@ describe('start', () => {
 
     const originalNodeEnv = process.env.NODE_ENV
     const originalArgv = process.argv.slice()
-    const scriptPath = fileURLToPath(new URL('./start.ts', import.meta.url))
+    const serverDir = dirname(fileURLToPath(import.meta.url))
+    const scriptFilename = readdirSync(serverDir).find((file) => /^start\.[^.]+$/.test(file))
+
+    if (!scriptFilename) {
+      throw new Error('Unable to locate start module filename')
+    }
+
+    const scriptPath = join(serverDir, scriptFilename)
 
     process.env.NODE_ENV = 'development'
     process.argv = [process.argv[0], scriptPath]
@@ -162,7 +174,7 @@ describe('start', () => {
 
     await import('./start')
 
-    await delay(0)
+    await flushAsync()
 
     expect(loadConfigMock).toHaveBeenCalledTimes(1)
     expect(app.listen).toHaveBeenCalledWith({ host: '0.0.0.0', port: 3000 })
