@@ -1,17 +1,11 @@
-import { randomUUID } from 'node:crypto'
-import type { IncomingMessage, ServerResponse } from 'node:http'
-
 import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox'
 import Fastify from 'fastify'
-import type { FastifyInstance, RawServerDefault } from 'fastify'
-
+import { randomUUID } from 'node:crypto'
 import { buildLogger, loadConfig, type AppConfig } from '../core'
 import { healthModule } from '../modules'
 import { sensiblePlugin } from '../plugins'
-
-export interface BuildAppOptions {
-  config?: AppConfig
-}
+import type { FastifyInstance, RawServerDefault } from 'fastify'
+import type { IncomingMessage, ServerResponse } from 'node:http'
 
 export type AppFastifyInstance = FastifyInstance<
   RawServerDefault,
@@ -20,6 +14,10 @@ export type AppFastifyInstance = FastifyInstance<
   ReturnType<typeof buildLogger>,
   TypeBoxTypeProvider
 >
+
+export interface BuildAppOptions {
+  config?: AppConfig
+}
 
 export async function buildApp(options: BuildAppOptions = {}): Promise<AppFastifyInstance> {
   const config = options.config ?? loadConfig()

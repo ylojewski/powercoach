@@ -1,10 +1,8 @@
+import { config as loadEnv } from 'dotenv'
 import process from 'node:process'
+import { envSchema, type AppConfig } from './envSchema'
 
 type ProcessEnv = typeof process.env
-
-import { config as loadEnv } from 'dotenv'
-
-import { envSchema, type AppConfig } from './envSchema'
 
 let cachedConfig: AppConfig | undefined
 

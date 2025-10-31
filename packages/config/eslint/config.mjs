@@ -1,9 +1,8 @@
 import js from '@eslint/js'
 import tseslint from '@typescript-eslint/eslint-plugin'
 import tsparser from '@typescript-eslint/parser'
-import importPlugin from 'eslint-plugin-import'
-import perfectionist from 'eslint-plugin-perfectionist'
 import prettierConfig from 'eslint-config-prettier'
+import importPlugin from 'eslint-plugin-import'
 
 const strictRules = tseslint.configs.strict?.rules ?? {}
 const stylisticRules = tseslint.configs.stylistic?.rules ?? {}
@@ -12,22 +11,32 @@ export const ignoreConfig = {
   ignores: ['dist']
 }
 
-const sortObjectsRules = {
-  'perfectionist/sort-objects': [
-    'error',
-    {
-      order: 'asc',
-      type: 'natural'
-    }
-  ]
-}
-
 const sharedStyleConfig = {
   plugins: {
-    perfectionist
+    import: importPlugin
   },
   rules: {
-    ...sortObjectsRules
+    'import/first': 'error',
+    'import/no-relative-parent-imports': 'error',
+    'import/order': [
+      'error',
+      {
+        alphabetize: {
+          caseInsensitive: true,
+          order: 'asc'
+        },
+        groups: [
+          ['builtin', 'external'],
+          'internal',
+          ['parent', 'sibling', 'index'],
+          'object',
+          'type',
+          'unknown'
+        ],
+        'newlines-between': 'never',
+        pathGroupsExcludedImportTypes: ['type']
+      }
+    ]
   }
 }
 
@@ -41,22 +50,14 @@ export const typescriptConfig = {
     }
   },
   plugins: {
-    '@typescript-eslint': tseslint,
-    import: importPlugin,
-    perfectionist
+    '@typescript-eslint': tseslint
   },
   rules: {
     ...strictRules,
     ...stylisticRules,
-    ...sortObjectsRules,
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-    'import/order': [
-      'error',
-      {
-        alphabetize: { caseInsensitive: true, order: 'asc' },
-        'newlines-between': 'always'
-      }
-    ]
+    '@typescript-eslint/await-thenable': 'error',
+    '@typescript-eslint/return-await': ['error', 'never']
   }
 }
 

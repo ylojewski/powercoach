@@ -1,11 +1,10 @@
-import type { FastifyInstance } from 'fastify'
-
 import { HEALTH_RESPONSE_SCHEMA_ID } from './schemas'
 import { getHealthStatus } from './service'
+import type { FastifyInstance } from 'fastify'
 
-export async function registerHealthRoutes(app: FastifyInstance) {
-  await app.route({
-    handler: async () => {
+export function registerHealthRoutes(app: FastifyInstance) {
+  app.route({
+    handler: () => {
       return getHealthStatus()
     },
     method: 'GET',

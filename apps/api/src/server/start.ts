@@ -1,5 +1,4 @@
 import process from 'node:process'
-
 import { buildApp } from '../app'
 import { loadConfig } from '../core'
 

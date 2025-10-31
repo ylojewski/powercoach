@@ -1,6 +1,5 @@
 import { createTestApp } from '@test/setup'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-
 import type { AppFastifyInstance } from '@/app'
 
 describe('GET /v1/health', () => {
