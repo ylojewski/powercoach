@@ -47,6 +47,8 @@ export async function start() {
   }
 }
 
+/* c8 ignore start */
 if (process.env.NODE_ENV !== 'test' && import.meta.url === `file://${process.argv[1]}`) {
   void start()
 }
+/* c8 ignore end */

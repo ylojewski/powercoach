@@ -1,0 +1,73 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+vi.mock('dotenv', () => ({
+  config: vi.fn()
+}))
+
+const envModulePath = '../../src/core/config/loadConfig'
+
+describe('loadConfig', () => {
+  beforeEach(async () => {
+    vi.resetModules()
+    vi.clearAllMocks()
+  })
+
+  it('loads configuration using provided environment variables', async () => {
+    const { loadConfig } = await import(envModulePath)
+
+    const result = loadConfig({
+      HOST: '127.0.0.1',
+      LOG_LEVEL: 'debug',
+      NODE_ENV: 'production',
+      PORT: '8080'
+    })
+
+    expect(result).toEqual({
+      HOST: '127.0.0.1',
+      LOG_LEVEL: 'debug',
+      NODE_ENV: 'production',
+      PORT: 8080
+    })
+  })
+
+  it('uses cached configuration on subsequent calls', async () => {
+    const dotenv = await import('dotenv')
+    const { loadConfig } = await import(envModulePath)
+
+    const first = loadConfig({
+      HOST: 'localhost',
+      LOG_LEVEL: 'info',
+      NODE_ENV: 'development',
+      PORT: '3000'
+    })
+
+    const second = loadConfig({
+      HOST: 'should-not-change',
+      LOG_LEVEL: 'error',
+      NODE_ENV: 'test',
+      PORT: '4000'
+    })
+
+    expect(first).toBe(second)
+    expect(second).toEqual({
+      HOST: 'localhost',
+      LOG_LEVEL: 'info',
+      NODE_ENV: 'development',
+      PORT: 3000
+    })
+    expect(dotenv.config).toHaveBeenCalledTimes(1)
+  })
+
+  it('throws when validation fails', async () => {
+    const { loadConfig } = await import(envModulePath)
+
+    expect(() =>
+      loadConfig({
+        HOST: '',
+        LOG_LEVEL: 'invalid',
+        NODE_ENV: 'unknown',
+        PORT: '-1'
+      })
+    ).toThrowError(/Invalid environment configuration/)
+  })
+})

@@ -1,6 +1,20 @@
 import { createTestApp } from '@test/setup'
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import type { AppFastifyInstance } from '@/app'
+import '../src/index'
+import '../src/server'
+
+vi.mock('@fastify/helmet', () => ({
+  default: vi.fn(async () => undefined)
+}))
+
+vi.mock('@fastify/sensible', () => ({
+  default: vi.fn(async () => undefined)
+}))
+
+vi.mock('fastify-plugin', () => ({
+  default: (plugin: unknown) => plugin
+}))
 
 describe('GET /v1/health', () => {
   let app: AppFastifyInstance
