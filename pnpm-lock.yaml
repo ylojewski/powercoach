@@ -115,9 +115,6 @@ importers:
       '@eslint/js':
         specifier: ^9.38.0
         version: 9.38.0
-      '@types/node':
-        specifier: ^22.18.13
-        version: 22.18.13
       '@typescript-eslint/eslint-plugin':
         specifier: ^8.10.0
         version: 8.46.2(@typescript-eslint/parser@8.46.2(eslint@9.38.0(jiti@2.6.1))(typescript@5.9.3))(eslint@9.38.0(jiti@2.6.1))(typescript@5.9.3)

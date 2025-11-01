@@ -1,1 +1,8 @@
-export { config, createTestConfig, createTypescriptConfig, ignoreConfig, testConfig, typescriptConfig } from './config.js';
+export {
+  config,
+  createTestConfig,
+  createTypescriptConfig,
+  ignoreConfig,
+  testConfig,
+  typescriptConfig
+} from './config.mjs'

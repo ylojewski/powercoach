@@ -1,13 +1,5 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "compilerOptions": {
-    "types": ["node"],
-    "typeRoots": ["./types", "./node_modules/@types"],
-    "paths": {
-      "eslint-config-prettier": ["./types/eslint-config-prettier"],
-      "globals": ["./types/globals"]
-    }
-  },
   "extends": "./ts/base.json",
   "include": ["**/*.ts", "**/*.d.ts"]
 }
