@@ -14,8 +14,8 @@
     "format:write": "prettier . --write",
     "test": "vitest run --coverage --reporter=verbose",
     "test:watch": "vitest",
-    "typecheck:src": "tsc --project tsconfig.src.json --noEmit",
-    "typecheck:test": "tsc --project tsconfig.vitest.json --noEmit",
+    "typecheck:src": "tsc --project tsconfig.json --noEmit",
+    "typecheck:test": "tsc --project tsconfig.test.json --noEmit",
     "typecheck": "pnpm run typecheck:src && pnpm run typecheck:test"
   },
   "dependencies": {

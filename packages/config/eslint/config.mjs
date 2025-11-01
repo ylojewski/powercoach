@@ -49,7 +49,6 @@ export const typescriptConfig = {
     parser: tsparser,
     parserOptions: {
       project: ['./tsconfig.json'],
-      projectService: true,
       tsconfigRootDir: process.cwd(),
       sourceType: 'module'
     }
@@ -84,8 +83,7 @@ export const vitestConfig = {
     },
     parserOptions: {
       ...(typescriptConfig.languageOptions?.parserOptions ?? {}),
-      project: ['./tsconfig.vitest.json'],
-      projectService: true,
+      project: ['./tsconfig.test.json'],
       tsconfigRootDir: process.cwd(),
       sourceType: 'module'
     }
