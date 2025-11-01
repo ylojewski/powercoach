@@ -20,12 +20,18 @@ importers:
       '@powercoach/config':
         specifier: workspace:*
         version: link:packages/config
+      cross-env:
+        specifier: ^7.0.3
+        version: 7.0.3
       husky:
         specifier: ^9.1.7
         version: 9.1.7
       lint-staged:
         specifier: ^16.2.6
         version: 16.2.6
+      tsx:
+        specifier: ^4.19.2
+        version: 4.20.6
       turbo:
         specifier: ^2.5.8
         version: 2.5.8
@@ -78,6 +84,9 @@ importers:
       '@vitest/coverage-v8':
         specifier: ^4.0.6
         version: 4.0.6(vitest@4.0.6(@types/node@22.18.13)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1))
+      cross-env:
+        specifier: ^7.0.3
+        version: 7.0.3
       eslint:
         specifier: ^9.12.0
         version: 9.38.0(jiti@2.6.1)
@@ -112,15 +121,24 @@ importers:
         specifier: ^15.11.0
         version: 15.15.0
     devDependencies:
+      '@commitlint/types':
+        specifier: ^20.0.0
+        version: 20.0.0
       '@eslint/js':
         specifier: ^9.38.0
         version: 9.38.0
+      '@types/node':
+        specifier: ^22.7.4
+        version: 22.18.13
       '@typescript-eslint/eslint-plugin':
         specifier: ^8.10.0
         version: 8.46.2(@typescript-eslint/parser@8.46.2(eslint@9.38.0(jiti@2.6.1))(typescript@5.9.3))(eslint@9.38.0(jiti@2.6.1))(typescript@5.9.3)
       '@typescript-eslint/parser':
         specifier: ^8.10.0
         version: 8.46.2(eslint@9.38.0(jiti@2.6.1))(typescript@5.9.3)
+      cross-env:
+        specifier: ^7.0.3
+        version: 7.0.3
       eslint:
         specifier: ^9.12.0
         version: 9.38.0(jiti@2.6.1)
@@ -139,6 +157,9 @@ importers:
       tsup:
         specifier: ^8.3.0
         version: 8.5.0(jiti@2.6.1)(postcss@8.5.6)(tsx@4.20.6)(typescript@5.9.3)(yaml@2.8.1)
+      tsx:
+        specifier: ^4.19.2
+        version: 4.20.6
 
 packages:
 
@@ -1098,6 +1119,11 @@ packages:
     peerDependenciesMeta:
       typescript:
         optional: true
+
+  cross-env@7.0.3:
+    resolution: {integrity: sha512-+/HKd6EgcQCJGh2PSjZuUitQBQynKor4wrFbRg4DtAgS1aWO+gU52xpH7M9ScGgXSYmAVS9bIJ8EzuaGw0oNAw==}
+    engines: {node: '>=10.14', npm: '>=6', yarn: '>=1'}
+    hasBin: true
 
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
@@ -3892,6 +3918,10 @@ snapshots:
       parse-json: 5.2.0
     optionalDependencies:
       typescript: 5.9.3
+
+  cross-env@7.0.3:
+    dependencies:
+      cross-spawn: 7.0.6
 
   cross-spawn@7.0.6:
     dependencies:

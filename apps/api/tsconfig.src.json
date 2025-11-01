@@ -5,7 +5,8 @@
     "outDir": "dist",
     "paths": {
       "@/*": ["src/*"],
-      "@test/*": ["test/*"]
+      "@test/*": ["test/*"],
+      "eslint-config-prettier": ["../packages/config/eslint/eslint-config-prettier.d.ts"]
     }
   },
   "exclude": ["dist", "node_modules", "src/**/*.test.ts", "test"],

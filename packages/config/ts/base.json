@@ -10,7 +10,10 @@
     "skipLibCheck": true,
     "noUncheckedIndexedAccess": true,
     "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "eslint-config-prettier": ["../eslint/eslint-config-prettier.d.ts"]
+    }
   },
   "include": []
 }
