@@ -1,5 +1,8 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "types": ["node"]
+  },
   "extends": "./ts/base.json",
   "include": ["**/*.ts", "**/*.d.ts"]
 }

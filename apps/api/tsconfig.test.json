@@ -4,7 +4,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "@test/*": ["test/*"]
+      "@test/*": ["test/*"],
+      "eslint-config-prettier": ["../packages/config/eslint/eslint-config-prettier.d.ts"]
     },
     "noEmit": true,
     "types": ["vitest/globals", "node"]

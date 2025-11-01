@@ -16,16 +16,18 @@
     "version": "changeset version",
     "publish": "changeset publish",
     "prepare": "husky",
-    "lint-staged": "lint-staged",
-    "commitlint": "commitlint"
+    "lint-staged": "cross-env NODE_OPTIONS=\"--import=tsx/esm\" lint-staged",
+    "commitlint": "cross-env NODE_OPTIONS=\"--import=tsx/esm\" commitlint"
   },
   "devDependencies": {
     "@changesets/cli": "^2.29.7",
     "@commitlint/cli": "^20.1.0",
     "@commitlint/config-conventional": "^20.0.0",
     "@powercoach/config": "workspace:*",
+    "cross-env": "^7.0.3",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.6",
-    "turbo": "^2.5.8"
+    "turbo": "^2.5.8",
+    "tsx": "^4.19.2"
   }
 }

@@ -5,11 +5,12 @@ import {
   testConfig as sharedTestConfig,
   typescriptConfig as sharedTypescriptConfig
 } from '@powercoach/config/eslint'
+import type { Linter } from 'eslint'
 
 const apiTypescriptConfig = createTypescriptConfig('./tsconfig.src.json')
 const apiTestConfig = createTestConfig('./tsconfig.test.json')
 
-const apiConfig = [...sharedConfig]
+const apiConfig: Linter.FlatConfig[] = [...sharedConfig]
 const typescriptConfigIndex = apiConfig.indexOf(sharedTypescriptConfig)
 
 if (typescriptConfigIndex !== -1) {

@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/triple-slash-reference */
+/// <reference path="./eslint-config-prettier.d.ts" />
+/* eslint-enable @typescript-eslint/triple-slash-reference */
 import js from '@eslint/js'
 import tseslint from '@typescript-eslint/eslint-plugin'
 import tsparser from '@typescript-eslint/parser'
@@ -5,15 +8,21 @@ import prettierConfig from 'eslint-config-prettier'
 import importPlugin from 'eslint-plugin-import'
 import globals from 'globals'
 import process from 'node:process'
+import type { Linter } from 'eslint'
 
-const strictRules = tseslint.configs.strict?.rules ?? {}
-const stylisticRules = tseslint.configs.stylistic?.rules ?? {}
+type FlatConfig = Linter.FlatConfig
+type RulesRecord = Linter.RulesRecord
+type PluginDefinition = NonNullable<FlatConfig['plugins']>[string]
 
-export const ignoreConfig = {
+const strictRules = (tseslint.configs.strict?.rules ?? {}) as RulesRecord
+const stylisticRules = (tseslint.configs.stylistic?.rules ?? {}) as RulesRecord
+const typescriptPlugin = tseslint as unknown as PluginDefinition
+
+export const ignoreConfig: FlatConfig = {
   ignores: ['dist']
 }
 
-const sharedStyleConfig = {
+const sharedStyleConfig: FlatConfig = {
   plugins: {
     import: importPlugin
   },
@@ -42,7 +51,9 @@ const sharedStyleConfig = {
   }
 }
 
-const toProjectArray = (parserProjectOption) => {
+type ParserProjectOption = string | string[] | null | undefined
+
+const toProjectArray = (parserProjectOption: ParserProjectOption): string[] | undefined => {
   if (!parserProjectOption) {
     return undefined
   }
@@ -54,12 +65,12 @@ const toProjectArray = (parserProjectOption) => {
   return [parserProjectOption]
 }
 
-export const createTypescriptConfig = (parserProjectOption) => {
+export const createTypescriptConfig = (parserProjectOption?: string | string[]): FlatConfig => {
   const project = toProjectArray(parserProjectOption)
 
   return {
     files: ['**/*.{ts,tsx}'],
-    ignores: ['**/*.test.{ts,tsx}', 'test/**/*.ts'],
+    ignores: ['**/*.test.{ts,tsx}', 'test/**/*.ts', '**/*.d.ts'],
     languageOptions: {
       parser: tsparser,
       parserOptions: {
@@ -69,7 +80,7 @@ export const createTypescriptConfig = (parserProjectOption) => {
       }
     },
     plugins: {
-      '@typescript-eslint': tseslint
+      '@typescript-eslint': typescriptPlugin
     },
     rules: {
       ...strictRules,
@@ -83,15 +94,15 @@ export const createTypescriptConfig = (parserProjectOption) => {
 
 export const typescriptConfig = createTypescriptConfig('./tsconfig.json')
 
-export const config = [
+export const config: FlatConfig[] = [
   ignoreConfig,
   sharedStyleConfig,
-  js.configs.recommended,
+  js.configs.recommended as FlatConfig,
   typescriptConfig,
-  prettierConfig
+  prettierConfig as FlatConfig
 ]
 
-export const createTestConfig = (parserProjectOption) => {
+export const createTestConfig = (parserProjectOption?: string | string[]): FlatConfig => {
   const base = createTypescriptConfig(parserProjectOption)
 
   return {

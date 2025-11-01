@@ -5,23 +5,24 @@
   "type": "module",
   "types": "./tsup/index.d.ts",
   "scripts": {
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "format": "prettier . --check",
-    "format:write": "prettier . --write",
+    "lint": "cross-env NODE_OPTIONS=\"--import=tsx/esm\" eslint .",
+    "lint:fix": "cross-env NODE_OPTIONS=\"--import=tsx/esm\" eslint . --fix",
+    "format": "cross-env NODE_OPTIONS=\"--import=tsx/esm\" prettier . --check",
+    "format:write": "cross-env NODE_OPTIONS=\"--import=tsx/esm\" prettier . --write",
     "typecheck": "tsc --project tsconfig.json --noEmit"
   },
   "files": [
-    "./tsup/index.d.ts"
+    "./tsup/index.d.ts",
+    "./eslint/eslint-config-prettier.d.ts"
   ],
   "exports": {
     "./changeset.config.json": "./changeset/config.json",
-    "./commitlint": "./commitlint/index.js",
-    "./eslint": "./eslint/index.js",
-    "./lint-staged": "./lint-staged/index.js",
-    "./prettier": "./prettier/index.js",
+    "./commitlint": "./commitlint/index.ts",
+    "./eslint": "./eslint/index.ts",
+    "./lint-staged": "./lint-staged/index.ts",
+    "./prettier": "./prettier/index.ts",
     "./tsconfig.base.json": "./ts/base.json",
-    "./tsup": "./tsup/index.js"
+    "./tsup": "./tsup/index.ts"
   },
   "dependencies": {
     "globals": "^15.11.0"
@@ -30,11 +31,15 @@
     "@eslint/js": "^9.38.0",
     "@typescript-eslint/eslint-plugin": "^8.10.0",
     "@typescript-eslint/parser": "^8.10.0",
+    "@types/node": "^22.7.4",
+    "@commitlint/types": "^20.0.0",
+    "cross-env": "^7.0.3",
     "eslint": "^9.12.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.30.0",
     "prettier": "^3.3.3",
     "prettier-plugin-sort-json": "^4.1.1",
-    "tsup": "^8.3.0"
+    "tsup": "^8.3.0",
+    "tsx": "^4.19.2"
   }
 }
