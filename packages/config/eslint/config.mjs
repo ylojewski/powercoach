@@ -3,6 +3,8 @@ import tseslint from '@typescript-eslint/eslint-plugin'
 import tsparser from '@typescript-eslint/parser'
 import prettierConfig from 'eslint-config-prettier'
 import importPlugin from 'eslint-plugin-import'
+import globals from 'globals'
+import process from 'node:process'
 
 const strictRules = tseslint.configs.strict?.rules ?? {}
 const stylisticRules = tseslint.configs.stylistic?.rules ?? {}
@@ -40,26 +42,46 @@ const sharedStyleConfig = {
   }
 }
 
-export const typescriptConfig = {
-  files: ['**/*.{ts,tsx}'],
-  languageOptions: {
-    parser: tsparser,
-    parserOptions: {
-      project: ['./tsconfig.json'],
-      sourceType: 'module'
+const toProjectArray = (parserProjectOption) => {
+  if (!parserProjectOption) {
+    return undefined
+  }
+
+  if (Array.isArray(parserProjectOption)) {
+    return parserProjectOption
+  }
+
+  return [parserProjectOption]
+}
+
+export const createTypescriptConfig = (parserProjectOption) => {
+  const project = toProjectArray(parserProjectOption)
+
+  return {
+    files: ['**/*.{ts,tsx}'],
+    ignores: ['**/*.test.{ts,tsx}', 'test/**/*.ts'],
+    languageOptions: {
+      parser: tsparser,
+      parserOptions: {
+        ...(project ? { project } : {}),
+        tsconfigRootDir: process.cwd(),
+        sourceType: 'module'
+      }
+    },
+    plugins: {
+      '@typescript-eslint': tseslint
+    },
+    rules: {
+      ...strictRules,
+      ...stylisticRules,
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/await-thenable': 'error',
+      '@typescript-eslint/return-await': ['error', 'never']
     }
-  },
-  plugins: {
-    '@typescript-eslint': tseslint
-  },
-  rules: {
-    ...strictRules,
-    ...stylisticRules,
-    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-    '@typescript-eslint/await-thenable': 'error',
-    '@typescript-eslint/return-await': ['error', 'never']
   }
 }
+
+export const typescriptConfig = createTypescriptConfig('./tsconfig.json')
 
 export const config = [
   ignoreConfig,
@@ -68,3 +90,22 @@ export const config = [
   typescriptConfig,
   prettierConfig
 ]
+
+export const createTestConfig = (parserProjectOption) => {
+  const base = createTypescriptConfig(parserProjectOption)
+
+  return {
+    ...base,
+    files: ['**/*.test.{ts,tsx}', 'test/**/*.ts'],
+    ignores: [],
+    languageOptions: {
+      ...base.languageOptions,
+      globals: {
+        ...globals.node,
+        ...globals.vitest
+      }
+    }
+  }
+}
+
+export const testConfig = createTestConfig('./tsconfig.test.json')
