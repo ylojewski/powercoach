@@ -1,0 +1,10 @@
+import type { Linter } from 'eslint';
+type FlatConfigEntry = Linter.Config;
+type ParserProjectOption = string | string[] | undefined;
+export declare const ignoreConfig: FlatConfigEntry;
+export declare const createTypescriptConfig: (parserProjectOption?: ParserProjectOption) => FlatConfigEntry;
+export declare const typescriptConfig: FlatConfigEntry;
+export declare const config: FlatConfigEntry[];
+export declare const createTestConfig: (parserProjectOption?: ParserProjectOption) => FlatConfigEntry;
+export declare const testConfig: FlatConfigEntry;
+export {};
