@@ -1,3 +1,3 @@
-import { config } from '@powercoach/config/eslint'
+import { config, vitestConfig } from '@powercoach/config/eslint'
 
-export default config
+export default [...config, vitestConfig]
