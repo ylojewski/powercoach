@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@test/*": ["test/*"]
+    },
+    "noEmit": true,
+    "types": ["vitest/globals", "node"]
+  },
+  "exclude": ["dist", "node_modules"],
+  "extends": "@powercoach/config/tsconfig.base.json",
+  "include": ["src/**/*.test.ts", "test/**/*.ts"]
+}
