@@ -30,12 +30,16 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "pnpm-lock.yaml",
-        "eslint.config.*",
-        ".eslintrc.*"
+        "eslint.config.js"
       ]
     },
     "format": {
-      "outputs": []
+      "outputs": [],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "pnpm-lock.yaml",
+        "prettier.config.js"
+      ]
     },
     "format:write": {
       "outputs": []
