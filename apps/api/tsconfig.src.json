@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "outDir": "dist",
+    "paths": {
+      "@/*": ["src/*"],
+      "@test/*": ["test/*"]
+    }
+  },
+  "exclude": ["dist", "node_modules", "src/**/*.test.ts", "test"],
+  "extends": "@powercoach/config/tsconfig.base.json",
+  "include": ["src", "*.ts"]
+}

@@ -37,6 +37,9 @@
     "format": {
       "outputs": []
     },
+    "format:write": {
+      "outputs": []
+    },
     "test": {
       "dependsOn": ["^build"],
       "inputs": [

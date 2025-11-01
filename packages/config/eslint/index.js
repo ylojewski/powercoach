@@ -1,1 +1,1 @@
-export { config, ignoreConfig, typescriptConfig } from './config.mjs'
+export { config, ignoreConfig, typescriptConfig, vitestConfig } from './config.mjs'
