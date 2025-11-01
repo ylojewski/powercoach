@@ -1,37 +1,28 @@
-import { config, vitestConfig } from '@powercoach/config/eslint'
-import process from 'node:process'
+import {
+  config as sharedConfig,
+  createTestConfig,
+  createTypescriptConfig,
+  testConfig as sharedTestConfig,
+  typescriptConfig as sharedTypescriptConfig
+} from '@powercoach/config/eslint'
 
-const [ignoreConfig, sharedStyleConfig, jsConfig, typescriptConfig, prettierConfig] = config
+const apiTypescriptConfig = createTypescriptConfig('./tsconfig.src.json')
+const apiTestConfig = createTestConfig('./tsconfig.test.json')
 
-const apiTypescriptConfig = {
-  ...typescriptConfig,
-  languageOptions: {
-    ...typescriptConfig.languageOptions,
-    parserOptions: {
-      ...(typescriptConfig.languageOptions?.parserOptions ?? {}),
-      project: ['./tsconfig.src.json'],
-      tsconfigRootDir: process.cwd()
-    }
-  }
+const apiConfig = [...sharedConfig]
+const typescriptConfigIndex = apiConfig.indexOf(sharedTypescriptConfig)
+
+if (typescriptConfigIndex !== -1) {
+  apiConfig.splice(typescriptConfigIndex, 1, apiTypescriptConfig)
+} else {
+  apiConfig.push(apiTypescriptConfig)
 }
 
-const apiVitestConfig = {
-  ...vitestConfig,
-  languageOptions: {
-    ...vitestConfig.languageOptions,
-    parserOptions: {
-      ...(vitestConfig.languageOptions?.parserOptions ?? {}),
-      project: ['./tsconfig.test.json'],
-      tsconfigRootDir: process.cwd()
-    }
-  }
+if (!apiConfig.includes(sharedTestConfig)) {
+  apiConfig.push(apiTestConfig)
+} else {
+  const testConfigIndex = apiConfig.indexOf(sharedTestConfig)
+  apiConfig.splice(testConfigIndex, 1, apiTestConfig)
 }
 
-export default [
-  ignoreConfig,
-  sharedStyleConfig,
-  jsConfig,
-  apiTypescriptConfig,
-  prettierConfig,
-  apiVitestConfig
-]
+export default apiConfig
