@@ -2,6 +2,7 @@ import js from '@eslint/js'
 import tseslint from '@typescript-eslint/eslint-plugin'
 import tsparser from '@typescript-eslint/parser'
 import prettierConfig from 'eslint-config-prettier'
+import boundariesPlugin from 'eslint-plugin-boundaries'
 import importPlugin from 'eslint-plugin-import'
 import globals from 'globals'
 import process from 'node:process'
@@ -15,11 +16,24 @@ export const ignoreConfig = {
 
 const sharedStyleConfig = {
   plugins: {
-    import: importPlugin
+    import: importPlugin,
+    boundaries: boundariesPlugin
+  },
+  settings: {
+    'boundaries/elements': [
+      {
+        type: 'package',
+        pattern: 'packages/*'
+      },
+      {
+        type: 'app',
+        pattern: 'apps/*'
+      }
+    ]
   },
   rules: {
     'import/first': 'error',
-    'import/no-relative-parent-imports': 'error',
+    'boundaries/no-private': ['error', { allowUncles: false }],
     'import/order': [
       'error',
       {
