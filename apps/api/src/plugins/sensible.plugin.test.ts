@@ -15,7 +15,12 @@ describe('sensiblePlugin', () => {
       await app.register(sensiblePlugin)
 
       expect(sensibleMock).toHaveBeenCalledTimes(1)
-      expect(sensibleMock.mock.calls[0][1]).toEqual({})
+      const firstCall = sensibleMock.mock.calls[0]
+      if (!firstCall) {
+        throw new Error('sensible should have been registered')
+      }
+      const [, options] = firstCall
+      expect(options).toEqual({})
     } finally {
       await app.close()
     }

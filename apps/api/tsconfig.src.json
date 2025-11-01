@@ -9,7 +9,7 @@
       "@test/*": ["test/*"]
     }
   },
-  "exclude": ["dist", "node_modules"],
+  "exclude": ["dist", "node_modules", "src/**/*.test.ts"],
   "extends": "@powercoach/config/tsconfig.base.json",
-  "include": ["src", "test", "*.ts"]
+  "include": ["src", "*.ts"]
 }

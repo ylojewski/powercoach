@@ -26,7 +26,12 @@ describe('buildLogger', () => {
         paths: ['req.headers.authorization', 'req.headers.cookie']
       }
     })
-    expect(pinoMock.mock.calls[0][0]).not.toHaveProperty('transport')
+    const [firstCall] = pinoMock.mock.calls
+    if (!firstCall) {
+      throw new Error('pino should have been invoked')
+    }
+    const [options] = firstCall
+    expect(options).not.toHaveProperty('transport')
   })
 
   it('enables pretty transport outside production', async () => {

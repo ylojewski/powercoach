@@ -1,3 +1,5 @@
+export {}
+
 const registerHealthRoutes = vi.fn()
 
 vi.mock('./routes', () => ({
@@ -16,7 +18,7 @@ describe('healthModule', () => {
     const addSchema = vi.fn()
     const app = { addSchema }
 
-    await healthModule(app as never)
+    await healthModule(app as never, {} as never)
 
     expect(addSchema).toHaveBeenCalledWith(healthResponseSchema)
     expect(registerHealthRoutes).toHaveBeenCalledWith(app)

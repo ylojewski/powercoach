@@ -1,3 +1,5 @@
+import type { AppConfig } from '../core'
+
 interface InjectOptions {
   headers?: Record<string, string>
   url: string
@@ -156,7 +158,7 @@ describe('buildApp', () => {
     mockDependencies()
 
     const { buildApp } = await import('./buildApp')
-    const config = {
+    const config: AppConfig = {
       HOST: '127.0.0.1',
       LOG_LEVEL: 'info',
       NODE_ENV: 'development',
@@ -164,7 +166,10 @@ describe('buildApp', () => {
     }
 
     const app = await buildApp({ config })
-    const [instance] = fastifyInstances
+    const instance = fastifyInstances[0]
+    if (!instance) {
+      throw new Error('Fastify instance was not created')
+    }
 
     expect(instance.options).toMatchObject({
       ajv: {
@@ -192,7 +197,7 @@ describe('buildApp', () => {
     const [onRequestHook] = instance.hooks.get('onRequest') ?? []
     const headers = new Map<string, string>()
     await onRequestHook?.(
-      { id: 'request-id' },
+      { headers: {}, id: 'request-id' },
       { header: (name: string, value: string) => headers.set(name, value) }
     )
     expect(headers.get('x-request-id')).toBe('request-id')
@@ -204,7 +209,7 @@ describe('buildApp', () => {
     mockFastify()
     mockDependencies()
 
-    const config = {
+    const config: AppConfig = {
       HOST: '0.0.0.0',
       LOG_LEVEL: 'debug',
       NODE_ENV: 'test',
@@ -226,7 +231,10 @@ describe('buildApp', () => {
 
     expect(loadConfigMock).toHaveBeenCalledTimes(1)
 
-    const [instance] = fastifyInstances
+    const instance = fastifyInstances[0]
+    if (!instance) {
+      throw new Error('Fastify instance was not created')
+    }
     expect(instance.decorate).toHaveBeenCalledWith('config', config)
 
     await app.close()
@@ -235,13 +243,15 @@ describe('buildApp', () => {
   it('serves the health endpoint with a real Fastify instance', async () => {
     const { buildApp } = await import('./buildApp')
 
+    const config: AppConfig = {
+      HOST: '127.0.0.1',
+      LOG_LEVEL: 'fatal',
+      NODE_ENV: 'test',
+      PORT: 0
+    }
+
     const app = await buildApp({
-      config: {
-        HOST: '127.0.0.1',
-        LOG_LEVEL: 'fatal',
-        NODE_ENV: 'test',
-        PORT: 0
-      }
+      config
     })
 
     const response = await app.inject({ method: 'GET', url: '/v1/health' })

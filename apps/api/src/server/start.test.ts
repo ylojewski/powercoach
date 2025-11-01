@@ -36,7 +36,7 @@ describe('start', () => {
 
     loadConfigMock.mockReturnValue(config)
 
-    const handlers = new Map<string, (payload: unknown) => void>()
+    const handlers = new Map<string | symbol, (payload: unknown) => void>()
     const processOnSpy = vi.spyOn(process, 'on').mockImplementation((event, handler) => {
       handlers.set(event, handler as (payload: unknown) => void)
       return process
@@ -148,7 +148,8 @@ describe('start', () => {
     const scriptPath = fileURLToPath(scriptModuleUrl)
 
     process.env.NODE_ENV = 'development'
-    process.argv = [process.argv[0], scriptPath]
+    const nodeExecutable = process.argv[0] ?? process.execPath
+    process.argv = [nodeExecutable, scriptPath]
 
     const processOnSpy = vi.spyOn(process, 'on').mockImplementation(() => process)
     const processExitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)

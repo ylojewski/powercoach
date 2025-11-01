@@ -13,19 +13,19 @@ export default defineConfig({
     }
   },
   test: {
-    globals: true
-  },
-  coverage: {
-    provider: 'v8',
-    reportsDirectory: 'coverage',
-    reporter: ['text', 'json', 'lcov'],
-    include: ['src/**/*.ts'],
-    exclude: ['src/**/index.ts', 'src/**/*.test.ts', 'src/**/*.d.ts'],
-    thresholds: {
-      branches: 100,
-      functions: 100,
-      lines: 100,
-      statements: 100
+    globals: true,
+    coverage: {
+      provider: 'v8',
+      reportsDirectory: 'coverage',
+      reporter: ['text', 'json', 'lcov'],
+      include: ['src/**/*.ts'],
+      exclude: ['src/**/index.ts', 'src/**/*.test.ts', 'src/**/*.d.ts', 'test/**/*.ts'],
+      thresholds: {
+        branches: 100,
+        functions: 100,
+        lines: 100,
+        statements: 100
+      }
     }
   }
 })

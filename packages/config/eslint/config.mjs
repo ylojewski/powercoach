@@ -4,6 +4,7 @@ import tsparser from '@typescript-eslint/parser'
 import prettierConfig from 'eslint-config-prettier'
 import importPlugin from 'eslint-plugin-import'
 import globals from 'globals'
+import process from 'node:process'
 
 const strictRules = tseslint.configs.strict?.rules ?? {}
 const stylisticRules = tseslint.configs.stylistic?.rules ?? {}
@@ -43,11 +44,13 @@ const sharedStyleConfig = {
 
 export const typescriptConfig = {
   files: ['**/*.{ts,tsx}'],
+  ignores: ['**/*.test.{ts,tsx}', 'test/**/*.ts'],
   languageOptions: {
     parser: tsparser,
     parserOptions: {
       project: ['./tsconfig.json'],
       projectService: true,
+      tsconfigRootDir: process.cwd(),
       sourceType: 'module'
     }
   },
@@ -72,11 +75,25 @@ export const config = [
 ]
 
 export const vitestConfig = {
-  files: ['**/*.test.{ts,tsx}', '**/__tests__/**/*.{ts,tsx}'],
+  files: ['**/*.test.{ts,tsx}', 'test/**/*.ts'],
   languageOptions: {
+    ...typescriptConfig.languageOptions,
     globals: {
       ...globals.node,
       ...globals.vitest
+    },
+    parserOptions: {
+      ...(typescriptConfig.languageOptions?.parserOptions ?? {}),
+      project: ['./tsconfig.vitest.json'],
+      projectService: true,
+      tsconfigRootDir: process.cwd(),
+      sourceType: 'module'
     }
+  },
+  plugins: {
+    ...typescriptConfig.plugins
+  },
+  rules: {
+    ...typescriptConfig.rules
   }
 }

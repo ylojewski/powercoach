@@ -9,6 +9,7 @@
     "lint": "turbo lint",
     "format": "turbo format",
     "test": "turbo test",
+    "typecheck": "turbo typecheck",
     "changeset": "changeset",
     "version": "changeset version",
     "publish": "changeset publish",

@@ -1,3 +1,5 @@
+export {}
+
 const healthStatus = { ok: true, uptime: 42 }
 
 vi.mock('./service', () => ({
@@ -18,7 +20,19 @@ describe('registerHealthRoutes', () => {
 
     expect(route).toHaveBeenCalledTimes(1)
 
-    const [[config]] = route.mock.calls
+    const firstCall = route.mock.calls[0]
+    if (!firstCall) {
+      throw new Error('health route was not registered')
+    }
+
+    const [config] = firstCall as [
+      {
+        handler: () => Promise<unknown>
+        method: string
+        schema: { response: { 200: { $ref: string } } }
+        url: string
+      }
+    ]
     const { handler } = config
 
     expect(config).toStrictEqual({
