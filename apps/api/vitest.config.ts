@@ -11,5 +11,21 @@ export default defineConfig({
       '@': resolve(__dirname, 'src'),
       '@test': resolve(__dirname, 'test')
     }
+  },
+  test: {
+    globals: true,
+    coverage: {
+      provider: 'v8',
+      reportsDirectory: 'coverage',
+      reporter: ['text', 'json', 'lcov'],
+      include: ['src/**/*.ts'],
+      exclude: ['src/**/index.ts', 'src/**/*.test.ts', 'src/**/*.d.ts', 'test/**/*.ts'],
+      thresholds: {
+        branches: 100,
+        functions: 100,
+        lines: 100,
+        statements: 100
+      }
+    }
   }
 })
