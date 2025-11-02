@@ -112,13 +112,25 @@ importers:
         specifier: ^15.11.0
         version: 15.15.0
     devDependencies:
+      '@commitlint/types':
+        specifier: ^20.0.0
+        version: 20.0.0
       '@eslint/js':
         specifier: ^9.38.0
         version: 9.38.0
+      '@types/eslint-config-prettier':
+        specifier: ^6.11.3
+        version: 6.11.3
+      '@types/node':
+        specifier: ^22.7.4
+        version: 22.18.13
       '@typescript-eslint/eslint-plugin':
         specifier: ^8.10.0
         version: 8.46.2(@typescript-eslint/parser@8.46.2(eslint@9.38.0(jiti@2.6.1))(typescript@5.9.3))(eslint@9.38.0(jiti@2.6.1))(typescript@5.9.3)
       '@typescript-eslint/parser':
+        specifier: ^8.10.0
+        version: 8.46.2(eslint@9.38.0(jiti@2.6.1))(typescript@5.9.3)
+      '@typescript-eslint/utils':
         specifier: ^8.10.0
         version: 8.46.2(eslint@9.38.0(jiti@2.6.1))(typescript@5.9.3)
       eslint:
@@ -139,6 +151,9 @@ importers:
       tsup:
         specifier: ^8.3.0
         version: 8.5.0(jiti@2.6.1)(postcss@8.5.6)(tsx@4.20.6)(typescript@5.9.3)(yaml@2.8.1)
+      typescript:
+        specifier: ^5.6.2
+        version: 5.9.3
 
 packages:
 
@@ -716,6 +731,9 @@ packages:
 
   '@types/deep-eql@4.0.2':
     resolution: {integrity: sha512-c9h9dVVMigMPc4bwTvC5dxqtqJZwQPePsWjPlpSOnojbor6pGqdk541lfA7AqFQr5pB1BRdq0juY9db81BwyFw==}
+
+  '@types/eslint-config-prettier@6.11.3':
+    resolution: {integrity: sha512-3wXCiM8croUnhg9LdtZUJQwNcQYGWxxdOWDjPe1ykCqJFPVpzAKfs/2dgSoCtAvdPeaponcWPI7mPcGGp9dkKQ==}
 
   '@types/estree@1.0.8':
     resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
@@ -3457,6 +3475,8 @@ snapshots:
       '@types/node': 22.18.13
 
   '@types/deep-eql@4.0.2': {}
+
+  '@types/eslint-config-prettier@6.11.3': {}
 
   '@types/estree@1.0.8': {}
 

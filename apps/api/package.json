@@ -6,8 +6,9 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
+    "ci": "pnpm lint && pnpm format && pnpm typecheck && pnpm test && pnpm build",
     "dev": "tsx watch src/server/start.ts",
-    "build": "tsup --config tsup.config.ts",
+    "build": "tsup --config tsup.config.mjs",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier . --check",

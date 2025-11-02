@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "packageManager": "pnpm@10.20.0",
   "scripts": {
+    "ci": "turbo ci",
     "dev": "turbo dev",
     "build": "turbo build",
     "lint": "turbo lint",
