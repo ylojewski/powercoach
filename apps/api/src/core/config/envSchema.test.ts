@@ -33,18 +33,22 @@ describe('envSchema', () => {
     }).toThrowError(ZodError)
 
     expect(thrown).toBeInstanceOf(ZodError)
+    console.log((thrown as ZodError).issues)
     expect((thrown as ZodError).issues).toEqual([
       expect.objectContaining({
-        code: 'invalid_enum_value',
-        options: ['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'],
+        code: 'invalid_value',
+        values: ['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'],
         path: ['LOG_LEVEL'],
-        received: 'verbose'
+        message:
+          'Invalid option: expected one of "fatal"|"error"|"warn"|"info"|"debug"|"trace"|"silent"'
       }),
       expect.objectContaining({
+        origin: 'number',
         code: 'too_small',
         minimum: 0,
+        inclusive: true,
         path: ['PORT'],
-        type: 'number'
+        message: 'Too small: expected number to be >=0'
       })
     ])
   })
