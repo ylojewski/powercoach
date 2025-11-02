@@ -1,5 +1,6 @@
 import sortJsonPlugin from 'prettier-plugin-sort-json'
 
+/** @type {import('prettier').Config} */
 export const config = {
   arrowParens: 'always',
   plugins: [sortJsonPlugin],

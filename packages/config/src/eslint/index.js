@@ -5,4 +5,4 @@ export {
   ignoreConfig,
   testConfig,
   typescriptConfig
-} from './config.mjs'
+} from './config.js'

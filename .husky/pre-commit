@@ -1,6 +1,4 @@
 #!/usr/bin/env sh
 set -e
 
-pnpm lint:fix
-pnpm format:write
-pnpm typecheck
+pnpm lint-staged

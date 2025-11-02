@@ -6,13 +6,19 @@ import importPlugin from 'eslint-plugin-import'
 import globals from 'globals'
 import process from 'node:process'
 
+/** @typedef {import('eslint').Linter.FlatConfig} FlatConfig */
+/** @type {any} */
+const typescriptEslintPlugin = tseslint
+
 const strictRules = tseslint.configs.strict?.rules ?? {}
 const stylisticRules = tseslint.configs.stylistic?.rules ?? {}
 
+/** @type {FlatConfig} */
 export const ignoreConfig = {
   ignores: ['dist']
 }
 
+/** @type {FlatConfig} */
 const sharedStyleConfig = {
   plugins: {
     import: importPlugin
@@ -42,18 +48,34 @@ const sharedStyleConfig = {
   }
 }
 
+/**
+ * Normalize the parser project option into an array when provided.
+ *
+ * @param {string | readonly string[] | undefined} parserProjectOption
+ * @returns {string[] | undefined}
+ */
 const toProjectArray = (parserProjectOption) => {
   if (!parserProjectOption) {
     return undefined
   }
 
   if (Array.isArray(parserProjectOption)) {
-    return parserProjectOption
+    return [...parserProjectOption]
   }
 
-  return [parserProjectOption]
+  if (typeof parserProjectOption === 'string') {
+    return [parserProjectOption]
+  }
+
+  return undefined
 }
 
+/**
+ * Build the TypeScript-specific ESLint configuration.
+ *
+ * @param {string | readonly string[] | undefined} parserProjectOption
+ * @returns {FlatConfig}
+ */
 export const createTypescriptConfig = (parserProjectOption) => {
   const project = toProjectArray(parserProjectOption)
 
@@ -69,7 +91,7 @@ export const createTypescriptConfig = (parserProjectOption) => {
       }
     },
     plugins: {
-      '@typescript-eslint': tseslint
+      '@typescript-eslint': typescriptEslintPlugin
     },
     rules: {
       ...strictRules,
@@ -81,8 +103,10 @@ export const createTypescriptConfig = (parserProjectOption) => {
   }
 }
 
-export const typescriptConfig = createTypescriptConfig('./tsconfig.json')
+/** @type {FlatConfig} */
+export const typescriptConfig = createTypescriptConfig('./tsconfig.src.json')
 
+/** @type {FlatConfig[]} */
 export const config = [
   ignoreConfig,
   sharedStyleConfig,
@@ -91,6 +115,12 @@ export const config = [
   prettierConfig
 ]
 
+/**
+ * Build the ESLint configuration tailored for test files.
+ *
+ * @param {string | readonly string[] | undefined} parserProjectOption
+ * @returns {FlatConfig}
+ */
 export const createTestConfig = (parserProjectOption) => {
   const base = createTypescriptConfig(parserProjectOption)
 
@@ -108,4 +138,5 @@ export const createTestConfig = (parserProjectOption) => {
   }
 }
 
+/** @type {FlatConfig} */
 export const testConfig = createTestConfig('./tsconfig.test.json')
