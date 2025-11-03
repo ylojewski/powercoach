@@ -77,7 +77,7 @@ describe('buildLogger', () => {
     expect(optionsProd).not.toHaveProperty('transport')
   })
 
-  it('redacts sensitive headers and payload fields', () => {
+  it('removes sensitive headers and payload fields', () => {
     const { destination, logs, restore } = createDestination()
     const logger = buildLogger({ level: 'info', nodeEnv: 'production', destination })
 
@@ -111,15 +111,15 @@ describe('buildLogger', () => {
       res: { headers: Record<string, unknown> }
     }
     const entry = JSON.parse((logs.at(-1) ?? '').trim() || '{}') as LoggedEntry
-    expect(entry.req.headers.authorization).toBe('[REDACTED]')
-    expect(entry.req.headers.cookie).toBe('[REDACTED]')
-    expect(entry.req.headers['x-api-key']).toBe('[REDACTED]')
-    expect(entry.req.body.password).toBe('[REDACTED]')
-    expect(entry.req.body.token).toBe('[REDACTED]')
-    expect(entry.req.body.access_token).toBe('[REDACTED]')
-    expect(entry.req.body.refresh_token).toBe('[REDACTED]')
-    expect(entry.req.headers['set-cookie']).toBe('[REDACTED]')
-    expect(entry.res.headers['set-cookie']).toBe('[REDACTED]')
+    expect(entry.req.headers).not.toHaveProperty('authorization')
+    expect(entry.req.headers).not.toHaveProperty('cookie')
+    expect(entry.req.headers).not.toHaveProperty('x-api-key')
+    expect(entry.req.headers).not.toHaveProperty('set-cookie')
+    expect(entry.req.body).not.toHaveProperty('password')
+    expect(entry.req.body).not.toHaveProperty('token')
+    expect(entry.req.body).not.toHaveProperty('access_token')
+    expect(entry.req.body).not.toHaveProperty('refresh_token')
+    expect(entry.res.headers).not.toHaveProperty('set-cookie')
   })
 
   it('emits parseable JSON without leaking secrets in production', () => {
@@ -143,8 +143,8 @@ describe('buildLogger', () => {
       req: { headers: Record<string, unknown>; body: Record<string, unknown> }
     }
     const parsed = JSON.parse((payload ?? '').trim() || '{}') as ParsedEntry
-    expect(parsed.req.headers.authorization).toBe('[REDACTED]')
-    expect(parsed.req.body.password).toBe('[REDACTED]')
+    expect(parsed.req.headers).not.toHaveProperty('authorization')
+    expect(parsed.req.body).not.toHaveProperty('password')
   })
 
   it('retains redaction and level on child loggers', () => {
@@ -163,7 +163,44 @@ describe('buildLogger', () => {
       req: { headers: Record<string, unknown> }
     }
     const parsed = JSON.parse((logs.at(-1) ?? '').trim() || '{}') as ChildEntry
-    expect(parsed.req.headers.authorization).toBe('[REDACTED]')
+    expect(parsed.req.headers).not.toHaveProperty('authorization')
     expect(parsed.ctx).toBe('child')
+  })
+
+  it('writes compact JSON logs in production without pretty transport', () => {
+    const { destination, logs, restore } = createDestination()
+    const logger = buildLogger({ level: 'info', nodeEnv: 'production', destination })
+
+    logger.info({ message: 'plain' })
+    logger.flush()
+    restore()
+
+    const payload = logs.at(-1) ?? ''
+    expect(() => JSON.parse(payload)).not.toThrow()
+    expect(payload.trim().startsWith('{')).toBe(true)
+    expect(payload.includes('\u001b')).toBe(false)
+  })
+
+  it('fully removes redacted keys when remove:true is configured', () => {
+    const { destination, logs, restore } = createDestination()
+    const logger = buildLogger({ level: 'info', nodeEnv: 'production', destination })
+
+    logger.info({
+      password: 'secret',
+      token: 'value',
+      access_token: 'a',
+      refresh_token: 'b',
+      'set-cookie': 'a=b'
+    })
+
+    logger.flush()
+    restore()
+
+    const parsed = JSON.parse((logs.at(-1) ?? '').trim() || '{}') as Record<string, unknown>
+    expect(parsed).not.toHaveProperty('password')
+    expect(parsed).not.toHaveProperty('token')
+    expect(parsed).not.toHaveProperty('access_token')
+    expect(parsed).not.toHaveProperty('refresh_token')
+    expect(parsed).not.toHaveProperty('set-cookie')
   })
 })

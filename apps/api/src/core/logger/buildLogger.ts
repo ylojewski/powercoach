@@ -25,8 +25,15 @@ export function buildLogger({ level, nodeEnv, destination }: BuildLoggerOptions)
         'req.body.access_token',
         'req.body.refresh_token',
         'res.headers.set-cookie',
-        'res.headers["set-cookie"]'
-      ]
+        'res.headers["set-cookie"]',
+        'password',
+        'token',
+        'access_token',
+        'refresh_token',
+        'set-cookie',
+        '["set-cookie"]'
+      ],
+      remove: true
     }
   }
 

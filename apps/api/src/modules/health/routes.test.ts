@@ -22,7 +22,13 @@ afterEach(async () => {
 })
 
 function createApp() {
-  const app = Fastify()
+  const app = Fastify({
+    ajv: {
+      customOptions: {
+        removeAdditional: 'all'
+      }
+    }
+  })
   app.decorate('config', baseConfig)
   app.addSchema(healthResponseSchema)
   activeApps.push(app)
@@ -69,6 +75,24 @@ describe('registerHealthRoutes', () => {
     const response = await app.inject({ method: 'GET', url: '/' })
     expect(response.statusCode).toBe(200)
     expect(response.json()).toEqual({ ok: true, uptime: 42 })
+
+    getHealthStatusSpy.mockRestore()
+  })
+
+  it('strips additional fields when removeAdditional is set to all', async () => {
+    const getHealthStatusSpy = vi
+      .spyOn(serviceModule, 'getHealthStatus')
+      .mockImplementation(
+        () => ({ ok: true, uptime: 1, extra: 'drop' }) as unknown as HealthResponse
+      )
+    const app = createApp()
+
+    registerHealthRoutes(app)
+    await app.ready()
+
+    const response = await app.inject({ method: 'GET', url: '/' })
+    expect(response.statusCode).toBe(200)
+    expect(response.json()).toEqual({ ok: true, uptime: 1 })
 
     getHealthStatusSpy.mockRestore()
   })

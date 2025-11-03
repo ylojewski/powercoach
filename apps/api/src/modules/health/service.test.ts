@@ -1,9 +1,13 @@
 import { performance } from 'node:perf_hooks'
 import process from 'node:process'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { getHealthStatus } from './service'
 
 describe('getHealthStatus', () => {
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
   it('returns ok=true with a non-negative uptime', () => {
     const result = getHealthStatus()
 
@@ -23,13 +27,21 @@ describe('getHealthStatus', () => {
 
   it('supports deterministic checks with fake timers', () => {
     vi.useFakeTimers()
-    const uptimeMock = vi.spyOn(process, 'uptime').mockReturnValue(123.456)
+    vi.setSystemTime(new Date('2020-01-01T00:00:00Z'))
+    const uptimeMock = vi
+      .spyOn(process, 'uptime')
+      .mockReturnValueOnce(123.456)
+      .mockReturnValueOnce(150.789)
 
-    const status = getHealthStatus()
+    const first = getHealthStatus()
+    const second = getHealthStatus()
 
-    expect(status).toEqual({ ok: true, uptime: 123.456 })
+    expect(first).toEqual({ ok: true, uptime: 123.456 })
+    expect(second.ok).toBe(true)
+    expect(second.uptime).toBeGreaterThanOrEqual(first.uptime)
+    expect(second.uptime).toBe(150.789)
+
     uptimeMock.mockRestore()
-    vi.useRealTimers()
   })
 
   it('runs within an acceptable time budget', () => {

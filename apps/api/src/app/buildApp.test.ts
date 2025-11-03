@@ -1,8 +1,19 @@
 import { expectHasHeader, expectHeaderEquals } from '@test/utils/headers'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { buildApp } from './buildApp'
+import { loadConfig } from '../core/config/loadConfig'
 import type { AppFastifyInstance } from './buildApp'
 import type { AppConfig } from '../core/config/envSchema'
+import type { FastifyRequest } from 'fastify'
+
+vi.mock('../core/config/loadConfig', () => ({
+  loadConfig: vi.fn(() => ({
+    HOST: '127.0.0.1',
+    LOG_LEVEL: 'silent',
+    NODE_ENV: 'test',
+    PORT: 0
+  }))
+}))
 
 const baseConfig: AppConfig = {
   HOST: '127.0.0.1',
@@ -14,6 +25,7 @@ const baseConfig: AppConfig = {
 const activeApps: AppFastifyInstance[] = []
 
 afterEach(async () => {
+  vi.clearAllMocks()
   while (activeApps.length > 0) {
     await activeApps.pop()?.close()
   }
@@ -26,35 +38,31 @@ describe('buildApp', () => {
     return app
   }
 
-  it('loads configuration from loadConfig when no config is provided', async () => {
-    const loadConfigModule = await import('../core/config/loadConfig')
-    const config: AppConfig = { ...baseConfig, PORT: 3001 }
-    const loadConfigSpy = vi.spyOn(loadConfigModule, 'loadConfig').mockReturnValue(config)
+  it('calls loadConfig only when no config override is provided', async () => {
+    const config: AppConfig = { ...baseConfig, PORT: 4321 }
 
-    const app = await buildApp()
-    activeApps.push(app)
-
-    expect(loadConfigSpy).toHaveBeenCalledTimes(1)
-    expect(app.config).toEqual(config)
-  })
-
-  it('uses provided configuration without calling loadConfig', async () => {
-    const loadConfigModule = await import('../core/config/loadConfig')
-    const loadConfigSpy = vi.spyOn(loadConfigModule, 'loadConfig').mockImplementation(() => {
-      throw new Error('loadConfig should not be invoked when config is provided')
+    const firstApp = await buildApp()
+    activeApps.push(firstApp)
+    expect(loadConfig).toHaveBeenCalledTimes(1)
+    expect(firstApp.config).toEqual({
+      HOST: '127.0.0.1',
+      LOG_LEVEL: 'silent',
+      NODE_ENV: 'test',
+      PORT: 0
     })
 
-    const config: AppConfig = { ...baseConfig, PORT: 4000 }
-    const app = await buildApp({ config })
-    activeApps.push(app)
+    vi.mocked(loadConfig).mockClear()
 
-    expect(loadConfigSpy).not.toHaveBeenCalled()
-    expect(app.config).toBe(config)
-    expect(app.config).toMatchObject({
+    const secondApp = await buildApp({ config })
+    activeApps.push(secondApp)
+
+    expect(loadConfig).not.toHaveBeenCalled()
+    expect(secondApp.config).toBe(config)
+    expect(secondApp.config).toMatchObject({
       HOST: '127.0.0.1',
-      PORT: 4000,
       LOG_LEVEL: 'silent',
-      NODE_ENV: 'test'
+      NODE_ENV: 'test',
+      PORT: 4321
     })
   })
 
@@ -135,21 +143,23 @@ describe('buildApp', () => {
     expect(response.json()).toEqual({ foo: 'bar' })
   })
 
-  it('runs onRequest hook before route handlers', async () => {
+  it('executes onRequest hooks before the route handler', async () => {
     const app = await buildWithConfig()
+    const requestFlags = new WeakMap<FastifyRequest, string>()
 
-    app.get('/hook-order', async (request, reply) => {
-      return {
-        replyHeader: reply.getHeader('x-request-id'),
-        requestId: request.id
-      }
+    app.addHook('onRequest', async (request) => {
+      requestFlags.set(request, request.id)
+    })
+
+    app.get('/hook-order', async (request) => {
+      expect(requestFlags.has(request)).toBe(true)
+      expect(requestFlags.get(request)).toBe(request.id)
+      return { seen: true }
     })
 
     const response = await app.inject({ method: 'GET', url: '/hook-order' })
-    const body = response.json() as { replyHeader: unknown; requestId: string }
-
-    expect(body.requestId).toBeTypeOf('string')
-    expect(body.replyHeader).toBe(body.requestId)
+    expect(response.statusCode).toBe(200)
+    expect(response.json()).toEqual({ seen: true })
   })
 
   it('builds logger via buildLogger and wires it to Fastify instance', async () => {

@@ -63,13 +63,28 @@ describe('helmetPlugin', () => {
     await app.close()
   })
 
+  it('keeps COEP/CORP disabled across environments', async () => {
+    const app = await createApp('production')
+    const response = await app.inject({ method: 'GET', url: '/' })
+
+    expect(response.headers['cross-origin-embedder-policy']).toBeUndefined()
+    expect(response.headers['cross-origin-resource-policy']).toBeUndefined()
+
+    await app.close()
+  })
+
   it('does not duplicate headers across requests', async () => {
     const app = await createApp('production')
 
     const first = await app.inject({ method: 'GET', url: '/' })
     const second = await app.inject({ method: 'GET', url: '/' })
 
-    const headerNames = ['x-dns-prefetch-control', 'x-frame-options'] as const
+    const headerNames = [
+      'x-dns-prefetch-control',
+      'x-frame-options',
+      'cross-origin-embedder-policy',
+      'cross-origin-resource-policy'
+    ] as const
     for (const name of headerNames) {
       expect(Array.isArray(first.headers[name])).toBe(false)
       expect(Array.isArray(second.headers[name])).toBe(false)

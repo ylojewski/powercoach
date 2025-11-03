@@ -35,12 +35,13 @@ describe('health schemas', () => {
   })
 
   it('allows schema registration multiple times', () => {
-    const ajv = new Ajv()
+    const ajv = new Ajv({ removeAdditional: 'all' })
     ajv.addSchema(healthResponseSchema)
 
-    expect(() => ajv.addSchema(healthResponseSchema)).toThrow()
+    expect(() => ajv.addSchema(healthResponseSchema)).toThrow(/already exists/)
 
     const validator = ajv.getSchema(HEALTH_RESPONSE_SCHEMA_ID)
+    expect(validator).toBeTypeOf('function')
     expect(validator?.({ ok: true, uptime: 1 })).toBe(true)
   })
 

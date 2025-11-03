@@ -15,6 +15,15 @@ vi.mock('../app', () => ({
 }))
 
 const modulePath = './start'
+const monitoredProcessEvents = [
+  'SIGINT',
+  'SIGTERM',
+  'unhandledRejection',
+  'uncaughtException'
+] as const
+type MonitoredProcessEvent = (typeof monitoredProcessEvents)[number]
+
+let baselineListeners: Record<MonitoredProcessEvent, Set<(...args: unknown[]) => void>>
 
 interface FakeApp {
   close: ReturnType<typeof vi.fn>
@@ -35,7 +44,24 @@ function createFakeApp(): FakeApp {
 
 describe('start', () => {
   beforeEach(async () => {
+    baselineListeners = Object.fromEntries(
+      monitoredProcessEvents.map((event) => [event, new Set(process.listeners(event))])
+    ) as Record<MonitoredProcessEvent, Set<(...args: unknown[]) => void>>
     vi.resetModules()
+  })
+
+  afterEach(() => {
+    for (const event of monitoredProcessEvents) {
+      const listeners = process.listeners(event)
+      for (const listener of listeners) {
+        if (!baselineListeners[event].has(listener)) {
+          process.removeListener(event, listener)
+        }
+      }
+
+      expect(process.listenerCount(event)).toBe(baselineListeners[event].size)
+    }
+    vi.clearAllMocks()
   })
 
   it('starts the server with loaded configuration', async () => {
@@ -81,6 +107,8 @@ describe('start', () => {
 
     expect(fakeApp.log.error).toHaveBeenCalled()
     expect(exitSpy).toHaveBeenCalledWith(1)
+    expect(exitSpy).toHaveBeenCalledTimes(1)
+    exitSpy.mockRestore()
   })
 
   it('closes gracefully on shutdown signals', async () => {
@@ -109,6 +137,7 @@ describe('start', () => {
     await vi.waitFor(() => {
       expect(fakeApp.close).toHaveBeenCalledTimes(1)
     })
+    exitSpy.mockRestore()
   })
 
   it('handles unhandled rejections and uncaught exceptions', async () => {
@@ -144,6 +173,7 @@ describe('start', () => {
     })
     expect(fakeApp.close).not.toHaveBeenCalled()
     expect(exitSpy).not.toHaveBeenCalled()
+    exitSpy.mockRestore()
   })
 
   it('logs errors when closing fails', async () => {
@@ -171,6 +201,7 @@ describe('start', () => {
       )
       expect(exitSpy).toHaveBeenCalledWith(0)
     })
+    exitSpy.mockRestore()
   })
 
   it('auto-starts when executed directly outside test environment', async () => {
@@ -203,10 +234,27 @@ describe('start', () => {
 
     process.env.NODE_ENV = originalEnv
     process.argv.splice(0, process.argv.length, ...originalArgv)
+    exitSpy.mockRestore()
   })
 
   it('does not auto-start when imported under test environment', async () => {
-    const { start } = await import(modulePath)
-    expect(typeof start).toBe('function')
+    const originalEnv = process.env.NODE_ENV
+    process.env.NODE_ENV = 'test'
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation((() => undefined) as never)
+    const { loadConfig } = await import('../core')
+    const { buildApp } = await import('../app')
+
+    ;(loadConfig as ReturnType<typeof vi.fn>).mockClear()
+    ;(buildApp as ReturnType<typeof vi.fn>).mockClear()
+
+    const module = await import(modulePath)
+
+    expect(typeof module.start).toBe('function')
+    expect(loadConfig).not.toHaveBeenCalled()
+    expect(buildApp).not.toHaveBeenCalled()
+    expect(exitSpy).not.toHaveBeenCalled()
+
+    process.env.NODE_ENV = originalEnv
+    exitSpy.mockRestore()
   })
 })
