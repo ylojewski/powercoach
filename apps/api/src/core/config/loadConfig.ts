@@ -12,10 +12,15 @@ export function loadConfig(env: ProcessEnv = process.env): AppConfig {
   }
 
   loadEnv()
-  const result = envSchema.safeParse(env)
+  const result = envSchema.safeParse({
+    HOST: env.HOST,
+    LOG_LEVEL: env.LOG_LEVEL,
+    NODE_ENV: env.NODE_ENV,
+    PORT: env.PORT
+  })
 
   if (!result.success) {
-    throw new Error(`Invalid environment configuration: ${result.error.message}`)
+    throw new Error(`[config] Invalid environment: ${result.error.message}`)
   }
 
   cachedConfig = Object.freeze(result.data)

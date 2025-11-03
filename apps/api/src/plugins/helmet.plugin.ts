@@ -4,7 +4,8 @@ import type { FastifyPluginAsync } from 'fastify'
 
 export const helmetPlugin: FastifyPluginAsync = fastifyPlugin(async (app) => {
   const helmetOptions: FastifyHelmetOptions = {
-    crossOriginEmbedderPolicy: false
+    crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: false
   }
 
   if (app.config.NODE_ENV !== 'production') {

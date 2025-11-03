@@ -1,120 +1,111 @@
+import process from 'node:process'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
 vi.mock('dotenv', () => ({
-  config: vi.fn()
+  config: vi.fn(() => ({ parsed: {} }))
 }))
 
-const envModulePath = './loadConfig'
+const modulePath = './loadConfig'
 
 describe('loadConfig', () => {
   beforeEach(async () => {
     vi.resetModules()
-    vi.clearAllMocks()
   })
 
-  it('loads configuration from process.env by default', async () => {
-    const original = {
-      HOST: process.env.HOST,
-      LOG_LEVEL: process.env.LOG_LEVEL,
-      NODE_ENV: process.env.NODE_ENV,
-      PORT: process.env.PORT
+  const prepareEnv = (env: Record<string, string>) => {
+    for (const [key, value] of Object.entries(env)) {
+      process.env[key] = value
     }
+  }
 
-    process.env.HOST = 'localhost'
-    process.env.LOG_LEVEL = 'info'
-    process.env.NODE_ENV = 'production'
-    process.env.PORT = '4000'
-
-    const dotenv = await import('dotenv')
-    const { loadConfig } = await import(envModulePath)
-
-    expect(loadConfig()).toEqual({
+  it('returns cached frozen configuration across calls', async () => {
+    const { loadConfig } = await import(modulePath)
+    const env = {
       HOST: 'localhost',
-      LOG_LEVEL: 'info',
+      LOG_LEVEL: 'warn',
       NODE_ENV: 'production',
-      PORT: 4000
+      PORT: '1234'
+    }
+
+    const first = loadConfig(env)
+    const second = loadConfig(env)
+
+    expect(first).toBe(second)
+    expect(Object.isFrozen(first)).toBe(true)
+    expect(first).toEqual({
+      HOST: 'localhost',
+      LOG_LEVEL: 'warn',
+      NODE_ENV: 'production',
+      PORT: 1234
     })
-    expect(dotenv.config).toHaveBeenCalledTimes(1)
-
-    if (original.HOST === undefined) {
-      delete process.env.HOST
-    } else {
-      process.env.HOST = original.HOST
-    }
-
-    if (original.LOG_LEVEL === undefined) {
-      delete process.env.LOG_LEVEL
-    } else {
-      process.env.LOG_LEVEL = original.LOG_LEVEL
-    }
-
-    if (original.NODE_ENV === undefined) {
-      delete process.env.NODE_ENV
-    } else {
-      process.env.NODE_ENV = original.NODE_ENV
-    }
-
-    if (original.PORT === undefined) {
-      delete process.env.PORT
-    } else {
-      process.env.PORT = original.PORT
-    }
   })
 
-  it('loads configuration using provided environment variables', async () => {
-    const { loadConfig } = await import(envModulePath)
+  it('invokes dotenv.config and respects existing process.env values', async () => {
+    const { loadConfig } = await import(modulePath)
+    const dotenv = await import('dotenv')
+    const configMock = vi.mocked(dotenv.config)
 
-    const result = loadConfig({
+    prepareEnv({ HOST: '0.0.0.0', LOG_LEVEL: 'error', NODE_ENV: 'development', PORT: '9999' })
+
+    const result = loadConfig()
+
+    expect(configMock).toHaveBeenCalled()
+    expect(result.PORT).toBe(9999)
+    expect(result.LOG_LEVEL).toBe('error')
+  })
+
+  it('validates environment and throws descriptive error when invalid', async () => {
+    const { loadConfig } = await import(modulePath)
+
+    expect(() =>
+      loadConfig({
+        HOST: '',
+        LOG_LEVEL: 'trace',
+        NODE_ENV: 'development',
+        PORT: '-1'
+      })
+    ).toThrowError('[config] Invalid environment:')
+  })
+
+  it('produces typed configuration when validation succeeds', async () => {
+    const { loadConfig } = await import(modulePath)
+
+    const config = loadConfig({
       HOST: '127.0.0.1',
       LOG_LEVEL: 'debug',
-      NODE_ENV: 'production',
+      NODE_ENV: 'test',
       PORT: '8080'
     })
 
-    expect(result).toEqual({
-      HOST: '127.0.0.1',
-      LOG_LEVEL: 'debug',
-      NODE_ENV: 'production',
-      PORT: 8080
-    })
+    expect(config).toEqual({ HOST: '127.0.0.1', LOG_LEVEL: 'debug', NODE_ENV: 'test', PORT: 8080 })
   })
 
-  it('uses cached configuration on subsequent calls', async () => {
-    const dotenv = await import('dotenv')
-    const { loadConfig } = await import(envModulePath)
+  it('never calls process.exit', async () => {
+    const { loadConfig } = await import(modulePath)
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation((() => undefined) as never)
 
-    const first = loadConfig({
-      HOST: 'localhost',
+    const config = loadConfig({
+      HOST: '127.0.0.1',
       LOG_LEVEL: 'info',
       NODE_ENV: 'development',
       PORT: '3000'
     })
 
-    const second = loadConfig({
-      HOST: 'should-not-change',
-      LOG_LEVEL: 'error',
-      NODE_ENV: 'test',
-      PORT: '4000'
-    })
-
-    expect(first).toBe(second)
-    expect(second).toEqual({
-      HOST: 'localhost',
-      LOG_LEVEL: 'info',
-      NODE_ENV: 'development',
-      PORT: 3000
-    })
-    expect(dotenv.config).toHaveBeenCalledTimes(1)
+    expect(config.HOST).toBe('127.0.0.1')
+    expect(exitSpy).not.toHaveBeenCalled()
   })
 
-  it('throws when validation fails', async () => {
-    const { loadConfig } = await import(envModulePath)
+  it('returns the same instance for concurrent calls', async () => {
+    const { loadConfig } = await import(modulePath)
+    const env = {
+      HOST: 'localhost',
+      LOG_LEVEL: 'info',
+      NODE_ENV: 'test',
+      PORT: '4000'
+    }
 
-    expect(() =>
-      loadConfig({
-        HOST: '',
-        LOG_LEVEL: 'invalid',
-        NODE_ENV: 'unknown',
-        PORT: '-1'
-      })
-    ).toThrowError(/Invalid environment configuration/)
+    const [configA, configB] = await Promise.all([loadConfig(env), loadConfig(env)])
+
+    expect(configA).toBe(configB)
   })
 })

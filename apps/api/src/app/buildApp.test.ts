@@ -1,264 +1,189 @@
-import type { AppConfig } from '../core'
+import { expectHasHeader, expectHeaderEquals } from '@test/utils/headers'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { buildApp } from './buildApp'
+import type { AppFastifyInstance } from './buildApp'
+import type { AppConfig } from '../core/config/envSchema'
 
-interface InjectOptions {
-  headers?: Record<string, string>
-  url: string
+const baseConfig: AppConfig = {
+  HOST: '127.0.0.1',
+  LOG_LEVEL: 'silent',
+  NODE_ENV: 'test',
+  PORT: 0
 }
 
-interface InjectResponse {
-  headers: Record<string, string>
-  json: () => unknown
-  statusCode: number
-}
+const activeApps: AppFastifyInstance[] = []
 
-interface FastifyRequest {
-  headers: Record<string, string>
-  id: string
-}
-
-type HookHandler = (
-  request: FastifyRequest,
-  reply: { header(name: string, value: string): void }
-) => void | Promise<void>
-type RouteHandler = (request: FastifyRequest) => unknown
-
-interface FastifyStub {
-  addHook: (name: string, hook: HookHandler) => FastifyStub
-  close: () => Promise<void>
-  decorate: (name: string, value: unknown) => FastifyStub
-  get: (url: string, handler: RouteHandler) => FastifyStub
-  hooks: Map<string, HookHandler[]>
-  inject: (options: InjectOptions) => Promise<InjectResponse>
-  log: { error: ReturnType<typeof vi.fn>; info: ReturnType<typeof vi.fn> }
-  options: { genReqId: (request: { headers: Record<string, string | undefined> }) => string }
-  ready: () => Promise<FastifyStub>
-  register: (
-    plugin: (app: FastifyStub, opts?: unknown) => unknown,
-    opts?: unknown
-  ) => Promise<FastifyStub>
-  routes: Map<string, RouteHandler>
-  withTypeProvider: () => FastifyStub
-  [key: string]: unknown
-}
-
-const helmetPluginMock = vi.fn(async (app: FastifyStub) => {
-  app.decorate('helmetRegistered', true)
-})
-
-const sensiblePluginMock = vi.fn(async (app: FastifyStub) => {
-  app.decorate('sensibleRegistered', true)
-})
-
-const healthModuleMock = vi.fn(async (app: FastifyStub, options?: { prefix?: string }) => {
-  const url = options?.prefix ?? '/'
-  app.get(url, async () => ({ prefix: options?.prefix }))
-})
-
-const fastifyInstances: FastifyStub[] = []
-
-function createFastifyStub(options: FastifyStub['options']): FastifyStub {
-  const hooks = new Map<string, HookHandler[]>()
-  const routes = new Map<string, RouteHandler>()
-
-  const instance: FastifyStub = {
-    addHook: vi.fn((name: string, hook: HookHandler) => {
-      const existing = hooks.get(name) ?? []
-      existing.push(hook)
-      hooks.set(name, existing)
-      return instance
-    }),
-    close: vi.fn(async () => undefined),
-    decorate: vi.fn((name: string, value: unknown) => {
-      instance[name] = value
-      return instance
-    }),
-    get: vi.fn((url: string, handler: RouteHandler) => {
-      routes.set(url, handler)
-      return instance
-    }),
-    hooks,
-    inject: vi.fn(async ({ headers = {}, url }: InjectOptions) => {
-      const request: FastifyRequest = {
-        headers,
-        id: options.genReqId({ headers })
-      }
-      const replyHeaders = new Map<string, string>()
-      const reply = {
-        header: (name: string, value: string) => replyHeaders.set(name.toLowerCase(), value)
-      }
-
-      for (const hook of hooks.get('onRequest') ?? []) {
-        await hook(request, reply)
-      }
-
-      const handler = routes.get(url)
-      const payload = handler ? await handler(request) : undefined
-
-      return {
-        headers: Object.fromEntries(replyHeaders),
-        json: () => payload,
-        statusCode: payload ? 200 : 404
-      }
-    }),
-    log: { error: vi.fn(), info: vi.fn() },
-    options,
-    ready: vi.fn(async () => instance),
-    register: vi.fn(
-      async (plugin: (app: FastifyStub, opts?: unknown) => unknown, opts?: unknown) => {
-        await plugin(instance, opts ?? {})
-        return instance
-      }
-    ),
-    routes,
-    withTypeProvider: vi.fn(() => instance)
+afterEach(async () => {
+  while (activeApps.length > 0) {
+    await activeApps.pop()?.close()
   }
-
-  return instance
-}
-
-function mockFastify() {
-  vi.doMock('fastify', () => ({
-    default: (options: FastifyStub['options']) => {
-      const instance = createFastifyStub(options)
-      fastifyInstances.push(instance)
-      return instance
-    }
-  }))
-}
-
-function mockDependencies() {
-  vi.doMock('../plugins', () => ({
-    helmetPlugin: helmetPluginMock,
-    sensiblePlugin: sensiblePluginMock
-  }))
-
-  vi.doMock('../modules', () => ({
-    healthModule: healthModuleMock
-  }))
-}
+})
 
 describe('buildApp', () => {
-  beforeEach(() => {
-    vi.resetModules()
-    fastifyInstances.length = 0
-    helmetPluginMock.mockClear()
-    sensiblePluginMock.mockClear()
-    healthModuleMock.mockClear()
-  })
+  const buildWithConfig = async (overrides: Partial<AppConfig> = {}) => {
+    const app = await buildApp({ config: { ...baseConfig, ...overrides } })
+    activeApps.push(app)
+    return app
+  }
 
-  afterEach(() => {
-    vi.doUnmock('fastify')
-    vi.doUnmock('../plugins')
-    vi.doUnmock('../modules')
-    vi.doUnmock('../core')
-  })
-
-  it('builds an app using the provided configuration', async () => {
-    mockFastify()
-    mockDependencies()
-
-    const { buildApp } = await import('./buildApp')
-    const config: AppConfig = {
-      HOST: '127.0.0.1',
-      LOG_LEVEL: 'info',
-      NODE_ENV: 'development',
-      PORT: 4000
-    }
-
-    const app = await buildApp({ config })
-    const instance = fastifyInstances[0]
-    if (!instance) {
-      throw new Error('Fastify instance was not created')
-    }
-
-    expect(instance.options).toMatchObject({
-      ajv: {
-        customOptions: {
-          coerceTypes: false,
-          removeAdditional: 'all'
-        }
-      },
-      disableRequestLogging: true,
-      requestIdHeader: 'x-request-id',
-      requestIdLogLabel: 'reqId'
-    })
-
-    expect(instance.options.genReqId({ headers: { 'x-request-id': 'custom-id' } })).toBe(
-      'custom-id'
-    )
-    expect(instance.options.genReqId({ headers: {} })).toMatch(/[0-9a-f-]{36}/)
-
-    expect(instance.decorate).toHaveBeenCalledWith('config', config)
-    expect(helmetPluginMock).toHaveBeenCalledWith(app, expect.any(Object))
-    expect(sensiblePluginMock).toHaveBeenCalledWith(app, expect.any(Object))
-    expect(healthModuleMock).toHaveBeenCalledWith(app, { prefix: '/v1/health' })
-    expect(instance.get).toHaveBeenCalledWith('/v1/health', expect.any(Function))
-
-    const [onRequestHook] = instance.hooks.get('onRequest') ?? []
-    const headers = new Map<string, string>()
-    await onRequestHook?.(
-      { headers: {}, id: 'request-id' },
-      { header: (name: string, value: string) => headers.set(name, value) }
-    )
-    expect(headers.get('x-request-id')).toBe('request-id')
-
-    await app.close()
-  })
-
-  it('loads configuration when none is provided', async () => {
-    mockFastify()
-    mockDependencies()
-
-    const config: AppConfig = {
-      HOST: '0.0.0.0',
-      LOG_LEVEL: 'debug',
-      NODE_ENV: 'test',
-      PORT: 3001
-    }
-
-    const loadConfigMock = vi.fn(() => config)
-    vi.doMock('../core', async () => {
-      const actual = await vi.importActual<typeof import('../core')>('../core')
-      return {
-        ...actual,
-        loadConfig: loadConfigMock
-      }
-    })
-
-    const { buildApp } = await import('./buildApp')
+  it('loads configuration from loadConfig when no config is provided', async () => {
+    const loadConfigModule = await import('../core/config/loadConfig')
+    const config: AppConfig = { ...baseConfig, PORT: 3001 }
+    const loadConfigSpy = vi.spyOn(loadConfigModule, 'loadConfig').mockReturnValue(config)
 
     const app = await buildApp()
+    activeApps.push(app)
 
-    expect(loadConfigMock).toHaveBeenCalledTimes(1)
-
-    const instance = fastifyInstances[0]
-    if (!instance) {
-      throw new Error('Fastify instance was not created')
-    }
-    expect(instance.decorate).toHaveBeenCalledWith('config', config)
-
-    await app.close()
+    expect(loadConfigSpy).toHaveBeenCalledTimes(1)
+    expect(app.config).toEqual(config)
   })
 
-  it('serves the health endpoint with a real Fastify instance', async () => {
-    const { buildApp } = await import('./buildApp')
-
-    const config: AppConfig = {
-      HOST: '127.0.0.1',
-      LOG_LEVEL: 'fatal',
-      NODE_ENV: 'test',
-      PORT: 0
-    }
-
-    const app = await buildApp({
-      config
+  it('uses provided configuration without calling loadConfig', async () => {
+    const loadConfigModule = await import('../core/config/loadConfig')
+    const loadConfigSpy = vi.spyOn(loadConfigModule, 'loadConfig').mockImplementation(() => {
+      throw new Error('loadConfig should not be invoked when config is provided')
     })
+
+    const config: AppConfig = { ...baseConfig, PORT: 4000 }
+    const app = await buildApp({ config })
+    activeApps.push(app)
+
+    expect(loadConfigSpy).not.toHaveBeenCalled()
+    expect(app.config).toBe(config)
+    expect(app.config).toMatchObject({
+      HOST: '127.0.0.1',
+      PORT: 4000,
+      LOG_LEVEL: 'silent',
+      NODE_ENV: 'test'
+    })
+  })
+
+  it('generates distinct request ids when header is absent', async () => {
+    const app = await buildWithConfig()
+
+    const first = await app.inject({ method: 'GET', url: '/v1/health' })
+    const second = await app.inject({ method: 'GET', url: '/v1/health' })
+
+    expectHasHeader(first, 'x-request-id')
+    expectHasHeader(second, 'x-request-id')
+    expect(first.headers['x-request-id']).not.toBe(second.headers['x-request-id'])
+  })
+
+  it('respects incoming x-request-id header', async () => {
+    const app = await buildWithConfig()
+
+    const response = await app.inject({
+      headers: { 'x-request-id': 'abc' },
+      method: 'GET',
+      url: '/v1/health'
+    })
+
+    expectHeaderEquals(response, 'x-request-id', 'abc')
+  })
+
+  it('registers helmet plugin and exposes security headers', async () => {
+    const app = await buildWithConfig()
 
     const response = await app.inject({ method: 'GET', url: '/v1/health' })
 
-    expect(response.statusCode).toBe(200)
-    expect(response.json()).toMatchObject({ ok: true, uptime: expect.any(Number) })
+    expectHeaderEquals(response, 'x-dns-prefetch-control', 'off')
+    expectHeaderEquals(response, 'x-frame-options', 'SAMEORIGIN')
+  })
 
-    await app.close()
+  it('decorates app with sensible httpErrors helper', async () => {
+    const app = await buildWithConfig()
+
+    expect(app.httpErrors).toBeDefined()
+    expect(typeof app.httpErrors.badRequest).toBe('function')
+  })
+
+  it('exposes health route returning uptime payload', async () => {
+    const app = await buildWithConfig()
+
+    const response = await app.inject({ method: 'GET', url: '/v1/health' })
+    const body = response.json() as { ok: boolean; uptime: number }
+
+    expect(response.statusCode).toBe(200)
+    expect(body).toEqual({ ok: true, uptime: expect.any(Number) })
+    expect(body.uptime).toBeGreaterThanOrEqual(0)
+  })
+
+  it('enforces AJV removeAdditional policy', async () => {
+    const app = await buildWithConfig()
+
+    app.route({
+      handler: (request) => request.body,
+      method: 'POST',
+      schema: {
+        body: {
+          additionalProperties: false,
+          properties: { foo: { type: 'string' } },
+          required: ['foo'],
+          type: 'object'
+        }
+      } as const,
+      url: '/strict'
+    })
+
+    const response = await app.inject({
+      method: 'POST',
+      payload: { foo: 'bar', extra: 'nope' },
+      url: '/strict'
+    })
+
+    expect(response.statusCode).toBe(200)
+    expect(response.json()).toEqual({ foo: 'bar' })
+  })
+
+  it('runs onRequest hook before route handlers', async () => {
+    const app = await buildWithConfig()
+
+    app.get('/hook-order', async (request, reply) => {
+      return {
+        replyHeader: reply.getHeader('x-request-id'),
+        requestId: request.id
+      }
+    })
+
+    const response = await app.inject({ method: 'GET', url: '/hook-order' })
+    const body = response.json() as { replyHeader: unknown; requestId: string }
+
+    expect(body.requestId).toBeTypeOf('string')
+    expect(body.replyHeader).toBe(body.requestId)
+  })
+
+  it('builds logger via buildLogger and wires it to Fastify instance', async () => {
+    const loggerModule = await import('../core/logger/buildLogger')
+    const fakeLogger = {
+      child: vi.fn().mockReturnThis(),
+      debug: vi.fn(),
+      fatal: vi.fn(),
+      error: vi.fn(),
+      info: vi.fn(),
+      trace: vi.fn(),
+      warn: vi.fn()
+    }
+    const loggerSpy = vi
+      .spyOn(loggerModule, 'buildLogger')
+      .mockReturnValue(fakeLogger as unknown as ReturnType<(typeof loggerModule)['buildLogger']>)
+
+    const app = await buildApp({ config: baseConfig })
+    activeApps.push(app)
+
+    expect(loggerSpy).toHaveBeenCalledWith({
+      level: baseConfig.LOG_LEVEL,
+      nodeEnv: baseConfig.NODE_ENV
+    })
+    expect(app.log).toBe(fakeLogger)
+  })
+
+  it('creates independent app instances on repeated invocations', async () => {
+    const appOne = await buildWithConfig({ PORT: 1111 })
+    const appTwo = await buildWithConfig({ PORT: 2222 })
+
+    appOne.decorate('uniqueFlag', true)
+
+    expect(appOne).not.toBe(appTwo)
+    expect((appTwo as Record<string, unknown>).uniqueFlag).toBeUndefined()
   })
 })

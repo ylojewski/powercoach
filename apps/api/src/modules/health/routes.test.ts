@@ -1,51 +1,94 @@
-export {}
+import Fastify, { type RouteOptions } from 'fastify'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { registerHealthRoutes } from './routes'
+import { HEALTH_RESPONSE_SCHEMA_ID, healthResponseSchema, type HealthResponse } from './schemas'
+import * as serviceModule from './service'
+import type { AppConfig } from '@/core/config/envSchema'
+import { sensiblePlugin } from '@/plugins/sensible.plugin'
 
-const healthStatus = { ok: true, uptime: 42 }
+const baseConfig: AppConfig = {
+  HOST: '127.0.0.1',
+  LOG_LEVEL: 'silent',
+  NODE_ENV: 'test',
+  PORT: 0
+}
 
-vi.mock('./service', () => ({
-  getHealthStatus: vi.fn(() => healthStatus)
-}))
+const activeApps: ReturnType<typeof Fastify>[] = []
 
-const { getHealthStatus } = await import('./service')
+afterEach(async () => {
+  while (activeApps.length > 0) {
+    await activeApps.pop()?.close()
+  }
+})
 
-const { HEALTH_RESPONSE_SCHEMA_ID } = await import('./schemas')
+function createApp() {
+  const app = Fastify()
+  app.decorate('config', baseConfig)
+  app.addSchema(healthResponseSchema)
+  activeApps.push(app)
+  return app
+}
 
 describe('registerHealthRoutes', () => {
-  it('registers the health check route', async () => {
-    const { registerHealthRoutes } = await import('./routes')
-    const route = vi.fn()
-    const app = { route }
-
-    registerHealthRoutes(app as never)
-
-    expect(route).toHaveBeenCalledTimes(1)
-
-    const firstCall = route.mock.calls[0]
-    if (!firstCall) {
-      throw new Error('health route was not registered')
-    }
-
-    const [config] = firstCall as [
-      {
-        handler: () => Promise<unknown>
-        method: string
-        schema: { response: { 200: { $ref: string } } }
-        url: string
-      }
-    ]
-    const { handler } = config
-
-    expect(config).toStrictEqual({
-      handler,
-      method: 'GET',
-      schema: {
-        response: {
-          200: { $ref: `${HEALTH_RESPONSE_SCHEMA_ID}#` }
-        }
-      },
-      url: '/'
+  it('registers a GET / route referencing the shared schema', async () => {
+    const app = createApp()
+    const routes: RouteOptions[] = []
+    app.addHook('onRoute', (routeOptions) => {
+      routes.push(routeOptions)
     })
-    expect(await handler()).toEqual(healthStatus)
-    expect(getHealthStatus).toHaveBeenCalled()
+
+    registerHealthRoutes(app)
+    await app.ready()
+
+    const healthRoute = routes.find((route) => route.method === 'GET' && route.url === '/')
+    expect(healthRoute).toBeDefined()
+    expect(healthRoute?.schema?.response?.[200]).toEqual({ $ref: `${HEALTH_RESPONSE_SCHEMA_ID}#` })
+    expect(healthRoute?.schema?.operationId ?? undefined).toBeUndefined()
+    expect(healthRoute?.schema?.summary ?? undefined).toBeUndefined()
+    expect(healthRoute?.schema?.tags ?? undefined).toBeUndefined()
+
+    const response = await app.inject({ method: 'GET', url: '/' })
+    const body = response.json() as { ok: boolean; uptime: number }
+
+    expect(response.statusCode).toBe(200)
+    expect(body.ok).toBe(true)
+    expect(body.uptime).toBeGreaterThanOrEqual(0)
+  })
+
+  it('filters additional fields from the service response', async () => {
+    const getHealthStatusSpy = vi
+      .spyOn(serviceModule, 'getHealthStatus')
+      .mockImplementation(
+        () => ({ ok: true, uptime: 42, extra: 'nope' }) as unknown as HealthResponse
+      )
+    const app = createApp()
+
+    registerHealthRoutes(app)
+    await app.ready()
+
+    const response = await app.inject({ method: 'GET', url: '/' })
+    expect(response.statusCode).toBe(200)
+    expect(response.json()).toEqual({ ok: true, uptime: 42 })
+
+    getHealthStatusSpy.mockRestore()
+  })
+
+  it('returns JSON error payloads when the handler throws', async () => {
+    const getHealthStatusSpy = vi.spyOn(serviceModule, 'getHealthStatus').mockImplementation(() => {
+      throw new Error('boom')
+    })
+    const app = createApp()
+    await app.register(sensiblePlugin)
+
+    registerHealthRoutes(app)
+    await app.ready()
+
+    const response = await app.inject({ method: 'GET', url: '/' })
+    expect(response.statusCode).toBe(500)
+    expect(response.headers['content-type']).toContain('application/json')
+    const payload = response.json() as { error: string; message: string; statusCode: number }
+    expect(payload).toMatchObject({ error: 'Internal Server Error', statusCode: 500 })
+
+    getHealthStatusSpy.mockRestore()
   })
 })

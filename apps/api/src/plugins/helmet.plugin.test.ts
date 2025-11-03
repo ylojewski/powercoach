@@ -1,71 +1,81 @@
 import Fastify from 'fastify'
-import type { AppConfig } from '../core'
+import { describe, expect, it } from 'vitest'
+import { helmetPlugin } from './helmet.plugin'
+import type { AppConfig } from '@/core/config/envSchema'
 
-const helmetMock = vi.fn()
+const baseConfig: AppConfig = {
+  HOST: '127.0.0.1',
+  LOG_LEVEL: 'silent',
+  NODE_ENV: 'test',
+  PORT: 0
+}
 
-vi.mock('@fastify/helmet', () => ({
-  default: helmetMock
-}))
+async function createApp(nodeEnv: AppConfig['NODE_ENV']) {
+  const app = Fastify()
+  app.decorate('config', { ...baseConfig, NODE_ENV: nodeEnv })
+  await app.register(helmetPlugin)
+  await app.ready()
+  return app
+}
 
 describe('helmetPlugin', () => {
-  beforeEach(() => {
-    helmetMock.mockClear()
+  it('omits content-security-policy header in non-production environments', async () => {
+    const devApp = await createApp('development')
+    const testApp = await createApp('test')
+
+    const devResponse = await devApp.inject({ method: 'GET', url: '/' })
+    const testResponse = await testApp.inject({ method: 'GET', url: '/' })
+
+    expect(devResponse.headers['content-security-policy']).toBeUndefined()
+    expect(testResponse.headers['content-security-policy']).toBeUndefined()
+
+    await devApp.close()
+    await testApp.close()
   })
 
-  it('registers helmet with relaxed CSP outside production', async () => {
-    const { helmetPlugin } = await import('./helmet.plugin')
-    const app = Fastify()
-    const config: AppConfig = {
-      HOST: '0.0.0.0',
-      LOG_LEVEL: 'info',
-      NODE_ENV: 'development',
-      PORT: 3000
-    }
-    app.decorate('config', config)
+  it('enables content-security-policy in production', async () => {
+    const app = await createApp('production')
+    const response = await app.inject({ method: 'GET', url: '/' })
 
-    try {
-      await app.register(helmetPlugin)
+    expect(response.headers['content-security-policy']).toBeDefined()
 
-      expect(helmetMock).toHaveBeenCalledTimes(1)
-      const firstCall = helmetMock.mock.calls[0]
-      if (!firstCall) {
-        throw new Error('helmet should have been registered')
-      }
-      const [, options] = firstCall
-      expect(options).toStrictEqual({
-        contentSecurityPolicy: false,
-        crossOriginEmbedderPolicy: false
-      })
-    } finally {
-      await app.close()
-    }
+    await app.close()
   })
 
-  it('registers helmet without overriding CSP in production', async () => {
-    const { helmetPlugin } = await import('./helmet.plugin')
-    const app = Fastify()
-    const config: AppConfig = {
-      HOST: '0.0.0.0',
-      LOG_LEVEL: 'info',
-      NODE_ENV: 'production',
-      PORT: 3000
-    }
-    app.decorate('config', config)
+  it('sets common security headers', async () => {
+    const app = await createApp('production')
+    const response = await app.inject({ method: 'GET', url: '/' })
 
-    try {
-      await app.register(helmetPlugin)
+    expect(response.headers['x-dns-prefetch-control']).toBe('off')
+    expect(response.headers['x-frame-options']).toBe('SAMEORIGIN')
+    expect(response.headers['x-xss-protection']).toBe('0')
 
-      expect(helmetMock).toHaveBeenCalledTimes(1)
-      const firstCall = helmetMock.mock.calls[0]
-      if (!firstCall) {
-        throw new Error('helmet should have been registered')
-      }
-      const [, options] = firstCall
-      expect(options).toStrictEqual({
-        crossOriginEmbedderPolicy: false
-      })
-    } finally {
-      await app.close()
+    await app.close()
+  })
+
+  it('disables COEP/CORP when configured', async () => {
+    const app = await createApp('test')
+    const response = await app.inject({ method: 'GET', url: '/' })
+
+    expect(response.headers['cross-origin-embedder-policy']).toBeUndefined()
+    expect(response.headers['cross-origin-resource-policy']).toBeUndefined()
+
+    await app.close()
+  })
+
+  it('does not duplicate headers across requests', async () => {
+    const app = await createApp('production')
+
+    const first = await app.inject({ method: 'GET', url: '/' })
+    const second = await app.inject({ method: 'GET', url: '/' })
+
+    const headerNames = ['x-dns-prefetch-control', 'x-frame-options'] as const
+    for (const name of headerNames) {
+      expect(Array.isArray(first.headers[name])).toBe(false)
+      expect(Array.isArray(second.headers[name])).toBe(false)
+      expect(first.headers[name]).toBe(second.headers[name])
     }
+
+    await app.close()
   })
 })

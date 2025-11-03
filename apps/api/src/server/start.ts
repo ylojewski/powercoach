@@ -8,7 +8,14 @@ export async function start() {
   const config = loadConfig()
   const app = await buildApp({ config })
 
+  let closing = false
+
   const closeApp = async () => {
+    if (closing) {
+      return
+    }
+
+    closing = true
     try {
       await app.close()
       app.log.info('Fastify instance closed gracefully')

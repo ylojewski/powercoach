@@ -1,18 +1,32 @@
-import pino, { type LoggerOptions } from 'pino'
+import pino, { type DestinationStream, type LoggerOptions } from 'pino'
 
 export interface BuildLoggerOptions {
   level: LoggerOptions['level']
   nodeEnv: string
+  destination?: DestinationStream
 }
 
-export function buildLogger({ level, nodeEnv }: BuildLoggerOptions) {
+export function buildLogger({ level, nodeEnv, destination }: BuildLoggerOptions) {
   const isDevLike = nodeEnv !== 'production'
 
   const options: LoggerOptions = {
     level,
     redact: {
       censor: '[REDACTED]',
-      paths: ['req.headers.authorization', 'req.headers.cookie']
+      paths: [
+        'req.headers.authorization',
+        'req.headers.cookie',
+        'req.headers.x-api-key',
+        'req.headers["x-api-key"]',
+        'req.headers.set-cookie',
+        'req.headers["set-cookie"]',
+        'req.body.password',
+        'req.body.token',
+        'req.body.access_token',
+        'req.body.refresh_token',
+        'res.headers.set-cookie',
+        'res.headers["set-cookie"]'
+      ]
     }
   }
 
@@ -26,5 +40,5 @@ export function buildLogger({ level, nodeEnv }: BuildLoggerOptions) {
     }
   }
 
-  return pino(options)
+  return pino(options, destination)
 }

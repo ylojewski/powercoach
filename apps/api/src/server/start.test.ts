@@ -1,189 +1,212 @@
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const buildAppMock = vi.fn()
-const loadConfigMock = vi.fn()
+vi.mock('../core', async () => {
+  const actual = await vi.importActual<typeof import('../core')>('../core')
+  return {
+    ...actual,
+    loadConfig: vi.fn()
+  }
+})
 
 vi.mock('../app', () => ({
-  buildApp: buildAppMock
+  buildApp: vi.fn()
 }))
 
-vi.mock('../core', () => ({
-  loadConfig: loadConfigMock
-}))
+const modulePath = './start'
+
+interface FakeApp {
+  close: ReturnType<typeof vi.fn>
+  listen: ReturnType<typeof vi.fn>
+  log: { info: ReturnType<typeof vi.fn>; error: ReturnType<typeof vi.fn> }
+}
+
+function createFakeApp(): FakeApp {
+  return {
+    close: vi.fn().mockResolvedValue(undefined),
+    listen: vi.fn().mockResolvedValue('0.0.0.0:12345'),
+    log: {
+      error: vi.fn(),
+      info: vi.fn()
+    }
+  }
+}
 
 describe('start', () => {
-  const flushAsync = async () => {
-    await Promise.resolve()
-    await Promise.resolve()
-  }
-
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.resetModules()
-    buildAppMock.mockReset()
-    loadConfigMock.mockReset()
   })
 
-  afterEach(() => {
-    vi.restoreAllMocks()
-  })
-
-  it('starts the server and wires shutdown handlers', async () => {
-    const config = {
+  it('starts the server with loaded configuration', async () => {
+    const { loadConfig } = await import('../core')
+    const { buildApp } = await import('../app')
+    const fakeApp = createFakeApp()
+    ;(loadConfig as ReturnType<typeof vi.fn>).mockReturnValue({
       HOST: '0.0.0.0',
-      PORT: 3000
-    }
-
-    loadConfigMock.mockReturnValue(config)
-
-    const handlers = new Map<string | symbol, (payload: unknown) => void>()
-    const processOnSpy = vi.spyOn(process, 'on').mockImplementation((event, handler) => {
-      handlers.set(event, handler as (payload: unknown) => void)
-      return process
+      LOG_LEVEL: 'info',
+      NODE_ENV: 'test',
+      PORT: 0
     })
-    const processExitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
+    ;(buildApp as ReturnType<typeof vi.fn>).mockResolvedValue(fakeApp)
 
-    const app = {
-      close: vi.fn().mockResolvedValue(undefined),
-      listen: vi.fn().mockResolvedValue('http://localhost:3000'),
-      log: {
-        error: vi.fn(),
-        info: vi.fn()
-      }
-    }
-
-    buildAppMock.mockResolvedValue(app)
-
-    const { start } = await import('./start')
-
+    const { start } = await import(modulePath)
     const result = await start()
 
-    expect(loadConfigMock).toHaveBeenCalledTimes(1)
-    expect(buildAppMock).toHaveBeenCalledWith({ config })
-    expect(app.listen).toHaveBeenCalledWith({ host: '0.0.0.0', port: 3000 })
-    expect(app.log.info).toHaveBeenCalledWith(
-      { address: 'http://localhost:3000' },
-      'Server listening'
-    )
-    expect(result).toEqual({ address: 'http://localhost:3000', app })
-
-    const sigintHandler = handlers.get('SIGINT')
-    if (!sigintHandler) {
-      throw new Error('SIGINT handler not registered')
-    }
-    sigintHandler('SIGINT')
-    await flushAsync()
-
-    expect(app.log.info).toHaveBeenCalledWith({ signal: 'SIGINT' }, 'Received shutdown signal')
-    expect(app.close).toHaveBeenCalledTimes(1)
-    expect(app.log.info).toHaveBeenCalledWith('Fastify instance closed gracefully')
-    expect(processExitSpy).toHaveBeenCalledWith(0)
-
-    const sigtermHandler = handlers.get('SIGTERM')
-    if (!sigtermHandler) {
-      throw new Error('SIGTERM handler not registered')
-    }
-    app.close.mockRejectedValueOnce(new Error('close failed'))
-    sigtermHandler('SIGTERM')
-    await flushAsync()
-
-    expect(app.log.error).toHaveBeenCalledWith(
-      { err: expect.any(Error) },
-      'Error during Fastify shutdown'
-    )
-    expect(processExitSpy).toHaveBeenCalledWith(0)
-
-    const rejectionHandler = handlers.get('unhandledRejection')
-    if (!rejectionHandler) {
-      throw new Error('Unhandled rejection handler not registered')
-    }
-    rejectionHandler('boom')
-    await flushAsync()
-    expect(app.log.error).toHaveBeenCalledWith({ reason: 'boom' }, 'Unhandled rejection')
-
-    const exceptionHandler = handlers.get('uncaughtException')
-    if (!exceptionHandler) {
-      throw new Error('Uncaught exception handler not registered')
-    }
-    exceptionHandler(new Error('crash'))
-    await flushAsync()
-    expect(app.log.error).toHaveBeenCalledWith({ err: expect.any(Error) }, 'Uncaught exception')
-
-    processOnSpy.mockRestore()
-    processExitSpy.mockRestore()
+    expect(buildApp).toHaveBeenCalledWith({
+      config: { HOST: '0.0.0.0', LOG_LEVEL: 'info', NODE_ENV: 'test', PORT: 0 }
+    })
+    expect(fakeApp.listen).toHaveBeenCalledWith({ host: '0.0.0.0', port: 0 })
+    expect(result.address).toBe('0.0.0.0:12345')
+    const [, port] = result.address.split(':')
+    expect(Number(port)).toBeGreaterThan(0)
   })
 
-  it('exits when the server fails to listen', async () => {
-    loadConfigMock.mockReturnValue({ HOST: '0.0.0.0', PORT: 3000 })
+  it('logs and exits when listen fails', async () => {
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation((() => undefined) as never)
+    const { loadConfig } = await import('../core')
+    const { buildApp } = await import('../app')
+    const fakeApp = createFakeApp()
+    fakeApp.listen.mockRejectedValue(new Error('boom'))
+    ;(loadConfig as ReturnType<typeof vi.fn>).mockReturnValue({
+      HOST: '127.0.0.1',
+      LOG_LEVEL: 'info',
+      NODE_ENV: 'test',
+      PORT: 3000
+    })
+    ;(buildApp as ReturnType<typeof vi.fn>).mockResolvedValue(fakeApp)
 
-    const processExitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
-
-    const app = {
-      close: vi.fn(),
-      listen: vi.fn().mockRejectedValue(new Error('listen failed')),
-      log: {
-        error: vi.fn(),
-        info: vi.fn()
-      }
-    }
-
-    buildAppMock.mockResolvedValue(app)
-
-    const { start } = await import('./start')
-
+    const { start } = await import(modulePath)
     await start()
 
-    expect(app.log.error).toHaveBeenCalledWith({ err: expect.any(Error) }, 'Unable to start server')
-    expect(processExitSpy).toHaveBeenCalledWith(1)
-
-    processExitSpy.mockRestore()
+    expect(fakeApp.log.error).toHaveBeenCalled()
+    expect(exitSpy).toHaveBeenCalledWith(1)
   })
 
-  it('auto starts when executed directly outside the test environment', async () => {
-    loadConfigMock.mockReturnValue({ HOST: '0.0.0.0', PORT: 3000 })
+  it('closes gracefully on shutdown signals', async () => {
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation((() => undefined) as never)
+    const { loadConfig } = await import('../core')
+    const { buildApp } = await import('../app')
+    const fakeApp = createFakeApp()
+    ;(loadConfig as ReturnType<typeof vi.fn>).mockReturnValue({
+      HOST: '0.0.0.0',
+      LOG_LEVEL: 'info',
+      NODE_ENV: 'test',
+      PORT: 0
+    })
+    ;(buildApp as ReturnType<typeof vi.fn>).mockResolvedValue(fakeApp)
 
-    const originalNodeEnv = process.env.NODE_ENV
-    const originalArgv = process.argv.slice()
-    const scriptModuleUrl = import.meta.url.replace(/\.test(?=\.[^.]+$)/, '')
-    const scriptPath = fileURLToPath(scriptModuleUrl)
+    const { start } = await import(modulePath)
+    await start()
+
+    process.emit('SIGINT')
+    await vi.waitFor(() => {
+      expect(fakeApp.close).toHaveBeenCalledTimes(1)
+      expect(exitSpy).toHaveBeenCalledWith(0)
+    })
+
+    process.emit('SIGTERM')
+    await vi.waitFor(() => {
+      expect(fakeApp.close).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  it('handles unhandled rejections and uncaught exceptions', async () => {
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation((() => undefined) as never)
+    const { loadConfig } = await import('../core')
+    const { buildApp } = await import('../app')
+    const fakeApp = createFakeApp()
+    ;(loadConfig as ReturnType<typeof vi.fn>).mockReturnValue({
+      HOST: '0.0.0.0',
+      LOG_LEVEL: 'info',
+      NODE_ENV: 'test',
+      PORT: 0
+    })
+    ;(buildApp as ReturnType<typeof vi.fn>).mockResolvedValue(fakeApp)
+
+    const { start } = await import(modulePath)
+    await start()
+
+    process.emit('unhandledRejection', new Error('reject'))
+    await vi.waitFor(() => {
+      expect(fakeApp.log.error).toHaveBeenCalled()
+      expect(fakeApp.close).toHaveBeenCalled()
+      expect(exitSpy).toHaveBeenCalledWith(0)
+    })
+
+    fakeApp.log.error.mockClear()
+    fakeApp.close.mockClear()
+    exitSpy.mockClear()
+
+    process.emit('uncaughtException', new Error('crash'))
+    await vi.waitFor(() => {
+      expect(fakeApp.log.error).toHaveBeenCalled()
+    })
+    expect(fakeApp.close).not.toHaveBeenCalled()
+    expect(exitSpy).not.toHaveBeenCalled()
+  })
+
+  it('logs errors when closing fails', async () => {
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation((() => undefined) as never)
+    const { loadConfig } = await import('../core')
+    const { buildApp } = await import('../app')
+    const fakeApp = createFakeApp()
+    fakeApp.close.mockRejectedValue(new Error('close fail'))
+    ;(loadConfig as ReturnType<typeof vi.fn>).mockReturnValue({
+      HOST: '0.0.0.0',
+      LOG_LEVEL: 'info',
+      NODE_ENV: 'test',
+      PORT: 0
+    })
+    ;(buildApp as ReturnType<typeof vi.fn>).mockResolvedValue(fakeApp)
+
+    const { start } = await import(modulePath)
+    await start()
+
+    process.emit('SIGINT')
+    await vi.waitFor(() => {
+      expect(fakeApp.log.error).toHaveBeenCalledWith(
+        expect.objectContaining({ err: expect.any(Error) }),
+        'Error during Fastify shutdown'
+      )
+      expect(exitSpy).toHaveBeenCalledWith(0)
+    })
+  })
+
+  it('auto-starts when executed directly outside test environment', async () => {
+    const originalEnv = process.env.NODE_ENV
+    const originalArgv = [...process.argv]
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation((() => undefined) as never)
+    const { loadConfig } = await import('../core')
+    const { buildApp } = await import('../app')
+    const fakeApp = createFakeApp()
+    fakeApp.listen.mockResolvedValue('0.0.0.0:3000')
+    ;(loadConfig as ReturnType<typeof vi.fn>).mockReturnValue({
+      HOST: '0.0.0.0',
+      LOG_LEVEL: 'info',
+      NODE_ENV: 'development',
+      PORT: 0
+    })
+    ;(buildApp as ReturnType<typeof vi.fn>).mockResolvedValue(fakeApp)
 
     process.env.NODE_ENV = 'development'
-    const nodeExecutable = process.argv[0] ?? process.execPath
-    process.argv = [nodeExecutable, scriptPath]
+    const moduleFilePath = fileURLToPath(new URL('./start.ts', import.meta.url))
+    process.argv[1] = moduleFilePath
 
-    const processOnSpy = vi.spyOn(process, 'on').mockImplementation(() => process)
-    const processExitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
+    await import(modulePath)
 
-    const app = {
-      close: vi.fn().mockResolvedValue(undefined),
-      listen: vi.fn().mockResolvedValue('http://localhost:3000'),
-      log: {
-        error: vi.fn(),
-        info: vi.fn()
-      }
-    }
+    await vi.waitFor(() => {
+      expect(buildApp).toHaveBeenCalled()
+      expect(fakeApp.listen).toHaveBeenCalled()
+    })
+    expect(exitSpy).not.toHaveBeenCalled()
 
-    buildAppMock.mockResolvedValue(app)
+    process.env.NODE_ENV = originalEnv
+    process.argv.splice(0, process.argv.length, ...originalArgv)
+  })
 
-    await import('./start')
-
-    await flushAsync()
-
-    expect(loadConfigMock).toHaveBeenCalledTimes(1)
-    expect(app.listen).toHaveBeenCalledWith({ host: '0.0.0.0', port: 3000 })
-    expect(app.log.info).toHaveBeenCalledWith(
-      { address: 'http://localhost:3000' },
-      'Server listening'
-    )
-
-    if (originalNodeEnv === undefined) {
-      delete process.env.NODE_ENV
-    } else {
-      process.env.NODE_ENV = originalNodeEnv
-    }
-    process.argv = originalArgv
-
-    processOnSpy.mockRestore()
-    processExitSpy.mockRestore()
+  it('does not auto-start when imported under test environment', async () => {
+    const { start } = await import(modulePath)
+    expect(typeof start).toBe('function')
   })
 })
