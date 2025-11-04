@@ -6,7 +6,9 @@ export interface CreateEmptyAppOptions {
   withConfig?: boolean | NODE_ENV
 }
 
-export function createEmptyApp({ withConfig }: CreateEmptyAppOptions): FastifyInstance {
+export function createEmptyApp({
+  withConfig = false
+}: CreateEmptyAppOptions = {}): FastifyInstance {
   const app = Fastify()
 
   if (withConfig) {

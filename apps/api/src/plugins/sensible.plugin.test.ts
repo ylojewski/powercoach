@@ -1,28 +1,36 @@
-import Fastify from 'fastify'
-
-const sensibleMock = vi.fn()
-
-vi.mock('@fastify/sensible', () => ({
-  default: sensibleMock
-}))
+import { createEmptyApp } from '@test/utils/app'
+import { FastifyInstance } from 'fastify'
+import { afterAll, beforeAll } from 'vitest'
+import { sensiblePlugin } from './sensible.plugin'
 
 describe('sensiblePlugin', () => {
-  it('registers the sensible plugin', async () => {
-    const { sensiblePlugin } = await import('./sensible.plugin')
-    const app = Fastify()
+  let app: FastifyInstance
 
-    try {
-      await app.register(sensiblePlugin)
+  beforeAll(async () => {
+    app = createEmptyApp()
+    await app.register(sensiblePlugin)
+  })
 
-      expect(sensibleMock).toHaveBeenCalledTimes(1)
-      const firstCall = sensibleMock.mock.calls[0]
-      if (!firstCall) {
-        throw new Error('sensible should have been registered')
-      }
-      const [, options] = firstCall
-      expect(options).toEqual({})
-    } finally {
-      await app.close()
-    }
+  afterAll(async () => {
+    await app.close()
+  })
+
+  it('provides some sensible decorators', async () => {
+    expect(app.hasDecorator('httpErrors')).toBe(true)
+  })
+
+  it('uses the notFound sesible response', async () => {
+    const response = await app.inject({
+      method: 'GET',
+      url: '/not-found'
+    })
+
+    expect(response.statusCode).toBe(404)
+    expect(response.headers['content-type']).toMatch(/application\/json/)
+    expect(response.json()).toStrictEqual({
+      error: 'Not Found',
+      message: 'Route GET:/not-found not found',
+      statusCode: 404
+    })
   })
 })
