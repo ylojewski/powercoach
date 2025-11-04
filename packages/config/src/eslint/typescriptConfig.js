@@ -19,6 +19,9 @@ export const typescriptConfig = {
       project: ['./tsconfig.src.json'],
       tsconfigRootDir: process.cwd(),
       sourceType: 'module'
+    },
+    globals: {
+      ...globals.node
     }
   },
   plugins: {
@@ -45,7 +48,7 @@ export const typescriptTestConfig = {
       project: ['./tsconfig.test.json']
     },
     globals: {
-      ...globals.node,
+      ...(typescriptConfig.languageOptions?.globals ?? {}),
       ...globals.vitest
     }
   }

@@ -1,4 +1,4 @@
-import { expectZodParseToThrow } from '@test/expectZodParseToThrow'
+import { expectZodParseToThrow } from '@test/utils/zod'
 import { expect } from 'vitest'
 import { ZodSafeParseResult } from 'zod'
 import { AppConfig, envSchema } from './envSchema'
