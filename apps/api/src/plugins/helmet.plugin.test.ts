@@ -1,72 +1,47 @@
-import Fastify from 'fastify'
-import type { AppConfig } from '../core'
-import { LOG_LEVEL, NODE_ENV } from '@/types/env.d'
+import { createEmptyApp } from '@test/utils/app'
+import { expect } from 'vitest'
+import { NODE_ENV } from '@/types/env.d'
 
-const helmetMock = vi.fn()
+const helmetSpy = vi.fn()
 
 vi.mock('@fastify/helmet', () => ({
-  default: helmetMock
+  default: helmetSpy
 }))
 
 describe('helmetPlugin', () => {
   beforeEach(() => {
-    helmetMock.mockClear()
+    helmetSpy.mockClear()
   })
 
   it('registers helmet with relaxed CSP outside production', async () => {
     const { helmetPlugin } = await import('./helmet.plugin')
-    const app = Fastify()
-    const config: AppConfig = {
-      HOST: '0.0.0.0',
-      LOG_LEVEL: LOG_LEVEL.info,
-      NODE_ENV: NODE_ENV.development,
-      PORT: 3000
-    }
-    app.decorate('config', config)
+    const app = createEmptyApp({ withConfig: true })
 
-    try {
-      await app.register(helmetPlugin)
+    await app.register(helmetPlugin)
 
-      expect(helmetMock).toHaveBeenCalledTimes(1)
-      const firstCall = helmetMock.mock.calls[0]
-      if (!firstCall) {
-        throw new Error('helmet should have been registered')
-      }
-      const [, options] = firstCall
-      expect(options).toStrictEqual({
-        contentSecurityPolicy: false,
-        crossOriginEmbedderPolicy: false
-      })
-    } finally {
-      await app.close()
-    }
+    expect(helmetSpy).toHaveBeenCalledOnce()
+    expect(helmetSpy.mock.calls[0]?.[1]).toStrictEqual({
+      contentSecurityPolicy: false,
+      crossOriginEmbedderPolicy: false
+    })
+
+    await app.close()
   })
 
   it('registers helmet without overriding CSP in production', async () => {
     const { helmetPlugin } = await import('./helmet.plugin')
-    const app = Fastify()
-    const config: AppConfig = {
-      HOST: '0.0.0.0',
-      LOG_LEVEL: LOG_LEVEL.info,
-      NODE_ENV: NODE_ENV.production,
-      PORT: 3000
-    }
-    app.decorate('config', config)
+    const app = createEmptyApp({ withConfig: NODE_ENV.production })
 
-    try {
-      await app.register(helmetPlugin)
+    await app.register(helmetPlugin)
 
-      expect(helmetMock).toHaveBeenCalledTimes(1)
-      const firstCall = helmetMock.mock.calls[0]
-      if (!firstCall) {
-        throw new Error('helmet should have been registered')
-      }
-      const [, options] = firstCall
-      expect(options).toStrictEqual({
-        crossOriginEmbedderPolicy: false
-      })
-    } finally {
-      await app.close()
-    }
+    expect(helmetSpy).toHaveBeenCalledOnce()
+    expect(helmetSpy.mock.calls[0]?.[1]).toStrictEqual({
+      crossOriginEmbedderPolicy: false
+    })
+    expect(helmetSpy.mock.calls[0]?.[1]).not.toContain({
+      contentSecurityPolicy: false
+    })
+
+    await app.close()
   })
 })
