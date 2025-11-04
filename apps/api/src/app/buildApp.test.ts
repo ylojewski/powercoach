@@ -1,4 +1,5 @@
 import type { AppConfig } from '../core'
+import { LOG_LEVEL, NODE_ENV } from '@/types/env.d'
 
 interface InjectOptions {
   headers?: Record<string, string>
@@ -160,8 +161,8 @@ describe('buildApp', () => {
     const { buildApp } = await import('./buildApp')
     const config: AppConfig = {
       HOST: '127.0.0.1',
-      LOG_LEVEL: 'info',
-      NODE_ENV: 'development',
+      LOG_LEVEL: LOG_LEVEL.info,
+      NODE_ENV: NODE_ENV.development,
       PORT: 4000
     }
 
@@ -211,8 +212,8 @@ describe('buildApp', () => {
 
     const config: AppConfig = {
       HOST: '0.0.0.0',
-      LOG_LEVEL: 'debug',
-      NODE_ENV: 'test',
+      LOG_LEVEL: LOG_LEVEL.debug,
+      NODE_ENV: NODE_ENV.test,
       PORT: 3001
     }
 
@@ -245,8 +246,8 @@ describe('buildApp', () => {
 
     const config: AppConfig = {
       HOST: '127.0.0.1',
-      LOG_LEVEL: 'fatal',
-      NODE_ENV: 'test',
+      LOG_LEVEL: LOG_LEVEL.fatal,
+      NODE_ENV: NODE_ENV.test,
       PORT: 0
     }
 

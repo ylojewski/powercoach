@@ -1,54 +1,78 @@
-import { ZodError } from 'zod'
-import { envSchema } from './envSchema'
+import { expectZodParseToThrow } from '@test/expectZodParseToThrow'
+import { expect } from 'vitest'
+import { ZodSafeParseResult } from 'zod'
+import { AppConfig, envSchema } from './envSchema'
+import { LOG_LEVEL, NODE_ENV } from '@/types/env.d'
+
+const validAppConfig: AppConfig = {
+  HOST: '127.0.0.1',
+  LOG_LEVEL: LOG_LEVEL.error,
+  NODE_ENV: NODE_ENV.production,
+  PORT: 4002
+} as const
+
+const invalidAppConfig: AppConfig = {
+  HOST: '256.256.256.256',
+  LOG_LEVEL: 'invalid' as LOG_LEVEL,
+  NODE_ENV: 'invalid' as NODE_ENV,
+  PORT: 0
+} as const
+
+const tooBigPortAppConfig: AppConfig = {
+  ...validAppConfig,
+  PORT: 70000
+} as const
 
 describe('envSchema', () => {
-  it('applies defaults when variables are missing', () => {
-    const result = envSchema.parse({})
-
-    expect(result).toEqual({
-      HOST: '0.0.0.0',
-      LOG_LEVEL: 'info',
-      NODE_ENV: 'development',
-      PORT: 3000
+  it('parses valid values', () => {
+    expect(() => envSchema.parse(validAppConfig)).not.toThrow()
+    expect(envSchema.safeParse(validAppConfig)).toStrictEqual<ZodSafeParseResult<AppConfig>>({
+      data: {
+        HOST: '127.0.0.1',
+        LOG_LEVEL: LOG_LEVEL.error,
+        NODE_ENV: NODE_ENV.production,
+        PORT: 4002
+      },
+      success: true
     })
   })
 
-  it('rejects invalid values', () => {
-    const invalidEnvironment = {
-      HOST: '0.0.0.0',
-      LOG_LEVEL: 'verbose',
-      NODE_ENV: 'development',
-      PORT: -1
-    } as const
+  it('rejects empty values', () => {
+    const validEnvKeys = new RegExp(Object.keys(validAppConfig).join('|'))
+    expect(() => envSchema.parse({})).toThrow(validEnvKeys)
+  })
 
-    let thrown: unknown
+  it('rejects full invalid values', () => {
+    const zodError = expectZodParseToThrow(envSchema, invalidAppConfig)
 
-    expect(() => {
-      try {
-        envSchema.parse(invalidEnvironment)
-      } catch (error) {
-        thrown = error
-        throw error
-      }
-    }).toThrowError(ZodError)
-
-    expect(thrown).toBeInstanceOf(ZodError)
-    console.log((thrown as ZodError).issues)
-    expect((thrown as ZodError).issues).toEqual([
+    expect(zodError.issues).toStrictEqual([
       expect.objectContaining({
-        code: 'invalid_value',
-        values: ['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'],
-        path: ['LOG_LEVEL'],
-        message:
-          'Invalid option: expected one of "fatal"|"error"|"warn"|"info"|"debug"|"trace"|"silent"'
+        message: 'Invalid IPv4 address',
+        path: ['HOST']
       }),
       expect.objectContaining({
-        origin: 'number',
-        code: 'too_small',
-        minimum: 0,
-        inclusive: true,
-        path: ['PORT'],
-        message: 'Too small: expected number to be >=0'
+        message:
+          'Invalid option: expected one of "debug"|"error"|"fatal"|"info"|"silent"|"trace"|"warn"',
+        path: ['LOG_LEVEL']
+      }),
+      expect.objectContaining({
+        message: 'Invalid option: expected one of "development"|"production"|"test"',
+        path: ['NODE_ENV']
+      }),
+      expect.objectContaining({
+        message: 'Too small: expected number to be >=1',
+        path: ['PORT']
+      })
+    ])
+  })
+
+  it('rejects a too big PORT value', () => {
+    const zodError = expectZodParseToThrow(envSchema, tooBigPortAppConfig)
+
+    expect(zodError.issues).toStrictEqual([
+      expect.objectContaining({
+        message: 'Too big: expected number to be <=65535',
+        path: ['PORT']
       })
     ])
   })

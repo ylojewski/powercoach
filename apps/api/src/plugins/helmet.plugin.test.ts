@@ -1,5 +1,6 @@
 import Fastify from 'fastify'
 import type { AppConfig } from '../core'
+import { LOG_LEVEL, NODE_ENV } from '@/types/env.d'
 
 const helmetMock = vi.fn()
 
@@ -17,8 +18,8 @@ describe('helmetPlugin', () => {
     const app = Fastify()
     const config: AppConfig = {
       HOST: '0.0.0.0',
-      LOG_LEVEL: 'info',
-      NODE_ENV: 'development',
+      LOG_LEVEL: LOG_LEVEL.info,
+      NODE_ENV: NODE_ENV.development,
       PORT: 3000
     }
     app.decorate('config', config)
@@ -46,8 +47,8 @@ describe('helmetPlugin', () => {
     const app = Fastify()
     const config: AppConfig = {
       HOST: '0.0.0.0',
-      LOG_LEVEL: 'info',
-      NODE_ENV: 'production',
+      LOG_LEVEL: LOG_LEVEL.info,
+      NODE_ENV: NODE_ENV.production,
       PORT: 3000
     }
     app.decorate('config', config)

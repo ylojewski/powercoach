@@ -18,7 +18,7 @@ describe('loadConfig', () => {
       PORT: process.env.PORT
     }
 
-    process.env.HOST = 'localhost'
+    process.env.HOST = '127.0.0.1'
     process.env.LOG_LEVEL = 'info'
     process.env.NODE_ENV = 'production'
     process.env.PORT = '4000'
@@ -27,7 +27,7 @@ describe('loadConfig', () => {
     const { loadConfig } = await import(envModulePath)
 
     expect(loadConfig()).toEqual({
-      HOST: 'localhost',
+      HOST: '127.0.0.1',
       LOG_LEVEL: 'info',
       NODE_ENV: 'production',
       PORT: 4000
@@ -82,7 +82,7 @@ describe('loadConfig', () => {
     const { loadConfig } = await import(envModulePath)
 
     const first = loadConfig({
-      HOST: 'localhost',
+      HOST: '127.0.0.1',
       LOG_LEVEL: 'info',
       NODE_ENV: 'development',
       PORT: '3000'
@@ -97,7 +97,7 @@ describe('loadConfig', () => {
 
     expect(first).toBe(second)
     expect(second).toEqual({
-      HOST: 'localhost',
+      HOST: '127.0.0.1',
       LOG_LEVEL: 'info',
       NODE_ENV: 'development',
       PORT: 3000
