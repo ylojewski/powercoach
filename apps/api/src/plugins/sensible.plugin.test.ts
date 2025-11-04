@@ -15,11 +15,11 @@ describe('sensiblePlugin', () => {
     await app.close()
   })
 
-  it('provides some sensible decorators', async () => {
+  it('provides sensible decorators', async () => {
     expect(app.hasDecorator('httpErrors')).toBe(true)
   })
 
-  it('uses the notFound sesible response', async () => {
+  it('provides sensible responses', async () => {
     const response = await app.inject({
       method: 'GET',
       url: '/not-found'

@@ -1,24 +1,21 @@
-export {}
-
 const registerHealthRoutes = vi.fn()
 
 vi.mock('./routes', () => ({
   registerHealthRoutes
 }))
 
-const { healthResponseSchema } = await import('./schemas')
-
 describe('healthModule', () => {
-  beforeEach(() => {
-    registerHealthRoutes.mockClear()
+  afterAll(() => {
+    vi.resetModules()
   })
 
   it('adds schema and registers routes', async () => {
-    const { healthModule } = await import('./plugin')
+    const { healthResponseSchema } = await import('./schemas')
+    const { healthModule } = await import('./module')
     const addSchema = vi.fn()
     const app = { addSchema }
 
-    await healthModule(app as never, {} as never)
+    await healthModule(app as never, {})
 
     expect(addSchema).toHaveBeenCalledWith(healthResponseSchema)
     expect(registerHealthRoutes).toHaveBeenCalledWith(app)
