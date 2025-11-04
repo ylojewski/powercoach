@@ -33,7 +33,6 @@ describe('envSchema', () => {
     }).toThrowError(ZodError)
 
     expect(thrown).toBeInstanceOf(ZodError)
-    console.log((thrown as ZodError).issues)
     expect((thrown as ZodError).issues).toEqual([
       expect.objectContaining({
         code: 'invalid_value',
