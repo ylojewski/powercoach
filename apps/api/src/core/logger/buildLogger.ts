@@ -1,18 +1,29 @@
 import pino, { type LoggerOptions } from 'pino'
+import { NODE_ENV } from '@/types/env.d'
 
 export interface BuildLoggerOptions {
   level: LoggerOptions['level']
-  nodeEnv: string
+  nodeEnv: NODE_ENV
 }
 
+export const censoredPaths: string[] = [
+  'req.headers.authorization',
+  'req.headers.cookie',
+  'req.body.password',
+  'req.body.token',
+  'req.body.refreshToken',
+  'req.query.*token*',
+  'res.headers.set-cookie'
+] as const
+
 export function buildLogger({ level, nodeEnv }: BuildLoggerOptions) {
-  const isDevLike = nodeEnv !== 'production'
+  const isDevLike = nodeEnv !== NODE_ENV.production
 
   const options: LoggerOptions = {
     level,
     redact: {
       censor: '[REDACTED]',
-      paths: ['req.headers.authorization', 'req.headers.cookie']
+      paths: censoredPaths
     }
   }
 

@@ -1,49 +1,77 @@
-const pinoInstance = { level: '', options: {} as Record<string, unknown> }
+import { expect } from 'vitest'
+import { NODE_ENV } from '@/types/env.d'
 
-const pinoMock = vi.fn((options: unknown) => {
-  pinoInstance.options = options as Record<string, unknown>
-  return { options }
-})
+const pinoSpy = vi.fn()
 
 vi.mock('pino', () => ({
-  default: pinoMock
+  default: pinoSpy
 }))
 
 describe('buildLogger', () => {
   beforeEach(() => {
-    pinoMock.mockClear()
+    pinoSpy.mockClear()
+  })
+
+  it('censors critical paths', async () => {
+    const { buildLogger } = await import('./buildLogger')
+
+    buildLogger({
+      level: 'info',
+      nodeEnv: NODE_ENV.production
+    })
+
+    expect(pinoSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        redact: expect.objectContaining({
+          paths: [
+            'req.headers.authorization',
+            'req.headers.cookie',
+            'req.body.password',
+            'req.body.token',
+            'req.body.refreshToken',
+            'req.query.*token*',
+            'res.headers.set-cookie'
+          ]
+        })
+      })
+    )
   })
 
   it('creates a production logger without transport', async () => {
-    const { buildLogger } = await import('./buildLogger')
+    const { buildLogger, censoredPaths } = await import('./buildLogger')
 
-    buildLogger({ level: 'info', nodeEnv: 'production' })
+    buildLogger({
+      level: 'info',
+      nodeEnv: NODE_ENV.production
+    })
 
-    expect(pinoMock).toHaveBeenCalledWith({
+    expect(pinoSpy).toHaveBeenCalledExactlyOnceWith({
       level: 'info',
       redact: {
         censor: '[REDACTED]',
-        paths: ['req.headers.authorization', 'req.headers.cookie']
+        paths: censoredPaths
       }
     })
-    const [firstCall] = pinoMock.mock.calls
-    if (!firstCall) {
-      throw new Error('pino should have been invoked')
-    }
-    const [options] = firstCall
-    expect(options).not.toHaveProperty('transport')
+    expect(pinoSpy).not.toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({
+        transport: expect.anything()
+      })
+    )
   })
 
   it('enables pretty transport outside production', async () => {
-    const { buildLogger } = await import('./buildLogger')
+    const { buildLogger, censoredPaths } = await import('./buildLogger')
 
-    buildLogger({ level: 'debug', nodeEnv: 'development' })
+    buildLogger({
+      level: 'debug',
+      nodeEnv: NODE_ENV.development
+    })
 
-    expect(pinoMock).toHaveBeenCalledWith({
+    expect(pinoSpy).toHaveBeenCalledExactlyOnceWith({
       level: 'debug',
       redact: {
         censor: '[REDACTED]',
-        paths: ['req.headers.authorization', 'req.headers.cookie']
+        paths: censoredPaths
       },
       transport: {
         options: {
