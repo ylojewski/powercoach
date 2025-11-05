@@ -1,7 +1,7 @@
+import { AppConfig } from '@src/core'
 import { invalidConfig, productionConfig } from '@test/fixtures/env'
 import { ZodError } from 'zod'
 import { parseConfig } from './parseConfig'
-import { AppConfig } from '@/core'
 
 describe('parseConfig', () => {
   it('succeed parsing a valid configuration', () => {

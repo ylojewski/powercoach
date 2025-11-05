@@ -1,8 +1,8 @@
 import helmet from '@fastify/helmet'
+import { NodeEnv } from '@src/types'
 import { buildDummyApp } from '@test/utils/app'
 import { MockedFunction } from 'vitest'
 import { helmetPlugin } from './helmet.plugin'
-import { NodeEnv } from '@/types'
 
 vi.mock('@fastify/helmet', () => ({
   default: vi.fn()

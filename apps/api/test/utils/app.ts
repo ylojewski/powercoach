@@ -1,7 +1,7 @@
+import { AppFastifyInstance, buildApp } from '@src/app'
+import { LogLevel, NodeEnv } from '@src/types'
 import Fastify, { FastifyInstance, FastifyPluginAsync } from 'fastify'
-import type { AppConfig } from '@/core'
-import { AppFastifyInstance, buildApp } from '@/app'
-import { LogLevel, NodeEnv } from '@/types'
+import type { AppConfig } from '@src/core'
 
 type FastifySpy = {
   [K in keyof FastifyInstance]: FastifyInstance[K] extends (...args: infer _) => unknown ? K : never

@@ -1,11 +1,11 @@
 import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox'
+import { buildLogger, loadConfig, parseConfig, type AppConfig } from '@src/core'
+import { healthModule } from '@src/modules'
+import { helmetPlugin, sensiblePlugin } from '@src/plugins'
 import Fastify from 'fastify'
 import { randomUUID } from 'node:crypto'
 import type { FastifyInstance, RawServerDefault } from 'fastify'
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import { buildLogger, loadConfig, parseConfig, type AppConfig } from '@/core'
-import { healthModule } from '@/modules'
-import { helmetPlugin, sensiblePlugin } from '@/plugins'
 
 export type AppFastifyInstance = FastifyInstance<
   RawServerDefault,

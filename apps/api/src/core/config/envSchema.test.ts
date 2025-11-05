@@ -1,8 +1,8 @@
+import { LogLevel, NodeEnv } from '@src/types'
 import { productionConfig, invalidConfig, tooBigPortConfig } from '@test/fixtures/env'
 import { expectZodParseToThrow } from '@test/utils/zod'
 import { ZodSafeParseResult } from 'zod'
 import { AppConfig, envSchema } from './envSchema'
-import { LogLevel, NodeEnv } from '@/types'
 
 describe('envSchema', () => {
   it('parses valid values', () => {

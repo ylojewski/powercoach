@@ -1,9 +1,9 @@
+import { AppFastifyInstance } from '@src/app'
 import { buildDummyApp, buildTestApp } from '@test/utils/app'
 import { FastifyInstance } from 'fastify'
 import { healthModule } from './module'
 import { HEALTH_RESPONSE_SCHEMA_ID } from './schemas'
 import * as service from './service'
-import { AppFastifyInstance } from '@/app'
 
 describe('healthModule', () => {
   describe('when registered on a dummy instance', () => {

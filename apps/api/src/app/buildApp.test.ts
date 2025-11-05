@@ -1,7 +1,7 @@
+import { type AppConfig, resetCachedConfig } from '@src/core'
 import { invalidConfig, testConfig } from '@test/fixtures/env'
 import { stubEnv } from '@test/utils/env'
 import { buildApp } from './buildApp'
-import { type AppConfig, resetCachedConfig } from '@/core'
 
 describe('buildApp', () => {
   beforeEach(() => {

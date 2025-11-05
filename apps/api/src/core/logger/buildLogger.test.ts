@@ -1,4 +1,4 @@
-import { NodeEnv } from '@/types'
+import { NodeEnv } from '@src/types'
 
 const pinoSpy = vi.fn()
 

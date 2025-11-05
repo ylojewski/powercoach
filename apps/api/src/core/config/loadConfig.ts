@@ -1,7 +1,7 @@
+import { parseConfig } from '@src/core/config/parseConfig'
+import { NodeEnv } from '@src/types'
 import { config as dotenv } from 'dotenv'
 import { type AppConfig } from './envSchema'
-import { parseConfig } from '@/core/config/parseConfig'
-import { NodeEnv } from '@/types'
 
 let cachedConfig: AppConfig | undefined
 const initialNodeEnv = process.env.NODE_ENV as NodeEnv
