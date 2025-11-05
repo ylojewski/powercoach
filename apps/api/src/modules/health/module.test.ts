@@ -1,23 +1,89 @@
-const registerHealthRoutes = vi.fn()
-
-vi.mock('./routes', () => ({
-  registerHealthRoutes
-}))
+import { buildDummyApp, buildTestApp } from '@test/utils/app'
+import { FastifyInstance } from 'fastify'
+import { healthModule } from './module'
+import { HEALTH_RESPONSE_SCHEMA_ID } from './schemas'
+import * as service from './service'
+import { AppFastifyInstance } from '@/app'
 
 describe('healthModule', () => {
-  afterAll(() => {
-    vi.resetModules()
+  describe('when registered on a dummy instance', () => {
+    let dummyApp: FastifyInstance
+
+    beforeAll(async () => {
+      vi.spyOn(service, 'getHealthStatus')
+      dummyApp = await buildDummyApp({
+        spies: ['addSchema', 'route'],
+        plugins: [healthModule]
+      })
+    })
+
+    afterAll(async () => {
+      vi.resetAllMocks()
+      await dummyApp.close()
+    })
+
+    it('add the HealthResponse schema', () => {
+      expect(dummyApp.addSchema).toHaveBeenCalledOnce()
+      expect(dummyApp.addSchema).toHaveBeenCalledWith(
+        expect.objectContaining({
+          $id: HEALTH_RESPONSE_SCHEMA_ID,
+          additionalProperties: false,
+          properties: expect.objectContaining({
+            ok: expect.objectContaining({ type: 'boolean' }),
+            uptime: expect.objectContaining({ minimum: 0, type: 'number' })
+          }),
+          required: ['ok', 'uptime']
+        })
+      )
+    })
+
+    it('registers the GET / route using the HealthResponse schema', () => {
+      expect(dummyApp.route).toHaveBeenCalledTimes(1)
+      expect(dummyApp.route).toHaveBeenCalledWith(
+        expect.objectContaining({
+          method: 'GET',
+          schema: expect.objectContaining({
+            response: expect.objectContaining({
+              200: expect.objectContaining({ $ref: `${HEALTH_RESPONSE_SCHEMA_ID}#` })
+            })
+          }),
+          url: '/'
+        })
+      )
+    })
+
+    it('handles the GET / route response using the service', async () => {
+      const response = await dummyApp.inject({ method: 'GET', url: '/' })
+
+      expect(response.statusCode).toBe(200)
+      expect(service.getHealthStatus).toHaveBeenCalledOnce()
+    })
   })
 
-  it('adds schema and registers routes', async () => {
-    const { healthResponseSchema } = await import('./schemas')
-    const { healthModule } = await import('./module')
-    const addSchema = vi.fn()
-    const app = { addSchema }
+  describe('when registered on the test instance', () => {
+    let testApp: AppFastifyInstance
 
-    await healthModule(app as never, {})
+    beforeAll(async () => {
+      testApp = await buildTestApp()
+    })
 
-    expect(addSchema).toHaveBeenCalledWith(healthResponseSchema)
-    expect(registerHealthRoutes).toHaveBeenCalledWith(app)
+    afterAll(async () => {
+      await testApp.close()
+    })
+
+    it('returns a valid HealthResponse schema payload from /v1/health', async () => {
+      const response = await testApp.inject({ method: 'GET', url: '/v1/health' })
+
+      expect(response.statusCode).toBe(200)
+      expect(response.headers['content-type']).toMatch(/application\/json/)
+
+      const payload = response.json()
+
+      expect(payload.uptime).toBeGreaterThanOrEqual(0)
+      expect(payload).toStrictEqual({
+        ok: true,
+        uptime: expect.any(Number)
+      })
+    })
   })
 })

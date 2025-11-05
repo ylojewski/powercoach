@@ -1,4 +1,7 @@
+import { productionConfig, testConfig } from '@test/fixtures/env'
 import { stubEnv } from '@test/utils/env'
+import { config } from 'dotenv'
+import { loadConfig, resetCachedConfig } from './loadConfig'
 import { AppConfig } from '@/core'
 import { LOG_LEVEL, NODE_ENV } from '@/types/env.d'
 
@@ -8,7 +11,7 @@ vi.mock('dotenv', () => ({
 
 describe('loadConfig', () => {
   beforeEach(async () => {
-    vi.resetModules()
+    resetCachedConfig()
     vi.clearAllMocks()
     vi.unstubAllEnvs()
   })
@@ -21,16 +24,13 @@ describe('loadConfig', () => {
       PORT: 4000
     })
 
-    const dotenv = await import('dotenv')
-    const { loadConfig } = await import('./loadConfig')
-
-    expect(loadConfig()).toStrictEqual({
+    expect(loadConfig()).toStrictEqual<AppConfig>({
       HOST: '127.0.0.1',
       LOG_LEVEL: LOG_LEVEL.info,
       NODE_ENV: NODE_ENV.production,
       PORT: 4000
     })
-    expect(dotenv.config).toHaveBeenCalledTimes(1)
+    expect(config).toHaveBeenCalledTimes(1)
   })
 
   it('uses cached configuration on subsequent calls', async () => {
@@ -40,9 +40,6 @@ describe('loadConfig', () => {
       NODE_ENV: NODE_ENV.production,
       PORT: 4000
     })
-
-    const dotenv = await import('dotenv')
-    const { loadConfig } = await import('./loadConfig')
 
     const first = loadConfig()
     const second = loadConfig()
@@ -54,16 +51,39 @@ describe('loadConfig', () => {
       NODE_ENV: NODE_ENV.production,
       PORT: 4000
     })
-    expect(dotenv.config).toHaveBeenCalledTimes(1)
+    expect(config).toHaveBeenCalledTimes(1)
+  })
+
+  it('should not reset cacheConfig', async () => {
+    vi.resetModules()
+    stubEnv(productionConfig)
+
+    const productionModule = await import('./loadConfig')
+    const first = productionModule.loadConfig()
+
+    productionModule.resetCachedConfig()
+
+    const second = productionModule.loadConfig()
+
+    expect(first === second).toBe(true)
+  })
+
+  it('should reset cacheConfig', async () => {
+    vi.resetModules()
+    stubEnv(testConfig)
+
+    const testModule = await import('./loadConfig')
+    const first = testModule.loadConfig()
+
+    testModule.resetCachedConfig()
+
+    const second = testModule.loadConfig()
+
+    expect(first === second).toBe(false)
   })
 
   it('throws when validation fails', async () => {
-    stubEnv({
-      PORT: 70000
-    })
-
-    const { loadConfig } = await import('./loadConfig')
-
+    stubEnv({ PORT: 70000 })
     expect(() => loadConfig()).toThrowError(/Invalid environment configuration/i)
   })
 })

@@ -1,14 +1,17 @@
-import { createEmptyApp } from '@test/utils/app'
+import { buildDummyApp } from '@test/utils/app'
 import { FastifyInstance } from 'fastify'
-import { afterAll, beforeAll } from 'vitest'
 import { sensiblePlugin } from './sensible.plugin'
 
 describe('sensiblePlugin', () => {
   let app: FastifyInstance
 
   beforeAll(async () => {
-    app = createEmptyApp()
-    await app.register(sensiblePlugin)
+    app = await buildDummyApp({
+      ready: false,
+      plugins: [sensiblePlugin]
+    })
+    app.get('/forbidden', () => app.httpErrors.forbidden('forbidden'))
+    await app.ready()
   })
 
   afterAll(async () => {
@@ -19,18 +22,15 @@ describe('sensiblePlugin', () => {
     expect(app.hasDecorator('httpErrors')).toBe(true)
   })
 
-  it('provides sensible responses', async () => {
-    const response = await app.inject({
-      method: 'GET',
-      url: '/not-found'
-    })
+  it('provides sensible replies', async () => {
+    const response = await app.inject({ method: 'GET', url: '/forbidden' })
 
-    expect(response.statusCode).toBe(404)
+    expect(response.statusCode).toBe(403)
     expect(response.headers['content-type']).toMatch(/application\/json/)
     expect(response.json()).toStrictEqual({
-      error: 'Not Found',
-      message: 'Route GET:/not-found not found',
-      statusCode: 404
+      error: 'Forbidden',
+      message: 'forbidden',
+      statusCode: 403
     })
   })
 })

@@ -42,4 +42,4 @@ To add a new module, duplicate the structure in `src/modules/health` and registe
 
 ## Testing strategy
 
-Tests use Fastify's `inject` API for fast, hermetic end-to-end coverage without opening network sockets. Each test spins up an in-memory Fastify instance via `test/setup.ts`.
+Tests use Fastify's `inject` API for fast, hermetic end-to-end coverage without opening network sockets. Each test spins up an in-memory Fastify instance
