@@ -3,7 +3,7 @@ import { stubEnv } from '@test/utils/env'
 import { config } from 'dotenv'
 import { loadConfig, resetCachedConfig } from './loadConfig'
 import { AppConfig } from '@/core'
-import { LOG_LEVEL, NODE_ENV } from '@/types/env.d'
+import { LogLevel, NodeEnv } from '@/types'
 
 vi.mock('dotenv', () => ({
   config: vi.fn()
@@ -19,15 +19,15 @@ describe('loadConfig', () => {
   it('loads configuration from process.env', async () => {
     stubEnv({
       HOST: '127.0.0.1',
-      LOG_LEVEL: LOG_LEVEL.info,
-      NODE_ENV: NODE_ENV.production,
+      LOG_LEVEL: LogLevel.info,
+      NODE_ENV: NodeEnv.production,
       PORT: 4000
     })
 
     expect(loadConfig()).toStrictEqual<AppConfig>({
       HOST: '127.0.0.1',
-      LOG_LEVEL: LOG_LEVEL.info,
-      NODE_ENV: NODE_ENV.production,
+      LOG_LEVEL: LogLevel.info,
+      NODE_ENV: NodeEnv.production,
       PORT: 4000
     })
     expect(config).toHaveBeenCalledTimes(1)
@@ -36,8 +36,8 @@ describe('loadConfig', () => {
   it('uses cached configuration on subsequent calls', async () => {
     stubEnv({
       HOST: '127.0.0.1',
-      LOG_LEVEL: LOG_LEVEL.info,
-      NODE_ENV: NODE_ENV.production,
+      LOG_LEVEL: LogLevel.info,
+      NODE_ENV: NodeEnv.production,
       PORT: 4000
     })
 
@@ -47,8 +47,8 @@ describe('loadConfig', () => {
     expect(first).toBe(second)
     expect(second).toStrictEqual<AppConfig>({
       HOST: '127.0.0.1',
-      LOG_LEVEL: LOG_LEVEL.info,
-      NODE_ENV: NODE_ENV.production,
+      LOG_LEVEL: LogLevel.info,
+      NODE_ENV: NodeEnv.production,
       PORT: 4000
     })
     expect(config).toHaveBeenCalledTimes(1)

@@ -2,7 +2,7 @@ import helmet from '@fastify/helmet'
 import { buildDummyApp } from '@test/utils/app'
 import { MockedFunction } from 'vitest'
 import { helmetPlugin } from './helmet.plugin'
-import { NODE_ENV } from '@/types/env.d'
+import { NodeEnv } from '@/types'
 
 vi.mock('@fastify/helmet', () => ({
   default: vi.fn()
@@ -18,7 +18,7 @@ describe('helmetPlugin', () => {
   it('registers helmet with relaxed CSP outside production', async () => {
     const app = await buildDummyApp({
       plugins: [helmetPlugin],
-      withConfig: NODE_ENV.development
+      withConfig: NodeEnv.development
     })
 
     expect(helmetMock).toHaveBeenCalledOnce()
@@ -33,7 +33,7 @@ describe('helmetPlugin', () => {
   it('registers helmet without overriding CSP in production', async () => {
     const app = await buildDummyApp({
       plugins: [helmetPlugin],
-      withConfig: NODE_ENV.production
+      withConfig: NodeEnv.production
     })
 
     expect(helmetMock).toHaveBeenCalledOnce()

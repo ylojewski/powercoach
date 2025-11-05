@@ -2,7 +2,7 @@ import { productionConfig, invalidConfig, tooBigPortConfig } from '@test/fixture
 import { expectZodParseToThrow } from '@test/utils/zod'
 import { ZodSafeParseResult } from 'zod'
 import { AppConfig, envSchema } from './envSchema'
-import { LOG_LEVEL, NODE_ENV } from '@/types/env.d'
+import { LogLevel, NodeEnv } from '@/types'
 
 describe('envSchema', () => {
   it('parses valid values', () => {
@@ -10,8 +10,8 @@ describe('envSchema', () => {
     expect(envSchema.safeParse(productionConfig)).toStrictEqual<ZodSafeParseResult<AppConfig>>({
       data: {
         HOST: '127.0.0.1',
-        LOG_LEVEL: LOG_LEVEL.error,
-        NODE_ENV: NODE_ENV.production,
+        LOG_LEVEL: LogLevel.error,
+        NODE_ENV: NodeEnv.production,
         PORT: 4002
       },
       success: true

@@ -26,11 +26,11 @@ pnpm install
 
 Copy `.env.example` to `.env` and adjust the values if needed.
 
-| Variable    | Description                            | Default   |
-| ----------- | -------------------------------------- | --------- |
-| `HOST`      | Hostname/IP address to bind the server | `0.0.0.0` |
-| `PORT`      | Port for the HTTP server               | `3000`    |
-| `LOG_LEVEL` | Pino log level                         | `info`    |
+| Variable   | Description                            | Default   |
+| ---------- | -------------------------------------- | --------- |
+| `HOST`     | Hostname/IP address to bind the server | `0.0.0.0` |
+| `PORT`     | Port for the HTTP server               | `3000`    |
+| `LogLevel` | Pino log level                         | `info`    |
 
 ## API surface
 

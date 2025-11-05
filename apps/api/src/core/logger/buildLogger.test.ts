@@ -1,5 +1,4 @@
-import { expect } from 'vitest'
-import { NODE_ENV } from '@/types/env.d'
+import { NodeEnv } from '@/types'
 
 const pinoSpy = vi.fn()
 
@@ -17,7 +16,7 @@ describe('buildLogger', () => {
 
     buildLogger({
       level: 'info',
-      nodeEnv: NODE_ENV.production
+      nodeEnv: NodeEnv.production
     })
 
     expect(pinoSpy).toHaveBeenCalledWith(
@@ -42,7 +41,7 @@ describe('buildLogger', () => {
 
     buildLogger({
       level: 'info',
-      nodeEnv: NODE_ENV.production
+      nodeEnv: NodeEnv.production
     })
 
     expect(pinoSpy).toHaveBeenCalledExactlyOnceWith({
@@ -64,7 +63,7 @@ describe('buildLogger', () => {
 
     buildLogger({
       level: 'debug',
-      nodeEnv: NODE_ENV.development
+      nodeEnv: NodeEnv.development
     })
 
     expect(pinoSpy).toHaveBeenCalledExactlyOnceWith({

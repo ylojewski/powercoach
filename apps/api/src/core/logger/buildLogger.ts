@@ -1,9 +1,9 @@
 import pino, { type LoggerOptions } from 'pino'
-import { NODE_ENV } from '@/types/env.d'
+import { NodeEnv } from '@/types'
 
 export interface BuildLoggerOptions {
   level: LoggerOptions['level']
-  nodeEnv: NODE_ENV
+  nodeEnv: NodeEnv
 }
 
 export const censoredPaths: string[] = [
@@ -17,7 +17,7 @@ export const censoredPaths: string[] = [
 ] as const
 
 export function buildLogger({ level, nodeEnv }: BuildLoggerOptions) {
-  const isDevLike = nodeEnv !== NODE_ENV.production
+  const isDevLike = nodeEnv !== NodeEnv.production
 
   const options: LoggerOptions = {
     level,

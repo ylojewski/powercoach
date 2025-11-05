@@ -1,10 +1,10 @@
 import { z } from 'zod'
-import { LOG_LEVEL, NODE_ENV } from '@/types/env.d'
+import { LogLevel, NodeEnv } from '@/types'
 
 export const envSchema = z.object({
   HOST: z.ipv4(),
-  LOG_LEVEL: z.enum(LOG_LEVEL),
-  NODE_ENV: z.enum(NODE_ENV),
+  LOG_LEVEL: z.enum(LogLevel),
+  NODE_ENV: z.enum(NodeEnv),
   PORT: z.coerce.number().int().min(1).max(65535)
 })
 

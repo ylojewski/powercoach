@@ -1,4 +1,3 @@
-import { expect } from 'vitest'
 import { ZodError, ZodObject } from 'zod'
 
 export function expectZodParseToThrow(schema: ZodObject, values: unknown): ZodError {

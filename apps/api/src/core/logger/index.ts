@@ -1,2 +1,1 @@
-export { buildLogger } from './buildLogger'
-export type { BuildLoggerOptions } from './buildLogger'
+export * from './buildLogger'

@@ -1,7 +1,7 @@
 import Fastify, { FastifyInstance, FastifyPluginAsync } from 'fastify'
 import type { AppConfig } from '@/core'
 import { AppFastifyInstance, buildApp } from '@/app'
-import { LOG_LEVEL, NODE_ENV } from '@/types/env.d'
+import { LogLevel, NodeEnv } from '@/types'
 
 type FastifySpy = {
   [K in keyof FastifyInstance]: FastifyInstance[K] extends (...args: infer _) => unknown ? K : never
@@ -11,16 +11,16 @@ export interface CreateEmptyAppOptions {
   plugins?: FastifyPluginAsync[]
   ready?: boolean
   spies?: FastifySpy[]
-  withConfig?: boolean | NODE_ENV
+  withConfig?: boolean | NodeEnv
 }
 
 export async function buildTestApp(): Promise<AppFastifyInstance> {
   const app = await buildApp({
     config: {
       HOST: '127.0.0.1',
-      LOG_LEVEL: LOG_LEVEL.silent,
-      NODE_ENV: NODE_ENV.development,
-      PORT: 0
+      LOG_LEVEL: LogLevel.silent,
+      NODE_ENV: NodeEnv.development,
+      PORT: 1
     }
   })
 
@@ -41,8 +41,8 @@ export async function buildDummyApp(options?: CreateEmptyAppOptions): Promise<Fa
   if (withConfig) {
     app.decorate('config', {
       HOST: '0.0.0.0',
-      LOG_LEVEL: LOG_LEVEL.info,
-      NODE_ENV: typeof withConfig === 'boolean' ? NODE_ENV.test : withConfig,
+      LOG_LEVEL: LogLevel.info,
+      NODE_ENV: typeof withConfig === 'boolean' ? NodeEnv.test : withConfig,
       PORT: 3000
     } as AppConfig)
   }

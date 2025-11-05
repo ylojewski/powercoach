@@ -1,28 +1,27 @@
-import { config } from 'dotenv'
-import { envSchema, type AppConfig } from './envSchema'
-import { NODE_ENV } from '@/types/env.d'
+import { config as dotenv } from 'dotenv'
+import { type AppConfig } from './envSchema'
+import { parseConfig } from '@/core/config/parseConfig'
+import { NodeEnv } from '@/types'
 
 let cachedConfig: AppConfig | undefined
-const initialNodeEnv = process.env.NODE_ENV as NODE_ENV
+const initialNodeEnv = process.env.NODE_ENV as NodeEnv
 
 export function loadConfig(): AppConfig {
   if (cachedConfig) {
     return cachedConfig
   }
 
-  config()
-  const result = envSchema.safeParse(process.env)
+  dotenv()
 
-  if (!result.success) {
-    throw new Error(`Invalid environment configuration: ${result.error.message}`)
-  }
+  cachedConfig = Object.freeze(
+    parseConfig(process.env, (error) => `Invalid environment configuration: ${error.message}`)
+  )
 
-  cachedConfig = Object.freeze(result.data)
   return cachedConfig
 }
 
 export function resetCachedConfig() {
-  if (initialNodeEnv !== NODE_ENV.production) {
+  if (initialNodeEnv !== NodeEnv.production) {
     cachedConfig = undefined
   }
 }
