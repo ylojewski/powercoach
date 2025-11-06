@@ -1,28 +1,42 @@
-import Fastify from 'fastify'
+import { FastifyInstance } from 'fastify'
 
-const sensibleMock = vi.fn()
+import { buildDummyApp } from '@/test/utils'
 
-vi.mock('@fastify/sensible', () => ({
-  default: sensibleMock
-}))
+import { SENSIBLE_PLUGIN_NAME, sensiblePlugin } from './sensible.plugin'
 
 describe('sensiblePlugin', () => {
-  it('registers the sensible plugin', async () => {
-    const { sensiblePlugin } = await import('./sensible.plugin')
-    const app = Fastify()
+  let app: FastifyInstance
 
-    try {
-      await app.register(sensiblePlugin)
+  beforeAll(async () => {
+    app = await buildDummyApp({
+      ready: false,
+      plugins: [sensiblePlugin]
+    })
+    app.get('/forbidden', () => app.httpErrors.forbidden('forbidden'))
+    await app.ready()
+  })
 
-      expect(sensibleMock).toHaveBeenCalledTimes(1)
-      const firstCall = sensibleMock.mock.calls[0]
-      if (!firstCall) {
-        throw new Error('sensible should have been registered')
-      }
-      const [, options] = firstCall
-      expect(options).toEqual({})
-    } finally {
-      await app.close()
-    }
+  afterAll(async () => {
+    await app.close()
+  })
+
+  it('exposes a custom name', () => {
+    expect(SENSIBLE_PLUGIN_NAME).toBe('powercoach.sensible.plugin')
+  })
+
+  it('provides sensible decorators', async () => {
+    expect(app.hasDecorator('httpErrors')).toBe(true)
+  })
+
+  it('provides sensible replies', async () => {
+    const response = await app.inject({ method: 'GET', url: '/forbidden' })
+
+    expect(response.statusCode).toBe(403)
+    expect(response.headers['content-type']).toMatch(/application\/json/)
+    expect(response.json()).toStrictEqual({
+      error: 'Forbidden',
+      message: 'forbidden',
+      statusCode: 403
+    })
   })
 })

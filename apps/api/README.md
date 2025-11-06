@@ -26,11 +26,11 @@ pnpm install
 
 Copy `.env.example` to `.env` and adjust the values if needed.
 
-| Variable    | Description                            | Default   |
-| ----------- | -------------------------------------- | --------- |
-| `HOST`      | Hostname/IP address to bind the server | `0.0.0.0` |
-| `PORT`      | Port for the HTTP server               | `3000`    |
-| `LOG_LEVEL` | Pino log level                         | `info`    |
+| Variable   | Description                            | Default   |
+| ---------- | -------------------------------------- | --------- |
+| `HOST`     | Hostname/IP address to bind the server | `0.0.0.0` |
+| `PORT`     | Port for the HTTP server               | `3000`    |
+| `LogLevel` | Pino log level                         | `info`    |
 
 ## API surface
 
@@ -42,4 +42,4 @@ To add a new module, duplicate the structure in `src/modules/health` and registe
 
 ## Testing strategy
 
-Tests use Fastify's `inject` API for fast, hermetic end-to-end coverage without opening network sockets. Each test spins up an in-memory Fastify instance via `test/setup.ts`.
+Tests use Fastify's `inject` API for fast, hermetic end-to-end coverage without opening network sockets. Each test spins up an in-memory Fastify instance

@@ -1,71 +1,55 @@
-import Fastify from 'fastify'
-import type { AppConfig } from '../core'
+import helmet from '@fastify/helmet'
+import { MockedFunction } from 'vitest'
 
-const helmetMock = vi.fn()
+import { NodeEnv } from '@/src/types'
+import { buildDummyApp } from '@/test/utils'
+
+import { HELMET_PLUGIN_NAME, helmetPlugin } from './helmet.plugin'
 
 vi.mock('@fastify/helmet', () => ({
-  default: helmetMock
+  default: vi.fn()
 }))
 
+const helmetMock = helmet as MockedFunction<typeof helmet>
+
 describe('helmetPlugin', () => {
-  beforeEach(() => {
-    helmetMock.mockClear()
+  beforeEach(async () => {
+    vi.clearAllMocks()
+  })
+
+  it('exposes a custom name', () => {
+    expect(HELMET_PLUGIN_NAME).toBe('powercoach.helmet.plugin')
   })
 
   it('registers helmet with relaxed CSP outside production', async () => {
-    const { helmetPlugin } = await import('./helmet.plugin')
-    const app = Fastify()
-    const config: AppConfig = {
-      HOST: '0.0.0.0',
-      LOG_LEVEL: 'info',
-      NODE_ENV: 'development',
-      PORT: 3000
-    }
-    app.decorate('config', config)
+    const app = await buildDummyApp({
+      plugins: [helmetPlugin],
+      withConfig: NodeEnv.development
+    })
 
-    try {
-      await app.register(helmetPlugin)
+    expect(helmetMock).toHaveBeenCalledOnce()
+    expect(helmetMock.mock.calls[0]?.[1]).toStrictEqual({
+      contentSecurityPolicy: false,
+      crossOriginEmbedderPolicy: false
+    })
 
-      expect(helmetMock).toHaveBeenCalledTimes(1)
-      const firstCall = helmetMock.mock.calls[0]
-      if (!firstCall) {
-        throw new Error('helmet should have been registered')
-      }
-      const [, options] = firstCall
-      expect(options).toStrictEqual({
-        contentSecurityPolicy: false,
-        crossOriginEmbedderPolicy: false
-      })
-    } finally {
-      await app.close()
-    }
+    await app.close()
   })
 
   it('registers helmet without overriding CSP in production', async () => {
-    const { helmetPlugin } = await import('./helmet.plugin')
-    const app = Fastify()
-    const config: AppConfig = {
-      HOST: '0.0.0.0',
-      LOG_LEVEL: 'info',
-      NODE_ENV: 'production',
-      PORT: 3000
-    }
-    app.decorate('config', config)
+    const app = await buildDummyApp({
+      plugins: [helmetPlugin],
+      withConfig: NodeEnv.production
+    })
 
-    try {
-      await app.register(helmetPlugin)
+    expect(helmetMock).toHaveBeenCalledOnce()
+    expect(helmetMock.mock.calls[0]?.[1]).toStrictEqual({
+      crossOriginEmbedderPolicy: false
+    })
+    expect(helmetMock.mock.calls[0]?.[1]).not.toContain({
+      contentSecurityPolicy: false
+    })
 
-      expect(helmetMock).toHaveBeenCalledTimes(1)
-      const firstCall = helmetMock.mock.calls[0]
-      if (!firstCall) {
-        throw new Error('helmet should have been registered')
-      }
-      const [, options] = firstCall
-      expect(options).toStrictEqual({
-        crossOriginEmbedderPolicy: false
-      })
-    } finally {
-      await app.close()
-    }
+    await app.close()
   })
 })

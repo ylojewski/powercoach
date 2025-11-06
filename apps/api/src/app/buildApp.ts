@@ -1,17 +1,25 @@
-import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox'
-import Fastify from 'fastify'
 import { randomUUID } from 'node:crypto'
-import { buildLogger, loadConfig, type AppConfig } from '../core'
-import { healthModule } from '../modules'
-import { helmetPlugin, sensiblePlugin } from '../plugins'
-import type { FastifyInstance, RawServerDefault } from 'fastify'
-import type { IncomingMessage, ServerResponse } from 'node:http'
+import { type IncomingMessage, type ServerResponse } from 'node:http'
+
+import { type TypeBoxTypeProvider } from '@fastify/type-provider-typebox'
+import Fastify, {
+  type FastifyBaseLogger,
+  type FastifyInstance,
+  type RawServerDefault
+} from 'fastify'
+
+import { type AppConfig, buildLoggerOptions, loadConfig, parseConfig } from '@/src/core'
+import { healthModule } from '@/src/modules'
+import { helmetPlugin, sensiblePlugin } from '@/src/plugins'
+
+import { ajvOptions } from './ajvOptions'
+import { REQUEST_ID_HEADER, REQUEST_ID_LOG_LABEL } from './constants'
 
 export type AppFastifyInstance = FastifyInstance<
   RawServerDefault,
   IncomingMessage,
   ServerResponse,
-  ReturnType<typeof buildLogger>,
+  FastifyBaseLogger,
   TypeBoxTypeProvider
 >
 
@@ -20,27 +28,26 @@ export interface BuildAppOptions {
 }
 
 export async function buildApp(options: BuildAppOptions = {}): Promise<AppFastifyInstance> {
-  const config = options.config ?? loadConfig()
-  const logger = buildLogger({ level: config.LOG_LEVEL, nodeEnv: config.NODE_ENV })
-
+  const config = options.config
+    ? parseConfig(options.config, ({ message }) => `Invalid configuration: ${message}`)
+    : loadConfig()
+  const loggerOptions = buildLoggerOptions({
+    level: config.LOG_LEVEL,
+    nodeEnv: config.NODE_ENV
+  })
   const app = Fastify({
-    ajv: {
-      customOptions: {
-        coerceTypes: false,
-        removeAdditional: 'all'
-      }
-    },
+    ajv: { customOptions: ajvOptions },
     disableRequestLogging: true,
-    genReqId: (request) => request.headers['x-request-id']?.toString() ?? randomUUID(),
-    loggerInstance: logger,
-    requestIdHeader: 'x-request-id',
-    requestIdLogLabel: 'reqId'
+    genReqId: (request) => request.headers[REQUEST_ID_HEADER]?.toString() ?? randomUUID(),
+    logger: loggerOptions,
+    requestIdHeader: REQUEST_ID_HEADER,
+    requestIdLogLabel: REQUEST_ID_LOG_LABEL
   }).withTypeProvider<TypeBoxTypeProvider>()
 
   app.decorate('config', config)
 
   app.addHook('onRequest', async (request, reply) => {
-    reply.header('x-request-id', request.id)
+    reply.header(REQUEST_ID_HEADER, request.id)
   })
 
   await app.register(helmetPlugin)

@@ -1,2 +1,2 @@
-export { helmetPlugin } from './helmet.plugin'
-export { sensiblePlugin } from './sensible.plugin'
+export * from './helmet.plugin'
+export * from './sensible.plugin'

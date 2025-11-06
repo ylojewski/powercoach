@@ -1,17 +1,14 @@
-import { HEALTH_RESPONSE_SCHEMA_ID } from './schemas'
+import { type FastifyInstance } from 'fastify'
+
+import { healthResponseSchema } from './schemas'
 import { getHealthStatus } from './service'
-import type { FastifyInstance } from 'fastify'
 
 export function registerHealthRoutes(app: FastifyInstance) {
   app.route({
-    handler: () => {
-      return getHealthStatus()
-    },
+    handler: () => getHealthStatus(),
     method: 'GET',
     schema: {
-      response: {
-        200: { $ref: `${HEALTH_RESPONSE_SCHEMA_ID}#` }
-      }
+      response: { 200: healthResponseSchema }
     },
     url: '/'
   })

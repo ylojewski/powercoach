@@ -1,7 +1,8 @@
+import process from 'node:process'
+
 import tseslint from '@typescript-eslint/eslint-plugin'
 import tsparser from '@typescript-eslint/parser'
 import globals from 'globals'
-import process from 'node:process'
 
 const strictRules = tseslint.configs.strict?.rules ?? {}
 const stylisticRules = tseslint.configs.stylistic?.rules ?? {}
@@ -19,6 +20,9 @@ export const typescriptConfig = {
       project: ['./tsconfig.src.json'],
       tsconfigRootDir: process.cwd(),
       sourceType: 'module'
+    },
+    globals: {
+      ...globals.node
     }
   },
   plugins: {
@@ -45,7 +49,7 @@ export const typescriptTestConfig = {
       project: ['./tsconfig.test.json']
     },
     globals: {
-      ...globals.node,
+      ...(typescriptConfig.languageOptions?.globals ?? {}),
       ...globals.vitest
     }
   }

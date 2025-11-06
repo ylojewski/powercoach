@@ -1,8 +1,8 @@
 declare namespace NodeJS {
   interface ProcessEnv {
-    NODE_ENV?: 'development' | 'test' | 'production'
     HOST?: string
+    LOG_LEVEL?: import('./types').LogLevel
+    NODE_ENV?: import('./types').NodeEnv
     PORT?: string
-    LOG_LEVEL?: 'fatal' | 'error' | 'warn' | 'info' | 'debug' | 'trace' | 'silent'
   }
 }

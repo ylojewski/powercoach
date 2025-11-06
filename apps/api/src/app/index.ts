@@ -1,2 +1,2 @@
-export { buildApp } from './buildApp'
-export type { AppFastifyInstance } from './buildApp'
+export * from './buildApp'
+export * from './constants'
