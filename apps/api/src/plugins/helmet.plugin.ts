@@ -1,6 +1,6 @@
 import helmet, { type FastifyHelmetOptions } from '@fastify/helmet'
+import { type FastifyPluginAsync } from 'fastify'
 import fastifyPlugin from 'fastify-plugin'
-import type { FastifyPluginAsync } from 'fastify'
 
 export const HELMET_PLUGIN_NAME = 'powercoach.helmet.plugin' as const
 

@@ -1,5 +1,6 @@
 import js from '@eslint/js'
 import prettierConfig from 'eslint-config-prettier'
+
 import { ignoreConfig } from './ignoreConfig.js'
 import { sharedStyleConfig } from './sharedStyleConfig.js'
 import { typescriptConfig, typescriptTestConfig } from './typescriptConfig.js'

@@ -1,6 +1,8 @@
-import { AppFastifyInstance } from '@src/app'
-import { buildDummyApp, buildTestApp } from '@test/utils/app'
 import { FastifyInstance } from 'fastify'
+
+import { AppFastifyInstance } from '@/src/app'
+import { buildDummyApp, buildTestApp } from '@/test/utils/app'
+
 import { HEALTH_MODULE_NAME, healthModule } from './module'
 import { HEALTH_RESPONSE_SCHEMA_ID, healthResponseSchema } from './schemas'
 import * as service from './service'

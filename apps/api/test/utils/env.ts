@@ -1,4 +1,4 @@
-import { AppConfig } from '@src/core'
+import { AppConfig } from '@/src/core'
 
 export function stubEnv(appConfig: Partial<AppConfig>) {
   if (appConfig.HOST) {

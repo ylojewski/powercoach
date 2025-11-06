@@ -1,5 +1,6 @@
-import { NodeEnv } from '@src/types'
 import pino, { type LoggerOptions } from 'pino'
+
+import { NodeEnv } from '@/src/types'
 
 export interface BuildLoggerOptions {
   level: LoggerOptions['level']

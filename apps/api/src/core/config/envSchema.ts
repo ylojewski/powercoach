@@ -1,5 +1,6 @@
-import { LogLevel, NodeEnv } from '@src/types'
 import { z } from 'zod'
+
+import { LogLevel, NodeEnv } from '@/src/types'
 
 export const envSchema = z.object({
   HOST: z.ipv4(),

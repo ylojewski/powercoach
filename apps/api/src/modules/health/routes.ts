@@ -1,6 +1,7 @@
+import { type FastifyInstance } from 'fastify'
+
 import { healthResponseSchema } from './schemas'
 import { getHealthStatus } from './service'
-import type { FastifyInstance } from 'fastify'
 
 export function registerHealthRoutes(app: FastifyInstance) {
   app.route({

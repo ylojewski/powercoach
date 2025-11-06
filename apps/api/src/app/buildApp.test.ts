@@ -1,11 +1,13 @@
 import { Options } from '@fastify/ajv-compiler'
-import { ajvOptions } from '@src/app/ajvOptions'
-import { type AppConfig, resetCachedConfig } from '@src/core'
-import { HEALTH_MODULE_NAME } from '@src/modules'
-import { HELMET_PLUGIN_NAME, SENSIBLE_PLUGIN_NAME } from '@src/plugins'
-import { invalidConfig, testConfig } from '@test/fixtures/env'
-import { getAjvOptions } from '@test/utils/app'
-import { stubEnv } from '@test/utils/env'
+
+import { type AppConfig, resetCachedConfig } from '@/src/core'
+import { HEALTH_MODULE_NAME } from '@/src/modules'
+import { HELMET_PLUGIN_NAME, SENSIBLE_PLUGIN_NAME } from '@/src/plugins'
+import { invalidConfig, testConfig } from '@/test/fixtures/env'
+import { getAjvOptions } from '@/test/utils/app'
+import { stubEnv } from '@/test/utils/env'
+
+import { ajvOptions } from './ajvOptions'
 import { AppFastifyInstance, buildApp } from './buildApp'
 
 describe('buildApp', () => {

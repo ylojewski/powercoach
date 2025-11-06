@@ -1,7 +1,8 @@
+import { type FastifyPluginAsync } from 'fastify'
 import fastifyPlugin from 'fastify-plugin'
+
 import { registerHealthRoutes } from './routes'
 import { healthResponseSchema } from './schemas'
-import type { FastifyPluginAsync } from 'fastify'
 
 export const HEALTH_MODULE_NAME = 'powercoach.health.module' as const
 

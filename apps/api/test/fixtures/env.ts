@@ -1,5 +1,5 @@
-import { AppConfig } from '@src/core'
-import { LogLevel, NodeEnv } from '@src/types'
+import { AppConfig } from '@/src/core'
+import { LogLevel, NodeEnv } from '@/src/types'
 
 export const productionConfig: AppConfig = {
   HOST: '192.168.0.1',

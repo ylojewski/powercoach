@@ -1,8 +1,9 @@
 import { Options } from '@fastify/ajv-compiler'
-import { AppFastifyInstance, buildApp } from '@src/app'
-import { LogLevel, NodeEnv } from '@src/types'
 import Fastify, { FastifyInstance, FastifyPluginAsync } from 'fastify'
-import type { AppConfig } from '@src/core'
+
+import { AppFastifyInstance, buildApp } from '@/src/app'
+import { type AppConfig } from '@/src/core'
+import { LogLevel, NodeEnv } from '@/src/types'
 
 type FastifySpy = {
   [K in keyof FastifyInstance]: FastifyInstance[K] extends (...args: infer _) => unknown ? K : never

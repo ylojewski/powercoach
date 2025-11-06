@@ -1,5 +1,6 @@
 import { Options } from '@fastify/ajv-compiler'
-import { ajvOptions } from '@src/app/ajvOptions'
+
+import { ajvOptions } from './ajvOptions'
 
 describe('ajvOptions', () => {
   it('Should return frozen strict options', () => {

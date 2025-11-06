@@ -6,25 +6,17 @@ export const sharedStyleConfig = {
     import: importPlugin
   },
   rules: {
+    'import/consistent-type-specifier-style': ['error', 'prefer-inline'],
     'import/first': 'error',
-    'import/no-relative-parent-imports': 'error',
+    'import/no-duplicates': ['error', { 'prefer-inline': true }],
     'import/order': [
       'error',
       {
-        alphabetize: {
-          caseInsensitive: true,
-          order: 'asc'
-        },
-        groups: [
-          ['builtin', 'external'],
-          'internal',
-          ['parent', 'sibling', 'index'],
-          'object',
-          'type',
-          'unknown'
-        ],
-        'newlines-between': 'never',
-        pathGroupsExcludedImportTypes: ['type']
+        alphabetize: { caseInsensitive: true, order: 'asc' },
+        distinctGroup: true,
+        groups: ['builtin', 'external', ['internal', 'parent', 'sibling', 'index']],
+        'newlines-between': 'always',
+        pathGroups: [{ pattern: '@/**', group: 'internal', position: 'before' }]
       }
     ]
   }

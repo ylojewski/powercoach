@@ -1,8 +1,10 @@
-import { AppConfig } from '@src/core'
-import { LogLevel, NodeEnv } from '@src/types'
-import { productionConfig, testConfig } from '@test/fixtures/env'
-import { stubEnv } from '@test/utils/env'
 import { config } from 'dotenv'
+
+import { AppConfig } from '@/src/core'
+import { LogLevel, NodeEnv } from '@/src/types'
+import { productionConfig, testConfig } from '@/test/fixtures/env'
+import { stubEnv } from '@/test/utils/env'
+
 import { loadConfig, resetCachedConfig } from './loadConfig'
 
 vi.mock('dotenv', () => ({
