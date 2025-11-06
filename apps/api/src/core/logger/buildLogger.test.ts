@@ -59,19 +59,17 @@ describe('buildLogger', () => {
   })
 
   it('enables pretty transport outside production', async () => {
-    const { buildLogger, censoredPaths } = await import('./buildLogger')
+    const { buildLogger } = await import('./buildLogger')
 
     buildLogger({
       level: 'debug',
       nodeEnv: NodeEnv.development
     })
 
-    expect(pinoSpy).toHaveBeenCalledExactlyOnceWith({
+    expect(pinoSpy).toHaveBeenCalledTimes(1)
+    const [options] = pinoSpy.mock.calls[0] as [Record<string, unknown>]
+    expect(options).toMatchObject({
       level: 'debug',
-      redact: {
-        censor: '[REDACTED]',
-        paths: censoredPaths
-      },
       transport: {
         options: {
           colorize: true,
@@ -80,5 +78,19 @@ describe('buildLogger', () => {
         target: 'pino-pretty'
       }
     })
+    expect(options).not.toHaveProperty('redact')
+  })
+
+  it('disables redaction in development', async () => {
+    const { buildLogger } = await import('./buildLogger')
+
+    buildLogger({
+      level: 'info',
+      nodeEnv: NodeEnv.development
+    })
+
+    expect(pinoSpy).toHaveBeenCalledTimes(1)
+    const [options] = pinoSpy.mock.calls[0] as [Record<string, unknown>]
+    expect(options).not.toHaveProperty('redact')
   })
 })

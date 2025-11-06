@@ -19,13 +19,18 @@ export const censoredPaths: string[] = [
 
 export function buildLogger({ level, nodeEnv }: BuildLoggerOptions) {
   const isDevLike = nodeEnv !== NodeEnv.production
+  const shouldRedact = nodeEnv !== NodeEnv.development
 
   const options: LoggerOptions = {
     level,
-    redact: {
-      censor: '[REDACTED]',
-      paths: censoredPaths
-    }
+    ...(shouldRedact
+      ? {
+          redact: {
+            censor: '[REDACTED]',
+            paths: censoredPaths
+          }
+        }
+      : {})
   }
 
   if (isDevLike) {

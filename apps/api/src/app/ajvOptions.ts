@@ -1,6 +1,6 @@
-import { type Options } from '@fastify/ajv-compiler'
+import { type AjvCompilerOptions } from '@/src/types/ajv'
 
-export const ajvOptions: Options = Object.freeze({
+export const ajvOptions: AjvCompilerOptions = Object.freeze({
   allErrors: true,
   coerceTypes: false,
   removeAdditional: false,

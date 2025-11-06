@@ -1,9 +1,9 @@
-import { Options } from '@fastify/ajv-compiler'
 import Fastify, { FastifyInstance, FastifyPluginAsync } from 'fastify'
 
 import { AppFastifyInstance, buildApp } from '@/src/app'
 import { type AppConfig } from '@/src/core'
 import { LogLevel, NodeEnv } from '@/src/types'
+import { type AjvCompilerOptions } from '@/src/types/ajv'
 
 type FastifySpy = {
   [K in keyof FastifyInstance]: FastifyInstance[K] extends (...args: infer _) => unknown ? K : never
@@ -62,7 +62,7 @@ export async function buildDummyApp(options?: CreateEmptyAppOptions): Promise<Fa
   return app
 }
 
-export function getAjvOptions(app: AppFastifyInstance): Options | undefined {
+export function getAjvOptions(app: AppFastifyInstance): AjvCompilerOptions | undefined {
   const symbols = Object.getOwnPropertySymbols(app)
   const optionsSymbol = symbols.find((symbol) => symbol.toString() === 'Symbol(fastify.options)')
 
