@@ -1,9 +1,9 @@
 import process from 'node:process'
 
-import { buildApp } from '../app'
-import { loadConfig } from '../core'
+import { buildApp } from '@/src/app'
+import { loadConfig } from '@/src/core'
 
-type Signals = Exclude<Parameters<typeof process.kill>[1], number>
+type ShutdownSignal = 'SIGINT' | 'SIGTERM'
 
 export async function start() {
   const config = loadConfig()
@@ -12,15 +12,15 @@ export async function start() {
   const closeApp = async () => {
     try {
       await app.close()
-      app.log.info('Fastify instance closed gracefully')
+      app.log.info('Server closed gracefully')
     } catch (error) {
-      app.log.error({ err: error }, 'Error during Fastify shutdown')
+      app.log.error({ err: error }, 'Error during shutdown')
     } finally {
       process.exit(0)
     }
   }
 
-  const handleSignal = (signal: Signals) => {
+  const handleSignal = (signal: ShutdownSignal) => {
     app.log.info({ signal }, 'Received shutdown signal')
     void closeApp()
   }
@@ -41,7 +41,6 @@ export async function start() {
   try {
     const address = await app.listen({ host: config.HOST, port: config.PORT })
     app.log.info({ address }, 'Server listening')
-    return { address, app }
   } catch (error) {
     app.log.error({ err: error }, 'Unable to start server')
     process.exit(1)

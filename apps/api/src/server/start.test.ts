@@ -1,24 +1,27 @@
 import process from 'node:process'
 
-const buildAppMock = vi.fn()
-const loadConfigMock = vi.fn()
+import { expect, MockedFunction } from 'vitest'
 
-vi.mock('../app', () => ({
-  buildApp: buildAppMock
+import { AppFastifyInstance, buildApp } from '@/src/app'
+import { loadConfig } from '@/src/core'
+import { testConfig } from '@/test/fixtures'
+import { expectFunction, flushAsync } from '@/test/utils'
+
+import { start } from './start'
+
+vi.mock('@/src/app', () => ({
+  buildApp: vi.fn()
 }))
 
-vi.mock('../core', () => ({
-  loadConfig: loadConfigMock
+vi.mock('@/src/core', () => ({
+  loadConfig: vi.fn()
 }))
+
+const buildAppMock = buildApp as MockedFunction<typeof buildApp>
+const loadConfigMock = loadConfig as MockedFunction<typeof loadConfig>
 
 describe('start', () => {
-  const flushAsync = async () => {
-    await Promise.resolve()
-    await Promise.resolve()
-  }
-
   beforeEach(() => {
-    vi.resetModules()
     buildAppMock.mockReset()
     loadConfigMock.mockReset()
   })
@@ -28,83 +31,60 @@ describe('start', () => {
   })
 
   it('starts the server and wires shutdown handlers', async () => {
-    const config = {
-      HOST: '0.0.0.0',
-      PORT: 3000
-    }
+    loadConfigMock.mockReturnValue(testConfig)
+    const address = `http://${testConfig.HOST}:${testConfig.PORT}`
 
-    loadConfigMock.mockReturnValue(config)
-
-    const handlers = new Map<string | symbol, (payload: unknown) => void>()
+    const handlers = new Map<string | symbol, (signal: string) => void>()
     const processOnSpy = vi.spyOn(process, 'on').mockImplementation((event, handler) => {
-      handlers.set(event, handler as (payload: unknown) => void)
+      handlers.set(event, handler)
       return process
     })
     const processExitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
 
     const app = {
       close: vi.fn().mockResolvedValue(undefined),
-      listen: vi.fn().mockResolvedValue('http://localhost:3000'),
+      listen: vi.fn().mockResolvedValue(address),
       log: {
         error: vi.fn(),
         info: vi.fn()
       }
     }
 
-    buildAppMock.mockResolvedValue(app)
+    buildAppMock.mockResolvedValue(app as unknown as AppFastifyInstance)
 
-    const { start } = await import('./start')
-
-    const result = await start()
+    await start()
 
     expect(loadConfigMock).toHaveBeenCalledTimes(1)
-    expect(buildAppMock).toHaveBeenCalledWith({ config })
-    expect(app.listen).toHaveBeenCalledWith({ host: '0.0.0.0', port: 3000 })
-    expect(app.log.info).toHaveBeenCalledWith(
-      { address: 'http://localhost:3000' },
-      'Server listening'
-    )
-    expect(result).toEqual({ address: 'http://localhost:3000', app })
+    expect(buildAppMock).toHaveBeenCalledWith({ config: testConfig })
+    expect(app.listen).toHaveBeenCalledWith({ host: testConfig.HOST, port: testConfig.PORT })
+    expect(app.log.info).toHaveBeenCalledWith({ address }, 'Server listening')
 
     const sigintHandler = handlers.get('SIGINT')
-    if (!sigintHandler) {
-      throw new Error('SIGINT handler not registered')
-    }
+    expectFunction(sigintHandler)
     sigintHandler('SIGINT')
     await flushAsync()
-
-    expect(app.log.info).toHaveBeenCalledWith({ signal: 'SIGINT' }, 'Received shutdown signal')
-    expect(app.close).toHaveBeenCalledTimes(1)
-    expect(app.log.info).toHaveBeenCalledWith('Fastify instance closed gracefully')
     expect(processExitSpy).toHaveBeenCalledWith(0)
+    expect(app.log.info).toHaveBeenCalledWith({ signal: 'SIGINT' }, 'Received shutdown signal')
+    expect(app.log.info).toHaveBeenCalledWith('Server closed gracefully')
+    expect(app.close).toHaveBeenCalledTimes(1)
 
+    app.close.mockRejectedValueOnce(new Error())
     const sigtermHandler = handlers.get('SIGTERM')
-    if (!sigtermHandler) {
-      throw new Error('SIGTERM handler not registered')
-    }
-    app.close.mockRejectedValueOnce(new Error('close failed'))
+    expectFunction(sigtermHandler)
     sigtermHandler('SIGTERM')
     await flushAsync()
-
-    expect(app.log.error).toHaveBeenCalledWith(
-      { err: expect.any(Error) },
-      'Error during Fastify shutdown'
-    )
     expect(processExitSpy).toHaveBeenCalledWith(0)
+    expect(app.log.error).toHaveBeenCalledWith({ err: expect.any(Error) }, 'Error during shutdown')
 
     const rejectionHandler = handlers.get('unhandledRejection')
-    if (!rejectionHandler) {
-      throw new Error('Unhandled rejection handler not registered')
-    }
+    expectFunction(rejectionHandler)
     rejectionHandler('boom')
     await flushAsync()
     expect(app.log.error).toHaveBeenCalledWith({ reason: 'boom' }, 'Unhandled rejection')
 
     const exceptionHandler = handlers.get('uncaughtException')
-    if (!exceptionHandler) {
-      throw new Error('Uncaught exception handler not registered')
-    }
-    exceptionHandler(new Error('crash'))
+    expectFunction(exceptionHandler)
+    exceptionHandler(new Error())
     await flushAsync()
     expect(app.log.error).toHaveBeenCalledWith({ err: expect.any(Error) }, 'Uncaught exception')
 
@@ -113,22 +93,20 @@ describe('start', () => {
   })
 
   it('exits when the server fails to listen', async () => {
-    loadConfigMock.mockReturnValue({ HOST: '0.0.0.0', PORT: 3000 })
+    loadConfigMock.mockReturnValue(testConfig)
 
     const processExitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
 
     const app = {
       close: vi.fn(),
-      listen: vi.fn().mockRejectedValue(new Error('listen failed')),
+      listen: vi.fn().mockRejectedValue(new Error()),
       log: {
         error: vi.fn(),
         info: vi.fn()
       }
     }
 
-    buildAppMock.mockResolvedValue(app)
-
-    const { start } = await import('./start')
+    buildAppMock.mockResolvedValue(app as unknown as AppFastifyInstance)
 
     await start()
 

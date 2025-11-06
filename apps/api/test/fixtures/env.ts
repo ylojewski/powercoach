@@ -12,7 +12,7 @@ export const testConfig: AppConfig = {
   HOST: '0.0.0.0',
   LOG_LEVEL: LogLevel.debug,
   NODE_ENV: NodeEnv.test,
-  PORT: 1
+  PORT: 3000
 } as const
 
 export const invalidConfig: AppConfig = {
