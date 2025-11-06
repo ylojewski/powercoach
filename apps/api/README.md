@@ -17,20 +17,21 @@ pnpm install
 
 - `pnpm dev` – start the Fastify server with live reload via `tsx`.
 - `pnpm build` – build the API into the `dist/` directory using `tsup`.
-- `pnpm start` – run the compiled server from `dist/`.
 - `pnpm test` – execute the Vitest end-to-end tests.
 - `pnpm lint` – lint the codebase with ESLint.
 - `pnpm format` – format the sources using Prettier.
+- `pnpm typecheck` – check types with Typescript .
 
 ## Environment variables
 
 Copy `.env.example` to `.env` and adjust the values if needed.
 
-| Variable   | Description                            | Default   |
-| ---------- | -------------------------------------- | --------- |
-| `HOST`     | Hostname/IP address to bind the server | `0.0.0.0` |
-| `PORT`     | Port for the HTTP server               | `3000`    |
-| `LogLevel` | Pino log level                         | `info`    |
+| Variable    | Description                            |
+| ----------- | -------------------------------------- |
+| `HOST`      | Hostname/IP address to bind the server |
+| `LOG_LEVEL` | Pino log level                         |
+| `NODE_END`  | NodeJS environment                     |
+| `PORT`      | Port for the HTTP server               |
 
 ## API surface
 

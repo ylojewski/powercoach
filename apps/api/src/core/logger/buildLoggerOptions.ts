@@ -15,7 +15,8 @@ export function buildLoggerOptions({ level, nodeEnv }: BuildLoggerOptions): Logg
   const options: LoggerOptions = {
     level,
     serializers: {
-      req: (req) => ({ ...stdSerializers.req(req), headers: req.headers })
+      req: (req) => ({ ...stdSerializers.req(req), headers: req.headers }),
+      res: (res) => ({ ...stdSerializers.res(res), headers: res.getHeaders() })
     }
   }
 

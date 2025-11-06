@@ -16,13 +16,16 @@ describe('buildLogger', () => {
     })
   })
 
-  it('serializes request headers', async () => {
+  it('serializes request & response headers', async () => {
     const options = buildLoggerOptions({
       level: 'info',
       nodeEnv: NodeEnv.production
     })
 
     expect(options.serializers?.req?.({ headers: { foo: 'bar' } })).toMatchObject({
+      headers: { foo: 'bar' }
+    })
+    expect(options.serializers?.res?.({ getHeaders: () => ({ foo: 'bar' }) })).toMatchObject({
       headers: { foo: 'bar' }
     })
   })
