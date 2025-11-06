@@ -4,6 +4,7 @@ import { healthModule } from '@src/modules'
 import { helmetPlugin, sensiblePlugin } from '@src/plugins'
 import Fastify from 'fastify'
 import { randomUUID } from 'node:crypto'
+import { ajvOptions } from './ajvOptions'
 import type { FastifyInstance, RawServerDefault } from 'fastify'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 
@@ -20,30 +21,31 @@ export interface BuildAppOptions {
 }
 
 export const REQUEST_ID_HEADER = 'x-request-id' as const
+export const REQUEST_ID_LOG_LABEL = 'reqId' as const
 
 export async function buildApp(options: BuildAppOptions = {}): Promise<AppFastifyInstance> {
   const config = options.config
     ? parseConfig(options.config, ({ message }) => `Invalid configuration: ${message}`)
     : loadConfig()
-  const logger = buildLogger({ level: config.LOG_LEVEL, nodeEnv: config.NODE_ENV })
+  const logger = buildLogger({
+    level: config.LOG_LEVEL,
+    nodeEnv: config.NODE_ENV
+  })
   const app = Fastify({
-    ajv: {
-      customOptions: {
-        coerceTypes: false,
-        removeAdditional: 'all'
-      }
-    },
+    ajv: { customOptions: ajvOptions },
     disableRequestLogging: true,
     genReqId: (request) => request.headers[REQUEST_ID_HEADER]?.toString() ?? randomUUID(),
     loggerInstance: logger,
     requestIdHeader: REQUEST_ID_HEADER,
-    requestIdLogLabel: 'reqId'
+    requestIdLogLabel: REQUEST_ID_LOG_LABEL
   }).withTypeProvider<TypeBoxTypeProvider>()
 
   app.decorate('config', config)
+
   app.addHook('onRequest', async (request, reply) => {
     reply.header(REQUEST_ID_HEADER, request.id)
   })
+
   await app.register(helmetPlugin)
   await app.register(sensiblePlugin)
   await app.register(healthModule, { prefix: '/v1/health' })

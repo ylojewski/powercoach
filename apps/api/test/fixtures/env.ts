@@ -2,15 +2,17 @@ import { AppConfig } from '@src/core'
 import { LogLevel, NodeEnv } from '@src/types'
 
 export const productionConfig: AppConfig = {
-  HOST: '127.0.0.1',
+  HOST: '192.168.0.1',
   LOG_LEVEL: LogLevel.error,
   NODE_ENV: NodeEnv.production,
-  PORT: 4002
+  PORT: 3000
 } as const
 
 export const testConfig: AppConfig = {
-  ...productionConfig,
-  NODE_ENV: NodeEnv.test
+  HOST: '127.0.0.1',
+  LOG_LEVEL: LogLevel.debug,
+  NODE_ENV: NodeEnv.test,
+  PORT: 1
 } as const
 
 export const invalidConfig: AppConfig = {

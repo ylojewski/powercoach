@@ -1,8 +1,8 @@
 import { AppFastifyInstance } from '@src/app'
 import { buildDummyApp, buildTestApp } from '@test/utils/app'
 import { FastifyInstance } from 'fastify'
-import { healthModule } from './module'
-import { HEALTH_RESPONSE_SCHEMA_ID } from './schemas'
+import { HEALTH_MODULE_NAME, healthModule } from './module'
+import { HEALTH_RESPONSE_SCHEMA_ID, healthResponseSchema } from './schemas'
 import * as service from './service'
 
 describe('healthModule', () => {
@@ -20,6 +20,10 @@ describe('healthModule', () => {
     afterAll(async () => {
       vi.resetAllMocks()
       await dummyApp.close()
+    })
+
+    it('exposes a custom name', () => {
+      expect(HEALTH_MODULE_NAME).toBe('powercoach.health.module')
     })
 
     it('add the HealthResponse schema', () => {
@@ -44,7 +48,7 @@ describe('healthModule', () => {
           method: 'GET',
           schema: expect.objectContaining({
             response: expect.objectContaining({
-              200: expect.objectContaining({ $ref: `${HEALTH_RESPONSE_SCHEMA_ID}#` })
+              200: expect.objectContaining(healthResponseSchema)
             })
           }),
           url: '/'

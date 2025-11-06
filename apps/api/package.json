@@ -20,6 +20,7 @@
     "typecheck": "pnpm run typecheck:src && pnpm run typecheck:test"
   },
   "dependencies": {
+    "@fastify/ajv-compiler": "^4.0.5",
     "@fastify/helmet": "^13.0.2",
     "@fastify/sensible": "^6.0.3",
     "@sinclair/typebox": "^0.34.41",

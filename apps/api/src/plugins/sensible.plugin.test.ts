@@ -1,6 +1,6 @@
 import { buildDummyApp } from '@test/utils/app'
 import { FastifyInstance } from 'fastify'
-import { sensiblePlugin } from './sensible.plugin'
+import { SENSIBLE_PLUGIN_NAME, sensiblePlugin } from './sensible.plugin'
 
 describe('sensiblePlugin', () => {
   let app: FastifyInstance
@@ -16,6 +16,10 @@ describe('sensiblePlugin', () => {
 
   afterAll(async () => {
     await app.close()
+  })
+
+  it('exposes a custom name', () => {
+    expect(SENSIBLE_PLUGIN_NAME).toBe('powercoach.sensible.plugin')
   })
 
   it('provides sensible decorators', async () => {

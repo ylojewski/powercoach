@@ -2,7 +2,9 @@ import helmet, { type FastifyHelmetOptions } from '@fastify/helmet'
 import fastifyPlugin from 'fastify-plugin'
 import type { FastifyPluginAsync } from 'fastify'
 
-export const helmetPlugin: FastifyPluginAsync = fastifyPlugin(async (app) => {
+export const HELMET_PLUGIN_NAME = 'powercoach.helmet.plugin' as const
+
+export const helmetPluginCore: FastifyPluginAsync = async (app) => {
   const helmetOptions: FastifyHelmetOptions = {
     crossOriginEmbedderPolicy: false
   }
@@ -12,4 +14,8 @@ export const helmetPlugin: FastifyPluginAsync = fastifyPlugin(async (app) => {
   }
 
   await app.register(helmet, helmetOptions)
+}
+
+export const helmetPlugin = fastifyPlugin(helmetPluginCore, {
+  name: HELMET_PLUGIN_NAME
 })

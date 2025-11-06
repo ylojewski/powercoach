@@ -1,3 +1,4 @@
+import { Options } from '@fastify/ajv-compiler'
 import { AppFastifyInstance, buildApp } from '@src/app'
 import { LogLevel, NodeEnv } from '@src/types'
 import Fastify, { FastifyInstance, FastifyPluginAsync } from 'fastify'
@@ -58,4 +59,14 @@ export async function buildDummyApp(options?: CreateEmptyAppOptions): Promise<Fa
   }
 
   return app
+}
+
+export function getAjvOptions(app: AppFastifyInstance): Options | undefined {
+  const symbols = Object.getOwnPropertySymbols(app)
+  const optionsSymbol = symbols.find((symbol) => symbol.toString() === 'Symbol(fastify.options)')
+
+  if (optionsSymbol) {
+    // @ts-expect-error Symbol(fastify.options) exists on fastify@5.6.1
+    return app[optionsSymbol].ajv.customOptions
+  }
 }

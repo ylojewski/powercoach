@@ -2,7 +2,7 @@ import helmet from '@fastify/helmet'
 import { NodeEnv } from '@src/types'
 import { buildDummyApp } from '@test/utils/app'
 import { MockedFunction } from 'vitest'
-import { helmetPlugin } from './helmet.plugin'
+import { HELMET_PLUGIN_NAME, helmetPlugin } from './helmet.plugin'
 
 vi.mock('@fastify/helmet', () => ({
   default: vi.fn()
@@ -13,6 +13,10 @@ const helmetMock = helmet as MockedFunction<typeof helmet>
 describe('helmetPlugin', () => {
   beforeEach(async () => {
     vi.clearAllMocks()
+  })
+
+  it('exposes a custom name', () => {
+    expect(HELMET_PLUGIN_NAME).toBe('powercoach.helmet.plugin')
   })
 
   it('registers helmet with relaxed CSP outside production', async () => {

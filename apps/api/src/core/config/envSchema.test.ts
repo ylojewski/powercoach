@@ -9,10 +9,10 @@ describe('envSchema', () => {
     expect(() => envSchema.parse(productionConfig)).not.toThrow()
     expect(envSchema.safeParse(productionConfig)).toStrictEqual<ZodSafeParseResult<AppConfig>>({
       data: {
-        HOST: '127.0.0.1',
+        HOST: '192.168.0.1',
         LOG_LEVEL: LogLevel.error,
         NODE_ENV: NodeEnv.production,
-        PORT: 4002
+        PORT: 3000
       },
       success: true
     })
