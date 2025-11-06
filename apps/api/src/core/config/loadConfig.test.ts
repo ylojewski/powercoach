@@ -2,8 +2,8 @@ import { config } from 'dotenv'
 
 import { AppConfig } from '@/src/core'
 import { LogLevel, NodeEnv } from '@/src/types'
-import { productionConfig, testConfig } from '@/test/fixtures/env'
-import { stubEnv } from '@/test/utils/env'
+import { productionConfig, testConfig } from '@/test/fixtures'
+import { stubEnv } from '@/test/utils'
 
 import { loadConfig, resetCachedConfig } from './loadConfig'
 

@@ -3,11 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "src/main.ts",
   "scripts": {
     "ci": "pnpm lint && pnpm format && pnpm typecheck && pnpm test && pnpm build",
-    "dev": "tsx watch src/server/start.ts",
+    "dev": "tsx watch --tsconfig tsconfig.src.json src/main.ts",
     "build": "tsup --config tsup.config.mjs",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

@@ -2,7 +2,7 @@ import helmet from '@fastify/helmet'
 import { MockedFunction } from 'vitest'
 
 import { NodeEnv } from '@/src/types'
-import { buildDummyApp } from '@/test/utils/app'
+import { buildDummyApp } from '@/test/utils'
 
 import { HELMET_PLUGIN_NAME, helmetPlugin } from './helmet.plugin'
 

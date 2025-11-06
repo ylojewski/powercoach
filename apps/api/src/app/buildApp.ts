@@ -1,20 +1,25 @@
 import { randomUUID } from 'node:crypto'
 import { type IncomingMessage, type ServerResponse } from 'node:http'
 
-import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox'
-import Fastify, { type FastifyInstance, type RawServerDefault } from 'fastify'
+import { type TypeBoxTypeProvider } from '@fastify/type-provider-typebox'
+import Fastify, {
+  type FastifyBaseLogger,
+  type FastifyInstance,
+  type RawServerDefault
+} from 'fastify'
 
-import { buildLogger, loadConfig, parseConfig, type AppConfig } from '@/src/core'
+import { type AppConfig, buildLoggerOptions, loadConfig, parseConfig } from '@/src/core'
 import { healthModule } from '@/src/modules'
 import { helmetPlugin, sensiblePlugin } from '@/src/plugins'
 
 import { ajvOptions } from './ajvOptions'
+import { REQUEST_ID_HEADER, REQUEST_ID_LOG_LABEL } from './constants'
 
 export type AppFastifyInstance = FastifyInstance<
   RawServerDefault,
   IncomingMessage,
   ServerResponse,
-  ReturnType<typeof buildLogger>,
+  FastifyBaseLogger,
   TypeBoxTypeProvider
 >
 
@@ -22,14 +27,11 @@ export interface BuildAppOptions {
   config?: AppConfig
 }
 
-export const REQUEST_ID_HEADER = 'x-request-id' as const
-export const REQUEST_ID_LOG_LABEL = 'reqId' as const
-
 export async function buildApp(options: BuildAppOptions = {}): Promise<AppFastifyInstance> {
   const config = options.config
     ? parseConfig(options.config, ({ message }) => `Invalid configuration: ${message}`)
     : loadConfig()
-  const logger = buildLogger({
+  const loggerOptions = buildLoggerOptions({
     level: config.LOG_LEVEL,
     nodeEnv: config.NODE_ENV
   })
@@ -37,7 +39,7 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<AppFastif
     ajv: { customOptions: ajvOptions },
     disableRequestLogging: true,
     genReqId: (request) => request.headers[REQUEST_ID_HEADER]?.toString() ?? randomUUID(),
-    loggerInstance: logger,
+    logger: loggerOptions,
     requestIdHeader: REQUEST_ID_HEADER,
     requestIdLogLabel: REQUEST_ID_LOG_LABEL
   }).withTypeProvider<TypeBoxTypeProvider>()

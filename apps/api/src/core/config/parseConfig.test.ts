@@ -1,7 +1,7 @@
 import { ZodError } from 'zod'
 
 import { AppConfig } from '@/src/core'
-import { invalidConfig, productionConfig } from '@/test/fixtures/env'
+import { invalidConfig, productionConfig } from '@/test/fixtures'
 
 import { parseConfig } from './parseConfig'
 

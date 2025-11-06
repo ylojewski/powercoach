@@ -1,1 +1,1 @@
-export * from './buildLogger'
+export * from './buildLoggerOptions'

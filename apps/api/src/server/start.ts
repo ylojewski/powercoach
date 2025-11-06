@@ -47,7 +47,3 @@ export async function start() {
     process.exit(1)
   }
 }
-
-if (process.env.NODE_ENV !== 'test' && import.meta.url === `file://${process.argv[1]}`) {
-  void start()
-}

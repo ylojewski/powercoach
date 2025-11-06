@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify'
 
-import { buildDummyApp } from '@/test/utils/app'
+import { buildDummyApp } from '@/test/utils'
 
 import { SENSIBLE_PLUGIN_NAME, sensiblePlugin } from './sensible.plugin'
 
