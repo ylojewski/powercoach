@@ -62,5 +62,5 @@ jobs:
             --memory=512Mi \
             --cpu=1 \
             --max-instances=10 \
-            --startup-probe=httpGet.path=/v1/health,initialDelaySeconds=5,periodSeconds=2,timeoutSeconds=1,failureThreshold=5 \
-            --liveness-probe=httpGet.path=/v1/health
+            --startup-probe httpGet.path=/v1/health,initialDelaySeconds=5,periodSeconds=2,timeoutSeconds=1,failureThreshold=5 \
+            --liveness-probe httpGet.path=/v1/health
