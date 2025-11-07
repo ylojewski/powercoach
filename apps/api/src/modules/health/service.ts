@@ -4,7 +4,8 @@ import { type HealthResponse } from './schemas'
 
 export function getHealthStatus(): HealthResponse {
   return {
-    ok: true,
+    live: true,
+    ready: true,
     uptime: process.uptime()
   }
 }
