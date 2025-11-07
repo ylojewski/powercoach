@@ -30,7 +30,7 @@ Copy `.env.example` to `.env` and adjust the values if needed.
 | ----------- | -------------------------------------- |
 | `HOST`      | Hostname/IP address to bind the server |
 | `LOG_LEVEL` | Pino log level                         |
-| `NODE_END`  | NodeJS environment                     |
+| `NODE_ENV`  | NodeJS environment                     |
 | `PORT`      | Port for the HTTP server               |
 
 ## API surface
