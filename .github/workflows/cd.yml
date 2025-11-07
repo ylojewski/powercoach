@@ -61,11 +61,6 @@ jobs:
             --port=8080 \
             --memory=512Mi \
             --cpu=1 \
-            --max-instances=10
-
-      - name: Service URL
-        run: |
-          gcloud run services describe "${{ secrets.GCP_SERVICE }}" \
-            --region="${{ secrets.GCP_REGION }}" \
-            --project="${{ secrets.GCP_PROJECT_ID }}" \
-            --format='value(status.url)'
+            --max-instances=10 \
+            --startup-probe=httpGet.path=/v1/health,initialDelaySeconds=5,periodSeconds=2,timeoutSeconds=1,failureThreshold=5 \
+            --liveness-probe=httpGet.path=/v1/health

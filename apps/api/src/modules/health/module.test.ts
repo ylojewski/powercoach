@@ -33,10 +33,11 @@ describe('healthModule', () => {
         $id: HEALTH_RESPONSE_SCHEMA_ID,
         additionalProperties: false,
         properties: expect.objectContaining({
-          ok: expect.objectContaining({ type: 'boolean' }),
+          live: expect.objectContaining({ type: 'boolean' }),
+          ready: expect.objectContaining({ type: 'boolean' }),
           uptime: expect.objectContaining({ minimum: 0, type: 'number' })
         }),
-        required: ['ok', 'uptime']
+        required: ['live', 'ready', 'uptime']
       })
     )
   })
@@ -67,7 +68,8 @@ describe('healthModule', () => {
 
     expect(payload.uptime).toBeGreaterThanOrEqual(0)
     expect(payload).toStrictEqual({
-      ok: true,
+      live: true,
+      ready: true,
       uptime: expect.any(Number)
     })
   })
