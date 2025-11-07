@@ -15,7 +15,7 @@ permissions:
   id-token: write
 
 env:
-  IMAGE: ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ vars.GAR_REPOSITORY }}/${{ vars.GCR_SERVICE }}:${{ github.sha }}
+  IMAGE: ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GAR_REPOSITORY }}/${{ secrets.GCP_SERVICE }}:${{ github.sha }}
 
 jobs:
   deploy:
@@ -37,7 +37,7 @@ jobs:
 
       - name: Configure Docker auth for Artifact Registry
         run: |
-          gcloud auth configure-docker ${{ vars.GCP_REGION }}-docker.pkg.dev --quiet
+          gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev --quiet
 
       - name: Build image
         run: |
@@ -51,9 +51,9 @@ jobs:
 
       - name: Deploy to Cloud Run
         run: |
-          gcloud run deploy "${{ vars.GCP_SERVICE }}" \
+          gcloud run deploy "${{ secrets.GCP_SERVICE }}" \
             --image="${IMAGE}" \
-            --region="${{ vars.GCP_REGION }}" \
+            --region="${{ secrets.GCP_REGION }}" \
             --platform=managed \
             --allow-unauthenticated \
             --project="${{ secrets.GCP_PROJECT_ID }}" \
@@ -65,7 +65,7 @@ jobs:
 
       - name: Service URL
         run: |
-          gcloud run services describe "${{ vars.GCP_SERVICE }}" \
-            --region="${{ vars.GCP_REGION }}" \
+          gcloud run services describe "${{ secrets.GCP_SERVICE }}" \
+            --region="${{ secrets.GCP_REGION }}" \
             --project="${{ secrets.GCP_PROJECT_ID }}" \
             --format='value(status.url)'
