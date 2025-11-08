@@ -12,8 +12,8 @@ describe('healthModule', () => {
   beforeAll(async () => {
     vi.spyOn(service, 'getHealthStatus')
     dummyApp = await buildDummyApp({
-      spies: ['addSchema', 'route'],
-      plugins: [healthModule]
+      plugins: [healthModule],
+      spies: ['addSchema', 'route']
     })
   })
 

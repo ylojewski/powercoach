@@ -119,12 +119,12 @@ describe('buildApp', () => {
       expect(logs.length).toBe(1)
       expect(logs[0]).toMatchObject(
         expect.objectContaining({
-          // Asserts REQUEST_ID_LOG_LABEL is used
-          [REQUEST_ID_LOG_LABEL]: expect.any(String),
           req: expect.objectContaining({
             // Asserts headers serialization and redaction
             headers: expect.objectContaining({ authorization: '[Redacted]' })
-          })
+          }),
+          // Asserts REQUEST_ID_LOG_LABEL is used
+          [REQUEST_ID_LOG_LABEL]: expect.any(String)
         })
       )
     })

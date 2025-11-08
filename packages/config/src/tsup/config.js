@@ -1,14 +1,14 @@
 /** @type {import('tsup').Options} */
 export const config = {
-  format: ['esm'],
-  outDir: 'dist',
-  tsconfig: './tsconfig.src.json',
-  treeshake: true,
-  sourcemap: true,
-  minify: false,
-  dts: false,
   clean: true,
+  dts: false,
+  format: ['esm'],
+  keepNames: true,
+  minify: false,
+  outDir: 'dist',
+  sourcemap: true,
   splitting: false,
   target: 'node20',
-  keepNames: true
+  treeshake: true,
+  tsconfig: './tsconfig.src.json'
 }

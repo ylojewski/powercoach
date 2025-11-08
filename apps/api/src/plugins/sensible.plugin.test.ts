@@ -9,8 +9,8 @@ describe('sensiblePlugin', () => {
 
   beforeAll(async () => {
     app = await buildDummyApp({
-      ready: false,
-      plugins: [sensiblePlugin]
+      plugins: [sensiblePlugin],
+      ready: false
     })
     app.get('/forbidden', () => app.httpErrors.forbidden('forbidden'))
     await app.ready()
