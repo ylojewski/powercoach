@@ -15,14 +15,14 @@ export const typescriptConfig = {
   files: ['**/*.{ts,tsx}'],
   ignores: ['**/*.test.{ts,tsx}', 'test/**/*.{ts,tsx}'],
   languageOptions: {
+    globals: {
+      ...globals.node
+    },
     parser: tsparser,
     parserOptions: {
       project: ['./tsconfig.src.json'],
-      tsconfigRootDir: process.cwd(),
-      sourceType: 'module'
-    },
-    globals: {
-      ...globals.node
+      sourceType: 'module',
+      tsconfigRootDir: process.cwd()
     }
   },
   plugins: {
@@ -31,8 +31,8 @@ export const typescriptConfig = {
   rules: {
     ...strictRules,
     ...stylisticRules,
-    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     '@typescript-eslint/await-thenable': 'error',
+    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     '@typescript-eslint/return-await': ['error', 'never']
   }
 }
@@ -44,13 +44,13 @@ export const typescriptTestConfig = {
   ignores: [],
   languageOptions: {
     ...typescriptConfig.languageOptions,
-    parserOptions: {
-      ...(typescriptConfig.languageOptions?.parserOptions ?? {}),
-      project: ['./tsconfig.test.json']
-    },
     globals: {
       ...(typescriptConfig.languageOptions?.globals ?? {}),
       ...globals.vitest
+    },
+    parserOptions: {
+      ...(typescriptConfig.languageOptions?.parserOptions ?? {}),
+      project: ['./tsconfig.test.json']
     }
   }
 }

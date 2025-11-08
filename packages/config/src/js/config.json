@@ -2,11 +2,11 @@
   "$schema": "https://json.schemastore.org/jsconfig",
   "compilerOptions": {
     "checkJs": true,
-    "target": "ESNext",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "strict": true,
     "skipLibCheck": true,
+    "strict": true,
+    "target": "ESNext",
     "types": ["node"]
   },
   "exclude": ["../node_modules", "../.turbo"],

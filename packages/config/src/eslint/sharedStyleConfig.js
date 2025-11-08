@@ -16,7 +16,17 @@ export const sharedStyleConfig = {
         distinctGroup: true,
         groups: ['builtin', 'external', ['internal', 'parent', 'sibling', 'index']],
         'newlines-between': 'always',
-        pathGroups: [{ pattern: '@/**', group: 'internal', position: 'before' }]
+        pathGroups: [{ group: 'internal', pattern: '@/**', position: 'before' }]
+      }
+    ],
+    'sort-keys': [
+      'error',
+      'asc',
+      {
+        allowLineSeparatedGroups: true,
+        caseSensitive: false,
+        minKeys: 2,
+        natural: false
       }
     ]
   }

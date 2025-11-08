@@ -2,11 +2,11 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
     "baseUrl": ".",
+    "noEmit": true,
     "paths": {
       "@/src/*": ["src/*"],
       "@/test/*": ["test/*"]
     },
-    "noEmit": true,
     "types": ["vitest/globals", "node"]
   },
   "exclude": ["dist", "node_modules"],
