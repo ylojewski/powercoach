@@ -2,16 +2,13 @@ import process from 'node:process'
 
 import tseslint from '@typescript-eslint/eslint-plugin'
 import tsparser from '@typescript-eslint/parser'
+import { type Linter } from 'eslint'
 import globals from 'globals'
 
 const strictRules = tseslint.configs.strict?.rules ?? {}
 const stylisticRules = tseslint.configs.stylistic?.rules ?? {}
 
-/** @type {any} */
-const tseslintPlugin = tseslint
-
-/** @type {import('eslint').Linter.Config} */
-export const typescriptConfig = {
+export const typescriptConfig: Linter.Config = {
   files: ['**/*.{ts,tsx}'],
   ignores: ['**/*.test.{ts,tsx}', 'test/**/*.{ts,tsx}'],
   languageOptions: {
@@ -26,8 +23,8 @@ export const typescriptConfig = {
     }
   },
   plugins: {
-    '@typescript-eslint': tseslintPlugin
-  },
+    '@typescript-eslint': tseslint as unknown
+  } as Linter.Config['plugins'],
   rules: {
     ...strictRules,
     ...stylisticRules,
@@ -37,8 +34,7 @@ export const typescriptConfig = {
   }
 }
 
-/** @type {import('eslint').Linter.Config} */
-export const typescriptTestConfig = {
+export const typescriptTestConfig: Linter.Config = {
   ...typescriptConfig,
   files: ['**/*.test.{ts,tsx}', 'test/**/*.{ts,tsx}'],
   ignores: [],

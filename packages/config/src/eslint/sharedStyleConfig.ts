@@ -1,7 +1,7 @@
+import { type Linter } from 'eslint'
 import importPlugin from 'eslint-plugin-import'
 
-/** @type {import('eslint').Linter.Config} */
-export const sharedStyleConfig = {
+export const sharedStyleConfig: Linter.Config = {
   plugins: {
     import: importPlugin
   },

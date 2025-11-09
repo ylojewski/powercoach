@@ -1,9 +1,21 @@
-node_modules
-dist
-coverage
-.git
-.gitignore
-.idea
+# Artefacts
 .turbo
+coverage
+node_modules
+test
+
+# Enviroments
+.env
+.env.*
+
+# DX
+.prettierignore
+eslint.config.js
+prettier.config.js
+vitest.config.js
+
+# Others
+README.md
+
+# OS
 .DS_Store
-*.log

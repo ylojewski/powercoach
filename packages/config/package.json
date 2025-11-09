@@ -4,27 +4,27 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "ci": "pnpm lint && pnpm format && pnpm typecheck",
+    "ci": "pnpm lint && pnpm format && pnpm typecheck && pnpm build",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier . --check",
     "format:write": "prettier . --write",
-    "typecheck": "tsc --project src/js/config.json --noEmit"
+    "typecheck": "tsc --project tsconfig.src.json --noEmit",
+    "build": "tsup --config tsup.config.js"
   },
   "files": [
-    "src"
+    "dist"
   ],
   "exports": {
-    "./changeset.config.json": "./src/changeset/config.json",
-    "./commitlint": "./src/commitlint/index.js",
-    "./eslint": "./src/eslint/index.js",
-    "./jsconfig.json": "./src/js/config.json",
-    "./lint-staged": "./src/lint-staged/index.js",
-    "./prettier": "./src/prettier/index.js",
-    "./tsconfig.src.json": "./src/ts/src.json",
-    "./tsconfig.test.json": "./src/ts/test.json",
-    "./tsup": "./src/tsup/index.js",
-    "./vitest": "./src/vitest/index.js"
+    "./changeset.config.json": "./dist/changeset/config.json",
+    "./commitlint": "./dist/commitlint/index.js",
+    "./eslint": "./dist/eslint/index.js",
+    "./lint-staged": "./dist/lint-staged/index.js",
+    "./prettier": "./dist/prettier/index.js",
+    "./tsconfig.src.json": "./dist/ts/src.json",
+    "./tsconfig.test.json": "./dist/ts/test.json",
+    "./tsup": "./dist/tsup/index.js",
+    "./vitest": "./dist/vitest/index.js"
   },
   "dependencies": {
     "globals": "^16.5.0"
@@ -40,6 +40,7 @@
     "eslint": "9.38.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.32.0",
+    "lint-staged": "^16.2.6",
     "prettier": "^3.6.2",
     "prettier-plugin-sort-json": "^4.1.1",
     "tsup": "^8.5.0",

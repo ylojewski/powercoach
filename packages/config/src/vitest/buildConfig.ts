@@ -1,11 +1,9 @@
 import path, { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-/**
- * @param {string} importUrl
- * @returns {import('vitest/config').ViteUserConfig}
- */
-export function buildConfig(importUrl) {
+import { type ViteUserConfig } from 'vitest/config'
+
+export function buildConfig(importUrl: string): ViteUserConfig {
   const importPath = fileURLToPath(importUrl)
   const importDir = dirname(importPath)
 

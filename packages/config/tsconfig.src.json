@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "outDir": "dist"
+  },
+  "exclude": ["dist", "node_modules"],
+  "extends": "./src/ts/src.json",
+  "include": ["src", "*.ts"]
+}
