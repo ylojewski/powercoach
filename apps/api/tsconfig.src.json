@@ -1,7 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
-    "allowJs": true,
     "baseUrl": ".",
     "outDir": "dist",
     "paths": {
@@ -11,6 +10,5 @@
   },
   "exclude": ["dist", "node_modules", "src/**/*.test.ts", "test"],
   "extends": "@powercoach/config/tsconfig.src.json",
-  "files": ["tsup.config.mjs"],
   "include": ["src", "*.ts"]
 }

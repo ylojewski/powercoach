@@ -1,14 +1,24 @@
+# Artefacts
+.turbo
+coverage
 node_modules
+apps/**/dist
+
+# IDE
 .idea
+
+# PNPM
 .pnp.cjs
 .pnp.loader.mjs
 .pnpm-store
-.turbo
-build
-coverage
-dist
+
+# Enviroments
 .env
 .env.*
 !.env.example
+
+# OS
 .DS_Store
+
+# Logs
 *.log

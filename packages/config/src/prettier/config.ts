@@ -1,7 +1,7 @@
+import { type Config } from 'prettier'
 import sortJsonPlugin from 'prettier-plugin-sort-json'
 
-/** @type {import('prettier').Config} */
-export const config = {
+export const config: Config = {
   arrowParens: 'always',
   jsonRecursiveSort: true,
   plugins: [sortJsonPlugin],

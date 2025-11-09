@@ -1,64 +1,63 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
+    "build": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "pnpm-lock.yaml",
+        "tsconfig.json",
+        "tsconfig.*.json",
+        "tsup.config.js",
+        "!dist/**"
+      ],
+      "outputs": ["dist/**"]
+    },
     "ci": {
       "cache": false
     },
     "dev": {
       "cache": false
     },
-    "build": {
-      "dependsOn": ["^build"],
+    "format": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "pnpm-lock.yaml",
+        ".prettierignore",
+        "prettier.config.js"
+      ],
+      "outputs": []
+    },
+    "format:write": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "pnpm-lock.yaml",
+        ".prettierignore",
+        "prettier.config.js"
+      ],
+      "outputs": []
+    },
+    "lint": {
+      "inputs": ["$TURBO_DEFAULT$", "pnpm-lock.yaml", "eslint.config.*"],
+      "outputs": []
+    },
+    "test": {
       "inputs": [
         "$TURBO_DEFAULT$",
         "pnpm-lock.yaml",
         "tsconfig.json",
         "tsconfig.*.json",
-        "!dist/**"
+        "vitest.config.js",
+        "!coverage/**"
       ],
-      "outputs": ["dist/**"]
+      "outputs": ["coverage/**"]
     },
     "typecheck": {
-      "dependsOn": ["^build"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "pnpm-lock.yaml",
         "tsconfig.json",
         "tsconfig.*.json"
       ],
-      "outputs": []
-    },
-    "lint": {
-      "outputs": [],
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        "pnpm-lock.yaml",
-        "eslint.config.*",
-        ".eslintrc.*"
-      ]
-    },
-    "format": {
-      "outputs": []
-    },
-    "format:write": {
-      "outputs": []
-    },
-    "test": {
-      "dependsOn": ["^build"],
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        "pnpm-lock.yaml",
-        "tsconfig.json",
-        "tsconfig.*.json",
-        "!coverage/**"
-      ],
-      "outputs": ["coverage/**"]
-    },
-    "version": {
-      "outputs": []
-    },
-    "publish": {
-      "dependsOn": ["^build"],
       "outputs": []
     }
   }
