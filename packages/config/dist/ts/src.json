@@ -7,10 +7,14 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "noUncheckedIndexedAccess": true,
+    "paths": {
+      "@/src/*": ["src/*"],
+      "@/test/*": ["test/*"]
+    },
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
-    "target": "ES2022"
-  },
-  "include": []
+    "target": "ES2022",
+    "types": ["@types/node"]
+  }
 }
