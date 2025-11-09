@@ -1,31 +1,4 @@
 {
-  "name": "@powercoach/config",
-  "version": "0.0.0",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "ci": "pnpm lint && pnpm format && pnpm typecheck && pnpm build",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "format": "prettier . --check",
-    "format:write": "prettier . --write",
-    "typecheck": "tsc --project tsconfig.src.json --noEmit",
-    "build": "tsup --config tsup.config.js"
-  },
-  "files": [
-    "dist"
-  ],
-  "exports": {
-    "./changeset.config.json": "./dist/changeset/config.json",
-    "./commitlint": "./dist/commitlint/index.js",
-    "./eslint": "./dist/eslint/index.js",
-    "./lint-staged": "./dist/lint-staged/index.js",
-    "./prettier": "./dist/prettier/index.js",
-    "./tsconfig.src.json": "./dist/ts/src.json",
-    "./tsconfig.test.json": "./dist/ts/test.json",
-    "./tsup": "./dist/tsup/index.js",
-    "./vitest": "./dist/vitest/index.js"
-  },
   "dependencies": {
     "globals": "^16.5.0"
   },
@@ -46,5 +19,30 @@
     "tsup": "^8.5.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.6"
-  }
+  },
+  "exports": {
+    "./changeset.config.json": "./dist/changeset/config.json",
+    "./commitlint": "./dist/commitlint/index.js",
+    "./eslint": "./dist/eslint/index.js",
+    "./lint-staged": "./dist/lint-staged/index.js",
+    "./prettier": "./dist/prettier/index.js",
+    "./tsconfig.src.json": "./dist/ts/src.json",
+    "./tsconfig.test.json": "./dist/ts/test.json",
+    "./tsup": "./dist/tsup/index.js",
+    "./vitest": "./dist/vitest/index.js"
+  },
+  "files": ["dist"],
+  "name": "@powercoach/config",
+  "private": true,
+  "scripts": {
+    "build": "tsup --config tsup.config.js",
+    "ci": "pnpm lint && pnpm format && pnpm typecheck && pnpm build",
+    "format": "prettier . --check",
+    "format:write": "prettier . --write",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "tsc --project tsconfig.src.json --noEmit"
+  },
+  "type": "module",
+  "version": "0.0.0"
 }

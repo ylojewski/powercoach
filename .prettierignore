@@ -1,0 +1,7 @@
+**
+!.github
+!.github/**
+!*.config.mjs
+!package.json
+!turbo.json
+!pnpm-workspace.yaml
