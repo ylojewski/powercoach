@@ -1,16 +1,16 @@
-name: API CI
+name: Manager CI
 
 on:
   push:
     branches:
       - main
     paths:
-      - 'apps/api/**'
+      - 'apps/manager/**'
   pull_request:
     branches:
       - main
     paths:
-      - 'apps/api/**'
+      - 'apps/manager/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -28,7 +28,7 @@ jobs:
     name: Powercoach monorepo
     env:
       TURBO_TELEMETRY_DISABLED: '1'
-      TURBO_FILTERS: '--filter=./apps/api...'
+      TURBO_FILTERS: '--filter=./apps/manager...'
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
@@ -89,6 +89,6 @@ jobs:
         if: success()
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
         with:
-          name: api-build
-          path: apps/api/dist
+          name: manager-build
+          path: apps/manager/dist
           if-no-files-found: ignore
