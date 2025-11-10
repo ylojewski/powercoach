@@ -29,11 +29,12 @@ jobs:
           ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Download manager build artifact
-        uses: actions/download-artifact@08e3030f9f0d7033ad63dfb935973d7e858f6eb9
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: manager-build
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ github.event.workflow_run.id }}
+          path: .
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@da0e0dfe58b7a431659754fdf3f186c529afbe65 # v3.14.1
