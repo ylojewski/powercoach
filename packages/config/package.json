@@ -10,6 +10,7 @@
     "@typescript-eslint/eslint-plugin": "^8.46.2",
     "@typescript-eslint/parser": "^8.46.2",
     "@typescript-eslint/utils": "^8.46.2",
+    "@vitejs/plugin-react": "^5.1.0",
     "eslint": "9.38.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.32.0",
@@ -18,7 +19,8 @@
     "prettier-plugin-sort-json": "^4.1.1",
     "tsup": "^8.5.0",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.6"
+    "vite": "^7.2.2",
+    "vitest": "^4.0.8"
   },
   "exports": {
     "./changeset.config.json": "./dist/changeset/config.json",
@@ -29,6 +31,7 @@
     "./tsconfig.src.json": "./dist/ts/src.json",
     "./tsconfig.test.json": "./dist/ts/test.json",
     "./tsup": "./dist/tsup/index.js",
+    "./vite": "./dist/vite/index.js",
     "./vitest": "./dist/vitest/index.js"
   },
   "files": ["dist"],

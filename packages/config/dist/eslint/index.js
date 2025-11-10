@@ -85,6 +85,13 @@ var typescriptTestConfig = {
     }
   }
 };
+var webConfig = {
+  languageOptions: {
+    globals: {
+      ...globals.browser
+    }
+  }
+};
 
 // src/eslint/config.ts
 var config = [
@@ -93,6 +100,7 @@ var config = [
   js.configs.recommended,
   typescriptConfig,
   typescriptTestConfig,
+  webConfig,
   prettierConfig
 ];
 
