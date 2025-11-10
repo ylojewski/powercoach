@@ -1,12 +1,12 @@
 import { type ReactElement } from 'react'
 
-import managerLogoUrl from '@/src/assets/manager-logo.svg'
+import logo from '@/src/assets/logo.svg'
 
 export function App(): ReactElement {
   return (
     <main>
       <h1>Console Manager</h1>
-      <img alt="logo" src={managerLogoUrl} width={100} />
+      <img alt="logo" src={logo} width={100} />
     </main>
   )
 }
