@@ -16,6 +16,7 @@ export default defineConfig({
     'src/ts/src.json',
     'src/ts/test.json',
     'src/tsup/index.ts',
+    'src/vite/index.ts',
     'src/vitest/index.ts'
   ],
   sourcemap: false

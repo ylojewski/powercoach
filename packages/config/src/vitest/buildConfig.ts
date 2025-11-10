@@ -22,7 +22,7 @@ export function buildConfig(importUrl: string): ViteUserConfig {
           'src/**/*.d.ts',
           'test'
         ],
-        include: ['src/**/*.ts'],
+        include: ['src/**/*.{ts,tsx}'],
         provider: 'v8',
         reporter: ['text', 'json', 'lcov'],
         reportsDirectory: 'coverage',

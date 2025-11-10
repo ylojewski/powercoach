@@ -1,22 +1,4 @@
 {
-  "name": "powercoach",
-  "private": true,
-  "version": "0.1.0",
-  "packageManager": "pnpm@10.20.0",
-  "scripts": {
-    "ci": "turbo ci",
-    "dev": "turbo dev",
-    "build": "turbo build",
-    "lint": "turbo lint",
-    "lint:fix": "turbo lint -- --fix",
-    "format": "turbo format",
-    "format:write": "turbo format:write",
-    "test": "turbo test",
-    "typecheck": "turbo typecheck",
-    "prepare": "husky",
-    "lint-staged": "lint-staged",
-    "commitlint": "commitlint"
-  },
   "devDependencies": {
     "@changesets/cli": "^2.29.7",
     "@commitlint/cli": "^20.1.0",
@@ -24,6 +6,25 @@
     "@powercoach/config": "workspace:*",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.6",
+    "prettier": "^3.6.2",
     "turbo": "^2.6.0"
-  }
+  },
+  "name": "powercoach",
+  "packageManager": "pnpm@10.20.0",
+  "private": true,
+  "scripts": {
+    "build": "turbo build",
+    "ci": "turbo ci",
+    "commitlint": "commitlint",
+    "dev": "turbo dev",
+    "format": "prettier . --check && turbo format",
+    "format:write": "prettier . --write && turbo format:write",
+    "lint": "turbo lint",
+    "lint-staged": "lint-staged",
+    "lint:fix": "turbo lint -- --fix",
+    "prepare": "husky",
+    "test": "turbo test",
+    "typecheck": "turbo typecheck"
+  },
+  "version": "0.1.0"
 }

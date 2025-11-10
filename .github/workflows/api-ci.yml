@@ -1,12 +1,18 @@
-name: CI
+name: API CI
 
 on:
   push:
     branches:
       - main
+    paths:
+      - 'packages/config/**'
+      - 'apps/api/**'
   pull_request:
     branches:
       - main
+    paths:
+      - 'packages/config/**'
+      - 'apps/api/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -23,7 +29,7 @@ jobs:
         node-version: [20]
     name: Powercoach monorepo
     env:
-      TURBO_TELEMETRY_DISABLED: "1"
+      TURBO_TELEMETRY_DISABLED: '1'
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8

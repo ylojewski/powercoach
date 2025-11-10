@@ -4,6 +4,7 @@ import sortJsonPlugin from 'prettier-plugin-sort-json';
 var config = {
   arrowParens: "always",
   jsonRecursiveSort: true,
+  overrides: [{ files: "package.json", options: { parser: "json" } }],
   plugins: [sortJsonPlugin],
   printWidth: 100,
   semi: false,

@@ -7,7 +7,8 @@
         "pnpm-lock.yaml",
         "tsconfig.json",
         "tsconfig.*.json",
-        "tsup.config.js",
+        "tsup.config.*",
+        "vite.config.*",
         "!dist/**"
       ],
       "outputs": ["dist/**"]
@@ -19,21 +20,11 @@
       "cache": false
     },
     "format": {
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        "pnpm-lock.yaml",
-        ".prettierignore",
-        "prettier.config.js"
-      ],
+      "inputs": ["$TURBO_DEFAULT$", "pnpm-lock.yaml", ".prettierignore", "prettier.config.*"],
       "outputs": []
     },
     "format:write": {
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        "pnpm-lock.yaml",
-        ".prettierignore",
-        "prettier.config.js"
-      ],
+      "inputs": ["$TURBO_DEFAULT$", "pnpm-lock.yaml", ".prettierignore", "prettier.config.*"],
       "outputs": []
     },
     "lint": {
@@ -46,18 +37,13 @@
         "pnpm-lock.yaml",
         "tsconfig.json",
         "tsconfig.*.json",
-        "vitest.config.js",
+        "vitest.config.*",
         "!coverage/**"
       ],
       "outputs": ["coverage/**"]
     },
     "typecheck": {
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        "pnpm-lock.yaml",
-        "tsconfig.json",
-        "tsconfig.*.json"
-      ],
+      "inputs": ["$TURBO_DEFAULT$", "pnpm-lock.yaml", "tsconfig.json", "tsconfig.*.json"],
       "outputs": []
     }
   }
