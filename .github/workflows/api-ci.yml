@@ -30,6 +30,7 @@ jobs:
     name: Powercoach monorepo
     env:
       TURBO_TELEMETRY_DISABLED: '1'
+      TURBO_FILTERS: '--filter=./apps/api... --filter=./packages/config...'
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
@@ -72,19 +73,19 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Lint
-        run: pnpm lint
+        run: pnpm turbo run lint $TURBO_FILTERS
 
       - name: Format
-        run: pnpm format
+        run: pnpm turbo run format $TURBO_FILTERS
 
       - name: Typecheck
-        run: pnpm typecheck
+        run: pnpm turbo run typecheck $TURBO_FILTERS
 
       - name: Test
-        run: pnpm test
+        run: pnpm turbo run test $TURBO_FILTERS
 
       - name: Build
-        run: pnpm build
+        run: pnpm turbo run build $TURBO_FILTERS
 
       - name: Upload build artifacts
         if: success()
