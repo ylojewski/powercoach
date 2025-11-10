@@ -1,12 +1,18 @@
-name: CI
+name: API CI
 
 on:
   push:
     branches:
       - main
+    paths:
+      - 'packages/config/**'
+      - 'apps/api/**'
   pull_request:
     branches:
       - main
+    paths:
+      - 'packages/config/**'
+      - 'apps/api/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
