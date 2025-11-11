@@ -25,7 +25,7 @@ jobs:
     strategy:
       matrix:
         node-version: [20]
-    name: Powercoach monorepo
+    name: Lint, Format, Typecheck, Test, Build
     env:
       TURBO_TELEMETRY_DISABLED: '1'
       TURBO_FILTERS: '--filter=./apps/api...'
