@@ -44,6 +44,21 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           path: .
 
+      - name: Ensure manager build output is available
+        env:
+          TURBO_FILTERS: --filter=./apps/manager...
+        run: |
+          if [ ! -d "apps/manager/dist" ]; then
+            echo "::warning::apps/manager/dist not found in downloaded artifact. Rebuilding before deploy."
+            pnpm install --frozen-lockfile
+            pnpm turbo run build "$TURBO_FILTERS"
+          fi
+
+          if [ ! -d "apps/manager/dist" ]; then
+            echo "::error::Manager build output is still missing after attempting to rebuild."
+            exit 1
+          fi
+
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@da0e0dfe58b7a431659754fdf3f186c529afbe65 # v3.14.1
         with:
