@@ -7,8 +7,7 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.2.6",
     "prettier": "^3.6.2",
-    "turbo": "^2.6.0",
-    "wrangler": "^4.46.0"
+    "turbo": "^2.6.0"
   },
   "name": "powercoach",
   "packageManager": "pnpm@10.20.0",
