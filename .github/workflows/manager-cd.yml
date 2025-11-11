@@ -21,43 +21,58 @@ jobs:
   deploy:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        node-version: [20]
+    env:
+      TURBO_TELEMETRY_DISABLED: '1'
+      TURBO_FILTERS: '--filter=./apps/manager...'
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
-        with:
-          ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Setup pnpm
         uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061
         with:
           run_install: false
 
-      - name: Allow pnpm to modify workspace root
-        run: pnpm config set ignore-workspace-root-check true --global
+      - name: Determine pnpm store path
+        id: pnpm-store
+        run: echo "dir=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
 
-      - name: Download manager build artifact
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+      - name: Cache pnpm store
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
         with:
-          name: manager-build
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          run-id: ${{ github.event.workflow_run.id }}
-          path: .
+          path: ${{ steps.pnpm-store.outputs.dir }}
+          key: pnpm-store-${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-store-${{ runner.os }}-node-${{ matrix.node-version }}-
+            pnpm-store-${{ runner.os }}-
 
-      - name: Ensure manager build output is available
-        env:
-          TURBO_FILTERS: --filter=./apps/manager...
-        run: |
-          if [ ! -d "apps/manager/dist" ]; then
-            echo "::warning::apps/manager/dist not found in downloaded artifact. Rebuilding before deploy."
-            pnpm install --frozen-lockfile
-            pnpm turbo run build "$TURBO_FILTERS"
-          fi
+      - name: Use Node.js
+        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903
+        with:
+          node-version: ${{ matrix.node-version }}
 
-          if [ ! -d "apps/manager/dist" ]; then
-            echo "::error::Manager build output is still missing after attempting to rebuild."
-            exit 1
-          fi
+      - name: Cache Turbo
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: |
+            node_modules/.cache/turbo
+            .turbo
+          key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('pnpm-lock.yaml', 'turbo.json') }}
+          restore-keys: |
+            turbo-${{ runner.os }}-node-${{ matrix.node-version }}-
+            turbo-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm turbo run build $TURBO_FILTERS
+
+      - name: Prepare wrangler installation
+        run: pnpm config set ignore-workspace-root-check true --global
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@da0e0dfe58b7a431659754fdf3f186c529afbe65 # v3.14.1

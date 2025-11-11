@@ -36,7 +36,7 @@ describe('buildApp', () => {
     })
   })
 
-  describe('when using the environment configuration', () => {
+  describe('when using the environment config', () => {
     it('succeed if valid', async () => {
       stubEnv(testConfig)
 
