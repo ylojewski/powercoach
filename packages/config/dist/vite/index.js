@@ -60,6 +60,7 @@ function buildConfig2(importUrl) {
       }
     },
     server: {
+      host: "127.0.0.1",
       port: 3e3,
       strictPort: true
     },

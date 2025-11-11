@@ -27,6 +27,8 @@ jobs:
     env:
       TURBO_TELEMETRY_DISABLED: '1'
       TURBO_FILTERS: '--filter=./apps/manager...'
+      VERCEL_TELEMETRY_DISABLED: '1'
+      VITE_API_BASE_URL: ${{ secrets.GCP_API_URL }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
@@ -70,3 +72,27 @@ jobs:
 
       - name: Build
         run: pnpm turbo run build $TURBO_FILTERS
+
+      - name: Vercel prepare
+        run: pnpm --filter @powercoach/manager run generate:vercel
+
+      - name: Vercel link
+        working-directory: apps/manager/dist
+        run: |
+          vercel link --project powercoach-manager --yes --token ${{ secrets.VCL_TOKEN }}
+
+      - name: Vercel deploy
+        id: vercel-deploy
+        working-directory: apps/manager/dist
+        run: |
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "$(vercel deploy --prod --yes --token ${{ secrets.VCL_TOKEN }})" >> $GITHUB_OUTPUT
+          else
+            echo "$(vercel deploy --yes --token ${{ secrets.VCL_TOKEN }})" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Vercel alias
+        if: ${{ github.event_name == 'pull_request' }}
+        run: |
+          slug="$(echo '${{ github.ref_name }}' | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-')"
+          vercel alias set "${{ steps.vercel-deploy.outputs }}" "${slug}-powercoach-manager.vercel.app" --token ${{ secrets.VCL_TOKEN }}

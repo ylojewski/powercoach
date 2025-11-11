@@ -1,12 +1,26 @@
-import { type ReactElement } from 'react'
+import { type ReactElement, useEffect, useState } from 'react'
 
 import logo from '@/src/assets/logo.svg'
 
 export function App(): ReactElement {
+  const [health, setHealth] = useState<string>('loading')
+
+  useEffect(() => {
+    async function fetchHealth() {
+      const response = await fetch('/api/v1/health')
+      setHealth(await response.text())
+    }
+    void fetchHealth()
+  }, [])
+
   return (
-    <main>
-      <h1>Console Manager</h1>
-      <img alt="logo" src={logo} width={100} />
+    <main style={{ display: 'flex' }}>
+      <img alt="logo" src={logo} width={80} />
+      <h1>
+        Console Manager
+        <br />
+        {health}
+      </h1>
     </main>
   )
 }

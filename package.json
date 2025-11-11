@@ -13,18 +13,18 @@
   "packageManager": "pnpm@10.20.0",
   "private": true,
   "scripts": {
-    "build": "turbo build",
-    "ci": "turbo ci",
+    "build": "turbo build --concurrency=1",
+    "ci": "turbo ci --concurrency=1",
     "commitlint": "commitlint",
-    "dev": "turbo dev",
-    "format": "prettier . --check && turbo format",
-    "format:write": "prettier . --write && turbo format:write",
-    "lint": "turbo lint",
+    "dev": "turbo dev --concurrency=1",
+    "format": "prettier . --check && turbo format --concurrency=1",
+    "format:write": "prettier . --write && turbo format:write --concurrency=1",
+    "lint": "turbo lint --concurrency=1",
     "lint-staged": "lint-staged",
-    "lint:fix": "turbo lint -- --fix",
+    "lint:fix": "turbo lint --concurrency=1 -- --fix",
     "prepare": "husky",
-    "test": "turbo test",
-    "typecheck": "turbo typecheck"
+    "test": "turbo test --concurrency=1",
+    "typecheck": "turbo typecheck --concurrency=1"
   },
   "version": "0.1.0"
 }
