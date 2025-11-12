@@ -28,7 +28,7 @@ jobs:
     name: Lint, Format, Typecheck, Test, Build
     env:
       TURBO_TELEMETRY_DISABLED: '1'
-      TURBO_FILTERS: '--filter=./apps/manager...'
+      TURBO_FILTERS: '--filter=@powercoach/manager'
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
