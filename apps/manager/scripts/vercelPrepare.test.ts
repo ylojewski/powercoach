@@ -1,29 +1,32 @@
-import { writeFileSync } from 'node:fs'
+import { rmSync, mkdirSync, existsSync, readFileSync } from 'node:fs'
 
-import { expect, MockedFunction } from 'vitest'
-
-import { vercelPrepare } from './vercelPrepare'
+const OUTPUT_DIR = 'dist' as const
+const OUTPUT_FILE = 'dist/vercel.json' as const
 
 describe('generateVercel', () => {
-  vi.mock('node:fs', async (importFs) => {
-    return { ...(await importFs()), writeFileSync: vi.fn() }
+  beforeAll(() => {
+    vi.spyOn(process, 'argv', 'get').mockReturnValue(['--quiet'])
+    rmSync(OUTPUT_DIR, { force: true, recursive: true })
+    mkdirSync(OUTPUT_DIR)
   })
 
-  const writeFileSyncMock = writeFileSync as MockedFunction<typeof writeFileSync>
-
-  beforeEach(() => {
+  afterEach(() => {
+    rmSync(OUTPUT_FILE, { force: true })
     vi.resetModules()
-    vi.resetAllMocks()
-    vi.unstubAllEnvs()
   })
 
-  it('should generate a vercel.json file', () => {
+  afterAll(() => {
+    rmSync(OUTPUT_DIR, { force: true, recursive: true })
+    vi.restoreAllMocks()
+  })
+
+  it('should generate a vercel.json file', async () => {
     vi.stubEnv('VITE_API_BASE_URL', 'http://localhost:8080')
-    vercelPrepare()
-    const [[file, content] = ['', '{}']] = writeFileSyncMock.mock.calls
-    expect(writeFileSyncMock).toHaveBeenCalledOnce()
-    expect(file).toBe('vercel.json')
-    expect(JSON.parse(content as string)).toMatchObject(
+
+    await import('./vercelPrepare')
+
+    expect(existsSync(OUTPUT_FILE)).toBe(true)
+    expect(JSON.parse(readFileSync(OUTPUT_FILE, 'utf-8'))).toMatchObject(
       expect.objectContaining({
         rewrites: expect.arrayContaining([
           { destination: 'http://localhost:8080/:path*', source: '/api/:path*' }
@@ -32,7 +35,12 @@ describe('generateVercel', () => {
     )
   })
 
-  it('should throw on missing env var', () => {
-    // TODO
+  it('should throw on missing env var', async () => {
+    vi.stubEnv('VITE_API_BASE_URL', '')
+
+    await expect(import('./vercelPrepare')).rejects.toThrow(
+      /process.env.VITE_API_BASE_URL is not defined/i
+    )
+    expect(existsSync(OUTPUT_FILE)).toBe(false)
   })
 })

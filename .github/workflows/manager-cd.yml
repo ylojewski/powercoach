@@ -73,9 +73,6 @@ jobs:
       - name: Build
         run: pnpm turbo run build $TURBO_FILTERS
 
-      - name: Vercel prepare
-        run: pnpm --filter @powercoach/manager run generate:vercel
-
       - name: Vercel link
         working-directory: apps/manager/dist
         run: |
