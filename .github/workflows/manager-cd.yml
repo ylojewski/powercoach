@@ -73,10 +73,12 @@ jobs:
       - name: Build
         run: pnpm turbo run build $TURBO_FILTERS
 
+      - name: Add workspace binaries to PATH
+        run: echo "PATH=${{ github.workspace }}/apps/manager/node_modules/.bin:${{ github.workspace }}/node_modules/.bin:$PATH" >> "$GITHUB_ENV"
+
       - name: Vercel link
         working-directory: apps/manager/dist
-        run: |
-          vercel link --project powercoach-manager --yes --token ${{ secrets.VCL_TOKEN }}
+        run: vercel link --project powercoach-manager --yes --token ${{ secrets.VCL_TOKEN }}
 
       - name: Vercel deploy
         id: vercel-deploy
@@ -92,6 +94,7 @@ jobs:
       - name: Vercel alias
         id: vercel-alias
         if: ${{ github.event.workflow_run.event == 'pull_request' }}
+        working-directory: apps/manager/dist
         run: |
           slug="$(echo '${{ github.event.workflow_run.head_branch }}' | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-')"
           alias="${slug}-powercoach-manager.vercel.app"
