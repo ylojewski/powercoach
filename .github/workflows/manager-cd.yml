@@ -13,7 +13,6 @@ concurrency:
 permissions:
   actions: read
   contents: read
-  id-token: write
 
 jobs:
   deploy:
@@ -23,50 +22,20 @@ jobs:
       matrix:
         node-version: [20]
     env:
-      TURBO_TELEMETRY_DISABLED: '1'
+      TURBO_TELEMETRY_DISABLED: 1
       TURBO_FILTERS: '--filter=@powercoach/manager'
-      VERCEL_TELEMETRY_DISABLED: '1'
+      VERCEL_TELEMETRY_DISABLED: 1
       VITE_API_BASE_URL: ${{ secrets.GCR_API_URL }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061
         with:
-          run_install: false
+          ref: ${{ github.event.workflow_run.head_sha }}
 
-      - name: Determine pnpm store path
-        id: pnpm-store
-        run: echo "dir=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
-
-      - name: Cache pnpm store
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
-        with:
-          path: ${{ steps.pnpm-store.outputs.dir }}
-          key: pnpm-store-${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('pnpm-lock.yaml') }}
-          restore-keys: |
-            pnpm-store-${{ runner.os }}-node-${{ matrix.node-version }}-
-            pnpm-store-${{ runner.os }}-
-
-      - name: Use Node.js
-        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903
+      - name: Initialize
+        uses: ./.github/actions/init
         with:
           node-version: ${{ matrix.node-version }}
-
-      - name: Cache Turbo
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
-        with:
-          path: |
-            node_modules/.cache/turbo
-            .turbo
-          key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('pnpm-lock.yaml', 'turbo.json') }}
-          restore-keys: |
-            turbo-${{ runner.os }}-node-${{ matrix.node-version }}-
-            turbo-${{ runner.os }}-
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
 
       - name: Build
         run: pnpm turbo run build $TURBO_FILTERS
@@ -78,29 +47,10 @@ jobs:
         working-directory: apps/manager/dist
         run: vercel link --project powercoach-manager --yes --token ${{ secrets.VCL_TOKEN }}
 
-      - name: Vercel deploy
-        id: vercel-deploy
-        working-directory: apps/manager/dist
-        run: |
-          if [ "${{ github.event.workflow_run.event }}" = "push" ] && [ "${{ github.event.workflow_run.head_branch }}" = "main" ]; then
-            deployment_url="$(vercel deploy --prod --yes --token ${{ secrets.VCL_TOKEN }})"
-          else
-            deployment_url="$(vercel deploy --yes --token ${{ secrets.VCL_TOKEN }})"
-          fi
-          echo "deployment_url=$deployment_url" >> "$GITHUB_OUTPUT"
+      - name: Deploy preview
+        if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.pull_requests[0].base.ref == 'main' }}
+        uses: ./.github/actions/manager-cd-preview
 
-      - name: Vercel alias
-        id: vercel-alias
-        if: ${{ github.event.workflow_run.event == 'pull_request' }}
-        working-directory: apps/manager/dist
-        run: |
-          slug="$(echo '${{ github.event.workflow_run.head_branch }}' | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-')"
-          alias="${slug}-powercoach-manager.vercel.app"
-          url="https://${alias}"
-          vercel alias set "${{ steps.vercel-deploy.outputs.deployment_url }}" "$alias" --token ${{ secrets.VCL_TOKEN }}
-          echo "url=$url" >> "$GITHUB_OUTPUT"
-
-      - name: Vercel URL
-        if: ${{ github.event.workflow_run.event == 'pull_request' }}
-        run: |
-          printf '\033[1;34mAlias URL:\033[0m \033[1;36m%s\033[0m\n' "${{ steps.vercel-alias.outputs.url }}"
+      - name: Deploy production
+        if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main' }}
+        uses: ./.github/actions/manager-cd-production

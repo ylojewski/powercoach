@@ -1,0 +1,30 @@
+name: Manager preview CD
+
+description: Deploys the manager application to a preview environment on Vercel.
+
+runs:
+  using: composite
+  steps:
+    - name: Vercel deploy (preview)
+      id: vercel-deploy
+      working-directory: apps/manager/dist
+      shell: bash
+      run: |
+        deployment_url="$(vercel deploy --yes --token ${{ secrets.VCL_TOKEN }})"
+        echo "deployment_url=$deployment_url" >> "$GITHUB_OUTPUT"
+
+    - name: Vercel alias
+      id: vercel-alias
+      working-directory: apps/manager/dist
+      shell: bash
+      run: |
+        slug="$(echo '${{ github.event.workflow_run.head_branch }}' | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-')"
+        alias="${slug}-powercoach-manager.vercel.app"
+        alias_url="https://${alias}"
+        vercel alias set "${{ steps.vercel-deploy.outputs.deployment_url }}" "$alias" --token ${{ secrets.VCL_TOKEN }}
+        echo "alias_url=alias_url" >> "$GITHUB_OUTPUT"
+
+    - name: Vercel URL
+      shell: bash
+      run: |
+        printf '\033[1;34mAlias URL:\033[0m \033[1;36m%s\033[0m\n' "${{ steps.vercel-alias.outputs.alias_url }}"

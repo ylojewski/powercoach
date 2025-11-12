@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  workflow_call:
+    inputs:
+      disable-telemetry:
+        description: Whether disable telemetries
+        required: false
+        type: string
+        default: 1
+      turbo-filters:
+        description: Turbo filters passed to pnpm turbo run commands
+        required: true
+        type: string
+      workflow-name:
+        description: Name of the calling workflow for concurrency grouping
+        required: false
+        type: string
+        default: CI
+    secrets:
+      API_BASE_URL:
+        description: API base url used to build project
+        required: true
+
+concurrency:
+  group: ${{ inputs.workflow-name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  CI:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20]
+    name: Lint, Format, Typecheck, Test, Build
+    env:
+      TURBO_TELEMETRY_DISABLED: ${{ inputs.disable-telemetry }}
+      TURBO_FILTERS: ${{ inputs.turbo-filters }}
+      VITE_API_BASE_URL: ${{ secrets.API_BASE_URL }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+
+      - name: Initialize
+        uses: ./.github/actions/init
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Lint
+        run: pnpm turbo run lint $TURBO_FILTERS
+
+      - name: Format
+        run: pnpm turbo run format $TURBO_FILTERS
+
+      - name: Typecheck
+        run: pnpm turbo run typecheck $TURBO_FILTERS
+
+      - name: Test
+        run: pnpm turbo run test $TURBO_FILTERS
+
+      - name: Build
+        run: pnpm turbo run build $TURBO_FILTERS
