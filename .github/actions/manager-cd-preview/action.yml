@@ -2,6 +2,11 @@ name: Manager preview CD
 
 description: Deploys the manager application to a preview environment on Vercel.
 
+inputs:
+  vercel-token:
+    description: Vercel access token with permissions to deploy the project.
+    required: true
+
 runs:
   using: composite
   steps:
@@ -9,19 +14,23 @@ runs:
       id: vercel-deploy
       working-directory: apps/manager/dist
       shell: bash
+      env:
+        VERCEL_TOKEN: ${{ inputs.vercel-token }}
       run: |
-        deployment_url="$(vercel deploy --yes --token ${{ secrets.VCL_TOKEN }})"
+        deployment_url="$(vercel deploy --yes --token "$VERCEL_TOKEN")"
         echo "deployment_url=$deployment_url" >> "$GITHUB_OUTPUT"
 
     - name: Vercel alias
       id: vercel-alias
       working-directory: apps/manager/dist
       shell: bash
+      env:
+        VERCEL_TOKEN: ${{ inputs.vercel-token }}
       run: |
         slug="$(echo '${{ github.event.workflow_run.head_branch }}' | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-')"
         alias="${slug}-powercoach-manager.vercel.app"
         alias_url="https://${alias}"
-        vercel alias set "${{ steps.vercel-deploy.outputs.deployment_url }}" "$alias" --token ${{ secrets.VCL_TOKEN }}
+        vercel alias set "${{ steps.vercel-deploy.outputs.deployment_url }}" "$alias" --token "$VERCEL_TOKEN"
         echo "alias_url=alias_url" >> "$GITHUB_OUTPUT"
 
     - name: Vercel URL
