@@ -83,19 +83,20 @@ jobs:
         working-directory: apps/manager/dist
         run: |
           if [ "${{ github.ref }}" = "refs/heads/main" ]; then
-            echo "$(vercel deploy --prod --yes --token ${{ secrets.VCL_TOKEN }})" >> $GITHUB_OUTPUT
+            deployment_url="$(vercel deploy --prod --yes --token ${{ secrets.VCL_TOKEN }})"
           else
-            echo "$(vercel deploy --yes --token ${{ secrets.VCL_TOKEN }})" >> $GITHUB_OUTPUT
+            deployment_url="$(vercel deploy --yes --token ${{ secrets.VCL_TOKEN }})"
           fi
+          echo "deployment_url=$deployment_url" >> "$GITHUB_OUTPUT"
 
       - name: Vercel alias
         id: vercel-alias
         if: ${{ github.event.workflow_run.event == 'pull_request' }}
         run: |
-          slug="$(echo '${{ github.ref_name }}' | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-')"
+          slug="$(echo '${{ github.event.workflow_run.head_branch }}' | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-')"
           alias="${slug}-powercoach-manager.vercel.app"
           url="https://${alias}"
-          vercel alias set "${{ steps.vercel-deploy.outputs }}" "$alias" --token ${{ secrets.VCL_TOKEN }}
+          vercel alias set "${{ steps.vercel-deploy.outputs.deployment_url }}" "$alias" --token ${{ secrets.VCL_TOKEN }}
           echo "url=$url" >> "$GITHUB_OUTPUT"
 
       - name: Vercel URL
