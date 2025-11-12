@@ -27,11 +27,11 @@ runs:
       env:
         VERCEL_TOKEN: ${{ inputs.vercel-token }}
       run: |
-        slug="$(echo '${{ github.event.workflow_run.head_branch }}' | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-')"
+        slug="$(echo '${{ github.event.workflow_run.head_branch }}' | iconv -t ascii//TRANSLIT | sed -r 's/[^a-zA-Z0-9\-]/-/g' | tr A-Z a-z)"
         alias="${slug}-powercoach-manager.vercel.app"
         alias_url="https://${alias}"
         vercel alias set "${{ steps.vercel-deploy.outputs.deployment_url }}" "$alias" --token "$VERCEL_TOKEN"
-        echo "alias_url=alias_url" >> "$GITHUB_OUTPUT"
+        echo "alias_url=${alias_url}" >> "$GITHUB_OUTPUT"
 
     - name: Vercel URL
       shell: bash
