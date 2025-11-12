@@ -1,0 +1,11 @@
+name: Manager production CD
+
+description: Deploys the manager application to the production environment on Vercel.
+
+runs:
+  using: composite
+  steps:
+    - name: Vercel deploy (production)
+      working-directory: apps/manager/dist
+      shell: bash
+      run: vercel deploy --prod --yes --token ${{ secrets.VCL_TOKEN }}

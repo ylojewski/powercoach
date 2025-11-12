@@ -20,7 +20,7 @@ describe('buildApp', () => {
     resetCachedConfig()
   })
 
-  describe('when using the passed configuration', () => {
+  describe('when using the passed config', () => {
     it('succeed if valid', async () => {
       const app = await buildApp({ config: testConfig })
       await app.ready()
