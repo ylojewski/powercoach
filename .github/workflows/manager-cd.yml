@@ -89,7 +89,16 @@ jobs:
           fi
 
       - name: Vercel alias
-        if: ${{ github.event_name == 'pull_request' }}
+        id: vercel-alias
+        if: ${{ github.event.workflow_run.event == 'pull_request' }}
         run: |
           slug="$(echo '${{ github.ref_name }}' | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-')"
-          vercel alias set "${{ steps.vercel-deploy.outputs }}" "${slug}-powercoach-manager.vercel.app" --token ${{ secrets.VCL_TOKEN }}
+          alias="${slug}-powercoach-manager.vercel.app"
+          url="https://${alias}"
+          vercel alias set "${{ steps.vercel-deploy.outputs }}" "$alias" --token ${{ secrets.VCL_TOKEN }}
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+      - name: Vercel URL
+        if: ${{ github.event.workflow_run.event == 'pull_request' }}
+        run: |
+          printf '\033[1;34mAlias URL:\033[0m \033[1;36m%s\033[0m\n' "${{ steps.vercel-alias.outputs.url }}"
