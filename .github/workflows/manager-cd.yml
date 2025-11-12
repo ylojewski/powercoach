@@ -26,7 +26,9 @@ jobs:
         node-version: [20]
     env:
       TURBO_TELEMETRY_DISABLED: '1'
-      TURBO_FILTERS: '--filter=./apps/manager...'
+      TURBO_FILTERS: '--filter=@powercoach/manager'
+      VERCEL_TELEMETRY_DISABLED: '1'
+      VITE_API_BASE_URL: ${{ secrets.GCR_API_URL }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
@@ -71,12 +73,33 @@ jobs:
       - name: Build
         run: pnpm turbo run build $TURBO_FILTERS
 
-      - name: Deploy to Cloudflare Pages
-        uses: cloudflare/wrangler-action@da0e0dfe58b7a431659754fdf3f186c529afbe65 # v3.14.1
-        with:
-          apiToken: ${{ secrets.CF_API_TOKEN }}
-          accountId: ${{ secrets.CF_ACCOUNT_ID }}
-          command: >-
-            pages deploy apps/manager/dist --project-name powercoach-manager
-            --branch "${{ github.event.workflow_run.head_branch }}"
-            --commit-hash "${{ github.event.workflow_run.head_sha }}"
+      - name: Vercel link
+        working-directory: apps/manager/dist
+        run: |
+          vercel link --project powercoach-manager --yes --token ${{ secrets.VCL_TOKEN }}
+
+      - name: Vercel deploy
+        id: vercel-deploy
+        working-directory: apps/manager/dist
+        run: |
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            deployment_url="$(vercel deploy --prod --yes --token ${{ secrets.VCL_TOKEN }})"
+          else
+            deployment_url="$(vercel deploy --yes --token ${{ secrets.VCL_TOKEN }})"
+          fi
+          echo "deployment_url=$deployment_url" >> "$GITHUB_OUTPUT"
+
+      - name: Vercel alias
+        id: vercel-alias
+        if: ${{ github.event.workflow_run.event == 'pull_request' }}
+        run: |
+          slug="$(echo '${{ github.event.workflow_run.head_branch }}' | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-')"
+          alias="${slug}-powercoach-manager.vercel.app"
+          url="https://${alias}"
+          vercel alias set "${{ steps.vercel-deploy.outputs.deployment_url }}" "$alias" --token ${{ secrets.VCL_TOKEN }}
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+      - name: Vercel URL
+        if: ${{ github.event.workflow_run.event == 'pull_request' }}
+        run: |
+          printf '\033[1;34mAlias URL:\033[0m \033[1;36m%s\033[0m\n' "${{ steps.vercel-alias.outputs.url }}"

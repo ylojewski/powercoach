@@ -13,7 +13,7 @@ export function loadConfig(): AppConfig {
     return cachedConfig
   }
 
-  dotenv()
+  dotenv({ quiet: true })
 
   cachedConfig = Object.freeze(
     parseConfig(process.env, (error) => `Invalid environment configuration: ${error.message}`)
