@@ -28,7 +28,7 @@ jobs:
       TURBO_TELEMETRY_DISABLED: '1'
       TURBO_FILTERS: '--filter=./apps/manager...'
       VERCEL_TELEMETRY_DISABLED: '1'
-      VITE_API_BASE_URL: ${{ secrets.GCP_API_URL }}
+      VITE_API_BASE_URL: ${{ secrets.GCR_API_URL }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
