@@ -95,7 +95,8 @@ runs:
           "--allow-unauthenticated"
           "--cpu=1"
           "--image=${{ steps.image.outputs.name }}"
-          "--liveness-probe httpGet.path=/v1/health"
+          "--liveness-probe"
+            "httpGet.path=/v1/health"
           "--max-instances=10"
           "--memory=512Mi"
           "--platform=managed"
@@ -105,7 +106,8 @@ runs:
           "--set-env-vars=HOST=0.0.0.0"
           "--set-env-vars=LOG_LEVEL=info"
           "--set-env-vars=NODE_ENV=production"
-          "--startup-probe httpGet.path=/v1/health,initialDelaySeconds=5,periodSeconds=2,timeoutSeconds=1,failureThreshold=5"
+          "--startup-probe"
+            "httpGet.path=/v1/health,initialDelaySeconds=5,periodSeconds=2,timeoutSeconds=1,failureThreshold=5"
         )
 
         if ${{ inputs.tag != '' }}; then
