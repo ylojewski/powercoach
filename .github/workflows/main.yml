@@ -1,0 +1,77 @@
+name: Main
+
+on:
+  push:
+    branches:
+      - main
+  pull_request_target:
+    branches:
+      - main
+    paths:
+      - 'apps/api/**'
+      - 'apps/manager/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    outputs:
+      ci-filters: ${{ steps.detect.outputs.ci-filters }}
+      ci-name: ${{ steps.detect.outputs.ci-name }}
+      event-pr: ${{ steps.detect.outputs.event-pr }}
+      event-push: ${{ steps.detect.outputs.event-push }}
+      event-slug: ${{ steps.detect.outputs.event-slug }}
+      path-api: ${{ steps.detect.outputs.path-api }}
+      path-manager: ${{ steps.detect.outputs.path-manager }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect
+        id: detect
+        uses: ./.github/actions/detect
+
+  CI:
+    needs: [detect]
+    uses: ./.github/workflows/ci.yml
+    with:
+      filters: ${{ needs.detect.outputs.ci-filters }}
+      name: ${{ needs.detect.outputs.ci-name }}
+
+  CD:
+    needs: [detect, CI]
+    uses: ./.github/workflows/cd.yml
+    with:
+      branch-slug: ${{ needs.detect.outputs.event-slug }}
+      has-api-changed: ${{ needs.detect.outputs.path-api == 'true' }}
+      has-manager-changed: ${{ needs.detect.outputs.path-manager == 'true' }}
+      is-pr: ${{ needs.detect.outputs.event-pr == 'true' }}
+      is-push: ${{ needs.detect.outputs.event-push == 'true' }}
+    secrets:
+      GCP_ARTIFACTS_REPOSITORY: ${{ secrets.GCP_ARTIFACTS_REPOSITORY }}
+      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      GCP_REGION: ${{ secrets.GCP_REGION }}
+      GCP_SERVICE: ${{ secrets.GCP_SERVICE }}
+      GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+      GCP_SERVICE_URL: ${{ secrets.GCP_SERVICE_URL }}
+      GCP_WIF_PROVIDER: ${{ secrets.GCP_WIF_PROVIDER }}
+      VCL_PROJECT: ${{ secrets.VCL_PROJECT }}
+      VCL_TOKEN: ${{ secrets.VCL_TOKEN }}
+
+  Completed:
+    runs-on: ubuntu-latest
+    needs: [detect, CI, CD]
+    steps:
+      - name: Completed
+        shell: bash
+        env:
+          API_URL: ${{ needs.CD.outputs.api-url }}
+          MANAGER_URL: ${{ needs.CD.outputs.manager-url }}
+        run: |
+          echo "✅ API URL: $API_URL"
+          echo "✅ Manager URL: $MANAGER_URL"
+
+
