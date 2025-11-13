@@ -66,7 +66,7 @@ runs:
           --region="${{ inputs.region }}" \
           --filter="metadata.annotations.\"run.googleapis.com/tags\"~(^|,)${{ inputs.tag }}(,|$)" \
           --format="value(status.url)")"
-        
+
         echo "detected=$([[ "$url" != '' ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
         echo "url=$url" >> "$GITHUB_OUTPUT"
 
@@ -90,7 +90,7 @@ runs:
       shell: bash
       run: |
         set -euo pipefail
-        
+
         flags=(
           "--allow-unauthenticated"
           "--cpu=1"
@@ -107,11 +107,11 @@ runs:
           "--set-env-vars=\"NODE_ENV=production\""
           "--startup-probe httpGet.path=/v1/health,initialDelaySeconds=5,periodSeconds=2,timeoutSeconds=1,failureThreshold=5"
         )
-        
+
         if ${{ inputs.tag != '' }}; then
           flags+=("--no-traffic")
           flags+=("--tag=\"${{ inputs.tag }}\"")
         fi
-        
+
         url=$(gcloud run deploy "${{ inputs.service }}" "${flags[@]}" --quiet --format="value(status.url)")
         echo "url=$url" >> "$GITHUB_OUTPUT"

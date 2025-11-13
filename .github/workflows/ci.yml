@@ -12,13 +12,6 @@ on:
         type: string
         required: true
 
-concurrency:
-  group: ${{ inputs.name }}-${{ github.ref }}
-  cancel-in-progress: true
-
-permissions:
-  contents: read
-
 jobs:
   CI:
     runs-on: ubuntu-latest

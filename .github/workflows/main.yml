@@ -15,6 +15,11 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  actions: read
+  contents: read
+  id-token: write
+
 jobs:
   detect:
     runs-on: ubuntu-latest
@@ -73,5 +78,3 @@ jobs:
         run: |
           echo "✅ API URL: $API_URL"
           echo "✅ Manager URL: $MANAGER_URL"
-
-

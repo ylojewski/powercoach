@@ -50,11 +50,6 @@ on:
       VCL_TOKEN:
         required: true
 
-permissions:
-  actions: read
-  contents: read
-  id-token: write
-
 jobs:
   CD:
     runs-on: ubuntu-latest
