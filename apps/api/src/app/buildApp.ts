@@ -29,7 +29,7 @@ export interface BuildAppOptions {
 
 export async function buildApp(options: BuildAppOptions = {}): Promise<AppFastifyInstance> {
   const config = options.config
-    ? parseConfig(options.config, ({ message }) => `Invalid configuration: ${message}`)
+    ? parseConfig(options.config, ({ message }) => `Invalid config: ${message}`)
     : loadConfig()
   const loggerOptions = buildLoggerOptions({
     level: config.LOG_LEVEL,
