@@ -1,6 +1,8 @@
 import { type Config } from 'prettier'
 import sortJsonPlugin from 'prettier-plugin-sort-json'
 
+// TODO to remove
+
 export const config: Config = {
   arrowParens: 'always',
   jsonRecursiveSort: true,
