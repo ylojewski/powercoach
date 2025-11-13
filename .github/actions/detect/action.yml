@@ -65,7 +65,7 @@ runs:
         set -euo pipefail
 
         echo "push=$([[ "$EVENT_NAME" == 'push' ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
-        echo "pr=$([[ "$EVENT_NAME" == 'pull_request' ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+        echo "pr=$([[ "$EVENT_NAME" == 'pull_request_target' ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
 
     - name: Branch slug
       if: ${{ steps.event.outputs.pr == 'true' }}
