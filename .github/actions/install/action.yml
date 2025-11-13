@@ -1,10 +1,9 @@
-name: Initialize project
+name: Install project
 
 inputs:
   node-version:
     description: Node.js version to use
-    required: false
-    default: '20'
+    required: true
 
 runs:
   using: composite

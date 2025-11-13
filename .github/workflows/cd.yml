@@ -1,0 +1,103 @@
+name: CD
+
+on:
+  workflow_call:
+    inputs:
+      branch-slug:
+        description: Slugified branch name of the pull request
+        type: string
+        required: true
+      has-api-changed:
+        description: Whether API has been modified
+        type: boolean
+        required: true
+      has-manager-changed:
+        description: Whether Manager has been modified
+        type: boolean
+        required: true
+      is-push:
+        description: Whether it is a push event
+        type: boolean
+        required: true
+      is-pr:
+        description: Whether it is a pull request event
+        type: boolean
+        required: true
+    outputs:
+      api-url:
+        description:
+        value: ${{ jobs.CD.outputs.api-url }}
+      manager-url:
+        description:
+        value: ${{ jobs.CD.outputs.manager-url }}
+    secrets:
+      GCP_ARTIFACTS_REPOSITORY:
+        required: true
+      GCP_PROJECT_ID:
+        required: true
+      GCP_REGION:
+        required: true
+      GCP_SERVICE:
+        required: true
+      GCP_SERVICE_ACCOUNT:
+        required: true
+      GCP_SERVICE_URL:
+        required: true
+      GCP_WIF_PROVIDER:
+        required: true
+      VCL_PROJECT:
+        required: true
+      VCL_TOKEN:
+        required: true
+
+permissions:
+  actions: read
+  contents: read
+  id-token: write
+
+jobs:
+  CD:
+    runs-on: ubuntu-latest
+    outputs:
+      api-url: ${{ steps.api.outputs.url }}
+      manager-url: ${{ steps.manager.outputs.url }}
+    strategy:
+      matrix:
+        node-version: [20]
+    env:
+      TURBO_FILTERS: ${{ inputs.filters }}
+      TURBO_TELEMETRY_DISABLED: 1
+      VITE_API_BASE_URL: 'http://localhost:8080'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install
+        uses: ./.github/actions/install
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Deploy API
+        uses: ./.github/actions/cd-api
+        if: ${{ inputs.is-pr || (inputs.is-push && inputs.has-api-changed) }}
+        id: api
+        with:
+          artifacts-repository: ${{ secrets.GCP_ARTIFACTS_REPOSITORY }}
+          override-tag: ${{ inputs.is-pr && inputs.has-api-changed }}
+          project-id: ${{ secrets.GCP_PROJECT_ID }}
+          region: ${{ secrets.GCP_REGION }}
+          service: ${{ secrets.GCP_SERVICE }}
+          service-account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          tag: ${{ inputs.is-pr && inputs.branch-slug || '' }}
+          wif-provider: ${{ secrets.GCP_WIF_PROVIDER }}
+
+      - name: Deploy Manager
+        uses: ./.github/actions/cd-manager
+        id: manager
+        if: ${{ inputs.is-pr || (inputs.is-push && inputs.has-manager-changed) }}
+        with:
+          alias: ${{ inputs.branch-slug }}
+          api-url: ${{ steps.api.outputs.url || secrets.GCP_SERVICE_URL }}
+          override-alias: ${{ inputs.has-manager-changed }}
+          project: ${{ secrets.VCL_PROJECT }}
+          token: ${{ secrets.VCL_TOKEN }}

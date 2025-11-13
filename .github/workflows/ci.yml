@@ -3,27 +3,17 @@ name: CI
 on:
   workflow_call:
     inputs:
-      disable-telemetry:
-        description: Whether disable telemetries
-        required: false
+      filters:
+        description: Filters passed to pnpm turbo run commands
         type: string
-        default: 1
-      turbo-filters:
-        description: Turbo filters passed to pnpm turbo run commands
         required: true
-        type: string
-      workflow-name:
+      name:
         description: Name of the calling workflow for concurrency grouping
-        required: false
         type: string
-        default: CI
-    secrets:
-      API_BASE_URL:
-        description: API base url used to build project
         required: true
 
 concurrency:
-  group: ${{ inputs.workflow-name }}-${{ github.ref }}
+  group: ${{ inputs.name }}-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -37,29 +27,29 @@ jobs:
         node-version: [20]
     name: Lint, Format, Typecheck, Test, Build
     env:
-      TURBO_TELEMETRY_DISABLED: ${{ inputs.disable-telemetry }}
-      TURBO_FILTERS: ${{ inputs.turbo-filters }}
-      VITE_API_BASE_URL: ${{ secrets.API_BASE_URL }}
+      TURBO_FILTERS: ${{ inputs.filters }}
+      TURBO_TELEMETRY_DISABLED: 1
+      VITE_API_BASE_URL: 'http://localhost:8080'
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Initialize
-        uses: ./.github/actions/init
+      - name: Install
+        uses: ./.github/actions/install
         with:
           node-version: ${{ matrix.node-version }}
 
       - name: Lint
-        run: pnpm turbo run lint $TURBO_FILTERS
+        run: pnpm lint $TURBO_FILTERS
 
       - name: Format
-        run: pnpm turbo run format $TURBO_FILTERS
+        run: pnpm format $TURBO_FILTERS
 
       - name: Typecheck
-        run: pnpm turbo run typecheck $TURBO_FILTERS
+        run: pnpm typecheck $TURBO_FILTERS
 
       - name: Test
-        run: pnpm turbo run test $TURBO_FILTERS
+        run: pnpm test $TURBO_FILTERS
 
       - name: Build
-        run: pnpm turbo run build $TURBO_FILTERS
+        run: pnpm build $TURBO_FILTERS
