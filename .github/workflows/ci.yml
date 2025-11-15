@@ -36,8 +36,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: '0'
 
       - name: Install
         uses: ./.github/actions/install
@@ -45,16 +43,16 @@ jobs:
           node-version: ${{ inputs.node-version }}
 
       - name: Lint
-        run: pnpm lint $TURBO_FILTERS
+        run: pnpm lint ${{ inputs.filters }}
 
       - name: Format
-        run: pnpm format $TURBO_FILTERS
+        run: pnpm format ${{ inputs.filters }}
 
       - name: Typecheck
-        run: pnpm typecheck $TURBO_FILTERS
+        run: pnpm typecheck ${{ inputs.filters }}
 
       - name: Test
-        run: pnpm test $TURBO_FILTERS
+        run: pnpm test ${{ inputs.filters }}
 
       - name: Hash
         id: hash
@@ -63,11 +61,13 @@ jobs:
           filters=${{ inputs.filters }}
 
           if [[ "$filters" == *"api"* ]]; then
-            echo "api=${{ hashFiles('apps/api/**/*') }}" >> "$GITHUB_OUTPUT"
+            hash=$(find apps/api -type f -print0 | sort -z | xargs -0 sha256sum | awk '{print $1}' | sort | sha256sum | cut -d' ' -f1)
+            echo "api=$hash" >> "$GITHUB_OUTPUT"
           fi
 
           if [[ "$filters" == *"manager"* ]]; then
-            echo "manager=${{ hashFiles('apps/manager/**/*') }}" >> "$GITHUB_OUTPUT"
+            hash=$(find apps/manager -type f -print0 | sort -z | xargs -0 sha256sum | awk '{print $1}' | sort | sha256sum | cut -d' ' -f1)
+            echo "manager=$hash" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Context
