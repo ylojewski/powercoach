@@ -56,8 +56,15 @@ runs:
       env:
         VITE_API_BASE_URL: ${{ inputs.api-url }}
       run: |
+
+        echo "=== Source file content ==="
+        cat apps/manager/src/App.tsx | grep "here we go" || echo "❌ 'here we go' not found"
+
         pnpm --filter=@powercoach/manager build
         sed -i "s/__DIST_HASH__/${{ inputs.hash }}/g" apps/manager/dist/index.html
+
+        echo "=== After build - Check dist ==="
+        grep -r "here we go" apps/manager/dist/ || echo "❌ Not in dist"
 
         vercel link \
           --token ${{ inputs.token }} \
