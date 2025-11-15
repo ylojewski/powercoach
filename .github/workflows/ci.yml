@@ -66,9 +66,9 @@ jobs:
       - name: CI
         shell: bash
         run: |
-          echo "✨ Lint... ✅"
-          echo "💅 Format... ✅"
-          echo "🛡️ Typecheck... ✅"
-          echo "🧪 Test... ✅"
-          echo "#️⃣ API source hash: ${{ steps.hash.outputs.api }}"
-          echo "#️⃣ Manager source hash: ${{ steps.hash.outputs.manager }}"
+          echo "\u2728 Lint... \u2705"
+          echo "\u{1F485} Format... \u2705"
+          echo "\u{1F6E1}\uFE0F Typecheck... \u2705"
+          echo "\u{1F9EA} Test... \u2705"
+          echo "\u0023\uFE0F\u20E3 API source hash: ${{ steps.hash.outputs.api }}"
+          echo "\u0023\uFE0F\u20E3 Manager source hash: ${{ steps.hash.outputs.manager }}"

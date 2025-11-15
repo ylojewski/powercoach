@@ -89,13 +89,13 @@ jobs:
       - name: Context
         shell: bash
         run: |
-          echo "🔀 Event type: ${{ inputs.is-pr && 'PR' || 'Push' }}"
-          echo "🐌 Branch slug: ${{ inputs.branch-slug }}"
-          echo "#️⃣ API hash: ${{ inputs.api-hash }}"
-          echo "#️⃣ Manager hash: ${{ inputs.manager-hash }}"
-          echo "✏️ API changed: ${{ inputs.api-changed && '✅' || '❌' }}"
-          echo "✏️ Manager changed: ${{ inputs.manager-changed && '✅' || '❌' }}"
-          echo "🏷️️ Node version: ${{ inputs.node-version }}"
+          echo "\u{1F500} Event type: ${{ inputs.is-pr && 'PR' || 'Push' }}"
+          echo "\u{1F40C} Branch slug: ${{ inputs.branch-slug }}"
+          echo "\u0023\uFE0F\u20E3 API hash: ${{ inputs.api-hash }}"
+          echo "\u0023\uFE0F\u20E3 Manager hash: ${{ inputs.manager-hash }}"
+          echo "\u270F\uFE0F API changed: ${{ inputs.api-changed && '\u2705' || '\u274C' }}"
+          echo "\u270F\uFE0F Manager changed: ${{ inputs.manager-changed && '\u2705' || '\u274C' }}"
+          echo "\u{1F3F7}\uFE0F Node version: ${{ inputs.node-version }}"
 
       # - name: Deploy API
       #   uses: ./.github/actions/cd-api
@@ -135,7 +135,7 @@ jobs:
   rollback-manager:
     name: Rollback Manager
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'workflow_dispatch' }}
+    if: ${{ inputs.is-push && github.event_name == 'workflow_dispatch' }}
     needs: CD
     steps:
       - name: Checkout
@@ -149,4 +149,4 @@ jobs:
       - name: Rollback Manager
         run: |
           vercel rollback ${{ needs.CD.outputs.manager-rollback-host }} --token ${{ secrets.VCL_TOKEN }}
-          echo "↩️️ Manager rollbacked on: ${{ needs.CD.outputs.manager-rollback-host }}"
+          echo "\u21A9\uFE0F Manager rollbacked on: ${{ needs.CD.outputs.manager-rollback-host }}"

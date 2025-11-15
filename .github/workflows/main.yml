@@ -64,5 +64,5 @@ jobs:
       - name: Completed
         shell: bash
         run: |
-          echo "🔗 API URL: ${{ needs.CD.outputs.api-url }}"
-          echo "🔗 Manager URL: https://${{ needs.CD.outputs.manager-host }}"
+          echo "\u{1F517} API URL: ${{ needs.CD.outputs.api-url }}"
+          echo "\u{1F517} Manager URL: https://${{ needs.CD.outputs.manager-host }}"
