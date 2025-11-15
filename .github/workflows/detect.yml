@@ -5,33 +5,42 @@ on:
     outputs:
       branch-slug:
         description: Slugified branch name of the pull request
-        value: ${{ steps.slug.outputs.value }}
+        value: ${{ jobs.detect.outputs.branch-slug }}
       ci:
         description: Whether CI should be ran
-        value: ${{ steps.vars.outputs.filters != '' }}
+        value: ${{ jobs.detect.outputs.ci != '' }}
       ci-filters:
         description: CI turbo filters
-        value: ${{ steps.vars.outputs.filters }}
+        value: ${{ jobs.detect.outputs.ci-filters }}
       ci-name:
         description: CI workflow name
-        value: ${{ steps.vars.outputs.name }}
+        value: ${{ jobs.detect.outputs.ci-name }}
       event-pr:
         description: Whether it is a pull request event
-        value: ${{ steps.event.outputs.pr }}
+        value: ${{ jobs.detect.outputs.event-pr }}
       event-push:
         description: Whether it is a push event
-        value: ${{ steps.event.outputs.push }}
+        value: ${{ jobs.detect.outputs.event-push }}
       path-api:
         description: Whether API has been modified
-        value: ${{ steps.paths.outputs.api }}
+        value: ${{ jobs.detect.outputs.path-api }}
       path-manager:
         description: Whether Manager has been modified
-        value: ${{ steps.paths.outputs.manager }}
+        value: ${{ jobs.detect.outputs.path-manager }}
 
 jobs:
   detect:
     name: Detect
     runs-on: ubuntu-latest
+    outputs:
+      branch-slug: ${{ steps.slug.outputs.value }}
+      ci: ${{ steps.vars.outputs.filters != '' }}
+      ci-filters: ${{ steps.vars.outputs.filters }}
+      ci-name: ${{ steps.vars.outputs.name }}
+      event-pr: ${{ steps.event.outputs.pr }}
+      event-push: ${{ steps.event.outputs.push }}
+      path-api: ${{ steps.paths.outputs.api }}
+      path-manager: ${{ steps.paths.outputs.manager }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
