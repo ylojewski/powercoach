@@ -94,13 +94,11 @@ jobs:
       - name: Context
         shell: bash
         run: |
-          set +x
           echo "🐌 Branch slug: ${{ steps.slug.outputs.value }}"
           echo "🔍 CI: ${{ steps.vars.outputs.filters != '' && '✅' || '❌' }}"
           echo "🔀 CI turbo filters: ${{ steps.vars.outputs.filters }}"
           echo "🏷️ CI workflow name: ${{ steps.vars.outputs.name }}"
-          echo "🔀 Pull request event: ${{ steps.event.outputs.pr == 'true' && '✅' || '❌' }}
-          echo "🔀 Push event: ${{ steps.event.outputs.push == 'true' && '✅' || '❌' }}
-          echo "📂 Path API: ${{ steps.paths.outputs.api == 'true' && '✅' || '❌' }}
-          echo "📂 Path Manager: ${{ steps.paths.outputs.manager == 'true' && '✅' || '❌' }}
-
+          echo "🔀 Pull request event: ${{ steps.event.outputs.pr == 'true' && '✅' || '❌' }}"
+          echo "🔀 Push event: ${{ steps.event.outputs.push == 'true' && '✅' || '❌' }}"
+          echo "📂 Path API: ${{ steps.paths.outputs.api == 'true' && '✅' || '❌' }}"
+          echo "📂 Path Manager: ${{ steps.paths.outputs.manager == 'true' && '✅' || '❌' }}"

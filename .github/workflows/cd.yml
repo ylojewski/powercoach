@@ -90,7 +90,6 @@ jobs:
       - name: Context
         shell: bash
         run: |
-          set +x
           echo "🔀 Event type: ${{ inputs.is-pr && 'PR' || 'Push' }}"
           echo "🐌 Branch slug: ${{ inputs.branch-slug }}"
           echo "#️⃣ API hash: ${{ inputs.api-hash }}"

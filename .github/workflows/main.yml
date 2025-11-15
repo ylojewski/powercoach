@@ -68,6 +68,5 @@ jobs:
       - name: Context
         shell: bash
         run: |
-          set +x
           echo "🔗 API URL: ${{ needs.CD.outputs.api-url }}"
           echo "🔗 Manager URL: https://${{ needs.CD.outputs.manager-host }}"
