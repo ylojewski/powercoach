@@ -49,25 +49,8 @@ runs:
         echo "host=$host" >> "$GITHUB_OUTPUT"
         echo "found=$([ -n "$host" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
 
-    - name: Sync Alias
-      id: existing-alias
-      if: ${{ steps.current-deploy.outputs.found == 'true' }}
-      shell: bash
-      run: |
-        host=$(
-          curl \
-            --header "Authorization: Bearer ${{ inputs.token }}" \
-            --url "https://api.vercel.com/v4/aliases/${{ steps.alias-host.outputs.value }}" \
-            --silent \
-          | jq -r '.deployment.url // empty'
-        )
-
-        if [ "$host" != "${{ steps.current-deploy.outputs.host }}" ]; then
-          vercel alias set "${{ steps.current-deploy.outputs.host }}" "${{ steps.alias-host.outputs.value }}" \
-            --token ${{ inputs.token }}
-        fi
-
     - name: Deploy
+      id: new-deploy
       if: ${{ steps.current-deploy.outputs.found == 'false' }}
       shell: bash
       env:
@@ -82,13 +65,18 @@ runs:
           --cwd apps/manager/dist \
           --yes
 
-        host=$(
+        echo "host=$(
           vercel deploy \
             --token ${{ inputs.token }} \
             --meta managerHash=${{ inputs.hash }} \
             --cwd apps/manager/dist \
             --yes
-        )
+        )"  >> "$GITHUB_OUTPUT"
 
-        vercel alias set "$host" "${{ steps.alias-host.outputs.value }}" \
+    - name: Alias
+      shell: bash
+      run: |
+        vercel alias set \
+          "${{ steps.current-deploy.outputs.host || steps.new-deploy.outputs.host }}" \
+          "${{ steps.alias-host.outputs.value }}" \
           --token ${{ inputs.token }}
