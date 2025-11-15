@@ -8,7 +8,7 @@ on:
         value: ${{ jobs.detect.outputs.branch-slug }}
       ci:
         description: Whether CI should be ran
-        value: ${{ jobs.detect.outputs.ci != '' }}
+        value: ${{ jobs.detect.outputs.ci-filters != '' && 'true' || 'false' }}
       ci-filters:
         description: CI turbo filters
         value: ${{ jobs.detect.outputs.ci-filters }}
@@ -54,14 +54,14 @@ jobs:
               - 'apps/api/**'
             manager:
               - 'apps/manager/**'
-  
+
       - name: CI variables
         shell: bash
         id: vars
         run: |
           api="${{ steps.paths.outputs.api }}"
           manager="${{ steps.paths.outputs.manager }}"
-          
+
           if [[ "$api" == "true" && "$manager" == "true" ]]; then
             echo "filters=--filter=@powercoach/api --filter=@powercoach/manager" >> $GITHUB_OUTPUT
             echo "name=CI" >> $GITHUB_OUTPUT
@@ -72,14 +72,14 @@ jobs:
             echo "filters=--filter=@powercoach/manager" >> $GITHUB_OUTPUT
             echo "name=Manager CI" >> $GITHUB_OUTPUT
           fi
-  
+
       - name: Github event
         id: event
         shell: bash
         run: |
           echo "push=$([[ "${{ github.event_name }}" == 'push' ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
           echo "pr=$([[ "${{ github.event_name }}" == 'pull_request_target' ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
-  
+
       - name: Branch slug
         if: ${{ steps.event.outputs.pr == 'true' }}
         id: slug
@@ -94,11 +94,11 @@ jobs:
       - name: Detection
         shell: bash
         run: |
-          echo "🐌️ Branch slug: ${{ steps.slug.outputs.value }}"
+          echo "🐌 Branch slug: ${{ steps.slug.outputs.value }}"
           echo "🚀 CI: ${{ steps.vars.outputs.filters != '' && '✅' || '❌' }}"
           echo "🔀 CI turbo filters: ${{ steps.vars.outputs.filters }}"
-          echo "🏷️ CI workflow name: ${{ steps.vars.outputs.name }}"
-          echo "⚡️ Pull request event: ${{ steps.event.outputs.pr == 'true' && '✅' || '❌' }}
-          echo "⚡️ Push event: ${{ steps.event.outputs.push == 'true' && '✅' || '❌' }}
+          echo "🏷 CI workflow name: ${{ steps.vars.outputs.name }}"
+          echo "🔀 Pull request event: ${{ steps.event.outputs.pr == 'true' && '✅' || '❌' }}
+          echo "🔀 Push event: ${{ steps.event.outputs.push == 'true' && '✅' || '❌' }}
           echo "📂 Path API: ${{ steps.paths.outputs.api == 'true' && '✅' || '❌' }}
           echo "📂 Path Manager: ${{ steps.paths.outputs.manager == 'true' && '✅' || '❌' }}
