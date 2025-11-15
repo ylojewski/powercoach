@@ -17,10 +17,10 @@ on:
         required: true
     outputs:
       api-hash:
-        description: Hash of the API dist directory
+        description: Hash of the API source directory
         value: ${{ jobs.CI.outputs.api-hash }}
       manager-hash:
-        description: Hash of the Manager dist directory
+        description: Hash of the Manager source directory
         value: ${{ jobs.CI.outputs.manager-hash }}
 
 jobs:
@@ -37,7 +37,7 @@ jobs:
       - name: Install
         uses: ./.github/actions/install
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: ${{ inputs.node-version }}
 
       - name: Lint
         run: pnpm lint $TURBO_FILTERS
@@ -62,3 +62,13 @@ jobs:
           if [[ '${{ inputs.filters }}' == *manager* ]]; then
             echo "manager=${{ hashFiles('apps/manager/src/**') }}" >> "$GITHUB_OUTPUT"
           fi
+
+      - name: CI
+        shell: bash
+        run: |
+          echo "✨ Lint... ✅"
+          echo "💅 Format... ✅"
+          echo "🛡️ Typecheck... ✅"
+          echo "🧪 Test... ✅"
+          echo "#️⃣ API source hash: ${{ steps.hash.outputs.api }}"
+          echo "#️⃣ Manager source hash: ${{ steps.hash.outputs.manager }}"

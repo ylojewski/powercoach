@@ -37,14 +37,14 @@ on:
         required: true
     outputs:
       api-url:
-        description:
+        description: Deployed API URL
         value: ${{ jobs.CD.outputs.api-url }}
       manager-host:
         description: Deployed Manager host
         value: ${{ jobs.CD.outputs.manager-host }}
       manager-rollback-host:
-        description: Deployed Manager host
-        value: ${{ jobs.CD.outputs.manager-url }}
+        description: Manager host to rollback to
+        value: ${{ jobs.CD.outputs.manager-rollback-host }}
     secrets:
       GCP_ARTIFACTS_REPOSITORY:
         required: true
@@ -73,7 +73,8 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event_name != 'workflow_dispatch' }}
     outputs:
-      api-url: ${{ steps.api.outputs.url }}
+      # api-url: ${{ steps.api.outputs.url }}
+      api-url: 'https://ci-test-new---api-gkrxksmsua-ew.a.run.app/'
       manager-host: ${{ steps.manager-preview.outputs.host || steps.manager-production.outputs.host }}
       manager-rollback-host: ${{ steps.manager-production.outputs.rollback-host }}
     steps:
@@ -83,17 +84,18 @@ jobs:
       - name: Install
         uses: ./.github/actions/install
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: ${{ inputs.node-version }}
 
       - name: Context
         shell: bash
         run: |
-          echo "🔀 Event type: ${{ inputs.is-pr && 'Pull Request' || 'Push' }}"
-          echo "🌿 Branch slug: ${{ inputs.branch-slug }}"
+          echo "⚡️ Event type: ${{ inputs.is-pr && 'PR' || 'Push' }}"
+          echo "🐌 Branch slug: ${{ inputs.branch-slug }}"
           echo "#️⃣ API hash: ${{ inputs.api-hash }}"
           echo "#️⃣ Manager hash: ${{ inputs.manager-hash }}"
           echo "✏️ API changed: ${{ inputs.api-changed && '✅' || '❌' }}"
           echo "✏️ Manager changed: ${{ inputs.manager-changed && '✅' || '❌' }}"
+          echo "🏷️️ Node version: ${{ inputs.node-version }}"
 
       # - name: Deploy API
       #   uses: ./.github/actions/cd-api
@@ -145,4 +147,6 @@ jobs:
           node-version: ${{ inputs.node-version }}
 
       - name: Rollback Manager
-        run: vercel rollback ${{ needs.CD.outputs.manager-rollback-host }} --token ${{ secrets.VCL_TOKEN }}
+        run: |
+          vercel rollback ${{ needs.CD.outputs.manager-rollback-host }} --token ${{ secrets.VCL_TOKEN }}
+          echo "↩️️ Manager rollbacked on: ${{ needs.CD.outputs.manager-rollback-host }}"

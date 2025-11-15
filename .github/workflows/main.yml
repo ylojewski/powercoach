@@ -22,27 +22,12 @@ permissions:
 
 jobs:
   detect:
-    runs-on: ubuntu-latest
-    outputs:
-      ci-filters: ${{ steps.detect.outputs.ci-filters }}
-      ci-name: ${{ steps.detect.outputs.ci-name }}
-      event-pr: ${{ steps.detect.outputs.event-pr }}
-      event-push: ${{ steps.detect.outputs.event-push }}
-      event-slug: ${{ steps.detect.outputs.event-slug }}
-      path-api: ${{ steps.detect.outputs.path-api }}
-      path-manager: ${{ steps.detect.outputs.path-manager }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Detect
-        id: detect
-        uses: ./.github/actions/detect
+    uses: ./.github/workflows/detect.yml
 
   CI:
     needs: [detect]
     uses: ./.github/workflows/ci.yml
-    if: ${{ needs.detect.outputs.path-api == 'true' || needs.detect.outputs.path-manager == 'true' }}
+    if: ${{ needs.detect.outputs.ci == 'true' }}
     with:
       filters: ${{ needs.detect.outputs.ci-filters }}
       name: ${{ needs.detect.outputs.ci-name }}
@@ -79,5 +64,5 @@ jobs:
       - name: Completed
         shell: bash
         run: |
-          echo "✅ API URL: ${{ needs.CD.outputs.api-url }}"
-          echo "✅ Manager URL: https://${{ needs.CD.outputs.manager-host }}"
+          echo "🔗 API URL: ${{ needs.CD.outputs.api-url }}"
+          echo "🔗 Manager URL: https://${{ needs.CD.outputs.manager-host }}"
