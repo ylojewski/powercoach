@@ -51,11 +51,14 @@ jobs:
     needs: [detect, CI]
     uses: ./.github/workflows/cd.yml
     with:
-      branch-slug: ${{ needs.detect.outputs.event-slug }}
-      has-api-changed: ${{ needs.detect.outputs.path-api == 'true' }}
-      has-manager-changed: ${{ needs.detect.outputs.path-manager == 'true' }}
+      api-changed: ${{ needs.detect.outputs.path-api == 'true' }}
+      api-hash: ${{ needs.CI.outputs.api-hash }}
+      branch-slug: ${{ needs.detect.outputs.branch-slug }}
       is-pr: ${{ needs.detect.outputs.event-pr == 'true' }}
       is-push: ${{ needs.detect.outputs.event-push == 'true' }}
+      manager-changed: ${{ needs.detect.outputs.path-manager == 'true' }}
+      manager-hash: ${{ needs.CI.outputs.manager-hash }}
+      node-version: 20
     secrets:
       GCP_ARTIFACTS_REPOSITORY: ${{ secrets.GCP_ARTIFACTS_REPOSITORY }}
       GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
@@ -65,6 +68,7 @@ jobs:
       GCP_SERVICE_URL: ${{ secrets.GCP_SERVICE_URL }}
       GCP_WIF_PROVIDER: ${{ secrets.GCP_WIF_PROVIDER }}
       VCL_PROJECT: ${{ secrets.VCL_PROJECT }}
+      VCL_TEAM: ${{ secrets.VCL_TEAM }}
       VCL_TOKEN: ${{ secrets.VCL_TOKEN }}
 
   Completed:
@@ -73,9 +77,6 @@ jobs:
     steps:
       - name: Completed
         shell: bash
-        env:
-          API_URL: ${{ needs.CD.outputs.api-url }}
-          MANAGER_URL: ${{ needs.CD.outputs.manager-url }}
         run: |
-          echo "✅ API URL: $API_URL"
-          echo "✅ Manager URL: $MANAGER_URL"
+          echo "✅ API URL: ${{ needs.CD.outputs.api-url }}"
+          echo "✅ Manager URL: https://${{ needs.CD.outputs.manager-host }}"

@@ -3,17 +3,17 @@ name: CD
 on:
   workflow_call:
     inputs:
-      branch-slug:
-        description: Slugified branch name of the pull request
-        type: string
-        required: true
-      has-api-changed:
+      api-changed:
         description: Whether API has been modified
         type: boolean
         required: true
-      has-manager-changed:
-        description: Whether Manager has been modified
-        type: boolean
+      api-hash:
+        description: Hash of the API dist directory
+        type: string
+        required: true
+      branch-slug:
+        description: Slugified branch name of the pull request
+        type: string
         required: true
       is-push:
         description: Whether it is a push event
@@ -23,12 +23,27 @@ on:
         description: Whether it is a pull request event
         type: boolean
         required: true
+      manager-changed:
+        description: Whether Manager has been modified
+        type: boolean
+        required: true
+      manager-hash:
+        description: Hash of the Manager dist directory
+        type: string
+        required: true
+      node-version:
+        description: Node.js version to use
+        type: number
+        required: true
     outputs:
       api-url:
         description:
         value: ${{ jobs.CD.outputs.api-url }}
-      manager-url:
-        description:
+      manager-host:
+        description: Deployed Manager host
+        value: ${{ jobs.CD.outputs.manager-host }}
+      manager-rollback-host:
+        description: Deployed Manager host
         value: ${{ jobs.CD.outputs.manager-url }}
     secrets:
       GCP_ARTIFACTS_REPOSITORY:
@@ -47,22 +62,20 @@ on:
         required: true
       VCL_PROJECT:
         required: true
+      VCL_TEAM:
+        required: true
       VCL_TOKEN:
         required: true
+  workflow_dispatch:
 
 jobs:
   CD:
     runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'workflow_dispatch' }}
     outputs:
       api-url: ${{ steps.api.outputs.url }}
-      manager-url: ${{ steps.manager.outputs.url }}
-    strategy:
-      matrix:
-        node-version: [20]
-    env:
-      TURBO_FILTERS: ${{ inputs.filters }}
-      TURBO_TELEMETRY_DISABLED: 1
-      VITE_API_BASE_URL: 'http://localhost:8080'
+      manager-host: ${{ steps.manager-preview.outputs.host || steps.manager-production.outputs.host }}
+      manager-rollback-host: ${{ steps.manager-production.outputs.rollback-host }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -72,27 +85,64 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Deploy API
-        uses: ./.github/actions/cd-api
-        if: ${{ inputs.is-pr || (inputs.is-push && inputs.has-api-changed) }}
-        id: api
-        with:
-          artifacts-repository: ${{ secrets.GCP_ARTIFACTS_REPOSITORY }}
-          override-tag: ${{ inputs.is-pr && inputs.has-api-changed }}
-          project-id: ${{ secrets.GCP_PROJECT_ID }}
-          region: ${{ secrets.GCP_REGION }}
-          service: ${{ secrets.GCP_SERVICE }}
-          service-account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
-          tag: ${{ inputs.is-pr && inputs.branch-slug || '' }}
-          wif-provider: ${{ secrets.GCP_WIF_PROVIDER }}
+      - name: Context
+        shell: bash
+        run: |
+          echo "🔀 Event type: ${{ inputs.is-pr && 'Pull Request' || 'Push' }}"
+          echo "🌿 Branch slug: ${{ inputs.branch-slug }}"
+          echo "#️⃣ API hash: ${{ inputs.api-hash }}"
+          echo "#️⃣ Manager hash: ${{ inputs.manager-hash }}"
+          echo "✏️ API changed: ${{ inputs.api-changed && '✅' || '❌' }}"
+          echo "✏️ Manager changed: ${{ inputs.manager-changed && '✅' || '❌' }}"
 
-      - name: Deploy Manager
-        uses: ./.github/actions/cd-manager
-        id: manager
-        if: ${{ inputs.is-pr || (inputs.is-push && inputs.has-manager-changed) }}
+      # - name: Deploy API
+      #   uses: ./.github/actions/cd-api
+      #   id: api
+      #   with:
+      #     artifacts-repository: ${{ secrets.GCP_ARTIFACTS_REPOSITORY }}
+      #     project-id: ${{ secrets.GCP_PROJECT_ID }}
+      #     region: ${{ secrets.GCP_REGION }}
+      #     service: ${{ secrets.GCP_SERVICE }}
+      #     service-account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+      #     tag: ${{ inputs.branch-slug }}
+      #     wif-provider: ${{ secrets.GCP_WIF_PROVIDER }}
+
+      - name: Deploy preview Manager
+        uses: ./.github/actions/cd-manager-preview
+        if: ${{ inputs.is-pr }}
+        id: manager-preview
         with:
           alias: ${{ inputs.branch-slug }}
-          api-url: ${{ steps.api.outputs.url || secrets.GCP_SERVICE_URL }}
-          override-alias: ${{ inputs.has-manager-changed }}
+          # api-url: ${{ steps.api.outputs.url }}
+          api-url: 'https://ci-test-new---api-gkrxksmsua-ew.a.run.app/'
+          hash: ${{ inputs.manager-hash }}
           project: ${{ secrets.VCL_PROJECT }}
+          team: ${{ secrets.VCL_TEAM }}
           token: ${{ secrets.VCL_TOKEN }}
+
+      - name: Deploy production Manager
+        uses: ./.github/actions/cd-manager-production
+        if: ${{ inputs.is-push }}
+        id: manager-production
+        with:
+          hash: ${{ inputs.manager-hash }}
+          project: ${{ secrets.VCL_PROJECT }}
+          team: ${{ secrets.VCL_TEAM }}
+          token: ${{ secrets.VCL_TOKEN }}
+
+  rollback-manager:
+    name: Rollback Manager
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    needs: CD
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install
+        uses: ./.github/actions/install
+        with:
+          node-version: ${{ inputs.node-version }}
+
+      - name: Rollback Manager
+        run: vercel rollback ${{ needs.CD.outputs.manager-rollback-host }} --token ${{ secrets.VCL_TOKEN }}

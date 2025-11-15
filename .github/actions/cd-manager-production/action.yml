@@ -1,0 +1,113 @@
+name: Manager production CD
+
+inputs:
+  hash:
+    description: Hash of the dist directory
+    required: true
+  project:
+    description: Vercel project
+    required: true
+  team:
+    description: Vercel team
+    required: true
+  token:
+    description: Vercel token
+    required: true
+
+outputs:
+  host:
+    description: Deployed Manager host
+    value: ${{ steps.production-url.outputs.host }}
+  rollback-host:
+    description: Manager host to rollback to
+    value: ${{ steps.rollback-host.outputs.value }}
+
+runs:
+  using: composite
+  steps:
+    - name: Production URL computation
+      id: production-url
+      shell: bash
+      run: |
+        host=${{ inputs.project }}-${{ inputs.team }}.vercel.app
+        echo "value=https://$host" >> "$GITHUB_OUTPUT"
+        echo "host=$host" >> "$GITHUB_OUTPUT"
+
+    - name: Should deploy
+      id: should-deploy
+      shell: bash
+      run: |
+        if content=$(curl -fsS "${{ steps.production-url.outputs.value }}" 2>/dev/null); then
+          echo "$content" | grep -Fq "${{ inputs.hash }}" \
+            && echo "value=false" >> "$GITHUB_OUTPUT" \
+            || echo "value=true"  >> "$GITHUB_OUTPUT"
+        else
+          echo "value=false" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Rollback host
+      id: rollback-host
+      if: ${{ steps.should-deploy.outputs.value == 'true' }}
+      shell: bash
+      run: |
+        if inspect=$(vercel inspect ${{ steps.production-url.outputs.host }} \
+          --token ${{ inputs.token }} 2>&1); then
+          value=$(
+            echo "$inspect" \
+              | grep 'Fetched deployment' \
+              | grep -o '"[^"]*"' \
+              | sed 's/\"//g'
+          )
+          echo "value=$value" >> "$GITHUB_OUTPUT"
+          echo "found=$([ -n $value ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Promote previous deploy (if any)
+      if: >
+        steps.should-deploy.outputs.value == 'true' &&
+        steps.rollback-host.outputs.found == 'true'
+      id: promote-deploy
+      shell: bash
+      run: |
+        host=$(
+          vercel list ${{ inputs.project }} \
+            --token ${{ inputs.token }} \
+            --environment production \
+            --status READY \
+            --meta managerHash=${{ inputs.hash }} \
+            | sed 's|^https://||' \
+            | head -n1
+        )
+
+        if [ -n "$host" ]; then
+          vercel promote "$host" \
+            --token ${{ inputs.token }}
+          echo "success=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "success=false" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Deploy
+      if: >
+        steps.should-deploy.outputs.value == 'true' &&
+        steps.rollback-host.outputs.found == 'true' &&
+        steps.promote-deploy.outputs.success == 'false'
+      shell: bash
+      env:
+        VITE_API_BASE_URL: ${{ steps.production-url.outputs.value }}
+      run: |
+        pnpm --filter=@powercoach/manager build
+        sed -i "s/__DIST_HASH__/${{ inputs.hash }}/g" apps/manager/dist/index.html
+
+        vercel link \
+          --token ${{ inputs.token }} \
+          --project ${{ inputs.project }} \
+          --cwd apps/manager/dist \
+          --yes
+
+        vercel deploy \
+          --token ${{ inputs.token }} \
+          --meta managerHash=${{ inputs.hash }} \
+          --cwd apps/manager/dist \
+          --prod \
+          --yes

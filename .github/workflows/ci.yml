@@ -11,18 +11,25 @@ on:
         description: Name of the calling workflow for concurrency grouping
         type: string
         required: true
+      node-version:
+        description: Node.js version to use
+        type: number
+        required: true
+    outputs:
+      api-hash:
+        description: Hash of the API dist directory
+        value: ${{ jobs.CI.outputs.api-hash }}
+      manager-hash:
+        description: Hash of the Manager dist directory
+        value: ${{ jobs.CI.outputs.manager-hash }}
 
 jobs:
   CI:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [20]
-    name: Lint, Format, Typecheck, Test, Build
-    env:
-      TURBO_FILTERS: ${{ inputs.filters }}
-      TURBO_TELEMETRY_DISABLED: 1
-      VITE_API_BASE_URL: 'http://localhost:8080'
+    name: Lint, Format, Typecheck, Test
+    outputs:
+      api-hash: ${{ steps.hash.outputs.api }}
+      manager-hash: ${{ steps.hash.outputs.manager }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -44,5 +51,14 @@ jobs:
       - name: Test
         run: pnpm test $TURBO_FILTERS
 
-      - name: Build
-        run: pnpm build $TURBO_FILTERS
+      - name: Hash
+        id: hash
+        shell: bash
+        run: |
+          if [[ '${{ inputs.filters }}' == *api* ]]; then
+            echo "api=${{ hashFiles('apps/api/src/**') }}" >> "$GITHUB_OUTPUT"
+          fi
+
+          if [[ '${{ inputs.filters }}' == *manager* ]]; then
+            echo "manager=${{ hashFiles('apps/manager/src/**') }}" >> "$GITHUB_OUTPUT"
+          fi

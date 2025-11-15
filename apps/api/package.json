@@ -31,7 +31,8 @@
   "engines": {
     "node": "20"
   },
-  "main": "src/index.ts",
+  "files": ["dist", "node_modules"],
+  "main": "dist/index.js",
   "name": "@powercoach/api",
   "private": true,
   "scripts": {

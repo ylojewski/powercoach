@@ -46,3 +46,10 @@ runs:
     - name: Install dependencies
       shell: bash
       run: pnpm install --frozen-lockfile
+
+    - name: Add binaries to PATH
+      shell: bash
+      run: |
+        echo "PATH=${{ github.workspace }}/node_modules/.bin:$PATH" >> "$GITHUB_ENV"
+        echo "PATH=${{ github.workspace }}/apps/api/node_modules/.bin:$PATH" >> "$GITHUB_ENV"
+        echo "PATH=${{ github.workspace }}/apps/manager/node_modules/.bin:$PATH" >> "$GITHUB_ENV"

@@ -110,9 +110,11 @@ runs:
             "httpGet.path=/v1/health,initialDelaySeconds=5,periodSeconds=2,timeoutSeconds=1,failureThreshold=5"
         )
 
-        if ${{ inputs.tag != '' }}; then
-          flags+=("--no-traffic")
-          flags+=("--tag=${{ inputs.tag }}")
+        if [[ -n "${{ inputs.tag }}" ]]; then
+          flags+=(
+            "--no-traffic"
+            "--tag=${{ inputs.tag }}"
+          )
         fi
 
         url=$(gcloud run deploy "${{ inputs.service }}" "${flags[@]}" --quiet --format="value(status.url)")

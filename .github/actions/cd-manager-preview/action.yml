@@ -1,0 +1,94 @@
+name: Manager preview CD
+
+inputs:
+  alias:
+    description: Vercel deployment alias
+    required: true
+  api-url:
+    description: API URL used during build phase
+    required: true
+  hash:
+    description: Hash of the dist directory
+    required: true
+  project:
+    description: Vercel project name
+    required: true
+  team:
+    description: Vercel team
+    required: true
+  token:
+    description: Vercel token
+    required: true
+
+outputs:
+  host:
+    description: Deployed Manager host
+    value: ${{ steps.alias-host.outputs.value }}
+
+runs:
+  using: composite
+  steps:
+    - name: Alias host computation
+      id: alias-host
+      shell: bash
+      run: echo "value=${{ inputs.alias }}-${{ inputs.project }}-${{ inputs.team }}.vercel.app" >> "$GITHUB_OUTPUT"
+
+    - name: Current deploy host
+      id: current-deploy
+      shell: bash
+      run: |
+        host=$(
+          vercel list ${{ inputs.project }} \
+            --token ${{ inputs.token }} \
+            --environment preview \
+            --status READY \
+            --meta managerHash=${{ inputs.hash }} \
+            | sed 's|^https://||' \
+            | head -n1
+        )
+        echo "host=$host" >> "$GITHUB_OUTPUT"
+        echo "found=$([ -n "$host" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+    - name: Sync Alias
+      id: existing-alias
+      if: ${{ steps.current-deploy.outputs.found == 'true' }}
+      shell: bash
+      run: |
+        host=$(
+          curl \
+            --header "Authorization: Bearer ${{ inputs.token }}" \
+            --url "https://api.vercel.com/v4/aliases/${{ steps.alias-host.outputs.value }}" \
+            --silent \
+            | jq -r '.deployment.url' // empty
+        )
+
+        if [ "$host" != "${{ steps.current-deploy.outputs.host }}" ]; then
+          vercel alias set "${{ steps.current-deploy.outputs.host }}" "${{ steps.alias-host.outputs.value }}" \
+            --token ${{ inputs.token }}
+        fi
+
+    - name: Deploy
+      if: ${{ steps.current-deploy.outputs.found == 'false' }}
+      shell: bash
+      env:
+        VITE_API_BASE_URL: ${{ inputs.api-url }}
+      run: |
+        pnpm --filter=@powercoach/manager build
+        sed -i "s/__DIST_HASH__/${{ inputs.hash }}/g" apps/manager/dist/index.html
+
+        vercel link \
+          --token ${{ inputs.token }} \
+          --project ${{ inputs.project }} \
+          --cwd apps/manager/dist \
+          --yes
+
+        host=$(
+          vercel deploy \
+            --token ${{ inputs.token }} \
+            --meta managerHash=${{ inputs.hash }} \
+            --cwd apps/manager/dist \
+            --yes
+        )
+
+        vercel alias set "$host" "${{ steps.alias-host.outputs.value }}" \
+          --token ${{ inputs.token }}

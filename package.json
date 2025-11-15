@@ -16,6 +16,7 @@
     "build": "turbo build --concurrency=1",
     "ci": "turbo ci --concurrency=1",
     "commitlint": "commitlint",
+    "deploy:api": "pnpm deploy --legacy --filter @powercoach/api --prod --ignore-scripts deploy/api",
     "dev": "turbo dev --concurrency=1",
     "format": "prettier . --check && turbo format --concurrency=1",
     "format:write": "prettier . --write && turbo format:write --concurrency=1",
