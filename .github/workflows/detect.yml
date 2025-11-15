@@ -91,14 +91,16 @@ jobs:
           slug="$(echo "$slug" | sed -E 's/-*$//')"
           echo "value=$slug" >> "$GITHUB_OUTPUT"
 
-      - name: Detection
+      - name: Context
         shell: bash
         run: |
-          echo "\u{1F40C} Branch slug: ${{ steps.slug.outputs.value }}"
-          echo "\u{1F680} CI: ${{ steps.vars.outputs.filters != '' && '\u2705' || '\u274C' }}"
-          echo "\u{1F500} CI turbo filters: ${{ steps.vars.outputs.filters }}"
-          echo "\u{1F3F7}\uFE0F CI workflow name: ${{ steps.vars.outputs.name }}"
-          echo "\u{1F500} Pull request event: ${{ steps.event.outputs.pr == 'true' && '\u2705' || '\u274C' }}
-          echo "\u{1F500} Push event: ${{ steps.event.outputs.push == 'true' && '\u2705' || '\u274C' }}
-          echo "\u{1F4C2} Path API: ${{ steps.paths.outputs.api == 'true' && '\u2705' || '\u274C' }}
-          echo "\u{1F4C2} Path Manager: ${{ steps.paths.outputs.manager == 'true' && '\u2705' || '\u274C' }}
+          set +x
+          echo "🐌 Branch slug: ${{ steps.slug.outputs.value }}"
+          echo "🔍 CI: ${{ steps.vars.outputs.filters != '' && '✅' || '❌' }}"
+          echo "🔀 CI turbo filters: ${{ steps.vars.outputs.filters }}"
+          echo "🏷️ CI workflow name: ${{ steps.vars.outputs.name }}"
+          echo "🔀 Pull request event: ${{ steps.event.outputs.pr == 'true' && '✅' || '❌' }}
+          echo "🔀 Push event: ${{ steps.event.outputs.push == 'true' && '✅' || '❌' }}
+          echo "📂 Path API: ${{ steps.paths.outputs.api == 'true' && '✅' || '❌' }}
+          echo "📂 Path Manager: ${{ steps.paths.outputs.manager == 'true' && '✅' || '❌' }}
+

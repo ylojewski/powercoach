@@ -56,19 +56,20 @@ jobs:
         shell: bash
         run: |
           if [[ '${{ inputs.filters }}' == *api* ]]; then
-            echo "api=${{ hashFiles('apps/api/src/**') }}" >> "$GITHUB_OUTPUT"
+            echo "api=${{ hashFiles('apps/api/src/**/*') }}" >> "$GITHUB_OUTPUT"
           fi
 
           if [[ '${{ inputs.filters }}' == *manager* ]]; then
-            echo "manager=${{ hashFiles('apps/manager/src/**') }}" >> "$GITHUB_OUTPUT"
+            echo "manager=${{ hashFiles('apps/manager/src/**/*') }}" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: CI
+      - name: Context
         shell: bash
         run: |
-          echo "\u2728 Lint... \u2705"
-          echo "\u{1F485} Format... \u2705"
-          echo "\u{1F6E1}\uFE0F Typecheck... \u2705"
-          echo "\u{1F9EA} Test... \u2705"
-          echo "\u0023\uFE0F\u20E3 API source hash: ${{ steps.hash.outputs.api }}"
-          echo "\u0023\uFE0F\u20E3 Manager source hash: ${{ steps.hash.outputs.manager }}"
+          set +x
+          echo "✨ Lint... ✅"
+          echo "💅 Format... ✅"
+          echo "🛡️ Typecheck... ✅"
+          echo "🧪 Test... ✅"
+          echo "#️⃣ API source hash: ${{ steps.hash.outputs.api }}"
+          echo "#️⃣ Manager source hash: ${{ steps.hash.outputs.manager }}"
