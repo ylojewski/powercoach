@@ -46,6 +46,7 @@ jobs:
     with:
       filters: ${{ needs.detect.outputs.ci-filters }}
       name: ${{ needs.detect.outputs.ci-name }}
+      node-version: 20
 
   CD:
     needs: [detect, CI]
