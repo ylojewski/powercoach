@@ -59,8 +59,8 @@ jobs:
         shell: bash
         id: vars
         run: |
-          api = ${{ steps.paths.outputs.api }}
-          manager = ${{ steps.paths.outputs.manager }}
+          api="${{ steps.paths.outputs.api }}"
+          manager="${{ steps.paths.outputs.manager }}"
           
           if [[ "$api" == "true" && "$manager" == "true" ]]; then
             echo "filters=--filter=@powercoach/api --filter=@powercoach/manager" >> $GITHUB_OUTPUT
