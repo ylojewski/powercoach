@@ -23,6 +23,9 @@ on:
         description: Hash of the Manager source directory
         value: ${{ jobs.CI.outputs.manager-hash }}
 
+env:
+  TURBO_TELEMETRY_DISABLED: 1
+
 jobs:
   CI:
     runs-on: ubuntu-latest
@@ -33,6 +36,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: '0'
 
       - name: Install
         uses: ./.github/actions/install
@@ -55,12 +60,14 @@ jobs:
         id: hash
         shell: bash
         run: |
-          if [[ '${{ inputs.filters }}' == *api* ]]; then
-            echo "api=${{ hashFiles('apps/api/src/**/*') }}" >> "$GITHUB_OUTPUT"
+          filters=${{ inputs.filters }}
+
+          if [[ "$filters" == *"api"* ]]; then
+            echo "api=${{ hashFiles('apps/api/**/*') }}" >> "$GITHUB_OUTPUT"
           fi
 
-          if [[ '${{ inputs.filters }}' == *manager* ]]; then
-            echo "manager=${{ hashFiles('apps/manager/src/**/*') }}" >> "$GITHUB_OUTPUT"
+          if [[ "$filters" == *"manager"* ]]; then
+            echo "manager=${{ hashFiles('apps/manager/**/*') }}" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Context

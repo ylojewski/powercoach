@@ -95,8 +95,8 @@ jobs:
         shell: bash
         run: |
           echo "🐌 Branch slug: ${{ steps.slug.outputs.value }}"
-          echo "🔍 CI: ${{ steps.vars.outputs.filters != '' && '✅' || '❌' }}"
-          echo "🔀 CI turbo filters: ${{ steps.vars.outputs.filters }}"
+          echo "🚀 CI: ${{ steps.vars.outputs.filters != '' && '✅' || '❌' }}"
+          echo "⬇️ CI turbo filters: ${{ steps.vars.outputs.filters }}"
           echo "🏷️ CI workflow name: ${{ steps.vars.outputs.name }}"
           echo "🔀 Pull request event: ${{ steps.event.outputs.pr == 'true' && '✅' || '❌' }}"
           echo "🔀 Push event: ${{ steps.event.outputs.push == 'true' && '✅' || '❌' }}"
