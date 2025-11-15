@@ -43,8 +43,8 @@ runs:
             --environment preview \
             --status READY \
             --meta managerHash=${{ inputs.hash }} \
-            | sed 's|^https://||' \
-            | head -n1
+          | head -n1 \
+          | sed 's|^https://||'
         )
         echo "host=$host" >> "$GITHUB_OUTPUT"
         echo "found=$([ -n "$host" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
@@ -59,7 +59,7 @@ runs:
             --header "Authorization: Bearer ${{ inputs.token }}" \
             --url "https://api.vercel.com/v4/aliases/${{ steps.alias-host.outputs.value }}" \
             --silent \
-            | jq -r '.deployment.url' // empty
+          | jq -r '.deployment.url // empty'
         )
 
         if [ "$host" != "${{ steps.current-deploy.outputs.host }}" ]; then
