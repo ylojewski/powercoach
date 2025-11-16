@@ -8,6 +8,18 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Inputs
+      shell: bash
+      run: |
+        {
+          echo "### Install action inputs"
+          echo ""
+          echo "| Key | Value |"
+          echo "| --- | --- |"
+          echo "| Node version | ${{ inputs.node-version || '❌' }} |"
+          echo ""
+        } >> "$GITHUB_STEP_SUMMARY"
+
     - name: Setup pnpm
       uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061
       with:

@@ -34,6 +34,20 @@ jobs:
       api-hash: ${{ steps.hash.outputs.api }}
       manager-hash: ${{ steps.hash.outputs.manager }}
     steps:
+      - name: Inputs
+        shell: bash
+        run: |
+          {
+            echo "### CI inputs"
+            echo ""
+            echo "| Key | Value |"
+            echo "| --- | --- |"
+            echo "| Filters | ${{ inputs.filters || '❌' }} |"
+            echo "| Name | ${{ inputs.name || '❌' }} |"
+            echo "| Node version | ${{ inputs.node-version || '❌' }} |"
+            echo ""
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -70,12 +84,22 @@ jobs:
             echo "manager=$hash" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Context
+      - name: Outputs
         shell: bash
         run: |
-          echo "✨ Lint... ✅"
-          echo "💅 Format... ✅"
-          echo "🛡️ Typecheck... ✅"
-          echo "🧪 Test... ✅"
-          echo "#️⃣ API source hash: ${{ steps.hash.outputs.api }}"
-          echo "#️⃣ Manager source hash: ${{ steps.hash.outputs.manager }}"
+          {
+            echo "### CI outputs"
+            echo ""
+            echo "| Key | Value |"
+            echo "| --- | --- |"
+            echo "| API hash | ${{ steps.hash.outputs.api || '❌' }} |"
+            echo "| Manager hash | ${{ steps.hash.outputs.manager || '❌' }} |"
+            echo ""
+            echo "#### Completed tasks"
+            echo ""
+            echo "- ✨ Lint: ✅"
+            echo "- 💅 Format: ✅"
+            echo "- 🛡️ Typecheck: ✅"
+            echo "- 🧪 Test: ✅"
+            echo ""
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -15,6 +15,26 @@ on:
         description: Slugified branch name of the pull request
         type: string
         required: true
+      gcp-artifacts-repository:
+        description: Google Cloud Platform artifacts repository
+        type: string
+        required: true
+      gcp-domain:
+        description: Google Cloud Platform URL
+        type: string
+        required: true
+      gcp-project-id:
+        description: Google Cloud Platform project id
+        type: string
+        required: true
+      gcp-region:
+        description: Google Cloud Platform region
+        type: string
+        required: true
+      gcp-service:
+        description: Google Cloud Platform service
+        type: string
+        required: true
       is-push:
         description: Whether it is a push event
         type: boolean
@@ -35,6 +55,14 @@ on:
         description: Node.js version to use
         type: number
         required: true
+      vcl-project:
+        description: Vercel project
+        type: string
+        required: true
+      vcl-team:
+        description: Vercel team
+        type: string
+        required: true
     outputs:
       api-url:
         description: Deployed API URL
@@ -46,23 +74,9 @@ on:
         description: Manager host to rollback to
         value: ${{ jobs.CD.outputs.manager-rollback-host }}
     secrets:
-      GCP_ARTIFACTS_REPOSITORY:
-        required: true
-      GCP_PROJECT_ID:
-        required: true
-      GCP_REGION:
-        required: true
-      GCP_SERVICE:
-        required: true
       GCP_SERVICE_ACCOUNT:
         required: true
-      GCP_SERVICE_URL:
-        required: true
       GCP_WIF_PROVIDER:
-        required: true
-      VCL_PROJECT:
-        required: true
-      VCL_TEAM:
         required: true
       VCL_TOKEN:
         required: true
@@ -80,9 +94,35 @@ jobs:
     outputs:
       # api-url: ${{ steps.api.outputs.url }}
       api-url: 'https://ci-test-new---api-gkrxksmsua-ew.a.run.app/'
-      manager-host: ${{ steps.manager-preview.outputs.host || steps.manager-production.outputs.host }}
+      manager-url: ${{ steps.manager-preview.outputs.url || steps.manager-production.outputs.url }}
       manager-rollback-host: ${{ steps.manager-production.outputs.rollback-host }}
     steps:
+      - name: Inputs
+        shell: bash
+        run: |
+          {
+            echo "### CD inputs"
+            echo ""
+            echo "| Key | Value |"
+            echo "| --- | --- |"
+            echo "| API changed | ${{ inputs.api-changed && '✅' || '❌' }} |"
+            echo "| API hash | ${{ inputs.api-hash || '❌' }} |"
+            echo "| Branch slug | ${{ inputs.branch-slug || '❌' }} |"
+            echo "| Is push | ${{ inputs.is-push && '✅' || '❌' }} |"
+            echo "| Is pull request | ${{ inputs.is-pr && '✅' || '❌' }} |"
+            echo "| GCP artifacts repository | ${{ inputs.gcp-artifacts-repository || '❌' }} |"
+            echo "| GCP domain | ${{ inputs.gcp-domain || '❌' }} |"
+            echo "| GCP project id | ${{ inputs.gcp-project-id || '❌' }} |"
+            echo "| GCP region | ${{ inputs.gcp-region || '❌' }} |"
+            echo "| GCP service | ${{ inputs.gcp-service || '❌' }} |"
+            echo "| Manager changed | ${{ inputs.manager-changed && '✅' || '❌' }} |"
+            echo "| Manager hash | ${{ inputs.manager-hash || '❌' }} |"
+            echo "| Node version | ${{ inputs.node-version || '❌' }} |"
+            echo "| Vercel project | ${{ inputs.vcl-project || '❌' }} |"
+            echo "| Vercel team | ${{ inputs.vcl-team || '❌' }} |"
+            echo ""
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -91,25 +131,14 @@ jobs:
         with:
           node-version: ${{ inputs.node-version }}
 
-      - name: Context
-        shell: bash
-        run: |
-          echo "🔀 Event type: ${{ inputs.is-pr && 'PR' || 'Push' }}"
-          echo "🐌 Branch slug: ${{ inputs.branch-slug }}"
-          echo "#️⃣ API hash: ${{ inputs.api-hash }}"
-          echo "#️⃣ Manager hash: ${{ inputs.manager-hash }}"
-          echo "✏️ API changed: ${{ inputs.api-changed && '✅' || '❌' }}"
-          echo "✏️ Manager changed: ${{ inputs.manager-changed && '✅' || '❌' }}"
-          echo "🏷️ Node version: ${{ inputs.node-version }}"
-
       # - name: Deploy API
       #   uses: ./.github/actions/cd-api
       #   id: api
       #   with:
-      #     artifacts-repository: ${{ secrets.GCP_ARTIFACTS_REPOSITORY }}
-      #     project-id: ${{ secrets.GCP_PROJECT_ID }}
-      #     region: ${{ secrets.GCP_REGION }}
-      #     service: ${{ secrets.GCP_SERVICE }}
+      #     artifacts-repository: ${{ inputs.gcp-artifacts-repository }}
+      #     project-id: ${{ inputs.gcp-project-id }}
+      #     region: ${{ inputs.gcp-region }}
+      #     service: ${{ inputs.gcp-service }}
       #     service-account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
       #     tag: ${{ inputs.branch-slug }}
       #     wif-provider: ${{ secrets.GCP_WIF_PROVIDER }}
@@ -123,8 +152,8 @@ jobs:
           # api-url: ${{ steps.api.outputs.url }}
           api-url: 'https://ci-test-new---api-gkrxksmsua-ew.a.run.app/'
           hash: ${{ inputs.manager-hash }}
-          project: ${{ secrets.VCL_PROJECT }}
-          team: ${{ secrets.VCL_TEAM }}
+          project: ${{ inputs.vcl-project }}
+          team: ${{ inputs.vcl-team }}
           token: ${{ secrets.VCL_TOKEN }}
 
       - name: Deploy production Manager
@@ -133,9 +162,23 @@ jobs:
         id: manager-production
         with:
           hash: ${{ inputs.manager-hash }}
-          project: ${{ secrets.VCL_PROJECT }}
-          team: ${{ secrets.VCL_TEAM }}
+          project: ${{ inputs.vcl-project }}
+          team: ${{ inputs.vcl-team }}
           token: ${{ secrets.VCL_TOKEN }}
+
+      - name: Outputs
+        shell: bash
+        run: |
+          {
+            echo "### CD outputs"
+            echo ""
+            echo "| Key | Value |"
+            echo "| --- | --- |"
+            echo "| API URL | https://ci-test-new---api-gkrxksmsua-ew.a.run.app/ |"
+            echo "| Manager URL | ${{ steps.manager-preview.outputs.url || steps.manager-production.outputs.url || '❌' }} |"
+            echo "| Manager rollback host | ${{ steps.manager-production.outputs.rollback-host || '❌' }} |"
+            echo ""
+          } >> "$GITHUB_STEP_SUMMARY"
 
   rollback-manager:
     name: Rollback Manager

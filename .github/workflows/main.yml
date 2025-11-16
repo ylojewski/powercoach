@@ -41,30 +41,19 @@ jobs:
       api-changed: ${{ needs.detect.outputs.path-api == 'true' }}
       api-hash: ${{ needs.CI.outputs.api-hash }}
       branch-slug: ${{ needs.detect.outputs.branch-slug }}
+      gcp-artifacts-repository: ${{ vars.GCP_ARTIFACTS_REPOSITORY }}
+      gcp-domain: ${{ vars.GCP_DOMAIN }}
+      gcp-project-id: ${{ vars.GCP_PROJECT_ID }}
+      gcp-region: ${{ vars.GCP_REGION }}
+      gcp-service: ${{ vars.GCP_SERVICE }}
       is-pr: ${{ needs.detect.outputs.event-pr == 'true' }}
       is-push: ${{ needs.detect.outputs.event-push == 'true' }}
       manager-changed: ${{ needs.detect.outputs.path-manager == 'true' }}
       manager-hash: ${{ needs.CI.outputs.manager-hash }}
+      vcl-project: ${{ vars.VCL_PROJECT }}
+      vcl-team: ${{ vars.VCL_TEAM }}
       node-version: 20
     secrets:
-      GCP_ARTIFACTS_REPOSITORY: ${{ secrets.GCP_ARTIFACTS_REPOSITORY }}
-      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-      GCP_REGION: ${{ secrets.GCP_REGION }}
-      GCP_SERVICE: ${{ secrets.GCP_SERVICE }}
       GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
-      GCP_SERVICE_URL: ${{ secrets.GCP_SERVICE_URL }}
       GCP_WIF_PROVIDER: ${{ secrets.GCP_WIF_PROVIDER }}
-      VCL_PROJECT: ${{ secrets.VCL_PROJECT }}
-      VCL_TEAM: ${{ secrets.VCL_TEAM }}
       VCL_TOKEN: ${{ secrets.VCL_TOKEN }}
-
-  completed:
-    runs-on: ubuntu-latest
-    needs: [detect, CI, CD]
-    if: ${{ needs.CD.result == 'success' }}
-    steps:
-      - name: Context
-        shell: bash
-        run: |
-          echo "🔗 API URL: ${{ needs.CD.outputs.api-url }}"
-          echo "🔗 Manager URL: https://${{ needs.CD.outputs.manager-host }}"

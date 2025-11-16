@@ -36,15 +36,15 @@ jobs:
     name: Detect
     runs-on: ubuntu-latest
     outputs:
-      branch-slug: ${{ steps.slug.outputs.value }}
-      ci: ${{ steps.vars.outputs.ci }}
-      ci-filters: ${{ steps.vars.outputs.filters }}
-      ci-name: ${{ steps.vars.outputs.name }}
-      event-cd: ${{ steps.event.outputs.cd }}
-      event-pr: ${{ steps.event.outputs.pr }}
-      event-push: ${{ steps.event.outputs.push }}
-      path-api: ${{ steps.paths.outputs.api }}
-      path-manager: ${{ steps.paths.outputs.manager }}
+      branch-slug: ${{ steps.slug.outputs.value || '❌' }}
+      ci: ${{ steps.vars.outputs.ci || '❌' }}
+      ci-filters: ${{ steps.vars.outputs.filters || '❌' }}
+      ci-name: ${{ steps.vars.outputs.name || '❌' }}
+      event-cd: ${{ steps.event.outputs.cd || '❌' }}
+      event-pr: ${{ steps.event.outputs.pr || '❌' }}
+      event-push: ${{ steps.event.outputs.push || '❌' }}
+      path-api: ${{ steps.paths.outputs.api || '❌' }}
+      path-manager: ${{ steps.paths.outputs.manager || '❌' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -117,15 +117,22 @@ jobs:
           slug="$(echo "$slug" | sed -E 's/-*$//')"
           echo "value=$slug" >> "$GITHUB_OUTPUT"
 
-      - name: Context
+      - name: Outputs
         shell: bash
         run: |
-          echo "🐌 Branch slug: ${{ steps.slug.outputs.value }}"
-          echo "🚀 CI: ${{ steps.vars.outputs.ci == 'true' && '✅' || '❌' }}"
-          echo "⬇️ CI turbo filters: ${{ steps.vars.outputs.filters }}"
-          echo "🏷️ CI workflow name: ${{ steps.vars.outputs.name }}"
-          echo "🏷️ CD: ${{ steps.event.outputs.cd == 'true' && '✅' || '❌' }}"
-          echo "🔀 Pull request event: ${{ steps.event.outputs.pr == 'true' && '✅' || '❌' }}"
-          echo "🔀 Push event: ${{ steps.event.outputs.push == 'true' && '✅' || '❌' }}"
-          echo "📂 Path API: ${{ steps.paths.outputs.api == 'true' && '✅' || '❌' }}"
-          echo "📂 Path Manager: ${{ steps.paths.outputs.manager == 'true' && '✅' || '❌' }}"
+          {
+            echo "### Detect outputs"
+            echo ""
+            echo "| Key | Value |"
+            echo "| --- | --- |"
+            echo "| Branch slug | ${{ steps.slug.outputs.value || '❌' }} |"
+            echo "| CI enabled | ${{ steps.vars.outputs.ci == 'true' && '✅' || '❌' }} |"
+            echo "| CI filters | ${{ steps.vars.outputs.filters || '❌' }} |"
+            echo "| CI name | ${{ steps.vars.outputs.name || '❌' }} |"
+            echo "| CD enabled | ${{ steps.event.outputs.cd == 'true' && '✅' || '❌' }} |"
+            echo "| Event PR | ${{ steps.event.outputs.pr == 'true' && '✅' || '❌' }} |"
+            echo "| Event push | ${{ steps.event.outputs.push == 'true' && '✅' || '❌' }} |"
+            echo "| Path API | ${{ steps.paths.outputs.api == 'true' && '✅' || '❌' }} |"
+            echo "| Path Manager | ${{ steps.paths.outputs.manager == 'true' && '✅' || '❌' }} |"
+            echo ""
+          } >> "$GITHUB_STEP_SUMMARY"

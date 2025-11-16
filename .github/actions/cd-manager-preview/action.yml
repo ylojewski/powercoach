@@ -11,7 +11,7 @@ inputs:
     description: Hash of the dist directory
     required: true
   project:
-    description: Vercel project name
+    description: Vercel project
     required: true
   team:
     description: Vercel team
@@ -21,31 +21,62 @@ inputs:
     required: true
 
 outputs:
-  host:
-    description: Deployed Manager host
-    value: ${{ steps.alias-host.outputs.value }}
+  url:
+    description: Deployed Manager URL
+    value: ${{ steps.alias-host.outputs.url }}
 
 runs:
   using: composite
   steps:
+    - name: Inputs
+      shell: bash
+      run: |
+        {
+          echo "### Manager preview inputs"
+          echo ""
+          echo "| Key | Value |"
+          echo "| --- | --- |"
+          echo "| Alias | ${{ inputs.alias || '❌' }} |"
+          echo "| API URL | ${{ inputs.api-url || '❌' }} |"
+          echo "| Hash | ${{ inputs.hash || '❌' }} |"
+          echo "| Project | ${{ inputs.project || '❌' }} |"
+          echo "| Team | ${{ inputs.team || '❌' }} |"
+          echo "| Token | ${{ inputs.token != '' && '🔒 Provided' || '❌ Missing' }} |"
+          echo ""
+        } >> "$GITHUB_STEP_SUMMARY"
+
     - name: Alias host computation
       id: alias-host
       shell: bash
-      run: echo "value=${{ inputs.alias }}-${{ inputs.project }}-${{ inputs.team }}.vercel.app" >> "$GITHUB_OUTPUT"
+      run: |
+        host="${{ inputs.alias }}-${{ inputs.project }}-${{ inputs.team }}.vercel.app"
+        echo "value=$host" >> "$GITHUB_OUTPUT"
+        echo "url=https://$host/" >> "$GITHUB_OUTPUT"
 
     - name: Current deploy host
       id: current-deploy
       shell: bash
       run: |
-        host=$(
+        echo "⏳ Fetching current deploy host"
+
+        raw="$(
           vercel list ${{ inputs.project }} \
             --token ${{ inputs.token }} \
             --environment preview \
             --status READY \
             --meta managerHash=${{ inputs.hash }} \
-          | head -n1 \
-          | sed 's|^https://||'
-        )
+        )"
+
+        host="$(
+          printf '%s\n' "$raw" \
+            | { grep -E '^https://' || true; } \
+            | head -n1 \
+            | sed 's|^https://||'
+        )"
+
+        echo "☑️ Raw: $raw"
+        echo "☑️ host: $host"
+
         echo "host=$host" >> "$GITHUB_OUTPUT"
         echo "found=$([ -n "$host" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
 
@@ -81,12 +112,14 @@ runs:
           "${{ steps.alias-host.outputs.value }}" \
           --token ${{ inputs.token }}
 
-    - name: Context
+    - name: Outputs
       shell: bash
       run: |
-        echo "#️⃣ Manager source hash: ${{ inputs.hash }}"
-        echo "🔍 Found host: ${{ steps.current-deploy.outputs.host }}${{ steps.current-deploy.outputs.found == 'true' && ' ✅' || '❌' }}"
-        echo "🛠️ Build: ${{ steps.current-deploy.outputs.found == 'false' && '✅' || 'skipped ⏭️' }}"
-        echo "🏷️️ Tag index.html: ${{ steps.current-deploy.outputs.found == 'false' && '✅' || 'skipped ⏭️' }}"
-        echo "🚀 Deploy host: ${{ steps.current-deploy.outputs.host || steps.new-deploy.outputs.host }}"
-        echo "🔀 Alias host: ${{ steps.alias-host.outputs.value }}"
+        {
+          echo "### Manager preview outputs"
+          echo ""
+          echo "| Key | Value |"
+          echo "| --- | --- |"
+          echo "| URL | ${{ steps.alias-host.outputs.url || '❌' }} |"
+          echo ""
+        } >> "$GITHUB_STEP_SUMMARY"
