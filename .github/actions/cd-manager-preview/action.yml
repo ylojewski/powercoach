@@ -56,15 +56,8 @@ runs:
       env:
         VITE_API_BASE_URL: ${{ inputs.api-url }}
       run: |
-
-        echo "=== Source file content ==="
-        cat apps/manager/src/App.tsx | grep "here we go" || echo "❌ 'here we go' not found"
-
         pnpm --filter=@powercoach/manager build
         sed -i "s/__DIST_HASH__/${{ inputs.hash }}/g" apps/manager/dist/index.html
-
-        echo "=== After build - Check dist ==="
-        grep -r "here we go" apps/manager/dist/ || echo "❌ Not in dist"
 
         vercel link \
           --token ${{ inputs.token }} \
@@ -87,3 +80,13 @@ runs:
           "${{ steps.current-deploy.outputs.host || steps.new-deploy.outputs.host }}" \
           "${{ steps.alias-host.outputs.value }}" \
           --token ${{ inputs.token }}
+
+    - name: Context
+      shell: bash
+      run: |
+        echo "#️⃣ Manager source hash: ${{ inputs.hash }}"
+        echo "🔍 Found host: ${{ steps.current-deploy.outputs.host }}${{ steps.current-deploy.outputs.found == 'true' && ' ✅' || '❌' }}"
+        echo "🛠️ Build: ${{ steps.current-deploy.outputs.found == 'false' && '✅' || 'skipped ⏭️' }}"
+        echo "🏷️️ Tag index.html: ${{ steps.current-deploy.outputs.found == 'false' && '✅' || 'skipped ⏭️' }}"
+        echo "🚀 Deploy host: ${{ steps.current-deploy.outputs.host || steps.new-deploy.outputs.host }}"
+        echo "🔀 Alias host: ${{ steps.alias-host.outputs.value }}"

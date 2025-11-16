@@ -61,12 +61,12 @@ jobs:
           filters=${{ inputs.filters }}
 
           if [[ "$filters" == *"api"* ]]; then
-            hash=$(find apps/api -type f -print0 | sort -z | xargs -0 sha256sum | awk '{print $1}' | sort | sha256sum | cut -d' ' -f1)
+            hash=$(git ls-files -z apps/api | sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1)
             echo "api=$hash" >> "$GITHUB_OUTPUT"
           fi
 
           if [[ "$filters" == *"manager"* ]]; then
-            hash=$(find apps/manager -type f -print0 | sort -z | xargs -0 sha256sum | awk '{print $1}' | sort | sha256sum | cut -d' ' -f1)
+            hash=$(git ls-files -z apps/manager | sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1)
             echo "manager=$hash" >> "$GITHUB_OUTPUT"
           fi
 

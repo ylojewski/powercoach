@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-  pull_request_target:
+  pull_request:
     branches:
       - main
     paths:
@@ -36,6 +36,7 @@ jobs:
   CD:
     needs: [detect, CI]
     uses: ./.github/workflows/cd.yml
+    if: ${{ needs.detect.outputs.cd == 'true' && needs.CI.result == 'success' }}
     with:
       api-changed: ${{ needs.detect.outputs.path-api == 'true' }}
       api-hash: ${{ needs.CI.outputs.api-hash }}
@@ -60,6 +61,7 @@ jobs:
   completed:
     runs-on: ubuntu-latest
     needs: [detect, CI, CD]
+    if: ${{ needs.CD.result == 'success' }}
     steps:
       - name: Context
         shell: bash

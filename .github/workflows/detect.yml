@@ -8,13 +8,16 @@ on:
         value: ${{ jobs.detect.outputs.branch-slug }}
       ci:
         description: Whether CI should be ran
-        value: ${{ jobs.detect.outputs.ci-filters != '' && 'true' || 'false' }}
+        value: ${{ jobs.detect.outputs.ci }}
       ci-filters:
         description: CI turbo filters
         value: ${{ jobs.detect.outputs.ci-filters }}
       ci-name:
         description: CI workflow name
         value: ${{ jobs.detect.outputs.ci-name }}
+      cd:
+        description: Whether CD should be ran
+        value: ${{ jobs.detect.outputs.event-cd }}
       event-pr:
         description: Whether it is a pull request event
         value: ${{ jobs.detect.outputs.event-pr }}
@@ -34,9 +37,10 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       branch-slug: ${{ steps.slug.outputs.value }}
-      ci: ${{ steps.vars.outputs.filters != '' }}
+      ci: ${{ steps.vars.outputs.ci }}
       ci-filters: ${{ steps.vars.outputs.filters }}
       ci-name: ${{ steps.vars.outputs.name }}
+      event-cd: ${{ steps.event.outputs.cd }}
       event-pr: ${{ steps.event.outputs.pr }}
       event-push: ${{ steps.event.outputs.push }}
       path-api: ${{ steps.paths.outputs.api }}
@@ -62,23 +66,45 @@ jobs:
           api="${{ steps.paths.outputs.api }}"
           manager="${{ steps.paths.outputs.manager }}"
 
+          filters=""
+          name=""
+
           if [[ "$api" == "true" && "$manager" == "true" ]]; then
-            echo "filters=--filter=@powercoach/api --filter=@powercoach/manager" >> $GITHUB_OUTPUT
-            echo "name=CI" >> $GITHUB_OUTPUT
+            filters="--filter=@powercoach/api --filter=@powercoach/manager"
+            name="CI"
           elif [[ "$api" == "true" ]]; then
-            echo "filters=--filter=@powercoach/api" >> $GITHUB_OUTPUT
-            echo "name=api CI" >> $GITHUB_OUTPUT
+            filters="--filter=@powercoach/api"
+            name="API CI"
           elif [[ "$manager" == "true" ]]; then
-            echo "filters=--filter=@powercoach/manager" >> $GITHUB_OUTPUT
-            echo "name=Manager CI" >> $GITHUB_OUTPUT
+            filters="--filter=@powercoach/manager"
+            name="Manager CI"
           fi
+
+          if [[ -n "$filters" ]]; then
+            echo "ci=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ci=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          echo "filters=$filters" >> $GITHUB_OUTPUT
+          echo "name=$name" >> $GITHUB_OUTPUT
 
       - name: Github event
         id: event
         shell: bash
         run: |
-          echo "push=$([[ "${{ github.event_name }}" == 'push' ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
-          echo "pr=$([[ "${{ github.event_name }}" == 'pull_request_target' ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          ci="${{ steps.vars.outputs.ci }}"
+
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            echo "cd=$ci" >> "$GITHUB_OUTPUT"
+            echo "push=true" >> "$GITHUB_OUTPUT"
+            echo "pr=false" >> "$GITHUB_OUTPUT"
+          elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            safe="${{ github.event.pull_request.head.repo.full_name == github.repository }}"
+            echo "cd=$([[ "$ci" == "true" ]] && [[ "$safe" == "true" ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+            echo "push=false" >> "$GITHUB_OUTPUT"
+            echo "pr=true" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Branch slug
         if: ${{ steps.event.outputs.pr == 'true' }}
@@ -95,9 +121,10 @@ jobs:
         shell: bash
         run: |
           echo "🐌 Branch slug: ${{ steps.slug.outputs.value }}"
-          echo "🚀 CI: ${{ steps.vars.outputs.filters != '' && '✅' || '❌' }}"
+          echo "🚀 CI: ${{ steps.vars.outputs.ci == 'true' && '✅' || '❌' }}"
           echo "⬇️ CI turbo filters: ${{ steps.vars.outputs.filters }}"
           echo "🏷️ CI workflow name: ${{ steps.vars.outputs.name }}"
+          echo "🏷️ CD: ${{ steps.event.outputs.cd == 'true' && '✅' || '❌' }}"
           echo "🔀 Pull request event: ${{ steps.event.outputs.pr == 'true' && '✅' || '❌' }}"
           echo "🔀 Push event: ${{ steps.event.outputs.push == 'true' && '✅' || '❌' }}"
           echo "📂 Path API: ${{ steps.paths.outputs.api == 'true' && '✅' || '❌' }}"
