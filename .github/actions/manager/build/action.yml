@@ -1,0 +1,37 @@
+name: Build Manager
+description: Build the Manager app and inject the hash
+
+inputs:
+  api-url:
+    description: API URL used during build phase
+    required: true
+  hash:
+    description: Source code hash
+    required: true
+
+outputs:
+  out-dir:
+    description: The distribution directory
+    value: ${{ steps.build.outputs.out-dir }}
+
+runs:
+  using: composite
+  steps:
+    - name: Build
+      id: build
+      shell: bash
+      env:
+        VITE_API_BASE_URL: ${{ inputs.api-url }}
+      run: |
+        outdir=apps/manager/dist
+
+        echo "📦 Building Manager with..."
+        echo "  -- Hash: ${{ inputs.hash }}"
+        echo "  -- To: $outdir"
+        echo "  Env"
+        echo "    VITE_API_BASE_URL: $VITE_API_BASE_URL"
+
+        pnpm --filter=@powercoach/manager build
+        sed -i "s/__DIST_HASH__/${{ inputs.hash }}/g" "$outdir/index.html"
+
+        echo "out-dir=$outdir" >> "$GITHUB_OUTPUT"

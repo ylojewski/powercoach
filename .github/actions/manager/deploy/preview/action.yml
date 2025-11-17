@@ -1,0 +1,92 @@
+name: Manager preview deploy
+
+inputs:
+  alias:
+    description: Vercel deployment alias
+    required: true
+  api-url:
+    description: API URL used during build phase
+    required: true
+  hash:
+    description: Hash of the dist directory
+    required: true
+  project:
+    description: Vercel project
+    required: true
+  team:
+    description: Vercel team
+    required: true
+  token:
+    description: Vercel token
+    required: true
+
+outputs:
+  url:
+    description: Deployed Manager URL
+    value: ${{ steps.alias.outputs.url }}
+
+runs:
+  using: composite
+  steps:
+    - name: Inputs
+      shell: bash
+      run: |
+        {
+          echo "### Manager preview inputs"
+          echo ""
+          echo "| Key | Value |"
+          echo "| --- | --- |"
+          echo "| Alias | ${{ inputs.alias || '❌' }} |"
+          echo "| API URL | ${{ inputs.api-url || '❌' }} |"
+          echo "| Hash | ${{ inputs.hash || '❌' }} |"
+          echo "| Project | ${{ inputs.project || '❌' }} |"
+          echo "| Team | ${{ inputs.team || '❌' }} |"
+          echo "| Token | ${{ inputs.token != '' && '🔒 Provided' || '❌ Missing' }} |"
+          echo ""
+        } >> "$GITHUB_STEP_SUMMARY"
+
+    - name: Alias host computation
+      id: alias
+      shell: bash
+      run: |
+        host="${{ inputs.alias }}-${{ inputs.project }}-${{ inputs.team }}.vercel.app"
+        echo "value=$host" >> "$GITHUB_OUTPUT"
+        echo "url=https://$host/" >> "$GITHUB_OUTPUT"
+
+    - name: Find existing preview host
+      id: existing-host
+      uses: ./.github/actions/vercel/find/hosts
+      with:
+        branch: ${{ inputs.alias }}
+        hash: ${{ inputs.hash }}
+        token: ${{ inputs.token }}
+
+    - name: Build
+      id: build
+      if: steps.existing-host.outputs.found == 'false'
+      uses: ./.github/actions/manager/build
+      with:
+        api-url: ${{ inputs.api-url }}
+        hash: ${{ inputs.hash }}
+
+    - name: Deploy
+      if: steps.existing-host.outputs.found == 'false'
+      uses: ./.github/actions/vercel/deploy/preview
+      with:
+        branch: ${{ inputs.alias }}
+        dist: apps/manager/dist
+        hash: ${{ inputs.hash }}
+        project: ${{ inputs.project }}
+        token: ${{ inputs.token }}
+
+    - name: Outputs
+      shell: bash
+      run: |
+        {
+          echo "### Manager preview outputs"
+          echo ""
+          echo "| Key | Value |"
+          echo "| --- | --- |"
+          echo "| URL | ${{ steps.alias.outputs.url || '❌' }} |"
+          echo ""
+        } >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,95 @@
+name: Find Vercel hosts
+description: Retrieves deployment URLs from Vercel via the v6 API
+
+inputs:
+  token:
+    description: Vercel access token
+    required: true
+  target:
+    description: Vercel target environment (preview|production)
+    required: false
+    default: preview
+  hash:
+    description: Commit hash to use as meta-hash (must produce exactly 1 host)
+    required: false
+  branch:
+    description: Branch name to use as meta-branch
+    required: false
+
+outputs:
+  hosts:
+    description: All hosts found (one per line, without https://)
+    value: ${{ steps.find.outputs.hosts }}
+  found:
+    description: true if at least one host was found
+    value: ${{ steps.find.outputs.found }}
+
+runs:
+  using: composite
+  steps:
+    - name: Find Vercel hosts
+      id: find
+      shell: bash
+      run: |
+        token="${{ inputs.token }}"
+        target="${{ inputs.target }}"
+        hash="${{ inputs.hash }}"
+        branch="${{ inputs.branch }}"
+
+        if [[ -z "$branch" && -z "$hash" ]]; then
+          echo "❌ Error: either 'branch' or 'hash' must be provided." >&2
+          exit 1
+        fi
+
+        [[ "$target" =~ ^(preview|production)$ ]] || {
+          echo "❌ Error: invalid 'target'=$target (allowed: preview|production)" >&2
+          exit 1
+        }
+
+        filter='.deployments[].url'
+
+        query="target=$target"
+        [[ -n "$branch" ]] && query+="&meta-branch=$branch"
+        [[ -n "$hash" ]] && query+="&meta-hash=$hash"
+
+        url="https://api.vercel.com/v6/deployments?$query"
+
+        echo "🔍 Querying Vercel with:"
+        echo "  --target : $target"
+        echo "  --branch : ${branch:-"(not specified)"}"
+        echo "  --hash   : ${hash:-"(not specified)"}"
+
+        response=$(
+          curl \
+            --silent \
+            --fail \
+            --header "Authorization: Bearer $token" \
+            --url "$url" \
+          | jq -r "$filter // empty"
+        )
+
+        if [[ -z "$response" ]]; then
+          echo "found=false" >> "$GITHUB_OUTPUT"
+          echo "hosts=" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        hosts="$(printf '%s\n' "$response" | sed 's|^https://||')"
+        host_count=$(printf '%s\n' "$hosts" | sed '/^$/d' | wc -l | tr -d ' ')
+
+        if [[ -n "$hash" ]]; then
+          if [[ "$host_count" -eq 0 ]]; then
+            echo "❌ Error: no host found for hash '$hash'." >&2
+            exit 1
+          fi
+          if [[ "$host_count" -gt 1 ]]; then
+            echo "❌ Error: multiple hosts found for hash '$hash' (expected exactly 1):" >&2
+            printf '%s\n' "$hosts" >&2
+            exit 1
+          fi
+        fi
+
+        echo "found=true" >> "$GITHUB_OUTPUT"
+        echo "hosts<<__EOF__" >> "$GITHUB_OUTPUT"
+        echo "$hosts" >> "$GITHUB_OUTPUT"
+        echo "__EOF__" >> "$GITHUB_OUTPUT"

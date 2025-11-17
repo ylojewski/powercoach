@@ -12,7 +12,7 @@ runs:
       shell: bash
       run: |
         {
-          echo "### Install action inputs"
+          echo "#### Install action inputs"
           echo ""
           echo "| Key | Value |"
           echo "| --- | --- |"

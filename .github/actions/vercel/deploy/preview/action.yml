@@ -1,0 +1,79 @@
+name: Deploy preview to Vercel
+description: Deploy a preview build to Vercel and create an alias
+
+inputs:
+  branch:
+    description: Branch metadata
+    required: true
+  dist:
+    description: Build directory to deploy
+    required: true
+  hash:
+    description: Hash metadata
+    required: true
+  project:
+    description: Vercel project name
+    required: true
+  token:
+    description: Vercel access token
+    required: true
+
+outputs:
+  host:
+    description: Vercel deployment alias host
+    value: ${{ steps.alias.outputs.host }}
+  id:
+    description: Vercel deployment ID
+    value: ${{ steps.deploy.outputs.id }}
+  url:
+    description: Vercel deployment URL
+    value: ${{ steps.alias.outputs.url }}
+
+runs:
+  using: composite
+  steps:
+    - name: Deploy to Vercel
+      id: deploy
+      uses: ./.github/actions/vercel/deploy/core
+      with:
+        branch: ${{ inputs.branch }}
+        dist: ${{ inputs.dist }}
+        hash: ${{ inputs.hash }}
+        project: ${{ inputs.project }}
+        token: ${{ inputs.token }}
+
+    - name: Create alias for preview deployment
+      id: alias
+      shell: bash
+      run: |
+        branch=${{ inputs.branch }}
+        id=${{ steps.deploy.outputs.id }}
+        token=${{ inputs.token }}
+
+        alias_host="$branch-manager-powercoach.vercel.app"
+
+        echo "🌐 Creating alias for deployment:"
+        echo "  -- ID: $id"
+        echo "  -- Alias: $alias_host"
+
+        host=$(
+          curl \
+            --silent \
+            --fail \
+            --request POST \
+            --header "Authorization: Bearer $token" \
+            --header 'Content-Type: application/json' \
+            --url "https://api.vercel.com/v2/deployments/$id/aliases" \
+            --data "$(jq -n --arg alias "$alias_host" '{ alias: $alias }')" \
+          | jq -r '.alias // empty'
+        )
+
+        if [[ -z "$host" ]]; then
+          echo "❌ Failed to set alias (missing host)"
+          exit 5
+        fi
+
+        echo "🌐 Alias set: $host"
+
+        echo "host=$host" >> "$GITHUB_OUTPUT"
+        echo "url=https://$host/" >> "$GITHUB_OUTPUT"

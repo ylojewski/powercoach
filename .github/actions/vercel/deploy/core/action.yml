@@ -1,0 +1,138 @@
+name: Deploy to Vercel (core)
+description: Core deployment logic for Vercel (build files, create deployment, wait until READY)
+
+inputs:
+  branch:
+    description: Branch metadata (used for non-production deployments)
+    required: false
+  dist:
+    description: Build directory to deploy
+    required: true
+  hash:
+    description: Hash metadata
+    required: true
+  project:
+    description: Vercel project name
+    required: true
+  target:
+    description: Vercel deployment target (empty or production)
+    required: false
+  token:
+    description: Vercel access token
+    required: true
+
+outputs:
+  id:
+    description: Vercel deployment ID
+    value: ${{ steps.deploy.outputs.id }}
+
+runs:
+  using: composite
+  steps:
+    - name: Deploy to Vercel (core)
+      id: deploy
+      shell: bash
+      run: |
+        branch=${{ inputs.branch }}
+        dist=${{ inputs.dist }}
+        hash=${{ inputs.hash }}
+        project=${{ inputs.project }}
+        target=${{ inputs.target }}
+        token=${{ inputs.token }}
+
+        echo "📦 Creating deployment with"
+        [[ -n "$branch" ]] && echo "  -- Branch: $branch"
+        echo "  -- Hash: $hash"
+        echo "  -- Project: $project"
+        [[ -n "$target" ]] && echo "  -- Target: $target"
+
+        files=$(
+          find "$dist" -type f -print0 | while IFS= read -r -d '' file; do
+            jq -n \
+              --arg file "${file#"$dist"/}" \
+              --rawfile data "$file" \
+              '{ file: $file, data: $data }'
+          done | jq -s '.'
+        )
+
+        payload=$(
+          printf '%s' "$files" \
+          | jq \
+            --arg branch "$branch" \
+            --arg hash "$hash" \
+            --arg project "$project" \
+            --arg target "$target" \
+            '. as $files
+             | {
+                 files: $files,
+                 meta: (if $target == "production"
+                        then { hash: $hash }
+                        else { branch: $branch, hash: $hash }
+                        end),
+                 name: (if $target == "production"
+                        then $project
+                        else "\($project)-\($branch)"
+                        end),
+                 project: $project
+               }
+             | if $target then . + { target: $target } else . end
+            '
+        )
+
+        id=$(
+          printf '%s' "$payload" \
+          | curl \
+            --silent \
+            --fail \
+            --request POST \
+            --header "Authorization: Bearer $token" \
+            --header 'Content-Type: application/json' \
+            --url "https://api.vercel.com/v13/deployments" \
+            --data @- \
+          | jq -r '.id'
+        )
+
+        if [[ -z "$id" || "$id" == "null" ]]; then
+          echo "❌ Failed to create deployment (missing ID)"
+          exit 1
+        fi
+
+        echo "⏳ Waiting for deployment to become READY..."
+
+        wait_for_deployment_ready() {
+          local id="$1"
+          local max_attempts="${2:-20}"
+          local delay="${3:-3}"
+          local attempt=1
+
+          while [[ "$attempt" -le "$max_attempts" ]]; do
+            state=$(
+              curl \
+                --silent \
+                --fail \
+                --header "Authorization: Bearer $token" \
+                --url "https://api.vercel.com/v13/deployments/$id" \
+              | jq -r '.state // .readyState'
+            )
+
+            if [[ -z "$state" || "$state" == "null" ]]; then
+              echo "❌ No deployment state"
+              exit 2
+            fi
+
+            case "$state" in
+              READY) echo "✅ Deployment ready"; return 0 ;;
+              ERROR|CANCELED|CANCELLED|FAILED) echo "❌ Deployment error (state=$state)"; exit 3 ;;
+            esac
+
+            attempt=$((attempt + 1))
+            sleep "$delay"
+          done
+
+          echo "⏰ Deployment timeout"
+          exit 4
+        }
+
+        wait_for_deployment_ready "$id"
+
+        echo "id=$id" >> "$GITHUB_OUTPUT"

@@ -1,0 +1,35 @@
+name: Alias host computation
+
+inputs:
+  branch:
+    description: Branch
+    required: false
+  project:
+    description: Vercel project
+    required: true
+  team:
+    description: Vercel team
+    required: true
+
+outputs:
+  host:
+    description: Computed alias host
+    value: ${{ steps.alias.outputs.host }}
+  url:
+    description: Computed alias URL
+    value: ${{ steps.alias.outputs.url }}
+
+runs:
+  using: composite
+  steps:
+    - name: Alias host computation
+      id: alias
+      shell: bash
+      run: |
+        branch=${{ inputs.branch }}
+        host="${{ inputs.project }}-${{ inputs.team }}.vercel.app"
+
+        [[ -n "$branch" ]] && host="$branch-$host"
+
+        echo "host=$host" >> "$GITHUB_OUTPUT"
+        echo "url=https://$host/" >> "$GITHUB_OUTPUT"
