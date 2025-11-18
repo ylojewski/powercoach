@@ -1,7 +1,7 @@
 # Artefacts
 .turbo
 coverage
-deploy
+/deploy
 node_modules
 apps/**/dist
 

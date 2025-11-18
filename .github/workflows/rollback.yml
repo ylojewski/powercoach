@@ -1,0 +1,69 @@
+name: CD
+
+on:
+  workflow_call:
+    inputs:
+      api:
+        description: Should rollback API
+        type: boolean
+        required: true
+      manager:
+        description: Should rollback Manager
+        type: boolean
+        required: true
+      gcp-artifacts-repository:
+        description: Google Cloud Platform artifacts repository
+        type: string
+        required: true
+      gcp-domain:
+        description: Google Cloud Platform URL
+        type: string
+        required: true
+      gcp-project-id:
+        description: Google Cloud Platform project id
+        type: string
+        required: true
+      gcp-region:
+        description: Google Cloud Platform region
+        type: string
+        required: true
+      gcp-service:
+        description: Google Cloud Platform service
+        type: string
+        required: true
+      vcl-project:
+        description: Vercel project
+        type: string
+        required: true
+      vcl-team:
+        description: Vercel team
+        type: string
+        required: true
+    secrets:
+      GCP_SERVICE_ACCOUNT:
+        required: true
+      GCP_WIF_PROVIDER:
+        required: true
+      VCL_TOKEN:
+        required: true
+
+env:
+  TURBO_TELEMETRY_DISABLED: 1
+  VERCEL_TELEMETRY_DISABLED: 1
+
+jobs:
+  rollback:
+    name: Rollback Api, Manager
+    runs-on: ubuntu-latest
+    steps:
+      - name: Rollback API
+        if: inputs.api
+        shell: bash
+        run: |
+          echo TODO
+
+      - name: Rollback Manager
+        if: inputs.manager
+        shell: bash
+        run: |
+          echo TODO

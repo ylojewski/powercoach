@@ -1,0 +1,97 @@
+name: Assign Vercel alias
+description: Assign a custom alias domain to a Vercel deployment given its ID
+
+inputs:
+  check:
+    description: Checks if the alias is already assigned
+    required: false
+    default: 'false'
+  host:
+    description: Full alias hostname
+    required: true
+  id:
+    description: Vercel deployment ID
+    required: true
+  token:
+    description: Vercel access token
+    required: true
+
+outputs:
+  host:
+    description: Assigned alias host
+    value: ${{ steps.assign.outputs.host }}
+  skipped:
+    description: Whether assignment was skipped
+    value: ${{ steps.check.outputs.assigned || 'false' }}
+  url:
+    description: Assigned alias URL
+    value: ${{ steps.assign.outputs.url }}
+
+runs:
+  using: composite
+  steps:
+    - name: Check alias assignment
+      id: check
+      if: inputs.check == 'true'
+      shell: bash
+      run: |
+        host="${{ inputs.host }}"
+        id="${{ inputs.id }}"
+        token="${{ inputs.token }}"
+
+        echo "🌐 Checking alias assignment for:"
+        echo "  -- ID: $id"
+        echo "  -- Alias: $host"
+
+        aliases=$(
+          curl \
+            --silent \
+            --fail \
+            --request GET \
+            --header "Authorization: Bearer $token" \
+            --url "https://api.vercel.com/v2/deployments/$id/aliases" \
+          | jq -r '.aliases[].alias // empty'
+        )
+
+        if echo "$aliases" | grep -Fq "$host"; then
+          echo "🌐 Checked alias assigment ⇒ set"
+          echo "assigned=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "🌐 Checked alias assigment ⇒ not set"
+          echo "assigned=false" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Assign Vercel alias
+      id: assign
+      if: inputs.check != 'true' || steps.check.outputs.assigned == 'false'
+      shell: bash
+      run: |
+        host="${{ inputs.host }}"
+        id="${{ inputs.id }}"
+        token="${{ inputs.token }}"
+
+        echo "🌐 Creating alias for deployment:"
+        echo "  -- ID: $id"
+        echo "  -- Alias: $host"
+
+        response=$(
+          curl \
+            --silent \
+            --fail \
+            --request POST \
+            --header "Authorization: Bearer $token" \
+            --header 'Content-Type: application/json' \
+            --url "https://api.vercel.com/v2/deployments/$id/aliases" \
+            --data "$(jq -n --arg alias "$host" '{ alias: $alias }')" \
+          | jq -r '.alias // empty'
+        )
+
+        if [[ -z "$response" ]]; then
+          echo "❌ Failed to set alias (missing host)"
+          exit 1
+        fi
+
+        echo "🌐 Alias set: $host"
+
+        echo "host=$host" >> "$GITHUB_OUTPUT"
+        echo "url=https://$host/" >> "$GITHUB_OUTPUT"

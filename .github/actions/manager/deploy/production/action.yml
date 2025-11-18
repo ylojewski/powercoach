@@ -1,0 +1,118 @@
+name: Manager production deploy
+
+inputs:
+  alias:
+    description: Vercel deployment alias
+    required: true
+  api-url:
+    description: API URL used during build phase
+    required: true
+  hash:
+    description: Hash of the dist directory
+    required: true
+  project:
+    description: Vercel project
+    required: true
+  team:
+    description: Vercel team
+    required: true
+  token:
+    description: Vercel token
+    required: true
+
+outputs:
+  url:
+    description: Deployed Manager URL
+    value: ${{ steps.alias.outputs.url }}
+
+runs:
+  using: composite
+  steps:
+    - name: Inputs
+      shell: bash
+      run: |
+        {
+          echo "### Manager production inputs"
+          echo ""
+          echo "| Key | Value |"
+          echo "| --- | --- |"
+          echo "| API URL | ${{ inputs.api-url || '❌' }} |"
+          echo "| Hash | ${{ inputs.hash || '❌' }} |"
+          echo "| Project | ${{ inputs.project || '❌' }} |"
+          echo "| Team | ${{ inputs.team || '❌' }} |"
+          echo "| Token | ${{ inputs.token != '' && '🔒 Provided' || '❌ Missing' }} |"
+          echo ""
+        } >> "$GITHUB_STEP_SUMMARY"
+
+    - name: Production host computation
+      id: alias
+      uses: ./.github/actions/vercel/alias/compute
+      with:
+        project: ${{ inputs.project }}
+        team: ${{ inputs.team }}
+
+    - name: Prodded deployment
+      id: prodded-deployment
+      uses: ./.github/actions/vercel/find/prodded
+      with:
+        project: ${{ inputs.project }}
+        team: ${{ inputs.team }}
+        token: ${{ inputs.token }}
+
+    - name: Rollback deployment
+      id: rollback-deployment
+      uses: ./.github/actions/vercel/find/rollback
+      with:
+        token: ${{ inputs.token }}
+
+    - name: Should deploy
+      id: should-deploy
+      shell: bash
+      run: |
+        new_hash="${{ steps.prodded-deployment.outputs.hash != inputs.hash }}"
+        has_rollback="${{ steps.rollback-deployment.outputs.found == 'true' }}"
+
+        if [[ "$new_hash" == "true" && "$has_rollback" == "true" ]]; then
+          echo "🟢 Deployment authorized"
+          echo "value=true" >> "$GITHUB_OUTPUT"
+        else
+          [[ "$new_hash" == "false" ]] && echo "🔴 Deployment already prodded"
+          [[ "$has_rollback" == "false" ]] && echo "🔴 Unable to rollback"
+          echo "🔴 Deployment unauthorized"
+          echo "value=false" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Build
+      id: build
+      if: steps.should-deploy.outputs.value == 'true'
+      uses: ./.github/actions/manager/build
+      with:
+        api-url: ${{ inputs.api-url }}
+        hash: ${{ inputs.hash }}
+
+    - name: Deploy
+      if: steps.should-deploy.outputs.value == 'true'
+      uses: ./.github/actions/vercel/deploy/production
+      with:
+        branch: ${{ inputs.alias }}
+        dist: ${{ steps.build.outputs.out-dir }}
+        hash: ${{ inputs.hash }}
+        project: ${{ inputs.project }}
+        token: ${{ inputs.token }}
+
+    - name: Outputs
+      shell: bash
+      run: |
+        {
+          echo "#### Manager production outputs"
+          echo ""
+          echo "| Key | Value |"
+          echo "| --- | --- |"
+          echo "| URL | ${{ steps.alias.outputs.url || '❌' }} |"
+          echo ""
+          echo "##### Events"
+          echo ""
+          echo "- ⚙️ Computed alias ⇒ ${{ steps.alias.outputs.host }}"
+          echo "- 📦 Build & deploy ${{ steps.should-deploy.outputs.value == 'true' && '✅' || '❌' }}"
+          echo ""
+        } >> "$GITHUB_STEP_SUMMARY"

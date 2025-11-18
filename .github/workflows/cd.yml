@@ -63,16 +63,6 @@ on:
         description: Vercel team
         type: string
         required: true
-    outputs:
-      api-url:
-        description: Deployed API URL
-        value: ${{ jobs.CD.outputs.api-url }}
-      manager-host:
-        description: Deployed Manager host
-        value: ${{ jobs.CD.outputs.manager-host }}
-      manager-rollback-host:
-        description: Manager host to rollback to
-        value: ${{ jobs.CD.outputs.manager-rollback-host }}
     secrets:
       GCP_SERVICE_ACCOUNT:
         required: true
@@ -91,17 +81,12 @@ jobs:
     name: Deploy Api, Manager
     runs-on: ubuntu-latest
     if: ${{ github.event_name != 'workflow_dispatch' }}
-    outputs:
-      # api-url: ${{ steps.api.outputs.url }}
-      api-url: 'https://ci-test-new---api-gkrxksmsua-ew.a.run.app/'
-      manager-url: ${{ steps.manager-preview.outputs.url || steps.manager-production.outputs.url }}
-      manager-rollback-host: ${{ steps.manager-production.outputs.rollback-host }}
     steps:
       - name: Inputs
         shell: bash
         run: |
           {
-            echo "### CD inputs"
+            echo "## CD inputs"
             echo ""
             echo "| Key | Value |"
             echo "| --- | --- |"
@@ -143,8 +128,8 @@ jobs:
       #     tag: ${{ inputs.branch-slug }}
       #     wif-provider: ${{ secrets.GCP_WIF_PROVIDER }}
 
-      - name: Deploy preview Manager
-        uses: ./.github/actions/cd-manager-preview
+      - name: Manager preview deploy
+        uses: ./.github/actions/manager/deploy/preview
         if: ${{ inputs.is-pr }}
         id: manager-preview
         with:
@@ -156,45 +141,33 @@ jobs:
           team: ${{ inputs.vcl-team }}
           token: ${{ secrets.VCL_TOKEN }}
 
-      - name: Deploy production Manager
-        uses: ./.github/actions/cd-manager-production
+      - name: Manager production deploy
+        uses: ./.github/actions/manager/deploy/production
         if: ${{ inputs.is-push }}
         id: manager-production
         with:
+          alias: ${{ inputs.branch-slug }}
+          # api-url: ${{ steps.api.outputs.url }}
+          api-url: 'https://ci-test-new---api-gkrxksmsua-ew.a.run.app/'
           hash: ${{ inputs.manager-hash }}
           project: ${{ inputs.vcl-project }}
           team: ${{ inputs.vcl-team }}
           token: ${{ secrets.VCL_TOKEN }}
 
+      - name: Manager URL
+        id: manager
+        shell: bash
+        run: echo "url=${{ steps.manager-preview.outputs.url || steps.manager-production.outputs.url }}" >> "$GITHUB_OUTPUT"
+
       - name: Outputs
         shell: bash
         run: |
           {
-            echo "### CD outputs"
+            echo "## CD outputs"
             echo ""
             echo "| Key | Value |"
             echo "| --- | --- |"
             echo "| API URL | https://ci-test-new---api-gkrxksmsua-ew.a.run.app/ |"
-            echo "| Manager URL | ${{ steps.manager-preview.outputs.url || steps.manager-production.outputs.url || '❌' }} |"
-            echo "| Manager rollback host | ${{ steps.manager-production.outputs.rollback-host || '❌' }} |"
+            echo "| Manager URL | ${{ steps.manager.outputs.url || '❌' }} |"
             echo ""
           } >> "$GITHUB_STEP_SUMMARY"
-
-  rollback-manager:
-    name: Rollback Manager
-    runs-on: ubuntu-latest
-    if: ${{ inputs.is-push && github.event_name == 'workflow_dispatch' }}
-    needs: CD
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install
-        uses: ./.github/actions/install
-        with:
-          node-version: ${{ inputs.node-version }}
-
-      - name: Rollback Manager
-        run: |
-          vercel rollback ${{ needs.CD.outputs.manager-rollback-host }} --token ${{ secrets.VCL_TOKEN }}
-          echo "\u21A9\uFE0F Manager rollbacked on: ${{ needs.CD.outputs.manager-rollback-host }}"

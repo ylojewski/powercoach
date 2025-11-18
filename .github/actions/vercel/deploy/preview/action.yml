@@ -1,0 +1,62 @@
+name: Deploy preview to Vercel
+description: Deploy a preview build to Vercel and create an alias
+
+inputs:
+  branch:
+    description: Branch metadata
+    required: true
+  dist:
+    description: Build directory to deploy
+    required: true
+  hash:
+    description: Hash metadata
+    required: true
+  project:
+    description: Vercel project name
+    required: true
+  team:
+    description: Vercel team
+    required: true
+  token:
+    description: Vercel access token
+    required: true
+
+outputs:
+  host:
+    description: Vercel deployment alias host
+    value: ${{ steps.alias.outputs.host }}
+  id:
+    description: Vercel deployment ID
+    value: ${{ steps.deploy.outputs.id }}
+  url:
+    description: Vercel deployment URL
+    value: ${{ steps.alias.outputs.url }}
+
+runs:
+  using: composite
+  steps:
+    - name: Alias host computation
+      id: alias
+      uses: ./.github/actions/vercel/alias/compute
+      with:
+        branch: ${{ inputs.branch }}
+        project: ${{ inputs.project }}
+        team: ${{ inputs.team }}
+
+    - name: Deploy to Vercel
+      id: deploy
+      uses: ./.github/actions/vercel/deploy/core
+      with:
+        branch: ${{ inputs.branch }}
+        dist: ${{ inputs.dist }}
+        hash: ${{ inputs.hash }}
+        project: ${{ inputs.project }}
+        token: ${{ inputs.token }}
+
+    - name: Assign alias for preview deployment
+      id: assign
+      uses: ./.github/actions/vercel/alias/assign
+      with:
+        host: ${{ steps.alias.outputs.host }}
+        id: ${{ steps.deploy.outputs.id }}
+        token: ${{ inputs.token }}

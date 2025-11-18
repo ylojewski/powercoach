@@ -121,7 +121,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo "### Detect outputs"
+            echo "## Detect outputs"
             echo ""
             echo "| Key | Value |"
             echo "| --- | --- |"
