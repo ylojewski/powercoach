@@ -40,7 +40,7 @@ runs:
             --fail \
             --request DELETE \
             --header "Authorization: Bearer ${{ inputs.token }}" \
-            --url "https://api.vercel.com/v13/deployments/?url=$host" \
+            --url "https://api.vercel.com/v13/deployments/ignored?url=$host" \
             >/dev/null
           then
             echo "  -- 🧹 $host deleted"
