@@ -26,8 +26,8 @@ runs:
         outdir=apps/manager/dist
 
         echo "📦 Building Manager with..."
-        echo "  -- Hash: ${{ inputs.hash }}"
-        echo "  -- To: $outdir"
+        echo "  -- Hash ⇒ ${{ inputs.hash }}"
+        echo "  -- To ⇒ $outdir"
         echo "  Env"
         echo "    VITE_API_BASE_URL: $VITE_API_BASE_URL"
 

@@ -70,7 +70,6 @@ on:
         required: true
       VCL_TOKEN:
         required: true
-  workflow_dispatch:
 
 env:
   TURBO_TELEMETRY_DISABLED: 1
@@ -80,7 +79,6 @@ jobs:
   CD:
     name: Deploy Api, Manager
     runs-on: ubuntu-latest
-    if: ${{ github.event_name != 'workflow_dispatch' }}
     steps:
       - name: Inputs
         shell: bash
@@ -133,9 +131,9 @@ jobs:
         if: ${{ inputs.is-pr }}
         id: manager-preview
         with:
-          alias: ${{ inputs.branch-slug }}
           # api-url: ${{ steps.api.outputs.url }}
           api-url: 'https://ci-test-new---api-gkrxksmsua-ew.a.run.app/'
+          branch-slug: ${{ inputs.branch-slug }}
           hash: ${{ inputs.manager-hash }}
           project: ${{ inputs.vcl-project }}
           team: ${{ inputs.vcl-team }}
@@ -146,9 +144,9 @@ jobs:
         if: ${{ inputs.is-push }}
         id: manager-production
         with:
-          alias: ${{ inputs.branch-slug }}
           # api-url: ${{ steps.api.outputs.url }}
           api-url: 'https://ci-test-new---api-gkrxksmsua-ew.a.run.app/'
+          branch-slug: ${{ inputs.branch-slug }}
           hash: ${{ inputs.manager-hash }}
           project: ${{ inputs.vcl-project }}
           team: ${{ inputs.vcl-team }}

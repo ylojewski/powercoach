@@ -1,9 +1,9 @@
 name: Deploy preview to Vercel
-description: Deploy a preview build to Vercel and create an alias
+description: Deploy a preview build to Vercel and assign an alias
 
 inputs:
-  branch:
-    description: Branch metadata
+  branch-slug:
+    description: Slugified branch name of the pull request
     required: true
   dist:
     description: Build directory to deploy
@@ -39,7 +39,7 @@ runs:
       id: alias
       uses: ./.github/actions/vercel/alias/compute
       with:
-        branch: ${{ inputs.branch }}
+        branch-slug: ${{ inputs.branch-slug }}
         project: ${{ inputs.project }}
         team: ${{ inputs.team }}
 
@@ -47,7 +47,7 @@ runs:
       id: deploy
       uses: ./.github/actions/vercel/deploy/core
       with:
-        branch: ${{ inputs.branch }}
+        branch-slug: ${{ inputs.branch-slug }}
         dist: ${{ inputs.dist }}
         hash: ${{ inputs.hash }}
         project: ${{ inputs.project }}

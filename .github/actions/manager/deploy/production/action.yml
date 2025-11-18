@@ -1,8 +1,8 @@
 name: Manager production deploy
 
 inputs:
-  alias:
-    description: Vercel deployment alias
+  branch-slug:
+    description: Slugified branch name of the pull request
     required: true
   api-url:
     description: API URL used during build phase
@@ -94,7 +94,7 @@ runs:
       if: steps.should-deploy.outputs.value == 'true'
       uses: ./.github/actions/vercel/deploy/production
       with:
-        branch: ${{ inputs.alias }}
+        branch-slug: ${{ inputs.branch-slug }}
         dist: ${{ steps.build.outputs.out-dir }}
         hash: ${{ inputs.hash }}
         project: ${{ inputs.project }}
@@ -104,7 +104,7 @@ runs:
       shell: bash
       run: |
         {
-          echo "#### Manager production outputs"
+          echo "### Manager production outputs"
           echo ""
           echo "| Key | Value |"
           echo "| --- | --- |"
@@ -113,6 +113,6 @@ runs:
           echo "##### Events"
           echo ""
           echo "- ⚙️ Computed alias ⇒ ${{ steps.alias.outputs.host }}"
-          echo "- 📦 Build & deploy ${{ steps.should-deploy.outputs.value == 'true' && '✅' || '❌' }}"
+          echo "- 📦 Build & deploy ⇒ ${{ steps.should-deploy.outputs.value == 'true' && '✅' || '❌' }}"
           echo ""
         } >> "$GITHUB_STEP_SUMMARY"

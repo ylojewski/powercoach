@@ -2,8 +2,8 @@ name: Deploy production to Vercel
 description: Deploy a production build to Vercel after removing existing preview deployments for the same branch
 
 inputs:
-  branch:
-    description: Branch metadata to delete preview deployments tagged with meta.branch
+  branch-slug:
+    description: Slugified branch name of the pull request
     required: true
   dist:
     description: Build directory to deploy
@@ -25,7 +25,7 @@ runs:
       id: find-hosts
       uses: ./.github/actions/vercel/find/hosts
       with:
-        branch: ${{ inputs.branch }}
+        branch-slug: ${{ inputs.branch-slug }}
         token: ${{ inputs.token }}
 
     - name: Delete existing preview hosts
@@ -45,7 +45,7 @@ runs:
           then
             echo "  -- 🧹 $host deleted"
           else
-            echo "  -- ❌ Failed to delete deployment: $host"
+            echo "  -- ❌ Failed to delete deployment ⇒ $host"
             exit 6
           fi
         done

@@ -40,10 +40,9 @@ jobs:
     uses: ./.github/workflows/ci.yml
     if: >
       github.event_name != 'workflow_dispatch' &&
-      needs.detect.outputs.ci == 'true'
+      needs.detect.outputs.ci-enabled == 'true'
     with:
       filters: ${{ needs.detect.outputs.ci-filters }}
-      name: ${{ needs.detect.outputs.ci-name }}
       node-version: 20
 
   CD:
@@ -51,7 +50,7 @@ jobs:
     uses: ./.github/workflows/cd.yml
     if: >
       github.event_name != 'workflow_dispatch' &&
-      needs.detect.outputs.cd == 'true' &&
+      needs.detect.outputs.cd-enabled == 'true' &&
       needs.CI.result == 'success'
     with:
       api-changed: ${{ needs.detect.outputs.path-api == 'true' }}

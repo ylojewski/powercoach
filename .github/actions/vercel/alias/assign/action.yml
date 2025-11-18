@@ -40,8 +40,8 @@ runs:
         token="${{ inputs.token }}"
 
         echo "🌐 Checking alias assignment for:"
-        echo "  -- ID: $id"
-        echo "  -- Alias: $host"
+        echo "  -- ID ⇒ $id"
+        echo "  -- Alias ⇒ $host"
 
         aliases=$(
           curl \
@@ -70,9 +70,9 @@ runs:
         id="${{ inputs.id }}"
         token="${{ inputs.token }}"
 
-        echo "🌐 Creating alias for deployment:"
-        echo "  -- ID: $id"
-        echo "  -- Alias: $host"
+        echo "🌐 Assigning alias for deployment:"
+        echo "  -- ID ⇒ $id"
+        echo "  -- Alias ⇒ $host"
 
         response=$(
           curl \
@@ -87,11 +87,11 @@ runs:
         )
 
         if [[ -z "$response" ]]; then
-          echo "❌ Failed to set alias (missing host)"
+          echo "❌ Failed to assign alias (missing host)"
           exit 1
         fi
 
-        echo "🌐 Alias set: $host"
+        echo "🌐 Alias assigned ⇒ $host"
 
         echo "host=$host" >> "$GITHUB_OUTPUT"
         echo "url=https://$host/" >> "$GITHUB_OUTPUT"

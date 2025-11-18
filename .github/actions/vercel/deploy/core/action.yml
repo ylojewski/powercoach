@@ -2,8 +2,8 @@ name: Deploy to Vercel (core)
 description: Core deployment logic for Vercel (build files, create deployment, wait until READY)
 
 inputs:
-  branch:
-    description: Branch metadata (used for non-production deployments)
+  branch-slug:
+    description: Slugified branch name of the pull request
     required: false
   dist:
     description: Build directory to deploy
@@ -33,7 +33,7 @@ runs:
       id: deploy
       shell: bash
       run: |
-        branch=${{ inputs.branch }}
+        branch_slug=${{ inputs.branch-slug }}
         dist=${{ inputs.dist }}
         hash=${{ inputs.hash }}
         project=${{ inputs.project }}
@@ -41,10 +41,10 @@ runs:
         token=${{ inputs.token }}
 
         echo "📦 Creating deployment with"
-        [[ -n "$branch" ]] && echo "  -- Branch: $branch"
-        echo "  -- Hash: $hash"
-        echo "  -- Project: $project"
-        [[ -n "$target" ]] && echo "  -- Target: $target"
+        [[ -n "$branch_slug" ]] && echo "  -- Branch slug ⇒ $branch_slug"
+        echo "  -- Hash ⇒ $hash"
+        echo "  -- Project ⇒ $project"
+        [[ -n "$target" ]] && echo "  -- Target ⇒ $target"
 
         files=$(
           find "$dist" -type f -print0 | while IFS= read -r -d '' file; do
@@ -58,7 +58,7 @@ runs:
         payload=$(
           printf '%s' "$files" \
           | jq \
-            --arg branch "$branch" \
+            --arg branchSlug "$branch_slug" \
             --arg hash "$hash" \
             --arg project "$project" \
             --arg target "$target" \
@@ -67,12 +67,9 @@ runs:
                  files: $files,
                  meta: (if $target == "production"
                         then { hash: $hash }
-                        else { branch: $branch, hash: $hash }
+                        else { branchSlug: $branchSlug, hash: $hash }
                         end),
-                 name: (if $target == "production"
-                        then $project
-                        else "\($project)-\($branch)"
-                        end),
+                 name: $project,
                  project: $project
                }
              | if $target then . + { target: $target } else . end

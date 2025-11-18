@@ -7,10 +7,6 @@ on:
         description: Filters passed to pnpm turbo run commands
         type: string
         required: true
-      name:
-        description: Name of the calling workflow for concurrency grouping
-        type: string
-        required: true
       node-version:
         description: Node.js version to use
         type: number
@@ -43,7 +39,6 @@ jobs:
             echo "| Key | Value |"
             echo "| --- | --- |"
             echo "| Filters | ${{ inputs.filters || '❌' }} |"
-            echo "| Name | ${{ inputs.name || '❌' }} |"
             echo "| Node version | ${{ inputs.node-version || '❌' }} |"
             echo ""
           } >> "$GITHUB_STEP_SUMMARY"
@@ -97,9 +92,9 @@ jobs:
             echo ""
             echo "#### Completed tasks"
             echo ""
-            echo "- ✨ Lint ✅"
-            echo "- 💅 Format ✅"
-            echo "- 🛡️ Typecheck ✅"
-            echo "- 🧪 Test ✅"
+            echo "- ✨ Lint ⇒ ✅"
+            echo "- 💅 Format ⇒ ✅"
+            echo "- 🛡️ Typecheck ⇒ ✅"
+            echo "- 🧪 Test ⇒ ✅"
             echo ""
           } >> "$GITHUB_STEP_SUMMARY"

@@ -1,8 +1,8 @@
 name: Alias host computation
 
 inputs:
-  branch:
-    description: Branch
+  branch-slug:
+    description: Slugified branch name of the pull request
     required: false
   project:
     description: Vercel project
@@ -26,10 +26,10 @@ runs:
       id: alias
       shell: bash
       run: |
-        branch=${{ inputs.branch }}
+        branch_slug=${{ inputs.branch-slug }}
         host="${{ inputs.project }}-${{ inputs.team }}.vercel.app"
 
-        [[ -n "$branch" ]] && host="$branch-$host"
+        [[ -n "$branch_slug" ]] && host="$branch_slug-$host"
 
         echo "host=$host" >> "$GITHUB_OUTPUT"
         echo "url=https://$host/" >> "$GITHUB_OUTPUT"
