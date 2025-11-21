@@ -1,60 +1,38 @@
-name: Cloud Run revision deployment
-description: Deploy a Google Cloud Run revision of the given service
+name: Cloud Run revision route
+description: Routes 100% of the traffic to the given tag or default revision
 
 inputs:
   branch-slug:
     description: Slugified branch name of the pull request
     required: false
-  image:
-    description: Image name to deploy
-    required: true
-  project-id:
-    description: Project ID
-    required: true
-  region:
-    description: Region name
+  revision:
+    description: Revision name that will receive 100% of the traffic
     required: true
   service:
     description: Service name
     required: true
 
-outputs:
-  url:
-    description: Deployed API URL
-    value: ${{ steps.deploy.outputs.url }}
-
 runs:
   using: composite
   steps:
-    - name: Cloud Run revision deployment
-      id: deploy
+    - name: Cloud Run revision route
       shell: bash
       run: |
-        health="httpGet.path=/v1/health"
-        max_instances="$([[ -z "${{ inputs.branch-slug }}" ]] && echo 10 || echo 1)"
-        
-        flags=(
-          "--allow-unauthenticated"
-          "--cpu=1"
-          "--image=${{ inputs.image }}"
-          "--liveness-probe"
-            "$health"
-          "--max-instances=$max_instances"
-          "--memory=512Mi"
-          "--platform=managed"
-          "--port=8080"
-          "--project=${{ inputs.project-id }}"
-          "--region=${{ inputs.region }}"
-          "--set-env-vars=HOST=0.0.0.0"
-          "--set-env-vars=LOG_LEVEL=info"
-          "--set-env-vars=NODE_ENV=production"
-          "--startup-probe"
-            "$health,initialDelaySeconds=5,periodSeconds=2,timeoutSeconds=1,failureThreshold=5"
-        )
-        
-        if [[ -n "${{ inputs.branch-slug }}" ]]; then
-          flags+=(--tag="${{ inputs.branch-slug }}")
-        fi
+        branch_slug="${{ inputs.branch-slug }}"
+        revision="${{ inputs.revision }}"
+        service="${{ inputs.service }}"
 
-        url=$(gcloud run deploy "${{ inputs.service }}" "${flags[@]}" --quiet --format="value(status.url)")
-        echo "url=$url" >> "$GITHUB_OUTPUT"
+        if [[ -z "$branch_slug" ]]; then
+          echo "🔀 Routing 100% production traffic with..."
+          echo "     -- Revision ⇒ $revision"
+
+          gcloud run services update-traffic "$service" \
+            --to-revisions "$revision=100"
+        else
+          echo "🔀 Routing 100% preview traffic with..."
+          echo "     -- Revision ⇒ $revision"
+          echo "     -- Tag ⇒ $branch_slug"
+
+          gcloud run services update-traffic "$service" \
+            --set-tags "$branch_slug=$revision"
+        fi

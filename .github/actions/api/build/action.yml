@@ -1,37 +1,58 @@
-name: Build Manager
-description: Build the Manager app and inject the hash
+name: Build API
+description: Builds the API app and the Docker file based on the given hash
 
 inputs:
-  api-url:
-    description: API URL used during build phase
+  artifacts-repository:
+    description: Artifact repository
     required: true
   hash:
     description: Source code hash
     required: true
+  project-id:
+    description: Project ID
+    required: true
+  region:
+    description: Region name
+    required: true
+  service:
+    description: Service name
+    required: true
 
 outputs:
-  out-dir:
-    description: The distribution directory
-    value: ${{ steps.build.outputs.out-dir }}
+  image:
+    description: The Docker built & pushed image name
+    value: ${{ steps.build-push.outputs.image }}
 
 runs:
   using: composite
   steps:
-    - name: Build
-      id: build
+    - name: Artifact Registry image
+      id: image
+      uses: ./.github/actions/google/image
+      with:
+        artifacts-repository: ${{ inputs.artifacts-repository }}
+        hash: ${{ inputs.hash }}
+        project-id: ${{ inputs.project-id }}
+        region: ${{ inputs.region }}
+        service: ${{ inputs.service }}
+
+    - name: Build & push Docker image
+      id: build-push
       shell: bash
-      env:
-        VITE_API_BASE_URL: ${{ inputs.api-url }}
       run: |
-        outdir=apps/manager/dist
+        file="${{ inputs.file }}"
+        image="${{ inputs.image }}"
 
-        echo "📦 Building Manager with..."
-        echo "  -- Hash ⇒ ${{ inputs.hash }}"
-        echo "  -- To ⇒ $outdir"
-        echo "  Env"
-        echo "    VITE_API_BASE_URL: $VITE_API_BASE_URL"
+        echo "📦 Building Docker image with..."
+        echo "     -- File ⇒ $file"
+        echo "     -- Image ⇒ $image"
 
-        pnpm --filter=@powercoach/manager build
-        sed -i "s/__DIST_HASH__/${{ inputs.hash }}/g" "$outdir/index.html"
+        docker build -f "$file" -t "$image" .
 
-        echo "out-dir=$outdir" >> "$GITHUB_OUTPUT"
+        echo "✅ Built"
+        echo "📤 Pushing..."
+
+        docker push "$image"
+
+        echo "✅ Pushed"
+        echo "image=$image" >> "$GITHUB_OUTPUT"

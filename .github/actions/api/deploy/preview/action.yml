@@ -6,7 +6,7 @@ inputs:
     required: true
   branch-slug:
     description: Slugified branch name of the pull request
-    required: false
+    required: true
   domain:
     description: Google Cloud Run domain
     required: true
@@ -26,7 +26,7 @@ inputs:
 outputs:
   url:
     description: Deployed Manager URL
-    value: ${{ steps.alias.outputs.url }}
+    value: ${{ steps.url.outputs.value }}
 
 runs:
   using: composite
@@ -35,21 +35,29 @@ runs:
       shell: bash
       run: |
         {
-          echo "### Manager preview inputs"
+          echo "### API preview inputs"
           echo ""
           echo "| Key | Value |"
           echo "| --- | --- |"
+          echo "| Artifactory Registry | ${{ inputs.artifacts-repository || '❌' }} |"
           echo "| Branch slug | ${{ inputs.branch-slug || '❌' }} |"
-          echo "| API URL | ${{ inputs.api-url || '❌' }} |"
           echo "| Hash | ${{ inputs.hash || '❌' }} |"
-          echo "| Project | ${{ inputs.project || '❌' }} |"
-          echo "| Team | ${{ inputs.team || '❌' }} |"
-          echo "| Token | ${{ inputs.token != '' && '🔒 Provided' || '❌ Missing' }} |"
+          echo "| Project ID | ${{ inputs.project-id || '❌' }} |"
+          echo "| Region | ${{ inputs.region || '❌' }} |"
+          echo "| Service | ${{ inputs.service || '❌' }} |"
           echo ""
         } >> "$GITHUB_STEP_SUMMARY"
 
-    - name: Revision state
-      id: revision-state
+    - name: Compute API URL
+      id: url
+      uses: ./.github/actions/google/url/compute
+      with:
+        branch-slug: ${{ inputs.branch-slug }}
+        domain: ${{ inputs.domain }}
+        service: ${{ inputs.service }}
+
+    - name: State
+      id: state
       uses: ./.github/actions/google/revision/state
       with:
         artifacts-repository: ${{ inputs.artifacts-repository }}
@@ -58,13 +66,12 @@ runs:
         region: ${{ inputs.region }}
         service: ${{ inputs.service }}
 
-    - name: Actions to make
+    - name: Actions
       id: actions
       shell: bash
       run: |
-        echo "push=$([[ -z "${{ steps.revision-state.outputs.version == '' }}" ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
-        echo "activate=$([[ -z "${{ steps.revision-state.outputs.active == 'false' }}" ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
-        echo "traffic=$([[ -z "${{ steps.revision-state.outputs.traffic == '0' }}" ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+        echo "push=$([[ -z "${{ steps.state.outputs.version }}" ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+        echo "deploy=$([[ -z "${{ steps.state.outputs.revision }}" ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
 
     - name: Build
       id: build
@@ -78,36 +85,47 @@ runs:
         service: ${{ inputs.service }}
 
     - name: Deploy
-      if: steps.actions.outputs.build == 'true'
+      id: deploy
+      if: steps.actions.outputs.deploy == 'true'
       uses: ./.github/actions/google/revision/deploy
       with:
+        branch-slug: ${{ inputs.branch-slug }}
+        image: ${{ steps.build.outputs.image }}
+        project-id: ${{ inputs.project-id }}
+        region: ${{ inputs.region }}
+        service: ${{ inputs.service }}
+
+    - name: Revision
+      id: revision
+      shell: bash
+      run: echo "value=${{ steps.deploy.outputs.revision || steps.state.outputs.revision }}" >> "$GITHUB_OUTPUT"
 
     - name: Route traffic
-      id: traffic
-      if: steps.existing-host.outputs.found == 'true'
-      uses: ./.github/actions/vercel/alias/assign
+      id: route
+      uses: ./.github/actions/google/revision/route
       with:
-        check: 'true'
-        host: ${{ steps.alias.outputs.host }}
-        id: ${{ steps.existing-host.outputs.ids }} # lookup by hash => one ID
-        token: ${{ inputs.token }}
+        branch-slug: ${{ inputs.branch-slug }}
+        revision: ${{ steps.revision.outputs.value }}
+        service: ${{ inputs.service }}
 
     - name: Outputs
       shell: bash
       run: |
         {
-          echo "### Manager preview outputs"
+          echo "### API preview outputs"
           echo ""
           echo "| Key | Value |"
           echo "| --- | --- |"
-          echo "| URL | ${{ steps.alias.outputs.url || '❌' }} |"
+          echo "| URL | ${{ steps.url.outputs.value || '❌' }} |"
           echo ""
           echo ""
           echo "##### Events"
           echo ""
-          echo "- ⚙️ Computed alias ⇒ ${{ steps.alias.outputs.host }}"
-          echo "- 🖥️ Existing host ⇒ ${{ steps.existing-host.outputs.found == 'true' && '✅' || '❌' }}"
-          echo "- 📦 Build, deploy, alias ⇒ ${{ steps.existing-host.outputs.found == 'false' && '✅' || '❌' }}"
-          echo "- 🔀 Alias assignment skipped ⇒ ${{ steps.assign.outputs.skipped == 'true' && '✅' || '❌' }}"
+          echo "- ⚙️ Computed url ⇒ ${{ steps.url.outputs.value }}"
+          echo "- 📦 Build, push ⇒ ${{ steps.actions.outputs.push == 'true' && '✅' || '❌' }}"
+          echo "- 🚀 Deploy ⇒ ${{ steps.actions.outputs.deploy == 'true' && '✅' || '❌' }}"
+          echo "- 🔀 Routed traffic"
+          echo "-      to ⇒ ${{ steps.revision.outputs.value || '❌' }}"
+          echo "-      tag ⇒ ${{ inputs.branch-slug }}"
           echo ""
         } >> "$GITHUB_STEP_SUMMARY"

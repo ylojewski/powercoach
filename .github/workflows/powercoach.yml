@@ -23,32 +23,11 @@ permissions:
 jobs:
   powercoach:
     name: Powercoach CI & CD
+    runs-on: ubuntu-latest
     steps:
-      - uses: ./.github/actions/detect
-      - uses: ./.github/actions/ci
-      - uses: ./.github/actions/cd
-
-  CI:
-    needs: [detect]
-    uses: ./.github/workflows/ci.yml
-    if: needs.detect.outputs.ci-enabled == 'true'
-    with:
-      ci-filters: ${{ needs.detect.outputs.ci-filters }}
-
-  CD:
-    needs: [detect, CI]
-    uses: ./.github/workflows/cd.yml
-    if: >
-      needs.detect.outputs.cd-enabled == 'true' &&
-      needs.CI.result == 'success'
-    with:
-      detection: ${{ needs.detect.outputs }}
-      vars:
-        gcp-artifacts-repository: ${{ vars.GCP_ARTIFACTS_REPOSITORY }}
-        gcp-domain: ${{ vars.GCP_DOMAIN }}
-        gcp-project-id: ${{ vars.GCP_PROJECT_ID }}
-        gcp-region: ${{ vars.GCP_REGION }}
-        gcp-service: ${{ vars.GCP_SERVICE }}
-        vcl-project: ${{ vars.VCL_PROJECT }}
-        vcl-team: ${{ vars.VCL_TEAM }}
-    secrets: inherit
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/powercoach/context
+      - uses: ./.github/actions/powercoach/install
+      - uses: ./.github/actions/powercoach/ci
+      - uses: ./.github/actions/powercoach/cd
+      - uses: ./.github/actions/powercoach/summary

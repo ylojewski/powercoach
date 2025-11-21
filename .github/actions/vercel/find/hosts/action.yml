@@ -56,9 +56,9 @@ runs:
         url="https://api.vercel.com/v6/deployments?$query"
 
         echo "🔍 Querying Vercel with:"
-        echo "  --target ⇒ $target"
-        echo "  --branch slug ⇒ ${branch_slug:-"(not specified)"}"
-        echo "  --hash ⇒ ${hash:-"(not specified)"}"
+        echo "     -- target ⇒ $target"
+        echo "     -- branch slug ⇒ ${branch_slug:-"(not specified)"}"
+        echo "     -- hash ⇒ ${hash:-"(not specified)"}"
 
         response=$(
           curl \

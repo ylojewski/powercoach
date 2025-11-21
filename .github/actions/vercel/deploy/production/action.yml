@@ -43,9 +43,9 @@ runs:
             --url "https://api.vercel.com/v13/deployments/ignored?url=$host" \
             >/dev/null
           then
-            echo "  -- 🧹 $host deleted"
+            echo "     -- 🧹 $host deleted"
           else
-            echo "  -- ❌ Failed to delete deployment ⇒ $host"
+            echo "     -- ❌ Failed to delete deployment ⇒ $host"
             exit 6
           fi
         done

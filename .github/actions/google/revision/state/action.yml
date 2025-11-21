@@ -1,5 +1,5 @@
-name: Revision state
-description: Retrieves a Google Cloud Run revision state using the given hash
+name: State
+description: Retrieves a Google Cloud Run state using the given hash
 
 inputs:
   artifacts-repository:
@@ -19,23 +19,17 @@ inputs:
     required: true
 
 outputs:
-  active:
-    description: Whether the revision is active
-    value: ${{ steps.state.outputs.active }}
   revision:
-    description: The Google Cloud Run revision matching the found version
-    value: ${{ steps.state.outputs.revision }}
-  traffic:
-    description: Whether the revision is receiving traffic
-    value: ${{ steps.state.outputs.traffic }}
+    description: The Google Cloud Run revision
+    value: ${{ steps.state.outputs.name }}
   version:
-    description: The Artifactory Registry version matching the given hash
+    description: The Google Cloud version (digest) of the Docker image
     value: ${{ steps.state.outputs.version }}
 
 runs:
   using: composite
   steps:
-    - name: Revision state
+    - name: State
       id: state
       shell: bash
       run: |
@@ -45,20 +39,13 @@ runs:
         region="${{ inputs.region }}"
         service="${{ inputs.service }}"
 
-        echo "active=false" >> "$GITHUB_OUTPUT"
-        echo "traffic=false" >> "$GITHUB_OUTPUT"
-
         echo "🔍 Looking for an artifact version with"
-        echo "     -- Tag ⇒ ${tag}"
-
-        tags=$(
-          gcloud artifacts docker tags list "${artifacts_repository}" \
-            --format=json \
-            --filter="tag:${tag}" 2>/dev/null
-        )
+        echo "     -- Tag ⇒ $tag"
 
         version=$(
-          jq -r '.[0].version // empty' <<< "$tags" 2>/dev/null
+          gcloud artifacts docker tags list "${artifacts_repository}" \
+            --format="value(version)" \
+            --filter="tag=$tag"
         )
 
         if [[ -z "$version" ]]; then
@@ -76,21 +63,13 @@ runs:
         echo "🔍 Looking for a revision with"
         echo "     -- Image ⇒ ...${image: -32}"
 
-        revisions=$(
+        revision=$(
           gcloud run revisions list \
             --region="${region}" \
             --project="${project_id}" \
             --service="${service}" \
+            --filter="spec.containers[].image=$image" \
             --format=json 2>/dev/null
-        )
-
-        revision=$(
-          jq -r --arg image "$image" '
-            .[]
-            | select(.spec.containers[0].image == $image)
-            | .metadata.name
-            // empty
-          ' <<< "$revisions"
         )
 
         if [[ -z "$revision" ]]; then
@@ -108,43 +87,3 @@ runs:
 
         echo "✅ Found revision ⇒ ${revision}"
         echo "revision=$revision" >> "$GITHUB_OUTPUT"
-
-        echo "🔍 Looking for the revision running state with"
-        echo "     -- Revision ⇒ ${revision}"
-
-        services=$(
-          gcloud run services describe "${service}" \
-            --region="${region}" \
-            --project="${project_id}" \
-            --format=json 2>/dev/null
-        )
-
-        traffic=$(
-          jq -r --arg revision "${revision}" '
-            .status.traffic[]
-            | select(.revisionName == $revision)
-            | { percent: (.percent // 0) }
-            // empty
-            ' <<< "$services" 2>/dev/null
-        )
-
-        if [[ -z "$traffic" ]]; then
-          echo "🛑 Revision $revision is not active"
-          echo "active=false" >> "$GITHUB_OUTPUT"
-          exit 0
-        fi
-
-        echo "🟢 Revision $revision is active"
-        echo "active=true" >> "$GITHUB_OUTPUT"
-
-        percent=$(
-          jq -r '.percent // empty' <<< "$traffic" 2>/dev/null
-        )
-
-        if [[ "$percent" != 0 ]]; then
-          echo "🚀 Revision $revision is receiving traffic"
-          echo "traffic=true" >> "$GITHUB_OUTPUT"
-        else
-          echo "😴 Revision $revision is not receiving any traffic"
-          echo "traffic=false" >> "$GITHUB_OUTPUT"
-        fi

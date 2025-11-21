@@ -1,4 +1,4 @@
-name: Manager preview deploy
+name: Manager preview deployment
 
 inputs:
   api-url:

@@ -1,35 +1,31 @@
-name: Alias host computation
+name: Google Cloud Run URL computation
 
 inputs:
   branch-slug:
     description: Slugified branch name of the pull request
     required: false
-  project:
-    description: Vercel project
+  domain:
+    description: Google Cloud Run domain
     required: true
-  team:
-    description: Vercel team
+  service:
+    description: Service name
     required: true
 
 outputs:
-  host:
-    description: Computed alias host
-    value: ${{ steps.alias.outputs.host }}
-  url:
-    description: Computed alias URL
-    value: ${{ steps.alias.outputs.url }}
+  value:
+    description: Computed URL value
+    value: ${{ steps.compute.outputs.value }}
 
 runs:
   using: composite
   steps:
-    - name: Alias host computation
-      id: alias
+    - name: Google Cloud Run URL computation
+      id: compute
       shell: bash
       run: |
         branch_slug=${{ inputs.branch-slug }}
-        host="${{ inputs.project }}-${{ inputs.team }}.vercel.app"
+        host="${{ inputs.service }}-${{ inputs.domain }}.a.run.app"
 
-        [[ -n "$branch_slug" ]] && host="$branch_slug-$host"
+        [[ -n "$branch_slug" ]] && host="$branch_slug---$host"
 
-        echo "host=$host" >> "$GITHUB_OUTPUT"
-        echo "url=https://$host/" >> "$GITHUB_OUTPUT"
+        echo "value=https://$host/" >> "$GITHUB_OUTPUT"

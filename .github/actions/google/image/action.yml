@@ -1,5 +1,5 @@
-name: Artifact Registry tag
-description: Compute the full Artifact Registry tag URL
+name: Artifact Registry image
+description: Compute the full Artifact Registry image name
 
 inputs:
   artifacts-repository:
@@ -27,12 +27,11 @@ runs:
   using: composite
   steps:
     - name: Artifact Registry host
-      uses: ./.github/actions/google/artifacts-registry/host
       id: host
-      with:
-        region: ${{ inputs.region }}
+      shell: bash
+      run: echo "value=${{ inputs.region }}-docker.pkg.dev" >> "$GITHUB_OUTPUT"
 
-    - name: Artifact Registry tag
+    - name: Artifact Registry image
       id: tag
       shell: bash
       run: |

@@ -3,4 +3,9 @@ import { defineConfig } from 'tsup'
 
 import pkg from './package.json'
 
-export default defineConfig(buildConfig(pkg))
+export default defineConfig(
+  buildConfig({
+    ...pkg,
+    main: 'src/index.ts'
+  })
+)

@@ -1,29 +1,32 @@
-name: Manager production deploy
+name: API production deployment
 
 inputs:
+  artifacts-repository:
+    description: Artifact repository
+    required: true
   branch-slug:
     description: Slugified branch name of the pull request
     required: true
-  api-url:
-    description: API URL used during build phase
+  domain:
+    description: Google Cloud Run domain
     required: true
   hash:
-    description: Hash of the dist directory
+    description: Unique hash identifier
     required: true
-  project:
-    description: Vercel project
+  project-id:
+    description: Project ID
     required: true
-  team:
-    description: Vercel team
+  region:
+    description: Region name
     required: true
-  token:
-    description: Vercel token
+  service:
+    description: Service name
     required: true
 
 outputs:
   url:
     description: Deployed Manager URL
-    value: ${{ steps.alias.outputs.url }}
+    value: ${{ steps.url.outputs.value }}
 
 runs:
   using: composite
@@ -32,87 +35,99 @@ runs:
       shell: bash
       run: |
         {
-          echo "### Manager production inputs"
+          echo "### API production inputs"
           echo ""
           echo "| Key | Value |"
           echo "| --- | --- |"
-          echo "| API URL | ${{ inputs.api-url || '❌' }} |"
+          echo "| Artifactory Registry | ${{ inputs.artifacts-repository || '❌' }} |"
+          echo "| Branch slug | ${{ inputs.branch-slug || '❌' }} |"
           echo "| Hash | ${{ inputs.hash || '❌' }} |"
-          echo "| Project | ${{ inputs.project || '❌' }} |"
-          echo "| Team | ${{ inputs.team || '❌' }} |"
-          echo "| Token | ${{ inputs.token != '' && '🔒 Provided' || '❌ Missing' }} |"
+          echo "| Project ID | ${{ inputs.project-id || '❌' }} |"
+          echo "| Region | ${{ inputs.region || '❌' }} |"
+          echo "| Service | ${{ inputs.service || '❌' }} |"
           echo ""
         } >> "$GITHUB_STEP_SUMMARY"
 
-    - name: Production host computation
-      id: alias
-      uses: ./.github/actions/vercel/alias/compute
+    - name: Compute API URL
+      id: url
+      uses: ./.github/actions/google/url/compute
       with:
-        project: ${{ inputs.project }}
-        team: ${{ inputs.team }}
+        domain: ${{ inputs.domain }}
+        service: ${{ inputs.service }}
 
-    - name: Prodded deployment
-      id: prodded-deployment
-      uses: ./.github/actions/vercel/find/prodded
+    - name: Revision state
+      id: revision-state
+      uses: ./.github/actions/google/revision/state
       with:
-        project: ${{ inputs.project }}
-        team: ${{ inputs.team }}
-        token: ${{ inputs.token }}
-
-    - name: Rollback deployment
-      id: rollback-deployment
-      uses: ./.github/actions/vercel/find/rollback
-      with:
-        token: ${{ inputs.token }}
+        artifacts-repository: ${{ inputs.artifacts-repository }}
+        hash: ${{ inputs.hash }}
+        project-id: ${{ inputs.project-id }}
+        region: ${{ inputs.region }}
+        service: ${{ inputs.service }}
 
     - name: Should deploy
       id: should-deploy
       shell: bash
       run: |
-        new_hash="${{ steps.prodded-deployment.outputs.hash != inputs.hash }}"
-        has_rollback="${{ steps.rollback-deployment.outputs.found == 'true' }}"
-
-        if [[ "$new_hash" == "true" && "$has_rollback" == "true" ]]; then
-          echo "🟢 Deployment authorized"
+        if [[ -z "${{ steps.revision-state.outputs.revision }}" ]]; then
           echo "value=true" >> "$GITHUB_OUTPUT"
         else
-          [[ "$new_hash" == "false" ]] && echo "🔴 Deployment already prodded"
-          [[ "$has_rollback" == "false" ]] && echo "🔴 Unable to rollback"
-          echo "🔴 Deployment unauthorized"
           echo "value=false" >> "$GITHUB_OUTPUT"
         fi
 
     - name: Build
       id: build
       if: steps.should-deploy.outputs.value == 'true'
-      uses: ./.github/actions/manager/build
+      uses: ./.github/actions/api/build
       with:
-        api-url: ${{ inputs.api-url }}
+        artifacts-repository: ${{ inputs.artifacts-repository }}
         hash: ${{ inputs.hash }}
+        project-id: ${{ inputs.project-id }}
+        region: ${{ inputs.region }}
+        service: ${{ inputs.service }}
 
     - name: Deploy
+      id: deploy
       if: steps.should-deploy.outputs.value == 'true'
-      uses: ./.github/actions/vercel/deploy/production
+      uses: ./.github/actions/google/revision/deploy
       with:
         branch-slug: ${{ inputs.branch-slug }}
-        dist: ${{ steps.build.outputs.out-dir }}
-        hash: ${{ inputs.hash }}
-        project: ${{ inputs.project }}
-        token: ${{ inputs.token }}
+        image: ${{ steps.build.outputs.image }}
+        project-id: ${{ inputs.project-id }}
+        region: ${{ inputs.region }}
+        service: ${{ inputs.service }}
+
+    - name: Revision name
+      id: revision
+      shell: bash
+      run: echo "value=${{ steps.revision-state.outputs.revision || steps.deploy.outputs.revision }}" >> "$GITHUB_OUTPUT"
+
+    - name: Route traffic
+      id: route
+      uses: ./.github/actions/google/revision/route
+      with:
+        branch-slug: ${{ inputs.branch-slug }}
+        revision: ${{ steps.revision.outputs.value }}
+        service: ${{ inputs.service }}
 
     - name: Outputs
       shell: bash
       run: |
         {
-          echo "### Manager production outputs"
+          echo "### API production outputs"
           echo ""
           echo "| Key | Value |"
           echo "| --- | --- |"
-          echo "| URL | ${{ steps.alias.outputs.url || '❌' }} |"
+          echo "| URL | ${{ steps.url.outputs.value || '❌' }} |"
+          echo ""
           echo ""
           echo "##### Events"
           echo ""
-          echo "- ⚙️ Computed alias ⇒ ${{ steps.alias.outputs.host }}"
-          echo "- 📦 Build & deploy ⇒ ${{ steps.should-deploy.outputs.value == 'true' && '✅' || '❌' }}"
+          echo "- ⚙️ Computed url ⇒ ${{ steps.url.outputs.value }}"
+          echo "- 📦 Build, push, deploy ⇒ ${{ steps.should-deploy.outputs.value == 'true' && '✅' || '❌' }}"
+          echo "- 🚀 Deployed revision ⇒ ${{ steps.revision.outputs.value || '❌' }}"
+          echo "- 🔀 Routed traffic"
+          echo "-      to ⇒ ${{ steps.revision.outputs.value || '❌' }}"
+          echo "-      tag ⇒ ${{ inputs.branch-slug }}"
           echo ""
         } >> "$GITHUB_STEP_SUMMARY"

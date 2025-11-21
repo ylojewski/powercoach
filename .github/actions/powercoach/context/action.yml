@@ -37,10 +37,7 @@ runs:
       uses: dorny/paths-filter@v3
       id: paths
       with:
-        filters: '{
-          "api": ["apps/api/**"],
-          "manager": ["apps/manager/**"]
-        }'
+        filters: '{ "api": ["apps/api/**"], "manager": ["apps/manager/**"] }'
 
     - name: Github event
       id: event
@@ -138,7 +135,7 @@ runs:
         if [[ -z "$filters" ]]; then
           reasons+=("no filters")
         fi
-        
+
         if [[ "${{ steps.event.outputs.push }}" == "true" ]] &&
            [[ -z "${{ steps.source-branch.outputs.value }}" ]]; then
           reasons+=("missing source branch")

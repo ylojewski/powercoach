@@ -3,13 +3,9 @@ name: CI
 on:
   workflow_call:
     inputs:
-      filters:
-        description: Filters passed to pnpm turbo run commands
+      ci-filters:
+        description: CI filters passed to pnpm commands
         type: string
-        required: true
-      node-version:
-        description: Node.js version to use
-        type: number
         required: true
     outputs:
       api-hash:
@@ -29,6 +25,8 @@ jobs:
     outputs:
       api-hash: ${{ steps.hash.outputs.api }}
       manager-hash: ${{ steps.hash.outputs.manager }}
+    env:
+      CI_FILTERS: ${{ inputs.ci-filters }}
     steps:
       - name: Inputs
         shell: bash
@@ -38,8 +36,7 @@ jobs:
             echo ""
             echo "| Key | Value |"
             echo "| --- | --- |"
-            echo "| Filters | ${{ inputs.filters || '❌' }} |"
-            echo "| Node version | ${{ inputs.node-version || '❌' }} |"
+            echo "| CI filters | ${CI_FILTERS=-'❌'} |"
             echo ""
           } >> "$GITHUB_STEP_SUMMARY"
 
@@ -48,36 +45,33 @@ jobs:
 
       - name: Install
         uses: ./.github/actions/install
-        with:
-          node-version: ${{ inputs.node-version }}
 
       - name: Lint
-        run: pnpm lint ${{ inputs.filters }}
+        run: pnpm lint $CI_FILTERS
 
       - name: Format
-        run: pnpm format ${{ inputs.filters }}
+        run: pnpm format $CI_FILTERS
 
       - name: Typecheck
-        run: pnpm typecheck ${{ inputs.filters }}
+        run: pnpm typecheck $CI_FILTERS
 
       - name: Test
-        run: pnpm test ${{ inputs.filters }}
+        run: pnpm test $CI_FILTERS
 
       - name: Hash
         id: hash
         shell: bash
         run: |
-          filters=${{ inputs.filters }}
+          hash() {
+            git ls-files -z "$1" \
+              | sort -z \
+              | xargs -0 sha256sum \
+              | sha256sum \
+              | cut -d' ' -f1
+          }
 
-          if [[ "$filters" == *"api"* ]]; then
-            hash=$(git ls-files -z apps/api | sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1)
-            echo "api=$hash" >> "$GITHUB_OUTPUT"
-          fi
-
-          if [[ "$filters" == *"manager"* ]]; then
-            hash=$(git ls-files -z apps/manager | sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1)
-            echo "manager=$hash" >> "$GITHUB_OUTPUT"
-          fi
+          [[ "$CI_FILTERS" == *"api"* ]] && echo "api=$(hash apps/api)" >> "$GITHUB_OUTPUT"
+          [[ "$CI_FILTERS" == *"manager"* ]] && echo "manager=$(hash apps/manager)" >> "$GITHUB_OUTPUT"
 
       - name: Outputs
         shell: bash
@@ -90,7 +84,7 @@ jobs:
             echo "| API hash | ${{ steps.hash.outputs.api || '❌' }} |"
             echo "| Manager hash | ${{ steps.hash.outputs.manager || '❌' }} |"
             echo ""
-            echo "#### Completed tasks"
+            echo "#### CI steps"
             echo ""
             echo "- ✨ Lint ⇒ ✅"
             echo "- 💅 Format ⇒ ✅"

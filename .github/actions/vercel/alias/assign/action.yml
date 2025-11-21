@@ -40,8 +40,8 @@ runs:
         token="${{ inputs.token }}"
 
         echo "🌐 Checking alias assignment for:"
-        echo "  -- ID ⇒ $id"
-        echo "  -- Alias ⇒ $host"
+        echo "     -- ID ⇒ $id"
+        echo "     -- Alias ⇒ $host"
 
         aliases=$(
           curl \
@@ -71,8 +71,8 @@ runs:
         token="${{ inputs.token }}"
 
         echo "🌐 Assigning alias for deployment:"
-        echo "  -- ID ⇒ $id"
-        echo "  -- Alias ⇒ $host"
+        echo "     -- ID ⇒ $id"
+        echo "     -- Alias ⇒ $host"
 
         response=$(
           curl \

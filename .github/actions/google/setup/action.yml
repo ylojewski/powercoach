@@ -1,0 +1,35 @@
+name: Google setup
+description: Initializes the authentication to Google Cloud Platform
+
+inputs:
+  region:
+    description: Google Cloud Platform Region name
+    required: true
+  service-account:
+    description: Google Cloud Platform Service Account name
+    required: true
+  wif-provider:
+    description: Google Cloud Platform Workload Identity Federation provider path
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - uses: ./.github/actions/google/artifacts-registry/host
+      id: host
+      with:
+        region: ${{ inputs.region }}
+
+    - name: Google Auth
+      uses: google-github-actions/auth@v2
+      with:
+        workload_identity_provider: ${{ inputs.wif-provider }}
+        service_account: ${{ inputs.service-account }}
+        token_format: 'id_token'
+
+    - name: Setup gcloud
+      uses: google-github-actions/setup-gcloud@v2
+
+    - name: Configure Docker
+      shell: bash
+      run: gcloud auth configure-docker "${{ steps.host.outputs.value }}" --quiet

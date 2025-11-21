@@ -1,6 +1,6 @@
 **
 !.github
-!.github/**
+!.github/**/*
 !*.config.mjs
 !package.json
 !turbo.json
