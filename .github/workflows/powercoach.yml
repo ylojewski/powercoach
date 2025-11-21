@@ -1,0 +1,24 @@
+name: Powercoach
+
+on:
+  push:
+    branches:
+      - ci/revamp
+  pull_request:
+    branches:
+      - ci/revamp
+    paths:
+      - 'apps/api/**'
+      - 'apps/manager/**'
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  powercoach:
+    name: Powercoach CI & CD
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/powercoach/context

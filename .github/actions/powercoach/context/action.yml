@@ -1,0 +1,175 @@
+name: Powercoach context
+description: Describes the context of the main Powercoach workflow
+
+outputs:
+  ci-enabled:
+    description: Whether CI should be ran
+    value: ${{ steps.ci.outputs.enabled }}
+  ci-filters:
+    description: CI turbo filters
+    value: ${{ steps.ci.outputs.filters }}
+  cd-enabled:
+    description: Whether CD should be ran
+    value: ${{ steps.cd.outputs.enabled }}
+  event-pr:
+    description: Whether it is a pull request event
+    value: ${{ steps.event.outputs.pr }}
+  event-push:
+    description: Whether it is a push event
+    value: ${{ steps.event.outputs.push }}
+  path-api:
+    description: Whether API has been modified
+    value: ${{ steps.paths.outputs.api }}
+  path-manager:
+    description: Whether Manager has been modified
+    value: ${{ steps.paths.outputs.manager }}
+  slug-pr:
+    description: Slugified branch name of the pull request event
+    value: ${{ steps.slugs.outputs.pr }}
+  slug-push:
+    description: Slugified branch name of the push event
+    value: ${{ steps.slugs.outputs.push }}
+
+runs:
+  using: composite
+  steps:
+    - name: Modified paths
+      uses: dorny/paths-filter@v3
+      id: paths
+      with:
+        filters: '{
+          "api": ["apps/api/**"],
+          "manager": ["apps/manager/**"]
+        }'
+
+    - name: Github event
+      id: event
+      shell: bash
+      run: |
+        if [[ "${{ github.event_name }}" == "push" ]]; then
+          echo "push=true" >> "$GITHUB_OUTPUT"
+          echo "pr=false" >> "$GITHUB_OUTPUT"
+        fi
+
+        if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+          echo "push=false" >> "$GITHUB_OUTPUT"
+          echo "pr=true" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Current branch
+      id: current-branch
+      shell: bash
+      run: |
+        if [[ "${{ steps.event.outputs.push }}" == "true" ]]; then
+          echo "value=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+        fi
+
+        if [[ "${{ steps.event.outputs.pr }}" == "true" ]]; then
+          echo "value=${{ github.head_ref }}" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Source branch
+      id: source-branch
+      if: steps.event.outputs.push == 'true'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const { owner, repo } = context.repo;
+          const { sha: commit_sha } = context;
+          const prs = await github.rest.repos.listPullRequestsAssociatedWithCommit({ owner, repo, commit_sha });
+          core.setOutput("value", prs.data[0]?.head.ref ?? "");
+
+    - name: Branch slugs
+      id: slugs
+      shell: bash
+      run: |
+        slugify() {
+          slug="$(echo "$1" | tr '[:upper:]' '[:lower:]')"
+          slug="$(echo "$slug" | sed -E 's/[^a-z0-9]+/-/g')"
+          slug="$(echo "$slug" | sed -E 's/^-*//')"
+          slug="$(echo "$slug" | sed -E 's/-*$//')"
+          echo $slug
+        }
+
+        if [[ "${{ steps.event.outputs.push }}" == "true" ]]; then
+          echo "pr=$(slugify "${{ steps.source-branch.outputs.value }}")" >> "$GITHUB_OUTPUT"
+          echo "push=$(slugify "${{ steps.current-branch.outputs.value }}")" >> "$GITHUB_OUTPUT"
+        fi
+
+        if [[ "${{ steps.event.outputs.pr }}" == "true" ]]; then
+          echo "pr=$(slugify "${{ steps.current-branch.outputs.value }}")" >> "$GITHUB_OUTPUT"
+          echo "push=" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: CI
+      shell: bash
+      id: ci
+      run: |
+        enabled="false"
+        filters=""
+        reasons=()
+
+        if [[ "${{ steps.paths.outputs.api }}" == "true" ]]; then
+          filters+=" --filter=@powercoach/api"
+        fi
+
+        if [[ "${{ steps.paths.outputs.manager }}" == "true" ]]; then
+          filters+=" --filter=@powercoach/manager"
+        fi
+
+        if [[ "${{ steps.event.outputs.push }}" == "true" ]] &&
+           [[ -n "${{ steps.source-branch.outputs.value }}" ]] &&
+           [[ -n "$filters" ]]; then
+          enabled="true"
+        fi
+
+        if [[ "${{ steps.event.outputs.pr }}" == "true" ]] &&
+           [[ "${{ github.event.pull_request.head.repo.full_name }}" == "${{ github.repository }}" ]]
+           [[ -n "$filters" ]]; then
+          enabled="true"
+        fi
+
+        echo "enabled=$enabled" >> "$GITHUB_OUTPUT"
+        echo "filters=$filters" >> "$GITHUB_OUTPUT"
+        echo "reasons=" >> "$GITHUB_OUTPUT"
+
+        if [[ "$enabled" == "true" ]]; then
+          exit 0
+        fi
+
+        if [[ -z "$filters" ]]; then
+          reasons+=("no filters")
+        fi
+        
+        if [[ "${{ steps.event.outputs.push }}" == "true" ]] &&
+           [[ -z "${{ steps.source-branch.outputs.value }}" ]]; then
+          reasons+=("missing source branch")
+        fi
+
+        if [[ "${{ steps.event.outputs.pr }}" == "true" ]] &&
+           [[ "${{ github.event.pull_request.head.repo.full_name }}" != "${{ github.repository }}" ]]; then
+          reasons+=("fork detected")
+        fi
+
+        echo "reasons=$(IFS=','; echo "${reasons[*]}")" >> "$GITHUB_OUTPUT"
+
+    - name: CD
+      id: cd
+      shell: bash
+      run: echo "enabled=${{ steps.ci.outputs.enabled }}" >> "$GITHUB_OUTPUT"
+
+    - uses: ./.github/actions/powercoach/summary
+      with:
+        title: Context outputs
+        data: |
+          {
+            "CI enabled": "${{ steps.ci.outputs.enabled }}",
+            "CI filters": "${{ steps.ci.outputs.filters }}",
+            "CD enabled": "${{ steps.cd.outputs.enabled }}",
+            "Event PR": "${{ steps.event.outputs.pr }}",
+            "Event push": "${{ steps.event.outputs.push }}",
+            "Path API": "${{ steps.paths.outputs.api }}",
+            "Path Manager": "${{ steps.paths.outputs.manager }}",
+            "Slug PR": "${{ steps.slugs.outputs.pr }}",
+            "Slug push": "${{ steps.slugs.outputs.push }}"
+          }

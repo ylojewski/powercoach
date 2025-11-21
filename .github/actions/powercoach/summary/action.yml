@@ -1,0 +1,57 @@
+name: "Powercoach Summary"
+description: "Generate a Markdown summary table in GITHUB_STEP_SUMMARY from a JSON key/value mapping."
+
+inputs:
+  title:
+    description: "Title of the summary section"
+    required: false
+    default: "Context outputs"
+
+  level:
+    description: "Markdown heading level (1–6)"
+    required: false
+    default: "2"
+
+  data:
+    description: "JSON object of key/value pairs to include in the summary."
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Write summary table
+      shell: bash
+      run: |
+        title='${{ inputs.title }}'
+        level='${{ inputs.level }}'
+        json='${{ inputs.data }}'
+
+        # Sécurise level (1–6)
+        if ! [[ "$level" =~ ^[0-9]+$ ]]; then level=2; fi
+        if (( level < 1 )); then level=1; fi
+        if (( level > 6 )); then level=6; fi
+
+        # Préfixe Markdown : répète "#" level fois
+        heading=$(printf "%${level}s" | tr ' ' '#')
+
+        {
+          echo "${heading} ${title}"
+          echo ""
+          echo "| Name | Value |"
+          echo "| --- | --- |"
+
+          # Itère sur chaque paire clé/valeur
+          jq -r 'to_entries[] | "\(.key)|\(.value)"' <<< "$json" \
+          | while IFS="|" read -r key value; do
+              # "true"/"false" → emoji
+              if [[ "$value" == "true" ]]; then
+                value="✅"
+              elif [[ "$value" == "false" ]]; then
+                value="❌"
+              fi
+
+              echo "| $key | ${value:-❌} |"
+            done
+
+          echo ""
+        } >> "$GITHUB_STEP_SUMMARY"
