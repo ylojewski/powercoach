@@ -1,0 +1,46 @@
+name: Artifact Registry tag
+description: Compute the full Artifact Registry tag URL
+
+inputs:
+  artifacts-repository:
+    description: Artifact repository
+    required: true
+  hash:
+    description: Unique hash identifier
+    required: true
+  project-id:
+    description: Project ID
+    required: true
+  region:
+    description: Region name
+    required: true
+  service:
+    description: Service name
+    required: true
+
+outputs:
+  value:
+    description: The computed Artifact Registry tag
+    value: ${{ steps.tag.outputs.value }}
+
+runs:
+  using: composite
+  steps:
+    - name: Artifact Registry host
+      uses: ./.github/actions/google/artifacts-registry/host
+      id: host
+      with:
+        region: ${{ inputs.region }}
+
+    - name: Artifact Registry tag
+      id: tag
+      shell: bash
+      run: |
+        parts=(
+          "${{ steps.host.outputs.value }}"
+          "${{ inputs.project-id }}"
+          "${{ inputs.artifacts-repository }}"
+          "${{ inputs.service }}:${{ inputs.hash }}"
+        )
+        name=$(IFS=/; echo "${parts[*]}")
+        echo "tag=$tag" >> "$GITHUB_OUTPUT"
