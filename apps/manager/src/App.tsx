@@ -17,7 +17,7 @@ export function App(): ReactElement {
     <main style={{ display: 'flex' }}>
       <img alt="logo" src={logo} width={80} />
       <h1>
-        Powercoach Manager
+        Powerpouet Manager
         <br />
         {health}
       </h1>
