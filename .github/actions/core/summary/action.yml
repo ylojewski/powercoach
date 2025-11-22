@@ -1,0 +1,43 @@
+name: Powercoach Summary
+description: Generate a Markdown summary table in GITHUB_STEP_SUMMARY from a JSON key/value mapping
+
+inputs:
+  data:
+    description: JSON object of key/value pairs to include in the summary
+    required: true
+  layout:
+    description: Defines the way the summary is displayed. Values are "table" or "list"
+    required: false
+    default: 'table'
+  level:
+    description: Markdown heading level (1–6)
+    required: false
+    default: '2'
+  title:
+    description: Title of the summary section
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: |
+        {
+          echo "$(printf %${{ inputs.level }}s | tr ' ' '#') ${{ inputs.title }}"
+          echo ""
+
+          if [[ "${{ inputs.layout }}" == "table" ]]; then
+            echo "| Name | Value |"
+            echo "| --- | --- |"
+          fi
+
+          jq -r 'to_entries[] | "\(.key)|\(.value)"' <<< '${{ inputs.data }}' \
+          | while IFS="|" read -r key value; do
+              if [[ "$value" == "true" ]]; then value="✅"; fi
+              if [[ "$value" == "false" ]]; then value="❌"; fi
+              if [[ "${{ inputs.layout }}" == "table" ]]; then echo "| $key | ${value:-❌} |"; fi
+              if [[ "${{ inputs.layout }}" == "list" ]]; then echo "- $key ⇒ ${value:-❌}"; fi
+            done
+
+          echo ""
+        } >> "$GITHUB_STEP_SUMMARY"

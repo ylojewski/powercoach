@@ -1,25 +1,19 @@
-name: Deploy to Vercel (core)
-description: Core deployment logic for Vercel (build files, create deployment, wait until READY)
+name: Deploy to Vercel
+description: Deployment logic for Vercel (build files, create deployment, wait until READY)
 
 inputs:
-  branch-slug:
-    description: Slugified branch name of the pull request
+  issue-number:
+    description: Issue number of the pull request event
     required: false
-  dist:
-    description: Build directory to deploy
+  manager-hash:
+    description: Hash of the Manager source directory
     required: true
-  hash:
-    description: Hash metadata
+  out-dir:
+    description: Output directory to deploy
     required: true
-  project:
-    description: Vercel project name
-    required: true
-  target:
-    description: Vercel deployment target (empty or production)
+  production:
+    description: Whether to push with the --prod flag
     required: false
-  token:
-    description: Vercel access token
-    required: true
 
 outputs:
   id:
@@ -33,46 +27,39 @@ runs:
       id: deploy
       shell: bash
       run: |
-        branch_slug=${{ inputs.branch-slug }}
-        dist=${{ inputs.dist }}
-        hash=${{ inputs.hash }}
-        project=${{ inputs.project }}
-        target=${{ inputs.target }}
-        token=${{ inputs.token }}
-
         echo "📦 Creating deployment with"
-        [[ -n "$branch_slug" ]] && echo "  -- Branch slug ⇒ $branch_slug"
-        echo "  -- Hash ⇒ $hash"
-        echo "  -- Project ⇒ $project"
-        [[ -n "$target" ]] && echo "  -- Target ⇒ $target"
+        echo "  -- Manager hash ⇒ ${{ inputs.manager-hash }}"
+        [[ -n "${{ inputs.issue-number }}" ]] && echo "  -- Issue number ⇒ ${{ inputs.issue-number }}"
 
         files=$(
-          find "$dist" -type f -print0 | while IFS= read -r -d '' file; do
-            jq -n \
-              --arg file "${file#"$dist"/}" \
-              --rawfile data "$file" \
-              '{ file: $file, data: $data }'
-          done | jq -s '.'
+          find "${{ inputs.out-dir }}" -type f -print0 \
+          | while IFS= read -r -d '' file; do
+              jq -n \
+                --arg file "${file#"${{ inputs.out-dir }}"/}" \
+                --rawfile data "$file" \
+                '{ file: $file, data: $data }'
+            done \
+          | jq -s '.'
         )
 
         payload=$(
           printf '%s' "$files" \
           | jq \
-            --arg branchSlug "$branch_slug" \
-            --arg hash "$hash" \
-            --arg project "$project" \
-            --arg target "$target" \
+            --arg issue "${{ inputs.issue-number }}" \
+            --arg hash "${{ inputs.manager-hash }}" \
+            --arg production "${{ inputs.production }}" \
+            --arg project "$VCL_PROJECT" \
             '. as $files
-             | {
+              | {
                  files: $files,
-                 meta: (if $target == "production"
-                        then { hash: $hash }
-                        else { branchSlug: $branchSlug, hash: $hash }
+                 meta: (if $issue != ""
+                        then { powercoachManagerHash: $hash, powercoachIssueNumber: $issue }
+                        else { powercoachManagerHash: $hash }
                         end),
                  name: $project,
                  project: $project
                }
-             | if $target then . + { target: $target } else . end
+              | if $production == "true" then . + { target: "production" } else . end
             '
         )
 
@@ -82,7 +69,7 @@ runs:
             --silent \
             --fail \
             --request POST \
-            --header "Authorization: Bearer $token" \
+            --header "Authorization: Bearer $VCL_TOKEN" \
             --header 'Content-Type: application/json' \
             --url "https://api.vercel.com/v13/deployments" \
             --data @- \
@@ -107,7 +94,7 @@ runs:
               curl \
                 --silent \
                 --fail \
-                --header "Authorization: Bearer $token" \
+                --header "Authorization: Bearer $VCL_TOKEN" \
                 --url "https://api.vercel.com/v13/deployments/$id" \
               | jq -r '.state // .readyState'
             )

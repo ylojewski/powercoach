@@ -1,59 +1,46 @@
-name: Assign Vercel alias
-description: Assign a custom alias domain to a Vercel deployment given its ID
+name: Assign Vercel host
+description: Assign a custom host to a Vercel deployment given its ID
 
 inputs:
   check:
-    description: Checks if the alias is already assigned
+    description: Checks if the host is already assigned
     required: false
     default: 'false'
   host:
-    description: Full alias hostname
+    description: Host to assign
     required: true
   id:
     description: Vercel deployment ID
     required: true
-  token:
-    description: Vercel access token
-    required: true
 
 outputs:
-  host:
-    description: Assigned alias host
-    value: ${{ steps.assign.outputs.host }}
   skipped:
     description: Whether assignment was skipped
     value: ${{ steps.check.outputs.assigned || 'false' }}
-  url:
-    description: Assigned alias URL
-    value: ${{ steps.assign.outputs.url }}
 
 runs:
   using: composite
   steps:
-    - name: Check alias assignment
+    - name: Check assignment
       id: check
       if: inputs.check == 'true'
       shell: bash
       run: |
-        host="${{ inputs.host }}"
-        id="${{ inputs.id }}"
-        token="${{ inputs.token }}"
-
         echo "🌐 Checking alias assignment for:"
-        echo "  -- ID ⇒ $id"
-        echo "  -- Alias ⇒ $host"
+        echo "  -- ID ⇒ ${{ inputs.id }}"
+        echo "  -- Alias ⇒ ${{ inputs.host }}"
 
         aliases=$(
           curl \
             --silent \
             --fail \
             --request GET \
-            --header "Authorization: Bearer $token" \
-            --url "https://api.vercel.com/v2/deployments/$id/aliases" \
+            --header "Authorization: Bearer $VCL_TOKEN" \
+            --url "https://api.vercel.com/v2/deployments/${{ inputs.id }}/aliases" \
           | jq -r '.aliases[].alias // empty'
         )
 
-        if echo "$aliases" | grep -Fq "$host"; then
+        if echo "$aliases" | grep -Fq "${{ inputs.host }}"; then
           echo "🌐 Checked alias assigment ⇒ set"
           echo "assigned=true" >> "$GITHUB_OUTPUT"
         else
@@ -66,23 +53,19 @@ runs:
       if: inputs.check != 'true' || steps.check.outputs.assigned == 'false'
       shell: bash
       run: |
-        host="${{ inputs.host }}"
-        id="${{ inputs.id }}"
-        token="${{ inputs.token }}"
-
         echo "🌐 Assigning alias for deployment:"
-        echo "  -- ID ⇒ $id"
-        echo "  -- Alias ⇒ $host"
+        echo "  -- ID ⇒ ${{ inputs.id }}"
+        echo "  -- Alias ⇒ ${{ inputs.host }}"
 
         response=$(
           curl \
             --silent \
             --fail \
             --request POST \
-            --header "Authorization: Bearer $token" \
+            --header "Authorization: Bearer $VCL_TOKEN" \
             --header 'Content-Type: application/json' \
-            --url "https://api.vercel.com/v2/deployments/$id/aliases" \
-            --data "$(jq -n --arg alias "$host" '{ alias: $alias }')" \
+            --url "https://api.vercel.com/v2/deployments/${{ inputs.id }}/aliases" \
+            --data "$(jq -n --arg alias "${{ inputs.host }}" '{ alias: $alias }')" \
           | jq -r '.alias // empty'
         )
 
@@ -91,7 +74,4 @@ runs:
           exit 1
         fi
 
-        echo "🌐 Alias assigned ⇒ $host"
-
-        echo "host=$host" >> "$GITHUB_OUTPUT"
-        echo "url=https://$host/" >> "$GITHUB_OUTPUT"
+        echo "🌐 Alias assigned ⇒ ${{ inputs.host }}"

@@ -1,0 +1,56 @@
+name: Prune Manager
+description: Prune Vercel preview deployments for the given issue number
+
+inputs:
+  issue-number:
+    description: Issue number of the pull request event
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - uses: ./.github/actions/core/summary
+      with:
+        title: Prune Manager inputs
+        data: '{ "Issue number": "${{ inputs.issue-number }}" }'
+
+    - name: Find deployed hosts
+      id: find-hosts
+      uses: ./.github/actions/vercel/host/find
+      with:
+        issue-number: ${{ inputs.issue-number }}
+        target: 'preview'
+
+    - name: Delete deployed hosts
+      if: steps.find-hosts.outputs.found == 'true'
+      shell: bash
+      run: |
+        echo "🧹 Deleting existing preview deployments..."
+
+        printf '%s\n' "${{ steps.find-hosts.outputs.hosts }}" | while IFS= read -r host; do
+          if curl \
+            --silent \
+            --fail \
+            --request DELETE \
+            --header "Authorization: Bearer $VCL_TOKEN" \
+            --url "https://api.vercel.com/v13/deployments/ignored?url=$host" \
+            >/dev/null
+          then
+            echo "  -- ✅ Deleted ⇒ $host"
+          else
+            echo "  -- ❌ Failed to delete deployment ⇒ $host"
+            exit 1
+          fi
+        done
+
+    - uses: ./.github/actions/core/summary
+      with:
+        title: Prune Manager tasks
+        layout: 'list'
+        level: '4'
+        data: |
+          {
+            "find-hosts.found": "${{ steps.find-hosts.outputs.found }}",
+            "find-hosts.hosts": "${{ steps.find-hosts.outputs.hosts }}",
+            "find-hosts.ids": "${{ steps.find-hosts.outputs.ids }}"
+          }
