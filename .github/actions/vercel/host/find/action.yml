@@ -1,19 +1,15 @@
 name: Find Vercel hosts
-description: Retrieves deployment URLs from Vercel via the v6 API
+description: Retrieves deployment hosts & IDs from Vercel API
 
 inputs:
-  branch-slug:
-    description: Slugified branch name of the pull request
+  issue-number:
+    description: Issue number of the pull request event (used as metadata)
     required: false
-  hash:
-    description: Commit hash to use as meta-hash (must produce exactly 1 host)
-    required: false
+  manager-hash:
+    description: Hash of the Manager source directory (used as metadata)
+    required: true
   target:
     description: Vercel target environment (preview|production)
-    required: false
-    default: preview
-  token:
-    description: Vercel access token
     required: true
 
 outputs:
@@ -21,7 +17,7 @@ outputs:
     description: true if at least one host was found
     value: ${{ steps.find.outputs.found }}
   hosts:
-    description: All hosts found (one per line, without https://)
+    description: All hosts found (one per line)
     value: ${{ steps.find.outputs.hosts }}
   ids:
     description: All deployment IDs found (one per line, aligned with hosts)
@@ -34,37 +30,30 @@ runs:
       id: find
       shell: bash
       run: |
-        token="${{ inputs.token }}"
-        target="${{ inputs.target }}"
-        hash="${{ inputs.hash }}"
-        branch_slug="${{ inputs.branch-slug }}"
-
-        if [[ -z "$branch_slug" && -z "$hash" ]]; then
-          echo "❌ Error: either 'branch-slug' or 'hash' must be provided." >&2
+        if [[ -z "${{ inputs.issue-number }}" && -z "${{ inputs.manager-hash }}" ]]; then
+          echo "❌ Error: either 'issue-number' or 'manager-hash' must be provided." >&2
           exit 1
         fi
 
-        [[ "$target" =~ ^(preview|production)$ ]] || {
-          echo "❌ Error: invalid 'target'=$target (allowed: preview|production)" >&2
-          exit 1
+        [[ "${{ inputs.target }}" =~ ^(preview|production)$ ]] || {
+          echo "❌ Error: invalid target=${{ inputs.target }} (allowed: preview|production)" >&2
+          exit 2
         }
 
-        query="target=$target"
-        [[ -n "$branch_slug" ]] && query+="&meta-branchSlug=$branch_slug"
-        [[ -n "$hash" ]] && query+="&meta-hash=$hash"
+        query="target=${{ inputs.target }}"
+        [[ -n "${{ inputs.manager-hash }}" ]] && query+="&meta-powercoachIssueNumber=${{ inputs.manager-hash }}"
+        [[ -n "${{ inputs.issue-number }}" ]] && query+="&meta-powercoachManagerHash=${{ inputs.issue-number }}"
 
         url="https://api.vercel.com/v6/deployments?$query"
 
         echo "🔍 Querying Vercel with:"
-        echo "  --target ⇒ $target"
-        echo "  --branch slug ⇒ ${branch_slug:-"(not specified)"}"
-        echo "  --hash ⇒ ${hash:-"(not specified)"}"
+        echo "  --url ⇒ $url"
 
         response=$(
           curl \
             --silent \
             --fail \
-            --header "Authorization: Bearer $token" \
+            --header "Authorization: Bearer $VCL_TOKEN" \
             --url "$url"
         )
 
@@ -82,17 +71,17 @@ runs:
         hosts="$(printf '%s\n' "$urls" | sed 's|^https://||')"
         host_count=$(printf '%s\n' "$hosts" | sed '/^$/d' | wc -l | tr -d ' ')
 
-        echo "ℹ️ hosts found: $host_count"
+        echo "ℹ️ Hosts found: $host_count"
 
-        if [[ -n "$hash" ]]; then
+        if [[ -n "${{ inputs.manager-hash }}" ]]; then
           if [[ "$host_count" -eq 0 ]]; then
-            echo "❌ Error: no host found for hash '$hash'." >&2
-            exit 1
+            echo "❌ Error: no hosts found with manager-hash=${{ inputs.manager-hash }}." >&2
+            exit 3
           fi
           if [[ "$host_count" -gt 1 ]]; then
-            echo "❌ Error: multiple hosts found for hash '$hash' (expected exactly 1):" >&2
+            echo "❌ Error: multiple hosts found with manager-hash=${{ inputs.manager-hash }} (expected exactly 1):" >&2
             printf '%s\n' "$hosts" >&2
-            exit 1
+            exit 4
           fi
         fi
 

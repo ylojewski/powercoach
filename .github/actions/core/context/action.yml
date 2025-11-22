@@ -1,0 +1,187 @@
+name: Powercoach context
+description: Describes the context of the main Powercoach workflow
+
+outputs:
+  api-hash:
+    description: Hash of the API source directory
+    value: ${{ steps.hashes.outputs.api }}
+  api-path:
+    description: Whether API has been modified
+    value: ${{ steps.paths.outputs.api }}
+  ci-action:
+    description: Whether CI should be ran
+    value: ${{ steps.ci.outputs.action }}
+  cd-action:
+    description: Whether CD should be ran
+    value: ${{ steps.cd.outputs.action }}
+  issue-number:
+    description: Issue number of the pull request event
+    value: ${{ steps.issue.outputs.number }}
+  issue-slug:
+    description: Slugified issue title of the pull request event
+    value: ${{ steps.issue.outputs.slug }}
+  manager-hash:
+    description: Hash of the Manager source directory
+    value: ${{ steps.hashes.outputs.manager }}
+  manager-path:
+    description: Whether Manager has been modified
+    value: ${{ steps.paths.outputs.manager }}
+  pull-event:
+    description: Whether it is a pull request event
+    value: ${{ steps.event.outputs.pr }}
+  push-event:
+    description: Whether it is a push event
+    value: ${{ steps.event.outputs.push }}
+  turbo-filter:
+    description: Turbo filter command line flag
+    value: ${{ steps.turbo.outputs.filter }}
+
+runs:
+  using: composite
+  steps:
+    - name: Modified paths
+      uses: dorny/paths-filter@v3
+      id: paths
+      with:
+        filters: |
+          {
+            "api": ["apps/api/**"],
+            "manager": ["apps/manager/**"]
+          }
+
+    - name: Github event
+      id: event
+      shell: bash
+      run: |
+        if [[ "${{ github.event_name }}" == "push" ]]; then
+          echo "push=true" >> "$GITHUB_OUTPUT"
+          echo "pr=false" >> "$GITHUB_OUTPUT"
+        fi
+
+        if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+          echo "push=false" >> "$GITHUB_OUTPUT"
+          echo "pr=true" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Github issue
+      id: issue
+      if: steps.event.outputs.pr == 'true'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const { owner, repo } = context.repo
+          const { number: pull_number } = context.payload.pull_request
+          const { data: commits } = await github.rest.pulls.listCommits({ owner, repo, pull_number })
+          const issue_numbers = new Set();
+
+          commits.forEach(({ commit: { message } }) => {
+            message.match(/^Closes #(\d+)$/gm)?.forEach((close) => issue_numbers.add(close.match(/\d+/)[0]))
+          })
+
+          if (issue_numbers.size === 0) {
+            core.setFailed("❌ No issue numbers found");
+            return;
+          }
+
+          if (issue_numbers.size > 1) {
+            core.setFailed("❌ Multiple issue numbers found");
+            return;
+          }
+
+          const [issue_number] = [...issue_numbers];
+
+          try {
+            const { data: { title } } = await github.rest.issues.get({ owner, repo, issue_number });
+            core.setOutput("number", issue_number);
+            core.setOutput("slug",
+              title
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '')
+            );
+          } catch (error) {
+            core.setFailed(`❌ No issues found ⇒ #${issue_number}`);
+            return;
+          }
+
+    - name: Turbo
+      shell: bash
+      id: turbo
+      run: |
+        filter=""
+
+        if [[ "${{ steps.paths.outputs.api }}" == "true" ]]; then
+          filter+=" --filter=@powercoach/api"
+        fi
+
+        if [[ "${{ steps.paths.outputs.manager }}" == "true" ]]; then
+          filter+=" --filter=@powercoach/manager"
+        fi
+
+        echo "filter=$filter" >> "$GITHUB_OUTPUT"
+
+    - name: CI
+      shell: bash
+      id: ci
+      run: |
+        action="false"
+
+        if [[ "${{ steps.event.outputs.push }}" == "true" ]] &&
+           [[ -n "${{ steps.source-branch.outputs.value }}" ]] &&
+           [[ -n "${{ steps.turbo.outputs.filter }}" ]]; then
+          action="true"
+        fi
+
+        if [[ "${{ steps.event.outputs.pr }}" == "true" ]] &&
+           [[ "${{ github.event.pull_request.head.repo.full_name }}" == "${{ github.repository }}" ]]
+           [[ -n "${{ steps.turbo.outputs.filter }}" ]]; then
+          action="true"
+        fi
+
+        echo "action=$action" >> "$GITHUB_OUTPUT"
+
+    - name: CD
+      id: cd
+      shell: bash
+      run: echo "action=${{ steps.ci.outputs.action }}" >> "$GITHUB_OUTPUT"
+
+    - name: Source hashes
+      id: hashes
+      shell: bash
+      run: |
+        hash() {
+          git ls-files -z "$1" \
+            | sort -z \
+            | xargs -0 sha256sum \
+            | sha256sum \
+            | cut -d' ' -f1 \
+            | cut -c1-12
+        }
+
+        if [[ "${{ steps.paths.outputs.api }}" == "true" ]]; then
+          echo "api=$(hash apps/api)" >> "$GITHUB_OUTPUT"
+        fi
+
+        if [[ "${{ steps.paths.outputs.manager }}" == "true" ]]; then
+          echo "manager=$(hash apps/manager)" >> "$GITHUB_OUTPUT"
+        fi
+
+    - uses: ./.github/actions/core/summary
+      with:
+        title: Context outputs
+        data: |
+          {
+            "API hash": "${{ steps.hashes.outputs.api }}",
+            "API path": "${{ steps.paths.outputs.api }}",
+            "CI action": "${{ steps.ci.outputs.action }}",
+            "CD action": "${{ steps.cd.outputs.action }}",
+            "Issue number": "${{ steps.issue.outputs.number }}",
+            "Issue slug": "${{ steps.issue.outputs.slug }}",
+            "Manager hash": "${{ steps.hashes.outputs.manager }}",
+            "Manager path": "${{ steps.paths.outputs.manager }}",
+            "Pull event": "${{ steps.event.outputs.pr }}",
+            "Push event": "${{ steps.event.outputs.push }}",
+            "Turbo filter": "${{ steps.turbo.outputs.filter }}"
+          }

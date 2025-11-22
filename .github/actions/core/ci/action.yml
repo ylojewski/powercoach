@@ -1,0 +1,42 @@
+name: CI
+description: Powercoach continuous integration. Lint, Format, Typecheck and Test apps
+
+inputs:
+  turbo-filter:
+    description: CI filters passed to pnpm turbo run commands
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - uses: ./.github/actions/core/summary
+      with:
+        title: CI inputs
+        data: '{ "Turbo filter": "${{ inputs.turbo-filter }}" }'
+
+    - name: Lint
+      shell: bash
+      run: pnpm lint ${{ inputs.turbo-filter }}
+
+    - name: Format
+      shell: bash
+      run: pnpm format ${{ inputs.turbo-filter }}
+
+    - name: Typecheck
+      shell: bash
+      run: pnpm typecheck ${{ inputs.turbo-filter }}
+
+    - name: Test
+      shell: bash
+      run: pnpm test ${{ inputs.turbo-filter }}
+
+    - uses: ./.github/actions/core/summary
+      with:
+        title: CI tasks
+        data: |
+          {
+            "Lint": "true",
+            "Format": "true",
+            "Typecheck": "true",
+            "Test": "true"
+          }
