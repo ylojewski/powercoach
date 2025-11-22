@@ -1,0 +1,35 @@
+on:
+  push:
+    branches:
+      - ci/revamp
+  pull_request:
+    branches:
+      - ci/revamp
+    paths:
+      - 'apps/api/**'
+      - 'apps/manager/**'
+
+permissions:
+  actions: read
+  contents: read
+
+env:
+  TURBO_TELEMETRY_DISABLED: 1
+  VERCEL_TELEMETRY_DISABLED: 1
+
+jobs:
+  powercoach:
+    name: Powercoach CI & CD
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/core/install
+
+      - uses: ./.github/actions/core/context
+        id: context
+
+      - uses: ./.github/actions/core/ci
+        if: steps.context.outputs.ci-enabled == 'true'
+        with:
+          turbo-filter: ${{ steps.context.outputs.turbo-filter }}
