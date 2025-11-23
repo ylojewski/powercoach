@@ -4,6 +4,21 @@ description: Install all the tools to execute Powercoach app tasks
 runs:
   using: composite
   steps:
+    - name: Setup bash helpers
+      shell: bash
+      run: |
+        BASH_ENV="$RUNNER_TEMP/bash_helpers.sh"
+
+        echo "BASH_ENV=$BASH_ENV" >> "$GITHUB_ENV"
+
+        {
+          echo '-t() { [[ "$1" == "true" ]]; }'
+          echo '-f() { [[ "$1" == "false" ]]; }'
+          echo '-n() { [[ -n "$1" ]]; }'
+          echo '-z() { [[ -z "$1" ]]; }'
+          echo '-e() { [[ "$1" == "$2" ]]; }'
+        } >> "$BASH_ENV"
+
     - name: Setup pnpm
       uses: pnpm/action-setup@v4
       with:

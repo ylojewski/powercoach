@@ -30,11 +30,6 @@ runs:
       id: find
       shell: bash
       run: |
-        if [[ -z "${{ inputs.issue-number }}" && -z "${{ inputs.manager-hash }}" ]]; then
-          echo "❌ Error: either 'issue-number' or 'manager-hash' must be provided." >&2
-          exit 1
-        fi
-
         if ! [[ "${{ inputs.target }}" =~ ^(preview|production)$ ]]; then
           echo "❌ Error: invalid target=${{ inputs.target }} (allowed: preview|production)"
           exit 2

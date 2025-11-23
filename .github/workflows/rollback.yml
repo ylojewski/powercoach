@@ -1,0 +1,37 @@
+name: Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      api:
+        description: Rollback API
+        type: boolean
+        default: false
+      manager:
+        description: Rollback Manager
+        type: boolean
+        default: false
+
+permissions:
+  actions: read
+  contents: read
+
+env:
+  TURBO_TELEMETRY_DISABLED: 1
+  VERCEL_TELEMETRY_DISABLED: 1
+
+jobs:
+  rollback:
+    name: Rollback
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/core/install
+
+      - name: Rollback Manager
+        if: inputs.manager
+        uses: ./.github/actions/core/rollback/manager
+        env:
+          VCL_PROJECT: ${{ vars.VCL_PROJECT }}
+          VCL_TEAM: ${{ vars.VCL_TEAM }}
+          VCL_TOKEN: ${{ secrets.VCL_TOKEN }}

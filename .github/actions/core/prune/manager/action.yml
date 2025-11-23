@@ -51,6 +51,6 @@ runs:
         data: |
           {
             "find-hosts.found": "${{ steps.find-hosts.outputs.found }}",
-            "find-hosts.hosts": "${{ toJSON(steps.find-hosts.outputs.hosts) }}",
-            "find-hosts.ids": "${{ toJSON(steps.find-hosts.outputs.ids) }}"
+            "find-hosts.hosts": ${{ toJSON(steps.find-hosts.outputs.hosts) }},
+            "find-hosts.ids": ${{ toJSON(steps.find-hosts.outputs.ids) }}
           }

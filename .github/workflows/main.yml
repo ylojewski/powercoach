@@ -1,19 +1,18 @@
-name: Powercoach
+name: Main
 
 on:
   push:
     branches:
-      - ci/revamp
+      - main
   pull_request:
     branches:
-      - ci/revamp
+      - main
     paths:
       - 'apps/api/**'
       - 'apps/manager/**'
     types:
       - opened
       - edited
-      - closed
       - reopened
       - synchronize
 
@@ -29,7 +28,6 @@ jobs:
   ci-cd:
     name: CI & CD
     runs-on: ubuntu-latest
-    if: github.event.action != 'closed'
     steps:
       - uses: actions/checkout@v6
       - uses: ./.github/actions/core/install
@@ -54,19 +52,3 @@ jobs:
           manager-hash: ${{ steps.context.outputs.manager-hash }}
           pull-event: ${{ steps.context.outputs.pull-event }}
           push-event: ${{ steps.context.outputs.push-event }}
-
-  prune:
-    name: Prune
-    runs-on: ubuntu-latest
-    if: github.event.action == 'closed'
-    steps:
-      - uses: actions/checkout@v6
-      - uses: ./.github/actions/core/install
-      - uses: ./.github/actions/core/context
-        id: context
-
-      - uses: ./.github/actions/core/prune/manager
-        env:
-          VCL_TOKEN: ${{ secrets.VCL_TOKEN }}
-        with:
-          issue-number: ${{ steps.context.outputs.issue-number }}

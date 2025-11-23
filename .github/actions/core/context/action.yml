@@ -112,11 +112,11 @@ runs:
       run: |
         filter=""
 
-        if [[ "${{ steps.paths.outputs.api }}" == "true" ]]; then
+        if -t "${{ steps.paths.outputs.api }}"; then
           filter+=" --filter=@powercoach/api"
         fi
 
-        if [[ "${{ steps.paths.outputs.manager }}" == "true" ]]; then
+        if -t "${{ steps.paths.outputs.manager }}"; then
           filter+=" --filter=@powercoach/manager"
         fi
 
@@ -128,15 +128,14 @@ runs:
       run: |
         action="false"
 
-        if [[ "${{ steps.event.outputs.push }}" == "true" ]] &&
-           [[ -n "${{ steps.source-branch.outputs.value }}" ]] &&
-           [[ -n "${{ steps.turbo.outputs.filter }}" ]]; then
+        if -t "${{ steps.event.outputs.push }}" &&
+           -n "${{ steps.turbo.outputs.filter }}"; then
           action="true"
         fi
 
-        if [[ "${{ steps.event.outputs.pr }}" == "true" ]] &&
-           [[ "${{ github.event.pull_request.head.repo.full_name }}" == "${{ github.repository }}" ]]
-           [[ -n "${{ steps.turbo.outputs.filter }}" ]]; then
+        if -t "${{ steps.event.outputs.pr }}" &&
+           -e "${{ github.event.pull_request.head.repo.full_name }}" "${{ github.repository }}" &&
+           -n "${{ steps.turbo.outputs.filter }}"; then
           action="true"
         fi
 
@@ -160,11 +159,11 @@ runs:
             | cut -c1-12
         }
 
-        if [[ "${{ steps.paths.outputs.api }}" == "true" ]]; then
+        if -t "${{ steps.paths.outputs.api }}"; then
           echo "api=$(hash apps/api)" >> "$GITHUB_OUTPUT"
         fi
 
-        if [[ "${{ steps.paths.outputs.manager }}" == "true" ]]; then
+        if -t "${{ steps.paths.outputs.manager }}"; then
           echo "manager=$(hash apps/manager)" >> "$GITHUB_OUTPUT"
         fi
 
