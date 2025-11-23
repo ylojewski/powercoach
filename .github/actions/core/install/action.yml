@@ -1,27 +1,26 @@
-name: Install project
-
-inputs:
-  node-version:
-    description: Node.js version to use
-    required: true
+name: Install
+description: Install all the tools to execute Powercoach app tasks
 
 runs:
   using: composite
   steps:
-    - name: Inputs
+    - name: Setup bash helpers
       shell: bash
       run: |
+        BASH_ENV="$RUNNER_TEMP/bash_helpers.sh"
+
+        echo "BASH_ENV=$BASH_ENV" >> "$GITHUB_ENV"
+
         {
-          echo "#### Install action inputs"
-          echo ""
-          echo "| Key | Value |"
-          echo "| --- | --- |"
-          echo "| Node version | ${{ inputs.node-version || '❌' }} |"
-          echo ""
-        } >> "$GITHUB_STEP_SUMMARY"
+          echo '-t() { [[ "$1" == "true" ]]; }'
+          echo '-f() { [[ "$1" == "false" ]]; }'
+          echo '-n() { [[ -n "$1" ]]; }'
+          echo '-z() { [[ -z "$1" ]]; }'
+          echo '-e() { [[ "$1" == "$2" ]]; }'
+        } >> "$BASH_ENV"
 
     - name: Setup pnpm
-      uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061
+      uses: pnpm/action-setup@v4
       with:
         run_install: false
 
@@ -31,28 +30,26 @@ runs:
       run: echo "dir=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
 
     - name: Cache pnpm store
-      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
+      uses: actions/cache@v4
       with:
         path: ${{ steps.pnpm-store.outputs.dir }}
-        key: pnpm-store-${{ runner.os }}-node-${{ inputs.node-version }}-${{ hashFiles('pnpm-lock.yaml') }}
+        key: pnpm-store-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
         restore-keys: |
-          pnpm-store-${{ runner.os }}-node-${{ inputs.node-version }}-
           pnpm-store-${{ runner.os }}-
 
     - name: Use Node.js
-      uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903
+      uses: actions/setup-node@v6
       with:
-        node-version: ${{ inputs.node-version }}
+        node-version-file: package.json
 
     - name: Cache Turbo
-      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
+      uses: actions/cache@v4
       with:
         path: |
           node_modules/.cache/turbo
           .turbo
-        key: turbo-${{ runner.os }}-node-${{ inputs.node-version }}-${{ hashFiles('pnpm-lock.yaml', 'turbo.json') }}
+        key: turbo-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'turbo.json') }}
         restore-keys: |
-          turbo-${{ runner.os }}-node-${{ inputs.node-version }}-
           turbo-${{ runner.os }}-
 
     - name: Install dependencies

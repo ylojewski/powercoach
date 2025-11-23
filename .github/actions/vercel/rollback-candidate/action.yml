@@ -1,0 +1,44 @@
+name: Find Vercel rollback candidate
+description: Retrieves rollback candidate deployment ID from Vercel API
+
+outputs:
+  found:
+    description: true if the rollback candidate deployment ID was found
+    value: ${{ steps.find.outputs.found }}
+  id:
+    description: The found rollback candidate deployment ID
+    value: ${{ steps.find.outputs.id }}
+
+runs:
+  using: composite
+  steps:
+    - name: Find Vercel rollback candidate
+      id: find
+      shell: bash
+      run: |
+        url="https://api.vercel.com/v6/deployments?target=production&limit=100"
+
+        echo "🔍 Querying Vercel with:"
+        echo "  --url ⇒ $url"
+
+        response=$(
+          curl \
+            --silent \
+            --fail \
+            --header "Authorization: Bearer $VCL_TOKEN" \
+            --url "$url"
+        )
+
+        id="$(printf '%s\n' "$response" | jq -r '.deployments | sort_by(.createdAt) | reverse | .[1].uid // empty')"
+
+        if [[ -z "$id" ]]; then
+          echo "ℹ️ No rollback candidates found"
+          echo "found=false" >> "$GITHUB_OUTPUT"
+          echo "id=" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        echo "ℹ️ Rollback candidate found: $id"
+
+        echo "found=true" >> "$GITHUB_OUTPUT"
+        echo "id=$id" >> "$GITHUB_OUTPUT"

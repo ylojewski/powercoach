@@ -1,0 +1,32 @@
+name: Rollback Manager
+description: Rollback the Manager app to the last production deployment
+
+runs:
+  using: composite
+  steps:
+    - uses: ./.github/actions/vercel/rollback-candidate
+      id: candidate
+
+    - name: Ensure candidate
+      shell: bash
+      run: |
+        if [[ "${{ steps.candidate.outputs.found }}" == "false" ]]; then
+          echo "❌ Unable to rollback"
+          exit 1
+        fi
+
+    - name: Assign host
+      id: assign-host
+      uses: ./.github/actions/vercel/host/assign
+      with:
+        host: ${{ env.VCL_PROJECT }}-${{ env.VCL_TEAM }}.vercel.app
+        id: ${{ steps.candidate.outputs.id }}
+
+    - uses: ./.github/actions/core/summary
+      with:
+        title: Rollback Manager tasks
+        data: |
+          {
+            "Candidate": "${{ steps.candidate.outputs.found }}",
+            "Candidate ID": "${{ steps.candidate.outputs.id }}"
+          }

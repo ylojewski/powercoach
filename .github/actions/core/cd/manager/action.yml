@@ -1,0 +1,130 @@
+name: Manager CD
+description: Powercoach continuous deployment. Deploys the Manager app to Vercel
+
+inputs:
+  issue-number:
+    description: Issue number of the pull request event
+    required: true
+  issue-slug:
+    description: Slugified issue title of the pull request event
+    required: true
+  manager-hash:
+    description: Hash of the Manager source directory
+    required: true
+  pull-event:
+    description: Whether it is a pull request event
+    required: true
+  push-event:
+    description: Whether it is a push event
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - uses: ./.github/actions/core/summary
+      with:
+        title: Manager CD inputs
+        data: |
+          {
+            "Issue number": "${{ inputs.issue-number }}",
+            "Issue slug": "${{ inputs.issue-slug }}",
+            "Manager hash": "${{ inputs.manager-hash }}",
+            "Pull event": "${{ inputs.pull-event }}",
+            "Push event": "${{ inputs.push-event }}"
+          }
+
+    - name: Host computation
+      id: host
+      shell: bash
+      run: |
+        host=$VCL_PROJECT-$VCL_TEAM.vercel.app
+
+        if [[ -n "${{ inputs.issue-number }}" ]]; then
+          echo "value=${{ inputs.issue-slug }}-${{ inputs.issue-number }}-$host" >> "$GITHUB_OUTPUT"
+        else
+          echo "value=$host" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: URL computation
+      id: url
+      shell: bash
+      run: echo "value=https://${{ steps.host.outputs.value }}" >> "$GITHUB_OUTPUT"
+
+    - name: Find deployed hosts
+      id: find-hosts
+      uses: ./.github/actions/vercel/host/find
+      with:
+        issue-number: ${{ inputs.issue-number }}
+        manager-hash: ${{ inputs.manager-hash }}
+        target: ${{ (inputs.push-event == 'true' && 'production') || (inputs.pull-event == 'true' && 'preview') }}
+
+    - name: Actions
+      id: actions
+      shell: bash
+      run: |
+        echo "build=${{ steps.find-hosts.outputs.found == 'false' }}" >> "$GITHUB_OUTPUT"
+        echo "deploy=${{ steps.find-hosts.outputs.found == 'false' }}" >> "$GITHUB_OUTPUT"
+
+        # Always assign host during pull events
+        if [[ "${{ inputs.pull-event }}" == "true" ]]; then
+          echo "assign=true" >> "$GITHUB_OUTPUT"
+        fi
+
+        # During push events, assign only if a host is found (production rollback)
+        if [[ "${{ inputs.push-event }}" == "true" ]]; then
+          echo "assign=${{ steps.find-hosts.outputs.found == 'true' }}" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Build
+      id: build
+      if: steps.actions.outputs.build == 'true'
+      shell: bash
+      run: |
+        out_dir=apps/manager/dist
+
+        echo "📦 Building Manager with..."
+        echo "  -- Hash ⇒ ${{ inputs.manager-hash }}"
+        echo "  Env"
+        echo "    VITE_API_BASE_URL ⇒ $VITE_API_BASE_URL"
+
+        pnpm --filter=@powercoach/manager build
+        sed -i "s/__MANAGER_HASH__/${{ inputs.manager-hash }}/g" "$out_dir/index.html"
+
+        echo "out-dir=$out_dir" >> "$GITHUB_OUTPUT"
+
+    - name: Deploy
+      id: deploy
+      if: steps.actions.outputs.deploy == 'true'
+      uses: ./.github/actions/vercel/deploy
+      with:
+        issue-number: ${{ inputs.issue-number }}
+        manager-hash: ${{ inputs.manager-hash }}
+        out-dir: ${{ steps.build.outputs.out-dir }}
+        production: ${{ inputs.push-event }}
+
+    - name: Assign host
+      id: assign-host
+      if: steps.actions.outputs.assign == 'true'
+      uses: ./.github/actions/vercel/host/assign
+      with:
+        check: ${{ steps.find-hosts.outputs.found }}
+        host: ${{ steps.host.outputs.value }}
+        id: ${{ steps.deploy.outputs.id || steps.find-hosts.outputs.ids }} # lookup by hash => one ID
+
+    - uses: ./.github/actions/core/summary
+      with:
+        title: Manager CD tasks
+        layout: 'list'
+        level: '4'
+        data: |
+          {
+            "find-hosts.found": "${{ steps.find-hosts.outputs.found }}",
+            "find-hosts.hosts": "${{ steps.find-hosts.outputs.hosts }}",
+            "find-hosts.ids": "${{ steps.find-hosts.outputs.ids }}",
+            "actions.build": "${{ steps.actions.outputs.build }}",
+            "actions.deploy": "${{ steps.actions.outputs.deploy }}",
+            "actions.assign": "${{ steps.actions.outputs.assign }}",
+            "build.out-dir": "${{ steps.build.outputs.out-dir }}",
+            "deploy.id": "${{ steps.deploy.outputs.id }}",
+            "assign-host.skipped": "${{ steps.assign-host.outputs.skipped }}"
+          }

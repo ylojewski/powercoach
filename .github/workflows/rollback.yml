@@ -1,51 +1,20 @@
-name: CD
+name: Rollback
 
 on:
-  workflow_call:
+  workflow_dispatch:
     inputs:
       api:
-        description: Should rollback API
+        description: Rollback API
         type: boolean
-        required: true
+        default: false
       manager:
-        description: Should rollback Manager
+        description: Rollback Manager
         type: boolean
-        required: true
-      gcp-artifacts-repository:
-        description: Google Cloud Platform artifacts repository
-        type: string
-        required: true
-      gcp-domain:
-        description: Google Cloud Platform URL
-        type: string
-        required: true
-      gcp-project-id:
-        description: Google Cloud Platform project id
-        type: string
-        required: true
-      gcp-region:
-        description: Google Cloud Platform region
-        type: string
-        required: true
-      gcp-service:
-        description: Google Cloud Platform service
-        type: string
-        required: true
-      vcl-project:
-        description: Vercel project
-        type: string
-        required: true
-      vcl-team:
-        description: Vercel team
-        type: string
-        required: true
-    secrets:
-      GCP_SERVICE_ACCOUNT:
-        required: true
-      GCP_WIF_PROVIDER:
-        required: true
-      VCL_TOKEN:
-        required: true
+        default: false
+
+permissions:
+  actions: read
+  contents: read
 
 env:
   TURBO_TELEMETRY_DISABLED: 1
@@ -53,17 +22,16 @@ env:
 
 jobs:
   rollback:
-    name: Rollback Api, Manager
+    name: Rollback
     runs-on: ubuntu-latest
     steps:
-      - name: Rollback API
-        if: inputs.api
-        shell: bash
-        run: |
-          echo TODO
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/core/install
 
       - name: Rollback Manager
         if: inputs.manager
-        shell: bash
-        run: |
-          echo TODO
+        uses: ./.github/actions/core/rollback/manager
+        env:
+          VCL_PROJECT: ${{ vars.VCL_PROJECT }}
+          VCL_TEAM: ${{ vars.VCL_TEAM }}
+          VCL_TOKEN: ${{ secrets.VCL_TOKEN }}
