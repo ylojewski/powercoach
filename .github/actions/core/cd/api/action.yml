@@ -1,0 +1,129 @@
+name: API CD
+description: Powercoach continuous deployment. Deploys the API app to Cloud Run
+
+inputs:
+  api-sha:
+    description: SHA of the API source directory
+    required: true
+  branch-sha:
+    description: Github branch SHA
+    required: true
+  deploy-target:
+    description: Deploy target, "preview" (pull event) or "production" (push event)
+    required: true
+  pull-event:
+    description: Whether it is a pull request event
+    required: true
+  pull-slug:
+    description: Slugified linked issue found in the PR commit messages
+    required: false
+  push-event:
+    description: Whether it is a push event
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - uses: ./.github/actions/core/validate/deploy-target
+      with:
+        deploy-target: ${{ inputs.deploy-target }}
+
+    - uses: ./.github/actions/core/validate/pull-slug
+      with:
+        deploy-target: ${{ inputs.deploy-target }}
+        pull-slug: ${{ inputs.pull-slug }}
+
+    - uses: ./.github/actions/core/summary
+      with:
+        title: API CD inputs
+        data: |
+          {
+            "API SHA": "${{ inputs.api-sha }}",
+            "Branch SHA": "${{ inputs.branch-sha }}",
+            "Pull event": "${{ inputs.pull-event }}",
+            "Pull slug": "${{ inputs.pull-slug }}",
+            "Push event": "${{ inputs.push-event }}"
+          }
+
+    - name: Google auth
+      uses: ./.github/actions/google/auth
+
+    - name: Image
+      id: image
+      uses: ./.github/actions/google/image
+      with:
+        api-sha: ${{ inputs.api-sha }}
+        branch-sha: ${{ inputs.branch-sha }}
+
+    - name: Find on Artifacts Registry and Cloud Run
+      id: find
+      uses: ./.github/actions/google/find-one
+      with:
+        api-sha: ${{ inputs.api-sha }}
+        branch-sha: ${{ inputs.branch-sha }}
+
+    - name: Actions
+      id: actions
+      shell: bash
+      run: |
+        echo "build=${{ steps.find.outputs.image == '' }}" >> "$GITHUB_OUTPUT"
+        echo "deploy=${{ steps.find.outputs.revision-name == '' }}" >> "$GITHUB_OUTPUT"
+
+    - name: Build
+      id: build
+      if: steps.actions.outputs.build == 'true'
+      shell: bash
+      run: |
+        file="apps/api/Dockerfile"
+        image="${{ steps.image.outputs.name }}"
+
+        echo "📦 Building-pushing Docker image"
+        echo "  -- File ⇒ $file"
+        echo "  -- Image ⇒ $image"
+
+        pnpm --filter=@powercoach/api build
+        pnpm deploy:api
+        docker build -f "$file" -t "$image" --push .
+
+        echo "✅ Built-pushed Docker image ⇒ $image"
+
+    - name: Deploy
+      id: deploy
+      if: steps.actions.outputs.deploy == 'true'
+      uses: ./.github/actions/google/deploy
+      with:
+        api-sha: ${{ inputs.api-sha }}
+        branch-sha: ${{ inputs.branch-sha }}
+        deploy-target: ${{ inputs.deploy-target }}
+        image: ${{ steps.image.outputs.name }}
+        pull-slug: ${{ inputs.pull-slug }}
+
+    - name: Revision name
+      id: revision-name
+      shell: bash
+      run: echo "value=${{ steps.deploy.outputs.revision-name || steps.find.outputs.revision-name }}" >> "$GITHUB_OUTPUT"
+
+    - name: Traffic
+      id: traffic
+      uses: ./.github/actions/google/traffic
+      with:
+        branch-sha: ${{ inputs.branch-sha }}
+        deploy-target: ${{ inputs.deploy-target }}
+        pull-slug: ${{ inputs.pull-slug }}
+        revision-name: ${{ steps.revision-name.outputs.value }}
+
+    - uses: ./.github/actions/core/summary
+      with:
+        title: API CD tasks
+        layout: 'list'
+        level: '4'
+        data: |
+          {
+            "find.ar-version": "${{ steps.find.outputs.ar-version }}",
+            "find.revision-name": "${{ steps.find.outputs.revision-name }}",
+            "actions.build": "${{ steps.actions.outputs.build }}",
+            "actions.deploy": "${{ steps.actions.outputs.deploy }}",
+            "deploy.revision": "${{ steps.deploy.outputs.revision-name }}",
+            "revision-name.value": "${{ steps.revision-name.outputs.value }}",
+            "traffic.skipped": "${{ steps.traffic.outputs.skipped }}"
+          }

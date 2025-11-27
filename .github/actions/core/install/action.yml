@@ -11,13 +11,29 @@ runs:
 
         echo "BASH_ENV=$BASH_ENV" >> "$GITHUB_ENV"
 
-        {
-          echo '-t() { [[ "$1" == "true" ]]; }'
-          echo '-f() { [[ "$1" == "false" ]]; }'
-          echo '-n() { [[ -n "$1" ]]; }'
-          echo '-z() { [[ -z "$1" ]]; }'
-          echo '-e() { [[ "$1" == "$2" ]]; }'
-        } >> "$BASH_ENV"
+        cat <<'EOF' > "$BASH_ENV"
+        -t() { [[ "$1" == "true" ]]; }
+        -f() { [[ "$1" == "false" ]]; }
+        -n() { [[ -n "$1" ]]; }
+        -z() { [[ -z "$1" ]]; }
+        -e() { [[ "$1" == "$2" ]]; }
+        -0() { [[ "$1" -eq 0 ]]; }
+        -1() { [[ "$1" -eq 1 ]]; }
+        -g() { [[ "$1" -gt ${2:-1} ]]; }
+
+        echo_m() {
+          local n="${2:-2}"
+          while IFS= read -r line; do printf "%*s⇒ %s\n" "$n" "" "$line"; done <<< "$1"
+        }
+
+        GITHUB_OUTPUT_M() {
+          {
+            echo "$1<<__EOF__"
+            echo "$2"
+            echo "__EOF__"
+          } >> "$GITHUB_OUTPUT"
+        }
+        EOF
 
     - name: Setup pnpm
       uses: pnpm/action-setup@v4

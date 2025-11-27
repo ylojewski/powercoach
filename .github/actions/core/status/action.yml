@@ -1,0 +1,137 @@
+name: Powercoach status
+description: Checks and reports main ruleset statuses
+
+runs:
+  using: composite
+  steps:
+    - name: Fetch commits
+      id: commits
+      shell: bash
+      run: |
+        commits="$(
+          curl \
+            --silent \
+            --fail \
+            --header "Authorization: Bearer ${{ github.token }}" \
+            --header "Accept: application/vnd.github.v3+json" \
+            --url "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/commits?per_page=2" \
+          | jq
+        )"
+
+        echo "count=$(printf '%s' "$commits" | jq -r 'length')" >> "$GITHUB_OUTPUT"
+        GITHUB_OUTPUT_M "first-message" "$(printf '%s' "$commits" | jq -r '.[0].commit.message')"
+
+    - name: Commit / Issue
+      shell: bash
+      run: |
+        message="${{ steps.commits.outputs.first-message }}"
+        regex="^Closes[[:space:]]+#([0-9]+)$"
+
+        if echo "$message" | grep -Eq "$regex"; then
+          issue=$(echo "$message" | sed -nE "s/$regex/\1/p")
+          if curl \
+            --silent \
+            --fail \
+            --output /dev/null \
+            --header "Authorization: Bearer ${{ github.token }}" \
+            --header "Accept: application/vnd.github.v3+json" \
+            --url "https://api.github.com/repos/${{ github.repository }}/issues/$issue"; then
+            state="success"
+            description="Successful"
+          else
+            state="error"
+            description="Issue #${issue} not found"
+          fi
+        else
+          state="error"
+          description="No issues found"
+        fi
+
+        curl \
+          --silent \
+          --fail \
+          --output /dev/null \
+          --request POST \
+          --header "Authorization: Bearer ${{ github.token }}" \
+          --header "Accept: application/vnd.github.v3+json" \
+          --header "Content-Type: application/json" \
+          --url "https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }}" \
+          --data "{
+            \"context\": \"Commit / Issue\",
+            \"state\": \"${state}\",
+            \"description\": \"${description}\"
+          }"
+
+    - name: Commit / Branch
+      shell: bash
+      run: |
+        message="${{ steps.commits.outputs.first-message }}"
+        regex="^From[[:space:]]+((feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)/[a-z]+/[A-Za-z0-9_-]+)$"
+
+        if echo "$message" | grep -Eq "$regex"; then
+          if -e "$(echo "$message" | sed -nE "s#$regex#\1#p")" "${{ github.head_ref }}"; then
+            state="success"
+            description="Successful"
+          else
+            state="error"
+            description="Expected '${{ github.head_ref }}' as branch name"
+          fi
+        elif ! echo "$message" | grep -Eq '^From.+$'; then
+          state="error"
+          description="No branches found"
+        elif ! echo "$message" | grep -Eq '^From[[:space:]]+(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)/.+$'; then
+          state="error"
+          description="Branch verb is mandatory"
+        elif ! echo "$message" | grep -Eq '^From[[:space:]]+[a-z]+/[a-z]+/.+$'; then
+          state="error"
+          description="Branch subject is mandatory"
+        else
+          state="error"
+          description="Branch name malformed"
+        fi
+
+        curl \
+          --silent \
+          --fail \
+          --output /dev/null \
+          --request POST \
+          --header "Authorization: Bearer ${{ github.token }}" \
+          --header "Accept: application/vnd.github.v3+json" \
+          --header "Content-Type: application/json" \
+          --url "https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }}" \
+          --data "{
+            \"context\": \"Commit / Branch\",
+            \"state\": \"${state}\",
+            \"description\": \"${description}\"
+          }"
+
+    - name: Commit / Count
+      shell: bash
+      run: |
+        count="${{ steps.commits.outputs.count }}"
+
+        if -1 "$count"; then
+          state="success"
+          description="Successful"
+        elif -0 "$count"; then
+          state="error"
+          description="No commits found"
+        else
+          state="error"
+          description="Expected one commit"
+        fi
+
+        curl \
+          --silent \
+          --fail \
+          --output /dev/null \
+          --request POST \
+          --header "Authorization: Bearer ${{ github.token }}" \
+          --header "Accept: application/vnd.github.v3+json" \
+          --header "Content-Type: application/json" \
+          --url "https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }}" \
+          --data "{
+            \"context\": \"Commit / Count\",
+            \"state\": \"${state}\",
+            \"description\": \"${description}\"
+          }"

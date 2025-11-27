@@ -1,0 +1,101 @@
+name: Find on Artifacts Registry and Cloud Run
+description: Retrieves one Google Artifacts Registry image and one Cloud Run revision name using the gcloud SDK
+
+inputs:
+  api-sha:
+    description: SHA of the API source directory
+    required: true
+  branch-sha:
+    description: Github branch SHA
+    required: true
+
+outputs:
+  image:
+    description: The found Artifacts Registry image
+    value: ${{ steps.find.outputs.image }}
+  revision-name:
+    description: The found Cloud Run revision name
+    value: ${{ steps.find.outputs.revision-name }}
+
+runs:
+  using: composite
+  steps:
+    - uses: ./.github/actions/google/artifacts-registry
+      id: artifacts-registry
+
+    - uses: ./.github/actions/google/image
+      id: image
+      with:
+        api-sha: ${{ inputs.api-sha }}
+        branch-sha: ${{ inputs.branch-sha }}
+
+    - uses: ./.github/actions/core/metadata
+      id: metadata
+      with:
+        api-sha: ${{ inputs.api-sha }}
+        branch-sha: ${{ inputs.branch-sha }}
+
+    - name: Find on Artifacts Registry and Cloud Run
+      id: find
+      shell: bash
+      run: |
+        echo "🔍 Searching exactly one Artifacts Registry image"
+        echo "  -- Artifacts Registry ⇒ ${{ steps.artifacts-registry.outputs.url }}"
+        echo "  -- Tag ⇒ ${{ steps.image.outputs.tag }}"
+
+        response=$(
+          gcloud artifacts docker tags list "${{ steps.artifacts-registry.outputs.url }}" \
+            --filter="tag~'tags/${{ steps.image.outputs.tag }}'" \
+            --format="json" \
+            --quiet \
+          | jq
+        )
+
+        count="$(printf '%s' "$response" | jq 'length')"
+
+        if -0 "$count"; then
+          echo "ℹ️ No Artifacts Registry images found"
+          exit 0
+        fi
+
+        if -g "$count"; then
+          echo "❌ Error: multiple Artifacts Registry images found (expected exactly 1):"
+          echo_m "$(printf '%s' "$response" | jq -r '.[].version | split("/") | last')"
+          exit 1
+        fi
+
+        echo "ℹ️ Found one Artifacts Registry image"
+        echo "image=$(printf '%s' "$response" | jq -r '.[0].image + ":" + (.[0] .tag | split("/") | last)')" >> "$GITHUB_OUTPUT"
+
+        echo "🔍 Searching exactly one Cloud Run revision name"
+        echo "  -- Labels ⇒ ${{ steps.metadata.outputs.branch-long-value }},${{ steps.metadata.outputs.api-long-value }}"
+
+        response=$(
+          gcloud run revisions list \
+            --region="$GCP_REGION" \
+            --project="$GCP_PROJECT_ID" \
+            --service="$GCP_SERVICE" \
+            --filter="
+              metadata.labels.${{ steps.metadata.outputs.branch-long }}=${{ inputs.branch-sha }} AND 
+              metadata.labels.${{ steps.metadata.outputs.api-long }}=${{ inputs.api-sha }}
+            " \
+            --format="json" \
+            --quiet \
+          | jq
+        )
+
+        count="$(printf '%s' "$response" | jq 'length')"
+
+        if -0 "$count"; then
+          echo "ℹ️ No Cloud Run revisions found"
+          exit 0
+        fi
+
+        if -g "$count"; then
+          echo "❌ Error: multiple Cloud Run revisions found (expected exactly 1):"
+          echo_m "$(printf '%s' "$response" | jq -r '.[].metadata.name')"
+          exit 1
+        fi
+
+        echo "ℹ️ Found one Cloud Run revision name"
+        echo "revision-name=$(printf '%s' "$response" | jq -r '.[].metadata.name')" >> "$GITHUB_OUTPUT"
