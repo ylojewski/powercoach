@@ -52,8 +52,6 @@ runs:
           exit 1
         fi
 
-        temporary_tag=delete-$(echo "${{ github.sha }}" | cut -c1-10)
-
         echo "🕒 Deploying temporary revision"
         echo "  -- Temporary tag ⇒ $temporary_tag"
 
@@ -62,7 +60,7 @@ runs:
           --concurrency=1 \
           --cpu=0.25 \
           --image="$(echo "${{ steps.find.outputs.images }}" | head -n1)" \
-          --labels="${temporary_tag}=1" \
+          --labels="powercoach-delete=1" \
           --max-instances=1 \
           --memory=128Mi \
           --min-instances=0 \
@@ -72,7 +70,7 @@ runs:
           --project="$GCP_PROJECT_ID" \
           --quiet \
           --region="$GCP_REGION" \
-          --tag="$temporary_tag"
+          --tag="delete-$(echo "${{ github.sha }}" | cut -c1-10)"
 
     - name: Delete revisions
       if: steps.find.outputs.revision-names != ''
@@ -98,7 +96,7 @@ runs:
           then
             echo "  -- ✅ Deleted ⇒ $revision_name"
           else
-            echo "  -- ❌ Failed to delete deployment ⇒ $revision_name"
+            echo "  -- ❌ Error: failed to delete revision ⇒ $revision_name"
             exit 1
           fi
         done
@@ -117,7 +115,7 @@ runs:
           then
             echo "  -- ✅ Deleted ⇒ $image"
           else
-            echo "  -- ❌ Failed to delete deployment ⇒ $image"
+            echo "  -- ❌ Error: failed to delete Docker image ⇒ $image"
             exit 1
           fi
         done
@@ -129,6 +127,6 @@ runs:
         level: '4'
         data: |
           {
-            "find.images": ${{ toJSON(steps.find.outputs.images) }},
-            "find.revision-names": ${{ toJSON(steps.find.outputs.revision-names) }}
+            "find.images": ${{ toJSON(steps.find.outputs.images || 'false') }},
+            "find.revision-names": ${{ toJSON(steps.find.outputs.revision-names || 'false') }}
           }

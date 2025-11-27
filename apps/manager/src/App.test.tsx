@@ -17,7 +17,7 @@ describe('App', () => {
     vi.unstubAllGlobals()
   })
 
-  it('displays the logo', async () => {
+  it('shows the logo', async () => {
     render(<App />)
 
     expect(screen.getByRole('img', { name: /logo/i })).toBeInTheDocument()

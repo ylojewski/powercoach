@@ -5,14 +5,28 @@ inputs:
   branch-sha:
     description: Github branch SHA
     required: true
+  search-images:
+    description: Whether perform image search
+    required: false
+    default: 'true'
+  search-revision-names:
+    description: Whether perform revision name search
+    required: false
+    default: 'true'
 
 outputs:
   images:
     description: The found Artifacts Registry images
-    value: ${{ steps.find.outputs.images }}
+    value: ${{ steps.find-images.outputs.images }}
+  images-value:
+    description: The found Artifacts Registry images raw value
+    value: ${{ steps.find-images.outputs.images-value }}
   revision-names:
     description: The found Cloud Run revision names
-    value: ${{ steps.find.outputs.revision-names }}
+    value: ${{ steps.find-revision-names.outputs.revision-names }}
+  revision-names-value:
+    description: The found Cloud Run revision names raw value
+    value: ${{ steps.find-revision-names.outputs.revision-names-value }}
 
 runs:
   using: composite
@@ -25,8 +39,9 @@ runs:
       with:
         branch-sha: ${{ inputs.branch-sha }}
 
-    - name: Find on Artifacts Registry and Cloud Run
-      id: find
+    - name: Find on Artifacts Registry
+      id: find-images
+      if: inputs.search-images == 'true'
       shell: bash
       run: |
         echo "🔍 Searching Artifacts Registry versions"
@@ -50,6 +65,13 @@ runs:
           GITHUB_OUTPUT_M "images" "$(printf '%s' "$response" | jq -r '.[].image + ":" + (.[] .tag | split("/") | last)')"
         fi
 
+        GITHUB_OUTPUT_M "images-value" "$(printf '%s' "$response" | jq -r '.')"
+
+    - name: Find on Cloud Run
+      id: find-revision-names
+      if: inputs.search-revision-names == 'true'
+      shell: bash
+      run: |
         echo "🔍 Searching all Cloud Run revision names"
         echo "  -- Labels ⇒ ${{ steps.metadata.outputs.branch-long-value }}"
 
@@ -72,3 +94,5 @@ runs:
           echo "ℹ️ Found $count Cloud Run revision names"
           GITHUB_OUTPUT_M "revision-names" "$(printf '%s' "$response" | jq -r '.[].metadata.name')"
         fi
+
+        GITHUB_OUTPUT_M "revision-names-value" "$(printf '%s' "$response" | jq -r '.')"

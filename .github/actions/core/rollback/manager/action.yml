@@ -2,57 +2,88 @@ name: Rollback Manager
 description: Rollback the Manager app to the last production deployment
 
 inputs:
-  branch-sha:
-    description: Github branch SHA
+  main-sha:
+    description: Github main branch SHA
     required: true
 
 runs:
   using: composite
   steps:
-    - uses: ./.github/actions/vercel/find-all
-      id: all-deployments
+    - uses: ./.github/actions/core/summary
       with:
-        branch-sha: ${{ inputs.branch-sha }}
+        title: Rollback Manager inputs
+        data: '{ "Main SHA": "${{ inputs.main-sha }}" }'
+
+    - name: Host computation
+      id: host
+      shell: bash
+      run: echo "value=$VCL_PROJECT-$VCL_TEAM.vercel.app" >> "$GITHUB_OUTPUT"
+
+    - uses: ./.github/actions/vercel/find-all
+      id: find
+      with:
+        branch-sha: ${{ inputs.main-sha }}
         deploy-target: 'production'
 
-    - name: Filter candidate
-      shell: candidate
+    - name: Production deployment
+      id: production
+      shell: bash
       run: |
-        if -f "${{ steps.all-deployments.outputs.found }}"; then
-          echo "❌ No deployments found"
+        id=$(
+          curl \
+            --silent
+            --fail
+            --header "Authorization: Bearer $VCL_TOKEN" \
+            --url "https://api.vercel.com/v4/aliases/${{ steps.host.outputs.value }}" \
+          | jq -r '.deployment.id // empty'
+        )
+
+        if -z "$id"; then
+          echo "❌ Error: no production deployments found"
           exit 1
         fi
 
-        if -1 "${{ steps.all-deployments.outputs.count }}"; then
-          echo "❌ At least two deployments are required"
+        echo "ℹ️ Production deployment found ⇒ $id"
+        echo "id=$id" >> "$GITHUB_OUTPUT"
+
+    - name: Rollback deployment
+      id: rollback
+      shell: bash
+      run: |
+        id=$(
+          printf '%s' "${{ steps.find.outputs.value }}" \
+          | jq -r \
+            --arg production_id "${{ steps.production.outputs.id }}" \
+            '
+              sort_by(.createdAt)
+              | reverse
+              | map(.uid) as $uids
+              | ($uids | index($production_id)) as $production_index
+              | if $production_index == null then empty else $uids[$production_index + 1] // empty end
+            '
+        )
+
+        if -z "$id"; then
+          echo "❌ Error: no rollback deployments found"
           exit 1
         fi
 
-        id="$(
-          printf '%s' "${{ steps.all-deployments.outputs.value }}"
-          | jq -r '
-            .
-            | sort_by(.createdAt)
-            | reverse
-            | .[1].uid
-          '
-        )"
-
-        echo "ℹ️ Rollback candidate found ⇒ $id"
+        echo "ℹ️ Rollback deployment found ⇒ $id"
         echo "id=$id" >> "$GITHUB_OUTPUT"
 
     - name: Assign host
-      id: assign-host
       uses: ./.github/actions/vercel/assign
       with:
-        host: ${{ env.VCL_PROJECT }}-${{ env.VCL_TEAM }}.vercel.app
-        id: ${{ steps.candidate.outputs.id }}
+        host: ${{ steps.host.outputs.value }}
+        id: ${{ steps.rollback.outputs.id }}
 
     - uses: ./.github/actions/core/summary
       with:
         title: Rollback Manager tasks
         data: |
           {
-            "all-deployments.found": "${{ steps.all-deployments.outputs.found }}",
-            "candidate.id": "${{ steps.candidate.outputs.id }}"
+            "host.value": "${{ steps.host.outputs.value }}",
+            "find.hosts": ${{ toJSON(steps.find.outputs.hosts || 'false') }},
+            "production.id": "${{ steps.production.outputs.id }}",
+            "rollback.id": "${{ steps.rollback.outputs.id }}"
           }

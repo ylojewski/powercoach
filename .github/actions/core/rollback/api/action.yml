@@ -1,0 +1,92 @@
+name: Rollback API
+description: Rollback the API app to the last production deployed revision
+
+inputs:
+  main-sha:
+    description: Github main branch SHA
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - uses: ./.github/actions/core/summary
+      with:
+        title: Rollback API inputs
+        data: '{ "Main SHA": "${{ inputs.main-sha }}" }'
+
+    - name: Google auth
+      uses: ./.github/actions/google/auth
+      with:
+        docker: 'false'
+
+    - uses: ./.github/actions/google/find-all
+      id: find
+      with:
+        branch-sha: ${{ inputs.main-sha }}
+        search-images: 'false'
+
+    - name: Production revision
+      id: production
+      shell: bash
+      run: |
+        name=$(
+          gcloud run services describe "$GCP_SERVICE" \
+            --region="$GCP_REGION" \
+            --project="$GCP_PROJECT_ID" \
+            --format="json(status.traffic)" \
+          | jq -r '
+            .status.traffic[]
+            | select(.percent == 100)
+            | .revisionName
+          '
+        )
+
+        if -z "$name"; then
+          echo "❌ Error: no production revision found"
+          exit 1
+        fi
+
+        echo "ℹ️ Production revision found ⇒ $name"
+        echo "name=$name" >> "$GITHUB_OUTPUT"
+
+    - name: Rollback revision
+      id: rollback
+      shell: bash
+      run: |
+        name=$(
+          printf '%s' "${{ steps.find.outputs.revision-names-value }}" \
+          | jq -r \
+            --arg production_name "${{ steps.production.outputs.name }}" \
+            '
+              sort_by(.metadata.creationTimestamp)
+              | reverse
+              | map(.metadata.name) as $names
+              | ($names | index($production_name)) as $production_index
+              | if $production_index == null then empty else $names[$production_index + 1] // empty end
+            '
+        )
+
+        if -z "$name"; then
+          echo "❌ Error: no rollback revisions found"
+          exit 1
+        fi
+
+        echo "ℹ️ Rollback revision found ⇒ $name"
+        echo "name=$name" >> "$GITHUB_OUTPUT"
+
+    - name: Traffic
+      uses: ./.github/actions/google/traffic
+      with:
+        branch-sha: ${{ inputs.main-sha }}
+        deploy-target: 'production'
+        revision-name: ${{ steps.rollback.outputs.name }}
+
+    - uses: ./.github/actions/core/summary
+      with:
+        title: Rollback API tasks
+        data: |
+          {
+            "find.revision-names": ${{ toJSON(steps.find.outputs.revision-names || 'false') }},
+            "production.name": "${{ steps.production.outputs.name }}",
+            "rollback.name": "${{ steps.rollback.outputs.name }}"
+          }

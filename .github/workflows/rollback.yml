@@ -27,11 +27,29 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - uses: ./.github/actions/core/install
+      - uses: ./.github/actions/core/context
+        id: context
 
-      - name: Github branch SHA
-        id: branch-sha
+      - name: Restrict to main branch
         shell: bash
-        run: echo "value=$(printf '%s' 'main' | sha256sum | cut -c1-10)" >> "$GITHUB_OUTPUT"
+        run: |
+          if ! -e "$(printf '%s' 'main' | sha256sum | cut -c1-10)" "${{ steps.context.outputs.branch-sha }}"; then
+            echo "❌ Error: rectricted to main branch"
+            exit 1
+          fi
+
+      - name: Rollback API
+        if: inputs.api
+        uses: ./.github/actions/core/rollback/api
+        env:
+          GCP_ARTIFACTS_REPOSITORY: ${{ vars.GCP_ARTIFACTS_REPOSITORY }}
+          GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+          GCP_REGION: ${{ vars.GCP_REGION }}
+          GCP_SERVICE: ${{ vars.GCP_SERVICE }}
+          GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          GCP_WIF_PROVIDER: ${{ secrets.GCP_WIF_PROVIDER }}
+        with:
+          main-sha: ${{ steps.context.outputs.branch-sha }}
 
       - name: Rollback Manager
         if: inputs.manager
@@ -41,4 +59,4 @@ jobs:
           VCL_TEAM: ${{ vars.VCL_TEAM }}
           VCL_TOKEN: ${{ secrets.VCL_TOKEN }}
         with:
-          branch-sha: ${{ steps.branch-sha.outputs.value }}
+          main-sha: ${{ steps.context.outputs.branch-sha }}

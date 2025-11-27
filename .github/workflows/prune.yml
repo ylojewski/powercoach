@@ -29,6 +29,14 @@ jobs:
       - uses: ./.github/actions/core/context
         id: context
 
+      - name: Protect main branch
+        shell: bash
+        run: |
+          if -e "$(printf '%s' 'main' | sha256sum | cut -c1-10)" "${{ steps.context.outputs.branch-sha }}"; then
+            echo "❌ Error: pruning main branch is forbidden"
+            exit 1
+          fi
+
       - name: Prune API
         uses: ./.github/actions/core/prune/api
         env:
