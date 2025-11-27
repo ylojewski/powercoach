@@ -98,6 +98,50 @@ runs:
         image: ${{ steps.image.outputs.name }}
         pull-slug: ${{ inputs.pull-slug }}
 
+    - name: Delete temporary revisions
+      id: delete-temporary
+      if: steps.actions.outputs.deploy == 'true'
+      shell: bash
+      run: |
+        echo "🔍 Searching temporary revisions to delete"
+
+        response=$(
+          gcloud run revisions list \
+            --region="$GCP_REGION" \
+            --project="$GCP_PROJECT_ID" \
+            --service="$GCP_SERVICE" \
+            --filter="metadata.labels.powercoach-delete=1" \
+            --format="json(metadata.name)" \
+            --quiet \
+          | jq
+        )
+
+        count="$(printf '%s' "$response" | jq 'length')"
+
+        if -0 "$count"; then
+          echo "ℹ️ No temporary revisions found"
+          exit 0
+        fi
+
+        revision_names="$(printf '%s' "$response" | jq -r '.[].metadata.name')"
+
+        echo "ℹ️ Found $count temporary revisions"
+        echo_m "$revision_names"
+
+        GITHUB_OUTPUT_M "revision-names" "$revision_names"
+
+        printf '%s\n' "$revision_names" | while IFS= read -r revision_name; do
+          if gcloud run revisions delete "$revision_name" \
+            --region="$GCP_REGION" \
+            --project="$GCP_PROJECT_ID" \
+            --quiet
+          then
+            echo "  -- ✅ Deleted ⇒ $revision_name"
+          else
+            echo "  -- ❌ Error: failed to delete revision ⇒ $revision_name, continuing..."
+          fi
+        done
+
     - name: Revision name
       id: revision-name
       shell: bash
@@ -119,11 +163,12 @@ runs:
         level: '4'
         data: |
           {
-            "find.ar-version": "${{ steps.find.outputs.ar-version }}",
+            "find.image": "${{ steps.find.outputs.image }}",
             "find.revision-name": "${{ steps.find.outputs.revision-name }}",
             "actions.build": "${{ steps.actions.outputs.build }}",
             "actions.deploy": "${{ steps.actions.outputs.deploy }}",
-            "deploy.revision": "${{ steps.deploy.outputs.revision-name }}",
+            "deploy.revision-name": "${{ steps.deploy.outputs.revision-name }}",
+            "delete-temporary.revision-names": ${{ toJSON(steps.delete-temporary.outputs.revision-names || 'false') }},
             "revision-name.value": "${{ steps.revision-name.outputs.value }}",
             "traffic.skipped": "${{ steps.traffic.outputs.skipped }}"
           }

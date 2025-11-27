@@ -20,7 +20,7 @@ describe('buildApp', () => {
     resetCachedConfig()
   })
 
-  describe('when using the paaaaassed cooooonfiguratiooooon', () => {
+  describe('when using the passed configuration', () => {
     it('succeed if valid', async () => {
       const app = await buildApp({ config: testConfig })
       await app.ready()
@@ -36,7 +36,7 @@ describe('buildApp', () => {
     })
   })
 
-  describe('when using the environment config', () => {
+  describe('when using the environment configuration', () => {
     it('succeed if valid', async () => {
       stubEnv(testConfig)
 
