@@ -1,0 +1,21 @@
+name: Google auth
+description: Initializes the authentication to Google Cloud Platform using gcloud SDK
+
+runs:
+  using: composite
+  steps:
+    - uses: ./.github/actions/google/artifacts-registry
+      id: artifacts-registry
+
+    - name: Google Auth
+      uses: google-github-actions/auth@v2
+      with:
+        workload_identity_provider: ${{ env.GCP_WIF_PROVIDER }}
+        service_account: ${{ env.GCP_SERVICE_ACCOUNT }}
+
+    - name: Setup gcloud
+      uses: google-github-actions/setup-gcloud@v2
+
+    - name: Configure Docker
+      shell: bash
+      run: gcloud auth configure-docker "${{ steps.artifacts-registry.outputs.host }}" --quiet

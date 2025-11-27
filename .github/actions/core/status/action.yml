@@ -1,0 +1,111 @@
+name: Powercoach status
+description: Checks and reports main ruleset statuses
+
+runs:
+  using: composite
+  steps:
+    - name: Commit body
+      id: body
+      shell: bash
+      run: echo "value=$(git log -1 --pretty=format:%b)" >> "$GITHUB_OUTPUT"
+
+    - name: Commit issue
+      shell: bash
+      run: |
+        body="${{ steps.body.outputs.value }}"
+
+        if [[ "$body" =~ ^Closes \#[0-9]+$ ]]; then
+          state="success"
+          description="OK"
+        else
+          state="error"
+          description="No issues found"
+        fi
+
+        if echo "${{ steps.body.outputs.value }}" | grep -Eq '^Closes \#[0-9]+$'; then
+          curl \
+            --silent \
+            --fail \
+            --request POST \
+            --header "Authorization: Bearer ${{ github.token }}" \
+            --header "Accept: application/vnd.github.v3+json" \
+            --url "https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }}" \
+            --data '{
+              "context": "Commit issue",
+              "state": "$state",
+              "description": "$description"
+            }'
+        fi
+
+    - name: Commit branch
+      shell: bash
+      run: |
+        body="${{ steps.body.outputs.value }}"
+
+        if [[ "$body" =~ ^From[[:space:]]+(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)/([a-z]+)/([A-Za-z0-9_-]+)$ ]]; then
+          state="success"
+          description="OK"
+        elif [[ ! "$body" =~ ^From.+$ ]]; then
+          state="error"
+          description="No branches found"
+        elif [[ ! "$body" =~ ^From[[:space:]]+(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)/.+$ ]]; then
+          state="error"
+          description="Branch verb is mandatory"
+        elif [[ ! "$body" =~ ^From[[:space:]]+[a-z]+/[a-z]+/.+$ ]]; then
+          state="error"
+          description="Branch subject is mandatory"
+        else
+          state="error"
+          description="Branch name malformed"
+        fi
+
+        curl \
+          --silent \
+          --fail \
+          --request POST \
+          --header "Authorization: Bearer ${{ github.token }}" \
+          --header "Accept: application/vnd.github.v3+json" \
+          --url "https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }}" \
+          --data '{
+            "context": "Commit branch",
+            "state": "$state",
+            "description": "$description"
+          }'
+
+    - name: Commit number
+      if: github.event_name == 'pull_request'
+      shell: bash
+      run: |
+        commits_count="$(
+          curl \
+            --silent \
+            --fail \
+            --header "Authorization: Bearer ${{ github.token }}" \
+            --header "Accept: application/vnd.github.v3+json" \
+            --url "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/commits?per_page=2" \
+          | jq 'length'
+        )"
+
+        if [[ "$commits_count" -eq 1 ]]; then
+          state="success"
+          description="OK"
+        elif [[ "$commits_count" -eq 0 ]]; then
+          state="error"
+          description="No commits found"
+        else
+          state="error"
+          description="Expected exactly one commit in PR"
+        fi
+
+        curl \
+          --silent \
+          --fail \
+          --request POST \
+          --header "Authorization: Bearer ${{ github.token }}" \
+          --header "Accept: application/vnd.github.v3+json" \
+          --url "https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }}" \
+          --data '{
+            "context": "Commit number",
+            "state": "$state",
+            "description": "$description"
+          }'

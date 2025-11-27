@@ -2,6 +2,8 @@ name: Prune
 
 on:
   pull_request:
+    branches:
+      - main
     paths:
       - 'apps/api/**'
       - 'apps/manager/**'
@@ -11,6 +13,7 @@ on:
 permissions:
   actions: read
   contents: read
+  id-token: write
 
 env:
   TURBO_TELEMETRY_DISABLED: 1
@@ -26,9 +29,24 @@ jobs:
       - uses: ./.github/actions/core/context
         id: context
 
+      - name: Prune API
+        uses: ./.github/actions/core/prune/api
+        if: inputs.api == 'true'
+        env:
+          GCP_ARTIFACTS_REPOSITORY: ${{ vars.GCP_ARTIFACTS_REPOSITORY }}
+          GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+          GCP_REGION: ${{ vars.GCP_REGION }}
+          GCP_SERVICE: ${{ vars.GCP_SERVICE }}
+          GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          GCP_WIF_PROVIDER: ${{ secrets.GCP_WIF_PROVIDER }}
+        with:
+          branch-sha: ${{ steps.context.outputs.branch-sha }}
+          pull-slug: ${{ steps.context.outputs.pull-slug }}
+
       - name: Prune Manager
         uses: ./.github/actions/core/prune/manager
+        if: inputs.manager == 'true'
         env:
           VCL_TOKEN: ${{ secrets.VCL_TOKEN }}
         with:
-          issue-number: ${{ steps.context.outputs.issue-number }}
+          branch-sha: ${{ steps.context.outputs.branch-sha }}

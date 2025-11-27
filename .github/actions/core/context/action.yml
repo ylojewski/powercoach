@@ -2,33 +2,30 @@ name: Powercoach context
 description: Describes the context of the main Powercoach workflow
 
 outputs:
-  api-hash:
-    description: Hash of the API source directory
-    value: ${{ steps.hashes.outputs.api }}
-  api-path:
-    description: Whether API has been modified
-    value: ${{ steps.paths.outputs.api }}
+  api-sha:
+    description: SHA of the API source directory
+    value: ${{ steps.sha.outputs.api }}
+  branch-sha:
+    description: Github branch SHA
+    value: ${{ steps.sha.outputs.branch }}
   ci-action:
     description: Whether CI should be ran
     value: ${{ steps.ci.outputs.action }}
   cd-action:
     description: Whether CD should be ran
     value: ${{ steps.cd.outputs.action }}
-  issue-number:
-    description: Issue number of the pull request event
-    value: ${{ steps.issue.outputs.number }}
-  issue-slug:
-    description: Slugified issue title of the pull request event
-    value: ${{ steps.issue.outputs.slug }}
-  manager-hash:
-    description: Hash of the Manager source directory
-    value: ${{ steps.hashes.outputs.manager }}
-  manager-path:
-    description: Whether Manager has been modified
-    value: ${{ steps.paths.outputs.manager }}
+  deploy-target:
+    description: Deploy target, "preview" (pull event) or "production" (push event)
+    value: ${{ steps.deploy.outputs.target }}
+  manager-sha:
+    description: SHA of the Manager source directory
+    value: ${{ steps.sha.outputs.manager }}
   pull-event:
     description: Whether it is a pull request event
-    value: ${{ steps.event.outputs.pr }}
+    value: ${{ steps.event.outputs.pull }}
+  pull-slug:
+    description: Slugified linked issue found in the PR commit messages
+    value: ${{ steps.pull.outputs.slug }}
   push-event:
     description: Whether it is a push event
     value: ${{ steps.event.outputs.push }}
@@ -53,19 +50,31 @@ runs:
       id: event
       shell: bash
       run: |
-        if [[ "${{ github.event_name }}" == "push" ]]; then
+        if -e "${{ github.event_name }}" "push"; then
           echo "push=true" >> "$GITHUB_OUTPUT"
-          echo "pr=false" >> "$GITHUB_OUTPUT"
+          echo "pull=false" >> "$GITHUB_OUTPUT"
         fi
 
-        if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+        if -e "${{ github.event_name }}" "pull_request"; then
           echo "push=false" >> "$GITHUB_OUTPUT"
-          echo "pr=true" >> "$GITHUB_OUTPUT"
+          echo "pull=true" >> "$GITHUB_OUTPUT"
         fi
 
-    - name: Github issue
-      id: issue
-      if: steps.event.outputs.pr == 'true'
+    - name: Deploy target
+      id: deploy
+      shell: bash
+      run: |
+        if -t "${{ steps.event.outputs.push }}"; then
+          echo "target=production" >> "$GITHUB_OUTPUT"
+        fi
+
+        if -t "${{ steps.event.outputs.pull }}"; then
+          echo "target=preview" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Pull event Github issue slug
+      id: pull
+      if: steps.event.outputs.pull == 'true'
       uses: actions/github-script@v7
       with:
         script: |
@@ -75,7 +84,9 @@ runs:
           const issue_numbers = new Set();
 
           commits.forEach(({ commit: { message } }) => {
-            message.match(/^Closes #(\d+)$/gm)?.forEach((close) => issue_numbers.add(close.match(/\d+/)[0]))
+            message.match(/^Closes #(\d+)$/gm)?.forEach((close) => {
+              issue_numbers.add(close.match(/\d+/)[0])
+            })
           })
 
           if (issue_numbers.size === 0) {
@@ -92,17 +103,15 @@ runs:
 
           try {
             const { data: { title } } = await github.rest.issues.get({ owner, repo, issue_number });
-            core.setOutput("number", issue_number);
-            core.setOutput("slug",
-              title
-                .toLowerCase()
-                .normalize('NFD')
-                .replace(/[\u0300-\u036f]/g, '')
-                .replace(/[^a-z0-9]+/g, '-')
-                .replace(/^-+|-+$/g, '')
-            );
+            const title_slug = title
+              .toLowerCase()
+              .normalize('NFD')
+              .replace(/[\u0300-\u036f]/g, '')
+              .replace(/[^a-z0-9]+/g, '-')
+              .replace(/^-+|-+$/g, '')
+            core.setOutput("slug", `${title_slug}-${issue_number}`);
           } catch (error) {
-            core.setFailed(`❌ No issues found ⇒ #${issue_number}`);
+            core.setFailed(`❌ No issues found with number #${issue_number}`);
             return;
           }
 
@@ -133,7 +142,7 @@ runs:
           action="true"
         fi
 
-        if -t "${{ steps.event.outputs.pr }}" &&
+        if -t "${{ steps.event.outputs.pull }}" &&
            -e "${{ github.event.pull_request.head.repo.full_name }}" "${{ github.repository }}" &&
            -n "${{ steps.turbo.outputs.filter }}"; then
           action="true"
@@ -146,25 +155,30 @@ runs:
       shell: bash
       run: echo "action=${{ steps.ci.outputs.action }}" >> "$GITHUB_OUTPUT"
 
-    - name: Source hashes
-      id: hashes
+    - name: Cutted sha256sum
+      id: sha
       shell: bash
       run: |
-        hash() {
+        cut_flag="-c1-10"
+
+        files_sha() {
           git ls-files -z "$1" \
             | sort -z \
             | xargs -0 sha256sum \
             | sha256sum \
             | cut -d' ' -f1 \
-            | cut -c1-12
+            | cut "$cut_flag"
         }
 
-        if -t "${{ steps.paths.outputs.api }}"; then
-          echo "api=$(hash apps/api)" >> "$GITHUB_OUTPUT"
+        echo "api=$(files_sha apps/api)" >> "$GITHUB_OUTPUT"
+        echo "manager=$(files_sha apps/manager)" >> "$GITHUB_OUTPUT"
+
+        if -t "${{ steps.event.outputs.pull }}"; then
+          echo "branch=$(printf '%s' '${{ github.head_ref }}' | sha256sum | cut $cut_flag)" >> "$GITHUB_OUTPUT"
         fi
 
-        if -t "${{ steps.paths.outputs.manager }}"; then
-          echo "manager=$(hash apps/manager)" >> "$GITHUB_OUTPUT"
+        if -t "${{ steps.event.outputs.push }}"; then
+          echo "branch=$(printf '%s' '${{ github.ref_name }}' | sha256sum | cut $cut_flag)" >> "$GITHUB_OUTPUT"
         fi
 
     - uses: ./.github/actions/core/summary
@@ -172,15 +186,25 @@ runs:
         title: Context outputs
         data: |
           {
-            "API hash": "${{ steps.hashes.outputs.api }}",
-            "API path": "${{ steps.paths.outputs.api }}",
+            "API SHA": "${{ steps.sha.outputs.api }}",
+            "Branch SHA": "${{ steps.sha.outputs.branch }}",
             "CI action": "${{ steps.ci.outputs.action }}",
             "CD action": "${{ steps.cd.outputs.action }}",
-            "Issue number": "${{ steps.issue.outputs.number }}",
-            "Issue slug": "${{ steps.issue.outputs.slug }}",
-            "Manager hash": "${{ steps.hashes.outputs.manager }}",
-            "Manager path": "${{ steps.paths.outputs.manager }}",
-            "Pull event": "${{ steps.event.outputs.pr }}",
+            "Deploy target": "${{ steps.deploy.outputs.target }}",
+            "Manager SHA": "${{ steps.sha.outputs.manager }}",
+            "Pull event": "${{ steps.event.outputs.pull }}",
+            "Pull slug": "${{ steps.pull.outputs.slug }}",
             "Push event": "${{ steps.event.outputs.push }}",
             "Turbo filter": "${{ steps.turbo.outputs.filter }}"
+          }
+
+    - uses: ./.github/actions/core/summary
+      with:
+        title: Context tasks
+        layout: 'list'
+        level: '4'
+        data: |
+          {
+            "API path": "${{ steps.paths.outputs.api }}",
+            "Manager path": "${{ steps.paths.outputs.manager }}"
           }

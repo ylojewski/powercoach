@@ -19,6 +19,7 @@ on:
 permissions:
   actions: read
   contents: read
+  id-token: write
 
 env:
   TURBO_TELEMETRY_DISABLED: 1
@@ -34,21 +35,44 @@ jobs:
       - uses: ./.github/actions/core/context
         id: context
 
+      - uses: ./.github/actions/core/status
+        if: steps.context.outputs.pull-event == 'true' && github.event.pull_request.draft == false
+
       - uses: ./.github/actions/core/ci
-        if: steps.context.outputs.ci-action == 'true'
+        if: steps.context.outputs.ci-action == 'TO_RESTORE_BEFORE_MERGING'
         with:
           turbo-filter: ${{ steps.context.outputs.turbo-filter }}
+
+      - uses: ./.github/actions/core/cd/api
+        if: steps.context.outputs.cd-action == 'true'
+        env:
+          GCP_ARTIFACTS_REPOSITORY: ${{ vars.GCP_ARTIFACTS_REPOSITORY }}
+          GCP_DOMAIN: ${{ vars.GCP_DOMAIN }}
+          GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+          GCP_REGION: ${{ vars.GCP_REGION }}
+          GCP_SERVICE: ${{ vars.GCP_SERVICE }}
+          GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          GCP_WIF_PROVIDER: ${{ secrets.GCP_WIF_PROVIDER }}
+        with:
+          api-sha: ${{ steps.context.outputs.api-sha }}
+          branch-sha: ${{ steps.context.outputs.branch-sha }}
+          deploy-target: ${{ steps.context.outputs.deploy-target }}
+          pull-event: ${{ steps.context.outputs.pull-event }}
+          pull-slug: ${{ steps.context.outputs.pull-slug }}
+          push-event: ${{ steps.context.outputs.push-event }}
 
       - uses: ./.github/actions/core/cd/manager
         if: steps.context.outputs.cd-action == 'true'
         env:
+          GCP_DOMAIN: ${{ vars.GCP_DOMAIN }}
+          GCP_SERVICE: ${{ vars.GCP_SERVICE }}
           VCL_PROJECT: ${{ vars.VCL_PROJECT }}
           VCL_TEAM: ${{ vars.VCL_TEAM }}
           VCL_TOKEN: ${{ secrets.VCL_TOKEN }}
-          VITE_API_BASE_URL: 'https://ci-test-new---api-gkrxksmsua-ew.a.run.app'
         with:
-          issue-number: ${{ steps.context.outputs.issue-number }}
-          issue-slug: ${{ steps.context.outputs.issue-slug }}
-          manager-hash: ${{ steps.context.outputs.manager-hash }}
+          branch-sha: ${{ steps.context.outputs.branch-sha }}
+          deploy-target: ${{ steps.context.outputs.deploy-target }}
+          manager-sha: ${{ steps.context.outputs.manager-sha }}
           pull-event: ${{ steps.context.outputs.pull-event }}
+          pull-slug: ${{ steps.context.outputs.pull-slug }}
           push-event: ${{ steps.context.outputs.push-event }}
