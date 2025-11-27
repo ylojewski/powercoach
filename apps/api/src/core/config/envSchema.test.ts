@@ -43,7 +43,7 @@ describe('envSchema', () => {
     expect(() => envSchema.parse({})).toThrow(validEnvKeys)
   })
 
-  it('rejects full invalid values', () => {
+  it('rejects invalid values', () => {
     const zodError = expectZodParseToThrow(envSchema, invalidConfig)
 
     expect(zodError.issues).toStrictEqual([
