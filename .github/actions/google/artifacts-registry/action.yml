@@ -1,0 +1,31 @@
+name: Artifacts Registry
+description: Compute the GCP Docker Artifacts Registry host and url
+
+outputs:
+  host:
+    description: The computed GCP Artifacts Registry Docker host
+    value: ${{ steps.host.outputs.value }}
+  url:
+    description: The full computed GCP Artifacts Registry Docker URL
+    value: ${{ steps.url.outputs.value }}
+
+runs:
+  using: composite
+  steps:
+    - name: Artifacts Registry host
+      id: host
+      shell: bash
+      run: echo "value=$GCP_REGION-docker.pkg.dev" >> "$GITHUB_OUTPUT"
+
+    - name: Artifacts Registry URL
+      id: url
+      shell: bash
+      run: |
+        parts=(
+          "${{ steps.host.outputs.value }}"
+          "$GCP_PROJECT_ID"
+          "$GCP_ARTIFACTS_REPOSITORY"
+        )
+
+        value=$(IFS=/; echo "${parts[*]}")
+        echo "value=$value" >> "$GITHUB_OUTPUT"

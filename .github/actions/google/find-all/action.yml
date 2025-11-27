@@ -1,0 +1,74 @@
+name: Find on Artifacts Registry and Cloud Run
+description: Retrieves all Google Artifacts Registry images and all Cloud Run revision names using the gcloud SDK
+
+inputs:
+  branch-sha:
+    description: Github branch SHA
+    required: true
+
+outputs:
+  images:
+    description: The found Artifacts Registry images
+    value: ${{ steps.find.outputs.images }}
+  revision-names:
+    description: The found Cloud Run revision names
+    value: ${{ steps.find.outputs.revision-names }}
+
+runs:
+  using: composite
+  steps:
+    - uses: ./.github/actions/google/artifacts-registry
+      id: artifacts-registry
+
+    - uses: ./.github/actions/core/metadata
+      id: metadata
+      with:
+        branch-sha: ${{ inputs.branch-sha }}
+
+    - name: Find on Artifacts Registry and Cloud Run
+      id: find
+      shell: bash
+      run: |
+        echo "🔍 Searching Artifacts Registry versions"
+        echo "  -- Artifacts Registry ⇒ ${{ steps.artifacts-registry.outputs.url }}"
+        echo "  -- Tag ⇒ ${{ steps.metadata.outputs.branch-short-value }}"
+
+        response=$(
+          gcloud artifacts docker tags list "${{ steps.artifacts-registry.outputs.url }}" \
+            --filter="tag~'tags/${{ steps.metadata.outputs.branch-short-value }}'" \
+            --format="json" \
+            --quiet \
+          | jq
+        )
+
+        count="$(printf '%s' "$response" | jq 'length')"
+
+        if -0 "$count"; then
+          echo "ℹ️ No Artifacts Registry images found"
+        else
+          echo "ℹ️ Found $count Artifacts Registry images"
+          GITHUB_OUTPUT_M "images" "$(printf '%s' "$response" | jq -r '.[].image + ":" + (.[] .tag | split("/") | last)')"
+        fi
+
+        echo "🔍 Searching all Cloud Run revision names"
+        echo "  -- Labels ⇒ ${{ steps.metadata.outputs.branch-long-value }}"
+
+        response=$(
+          gcloud run revisions list \
+            --region="$GCP_REGION" \
+            --project="$GCP_PROJECT_ID" \
+            --service="$GCP_SERVICE" \
+            --filter="metadata.labels.${{ steps.metadata.outputs.branch-long }}=${{ inputs.branch-sha }}" \
+            --format="json" \
+            --quiet \
+          | jq
+        )
+
+        count="$(printf '%s' "$response" | jq 'length')"
+
+        if -0 "$count"; then
+          echo "ℹ️ No Cloud Run revisions found"
+        else
+          echo "ℹ️ Found $count Cloud Run revision names"
+          GITHUB_OUTPUT_M "revision-names" "$(printf '%s' "$response" | jq -r '.[].metadata.name')"
+        fi

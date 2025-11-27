@@ -1,9 +1,9 @@
 name: Prune Manager
-description: Prune Vercel preview deployments for the given issue number
+description: Prune Vercel preview deployments for the given branch SHA
 
 inputs:
-  issue-number:
-    description: Issue number of the pull request event
+  branch-sha:
+    description: Github branch SHA
     required: true
 
 runs:
@@ -12,22 +12,22 @@ runs:
     - uses: ./.github/actions/core/summary
       with:
         title: Prune Manager inputs
-        data: '{ "Issue number": "${{ inputs.issue-number }}" }'
+        data: '{ "Branch SHA": "${{ inputs.branch-sha }}" }'
 
-    - name: Find deployed hosts
-      id: find-hosts
-      uses: ./.github/actions/vercel/host/find
+    - name: Find deployments
+      id: find-deployments
+      uses: ./.github/actions/vercel/find-all
       with:
-        issue-number: ${{ inputs.issue-number }}
-        target: 'preview'
+        branch-sha: ${{ inputs.branch-sha }}
+        deploy-target: 'preview'
 
     - name: Delete deployed hosts
-      if: steps.find-hosts.outputs.found == 'true'
+      if: steps.find-deployments.outputs.found == 'true'
       shell: bash
       run: |
         echo "🧹 Deleting existing preview deployments..."
 
-        printf '%s\n' "${{ steps.find-hosts.outputs.hosts }}" | while IFS= read -r host; do
+        printf '%s\n' "${{ steps.find-deployments.outputs.hosts }}" | while IFS= read -r host; do
           if curl \
             --silent \
             --fail \
@@ -50,7 +50,6 @@ runs:
         level: '4'
         data: |
           {
-            "find-hosts.found": "${{ steps.find-hosts.outputs.found }}",
-            "find-hosts.hosts": ${{ toJSON(steps.find-hosts.outputs.hosts) }},
-            "find-hosts.ids": ${{ toJSON(steps.find-hosts.outputs.ids) }}
+            "find-deployments.found": "${{ steps.find-deployments.outputs.found }}",
+            "find-deployments.hosts": ${{ toJSON(steps.find-deployments.outputs.hosts) }}
           }

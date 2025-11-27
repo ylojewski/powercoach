@@ -1,0 +1,4 @@
+value=true
+images<<__EOF__
+europe-west1-docker.pkg.dev/powercoach/api/api:bch-7094f532d5-api-a4190a1f0b
+__EOF__

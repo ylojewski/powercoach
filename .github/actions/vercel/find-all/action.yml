@@ -1,0 +1,92 @@
+name: Find all Vercel deployments
+description: Retrieves all deployment data from Vercel API
+
+inputs:
+  branch-sha:
+    description: Github branch SHA
+    required: true
+  deploy-target:
+    description: Deploy target, "preview" (pull event) or "production" (push event)
+    required: true
+
+outputs:
+  count:
+    description: How many deployments have been found
+    value: ${{ steps.find.outputs.count }}
+  found:
+    description: Whether at least one deployment has been found
+    value: ${{ steps.find.outputs.found }}
+  hosts:
+    description: The found deployment hosts
+    value: ${{ steps.find.outputs.hosts }}
+  value:
+    description: The found deployments
+    value: ${{ steps.find.outputs.value }}
+
+runs:
+  using: composite
+  steps:
+    - uses: ./.github/actions/core/validate/deploy-target
+      with:
+        deploy-target: ${{ inputs.deploy-target }}
+
+    - uses: ./.github/actions/core/metadata
+      id: metadata
+      with:
+        branch-sha: ${{ inputs.branch-sha }}
+
+    - name: Find all Vercel deployments
+      id: find
+      shell: bash
+      run: |
+        query="state=READY"
+        query+="&limit=100"
+        query+="&target=${{ inputs.deploy-target }}"
+        query+="&meta-${{ steps.metadata.outputs.branch-long-camel-value }}"
+
+        base_url="https://api.vercel.com/v6/deployments?$query"
+        url="$base_url"
+
+        deployments="[]"
+
+        while true; do
+          echo "🔍 Searching all deployments"
+          echo "  -- URL ⇒ $url"
+
+          response="$(
+            curl \
+              --silent \
+              --fail \
+              --header "Authorization: Bearer $VCL_TOKEN" \
+              --url "$url"
+          )"
+
+          deployments="$(
+            jq \
+              --argjson acc "$deployments" \
+              --argjson cur "$(echo "$response" | jq '.deployments')" \
+              -n '$acc + $cur'
+          )"
+
+          next="$(echo "$response" | jq -r '.pagination.next')"
+          [[ "$next" == "null" ]] && break
+
+          url="${base_url}&until=$next"
+        done
+
+        count="$(printf '%s' "$deployments" | jq 'length')"
+
+        if -0 "$count"; then
+          echo "ℹ️ No deployments found"
+          echo "count=0" >> "$GITHUB_OUTPUT"
+          echo "found=false" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        echo "ℹ️ Found $count deployments"
+
+        echo "count=$count" >> "$GITHUB_OUTPUT"
+        echo "found=true" >> "$GITHUB_OUTPUT"
+
+        GITHUB_OUTPUT_M "hosts" "$(printf '%s' "$deployments" | jq -r '.[].url')"
+        GITHUB_OUTPUT_M "value" "$(printf '%s' "$deployments" | jq -r '.')"

@@ -1,0 +1,102 @@
+name: Metadata
+description: Exports metadata keys used to tag & find deployed artifacts
+
+inputs:
+  api-sha:
+    description: SHA of the API source directory
+    required: false
+  branch-sha:
+    description: Github branch SHA
+    required: false
+  manager-sha:
+    description: SHA of the Manager source directory
+    required: false
+
+outputs:
+  api-long:
+    description: API long metadata
+    value: ${{ steps.api.outputs.api-long }}
+  api-long-value:
+    description: API long metadata with value
+    value: ${{ steps.api.outputs.api-long-value }}
+  api-long-camel:
+    description: API long camel case metadata
+    value: ${{ steps.api.outputs.api-long-camel }}
+  api-long-camel-value:
+    description: API long camel case metadata with value
+    value: ${{ steps.api.outputs.api-long-camel-value }}
+  api-short:
+    description: API short metadata
+    value: ${{ steps.api.outputs.api-short }}
+  api-short-value:
+    description: API short metadata with value
+    value: ${{ steps.api.outputs.api-short-value }}
+  branch-long:
+    description: Branch long metadata
+    value: ${{ steps.branch.outputs.branch-long }}
+  branch-long-value:
+    description: Branch long metadata with value
+    value: ${{ steps.branch.outputs.branch-long-value }}
+  branch-long-camel:
+    description: Branch long camel case metadata
+    value: ${{ steps.branch.outputs.branch-long-camel }}
+  branch-long-camel-value:
+    description: Branch long camel case metadata with value
+    value: ${{ steps.branch.outputs.branch-long-camel-value }}
+  branch-short:
+    description: Branch short metadata
+    value: ${{ steps.branch.outputs.branch-short }}
+  branch-short-value:
+    description: Branch short metadata with value
+    value: ${{ steps.branch.outputs.branch-short-value }}
+  manager-long:
+    description: Manager long metadata
+    value: ${{ steps.manager.outputs.manager-long }}
+  manager-long-value:
+    description: Manager long metadata with value
+    value: ${{ steps.manager.outputs.manager-long-value }}
+  manager-long-camel:
+    description: Manager long camel case metadata
+    value: ${{ steps.manager.outputs.manager-long-camel }}
+  manager-long-camel-value:
+    description: Manager long camel case metadata with value
+    value: ${{ steps.manager.outputs.manager-long-camel-value }}
+  manager-short:
+    description: Manager short metadata
+    value: ${{ steps.manager.outputs.manager-short }}
+  manager-short-value:
+    description: Manager short metadata with value
+    value: ${{ steps.manager.outputs.manager-short-value }}
+
+runs:
+  using: composite
+  steps:
+    - id: api
+      shell: bash
+      run: |
+        echo "api-long=powercoach-api-sha" >> "$GITHUB_OUTPUT"
+        echo "api-long-value=powercoach-api-sha=${{ inputs.api-sha }}" >> "$GITHUB_OUTPUT"
+        echo "api-long-camel=powercoachApiSha" >> "$GITHUB_OUTPUT"
+        echo "api-long-camel-value=powercoachApiSha=${{ inputs.api-sha }}" >> "$GITHUB_OUTPUT"
+        echo "api-short=api" >> "$GITHUB_OUTPUT"
+        echo "api-short-value=api-${{ inputs.api-sha }}" >> "$GITHUB_OUTPUT"
+
+    - id: branch
+      shell: bash
+      run: |
+        echo "branch-long=powercoach-branch-sha" >> "$GITHUB_OUTPUT"
+        echo "branch-long-value=powercoach-branch-sha=${{ inputs.branch-sha }}" >> "$GITHUB_OUTPUT"
+        echo "branch-long-camel=powercoachBranchSha" >> "$GITHUB_OUTPUT"
+        echo "branch-long-camel-value=powercoachBranchSha=${{ inputs.branch-sha }}" >> "$GITHUB_OUTPUT"
+        echo "branch-short=bch" >> "$GITHUB_OUTPUT"
+        echo "branch-short-value=bch-${{ inputs.branch-sha }}" >> "$GITHUB_OUTPUT"
+
+    - id: manager
+      shell: bash
+      run: |
+        echo "manager-long=powercoach-manager-sha" >> "$GITHUB_OUTPUT"
+        echo "manager-long-value=powercoach-manager-sha=${{ inputs.manager-sha }}" >> "$GITHUB_OUTPUT"
+        echo "manager-long-camel=powercoachManagerSha" >> "$GITHUB_OUTPUT"
+        echo "manager-long-camel-value=powercoachManagerSha=${{ inputs.manager-sha }}" >> "$GITHUB_OUTPUT"
+        echo "manager-short=mng" >> "$GITHUB_OUTPUT"
+        echo "manager-short-value=mng-${{ inputs.manager-sha }}" >> "$GITHUB_OUTPUT"

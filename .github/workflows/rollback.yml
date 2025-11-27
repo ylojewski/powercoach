@@ -28,6 +28,11 @@ jobs:
       - uses: actions/checkout@v6
       - uses: ./.github/actions/core/install
 
+      - name: Github branch SHA
+        id: branch-sha
+        shell: bash
+        run: echo "value=$(printf '%s' 'main' | sha256sum | cut -c1-10)" >> "$GITHUB_OUTPUT"
+
       - name: Rollback Manager
         if: inputs.manager
         uses: ./.github/actions/core/rollback/manager
@@ -35,3 +40,5 @@ jobs:
           VCL_PROJECT: ${{ vars.VCL_PROJECT }}
           VCL_TEAM: ${{ vars.VCL_TEAM }}
           VCL_TOKEN: ${{ secrets.VCL_TOKEN }}
+        with:
+          branch-sha: ${{ steps.branch-sha.outputs.value }}

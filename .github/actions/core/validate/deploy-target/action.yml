@@ -1,0 +1,16 @@
+name: Validate deploy-target
+
+inputs:
+  deploy-target:
+    description: Deploy target, "preview" (pull event) or "production" (push event)
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: |
+        if ! [[ "${{ inputs.deploy-target }}" =~ ^(preview|production)$ ]]; then
+          echo "❌ Error: invalid deploy-target=${{ inputs.deploy-target }} (allowed: preview|production)"
+          exit 1
+        fi
