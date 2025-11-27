@@ -1,0 +1,19 @@
+name: Validate pull-slug
+
+inputs:
+  deploy-target:
+    description: Deploy target, "preview" (pull event) or "production" (push event)
+    required: true
+  pull-slug:
+    description: Slugified linked issue found in the PR commit messages
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: |
+        if -e "${{ inputs.deploy-target }}" "preview" && -z "${{ inputs.pull-slug }}"; then
+          echo "❌ Error: pull-slug is mandatory when deploy-target is set to 'preview'"
+          exit 1
+        fi

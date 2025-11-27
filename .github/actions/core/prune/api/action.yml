@@ -1,0 +1,93 @@
+name: Prune API
+description: Prune Google Artifacts Registry Docker images and Cloud Run revisions using the gcloud SDK
+
+inputs:
+  branch-sha:
+    description: Github branch SHA
+    required: true
+  pull-slug:
+    description: Slugified linked issue found in the PR commit messages
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - uses: ./.github/actions/core/summary
+      with:
+        title: Prune API inputs
+        data: |
+          {
+            "Branch SHA": "${{ inputs.branch-sha }}",
+            "Pull slug": "${{ inputs.pull-slug }}"
+          }
+
+    - uses: ./.github/actions/google/artifacts-registry
+      id: artifacts-registry
+
+    - name: Google auth
+      uses: ./.github/actions/google/auth
+
+    - name: Find all
+      id: find
+      uses: ./.github/actions/google/find-all
+      with:
+        branch-sha: ${{ inputs.branch-sha }}
+
+    - name: Delete revisions
+      if: steps.find.outputs.revision-names != ''
+      shell: bash
+      run: |
+        echo "🧹 Removing existing traffic tag"
+        echo "  -- Tag ⇒ ${{ inputs.pull-slug }}"
+
+        gcloud run services update-traffic "$GCP_SERVICE" \
+          --region="$GCP_REGION" \
+          --project="$GCP_PROJECT_ID" \
+          --remove-tags="${{ inputs.pull-slug }}" \
+          --quiet
+
+        echo "✅ Traffic tag removed"
+        echo "🧹 Deleting existing revisions"
+
+        printf '%s\n' "${{ steps.status.outputs.revision-names }}" | while IFS= read -r revision_name; do
+          if gcloud run revisions delete "$revision_name" \
+            --region="$GCP_REGION" \
+            --project="$GCP_PROJECT_ID" \
+            --quiet
+          then
+            echo "  -- ✅ Deleted ⇒ $revision_name"
+          else
+            echo "  -- ❌ Failed to delete deployment ⇒ $revision_name"
+            exit 1
+          fi
+        done
+
+    - name: Delete Docker images
+      if: steps.find.outputs.images != ''
+      shell: bash
+      run: |
+        echo "🧹 Deleting existing Docker images"
+
+        printf '%s\n' "${{ steps.find.outputs.images }}" | while IFS= read -r image; do
+          if gcloud artifacts docker images delete "$image" \
+            --project="$GCP_PROJECT_ID" \
+            --delete-tags \
+            --quiet
+          then
+            echo "  -- ✅ Deleted ⇒ $image"
+          else
+            echo "  -- ❌ Failed to delete deployment ⇒ $image"
+            exit 1
+          fi
+        done
+
+    - uses: ./.github/actions/core/summary
+      with:
+        title: Prune API tasks
+        layout: 'list'
+        level: '4'
+        data: |
+          {
+            "find.images": ${{ toJSON(steps.find.outputs.images) }},
+            "find.revision-names": ${{ toJSON(steps.find.outputs.revision-names) }}
+          }

@@ -1,0 +1,47 @@
+name: Google Docker image
+description: Compute the full GCP Artifacts Registry Docker image name
+
+inputs:
+  api-sha:
+    description: SHA of the API source directory
+    required: true
+  branch-sha:
+    description: Github branch SHA
+    required: true
+
+outputs:
+  name:
+    description: The computed GCP Artifacts Registry Docker image full name
+    value: ${{ steps.name.outputs.value }}
+  tag:
+    description: The computed GCP Artifacts Registry Docker image tag part
+    value: ${{ steps.tag.outputs.value }}
+
+runs:
+  using: composite
+  steps:
+    - uses: ./.github/actions/google/artifacts-registry
+      id: artifacts-registry
+
+    - uses: ./.github/actions/core/metadata
+      id: metadata
+      with:
+        api-sha: ${{ inputs.api-sha }}
+        branch-sha: ${{ inputs.branch-sha }}
+
+    - name: Image tag
+      id: tag
+      shell: bash
+      run: echo "value=${{ steps.metadata.outputs.branch-short-value }}-${{ steps.metadata.outputs.api-short-value }}" >> "$GITHUB_OUTPUT"
+
+    - name: Image name
+      id: name
+      shell: bash
+      run: |
+        parts=(
+          "${{ steps.artifacts-registry.outputs.url }}"
+          "$GCP_SERVICE:${{ steps.tag.outputs.value }}"
+        )
+
+        value=$(IFS=/; echo "${parts[*]}")
+        echo "value=$value" >> "$GITHUB_OUTPUT"

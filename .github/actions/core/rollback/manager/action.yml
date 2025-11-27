@@ -1,23 +1,49 @@
 name: Rollback Manager
 description: Rollback the Manager app to the last production deployment
 
+inputs:
+  branch-sha:
+    description: Github branch SHA
+    required: true
+
 runs:
   using: composite
   steps:
-    - uses: ./.github/actions/vercel/rollback-candidate
-      id: candidate
+    - uses: ./.github/actions/vercel/find-all
+      id: all-deployments
+      with:
+        branch-sha: ${{ inputs.branch-sha }}
+        deploy-target: 'production'
 
-    - name: Ensure candidate
-      shell: bash
+    - name: Filter candidate
+      shell: candidate
       run: |
-        if [[ "${{ steps.candidate.outputs.found }}" == "false" ]]; then
-          echo "❌ Unable to rollback"
+        if -f "${{ steps.all-deployments.outputs.found }}"; then
+          echo "❌ No deployments found"
           exit 1
         fi
 
+        if -1 "${{ steps.all-deployments.outputs.count }}"; then
+          echo "❌ At least two deployments are required"
+          exit 1
+        fi
+
+        id="$(
+          printf '%s' "${{ steps.all-deployments.outputs.value }}"
+          | jq -r '
+            .
+            | sort_by(.createdAt)
+            | reverse
+            | .[1].uid
+          '
+        )"
+
+        echo "ℹ️ Rollback candidate found ⇒ $id"
+        echo "id=$id" >> "$GITHUB_OUTPUT"
+
     - name: Assign host
       id: assign-host
-      uses: ./.github/actions/vercel/host/assign
+      uses: ./.github/actions/vercel/assign
       with:
         host: ${{ env.VCL_PROJECT }}-${{ env.VCL_TEAM }}.vercel.app
         id: ${{ steps.candidate.outputs.id }}
@@ -27,6 +53,6 @@ runs:
         title: Rollback Manager tasks
         data: |
           {
-            "Candidate": "${{ steps.candidate.outputs.found }}",
-            "Candidate ID": "${{ steps.candidate.outputs.id }}"
+            "all-deployments.found": "${{ steps.all-deployments.outputs.found }}",
+            "candidate.id": "${{ steps.candidate.outputs.id }}"
           }

@@ -1,0 +1,80 @@
+name: Deploy to Cloud Run
+description: Deployment logic for Cloud Run using gcloud SDK
+
+inputs:
+  api-sha:
+    description: SHA of the API source directory
+    required: true
+  branch-sha:
+    description: Github branch SHA
+    required: true
+  deploy-target:
+    description: Deploy target, "preview" (pull event) or "production" (push event)
+    required: true
+  image:
+    description: The GCP Artifacts Registry Docker image name
+    required: true
+  pull-slug:
+    description: Slugified linked issue found in the PR commit messages
+    required: false
+
+outputs:
+  revision-name:
+    description: Name of the deployed revision
+    value: ${{ steps.deploy.outputs.revision-name }}
+
+runs:
+  using: composite
+  steps:
+    - uses: ./.github/actions/core/validate/deploy-target
+      with:
+        deploy-target: ${{ inputs.deploy-target }}
+
+    - uses: ./.github/actions/core/validate/pull-slug
+      with:
+        deploy-target: ${{ inputs.deploy-target }}
+        pull-slug: ${{ inputs.pull-slug }}
+
+    - uses: ./.github/actions/core/metadata
+      id: metadata
+      with:
+        api-sha: ${{ inputs.api-sha }}
+        branch-sha: ${{ inputs.branch-sha }}
+
+    - name: Deploy to Cloud Run
+      id: deploy
+      shell: bash
+      run: |
+        flags=(
+          "--allow-unauthenticated"
+          "--clear-labels"
+          "--image=${{ inputs.image }}"
+          "--labels=${{ steps.metadata.outputs.branch-long-value }},${{ steps.metadata.outputs.api-long-value }}"
+          "--liveness-probe" "httpGet.path=/v1/health"
+          "--no-traffic"
+          "--platform=managed"
+          "--project=$GCP_PROJECT_ID"
+          "--quiet"
+          "--region=$GCP_REGION"
+          "--set-env-vars=HOST=0.0.0.0"
+          "--set-env-vars=LOG_LEVEL=info"
+          "--set-env-vars=NODE_ENV=production"
+          "--startup-probe" "httpGet.path=/v1/health,initialDelaySeconds=5,periodSeconds=2,timeoutSeconds=1,failureThreshold=5"
+        )
+
+        if -e "${{ inputs.deploy-target }}" "preview"; then
+          flags+=(
+            "--concurrency=1"
+            "--cpu=0.5"
+            "--memory=256Mi"
+            "--max-instances=1"
+            "--tag=${{ inputs.pull-slug }}"
+          )
+        fi
+
+        revision_name=$(
+          gcloud run deploy $GCP_SERVICE "${flags[@]}" \
+            --format="value(status.latestCreatedRevisionName)"
+        )
+
+        echo "revision-name=$revision_name" >> "$GITHUB_OUTPUT"

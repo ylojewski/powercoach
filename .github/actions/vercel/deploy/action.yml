@@ -2,18 +2,18 @@ name: Deploy to Vercel
 description: Deployment logic for Vercel (build files, create deployment, wait until READY)
 
 inputs:
-  issue-number:
-    description: Issue number of the pull request event
-    required: false
-  manager-hash:
-    description: Hash of the Manager source directory
+  branch-sha:
+    description: Github branch SHA
+    required: true
+  deploy-target:
+    description: Deploy target, "preview" (pull event) or "production" (push event)
+    required: true
+  manager-sha:
+    description: SHA of the Manager source directory
     required: true
   out-dir:
     description: Output directory to deploy
     required: true
-  production:
-    description: Whether to push with the --prod flag
-    required: false
 
 outputs:
   id:
@@ -23,13 +23,23 @@ outputs:
 runs:
   using: composite
   steps:
+    - uses: ./.github/actions/core/validate/deploy-target
+      with:
+        deploy-target: ${{ inputs.deploy-target }}
+
+    - uses: ./.github/actions/core/metadata
+      id: metadata
+      with:
+        branch-sha: ${{ inputs.branch-sha }}
+        manager-sha: ${{ inputs.manager-sha }}
+
     - name: Deploy to Vercel (core)
       id: deploy
       shell: bash
       run: |
         echo "📦 Creating deployment with"
-        echo "  -- Manager hash ⇒ ${{ inputs.manager-hash }}"
-        [[ -n "${{ inputs.issue-number }}" ]] && echo "  -- Issue number ⇒ ${{ inputs.issue-number }}"
+        echo "  -- Branch SHA ⇒ ${{ inputs.branch-sha }}"
+        echo "  -- Manager SHA ⇒ ${{ inputs.manager-sha }}"
 
         files=$(
           find "${{ inputs.out-dir }}" -type f -print0 \
@@ -45,17 +55,19 @@ runs:
         payload=$(
           printf '%s' "$files" \
           | jq \
-            --arg issue "${{ inputs.issue-number }}" \
-            --arg hash "${{ inputs.manager-hash }}" \
-            --arg production "${{ inputs.production }}" \
+            --arg branch_sha "${{ inputs.branch-sha }}" \
+            --arg branch_metadata "${{ steps.metadata.outputs.branch-long-camel }}" \
+            --arg manager_sha "${{ inputs.manager-sha }}" \
+            --arg manager_metadata "${{ steps.metadata.outputs.manager-long-camel }}" \
+            --arg production "${{ inputs.deploy-target == 'production' }}" \
             --arg project "$VCL_PROJECT" \
             '. as $files
               | {
                  files: $files,
-                 meta: (if $issue != ""
-                        then { powercoachManagerHash: $hash, powercoachIssueNumber: $issue }
-                        else { powercoachManagerHash: $hash }
-                        end),
+                 meta: {
+                   ($branch_metadata): $branch_sha,
+                   ($manager_metadata): $manager_sha
+                 },
                  name: $project,
                  project: $project
                }

@@ -1,0 +1,90 @@
+name: Cloud Run traffic
+description: Routes 100% of the traffic to the given tagged or default revision name
+
+inputs:
+  branch-sha:
+    description: Github branch SHA
+    required: true
+  deploy-target:
+    description: Deploy target, "preview" (pull event) or "production" (push event)
+    required: true
+  pull-slug:
+    description: Slugified linked issue found in the PR commit messages
+    required: false
+  revision-name:
+    description: Revision name that will receive 100% of the traffic
+    required: true
+
+outputs:
+  skipped:
+    description: Whether traffic routing was skipped
+    value: ${{ steps.traffic.outputs.skipped || 'false' }}
+
+runs:
+  using: composite
+  steps:
+    - uses: ./.github/actions/core/validate/deploy-target
+      with:
+        deploy-target: ${{ inputs.deploy-target }}
+
+    - uses: ./.github/actions/core/validate/pull-slug
+      with:
+        deploy-target: ${{ inputs.deploy-target }}
+        pull-slug: ${{ inputs.pull-slug }}
+
+    - name: Traffic
+      id: traffic
+      shell: bash
+      run: |
+        echo "🔍 Listing traffic"
+        echo "  -- Revision name ⇒ ${{ inputs.revision-name }}"
+        -n "${{ inputs.pull-slug }}" && echo "  -- Tag ⇒ ${{ inputs.pull-slug }}"
+
+        routed=$(
+          gcloud run services describe "$GCP_SERVICE" \
+            --region="$GCP_REGION" \
+            --project="$GCP_PROJECT_ID" \
+            --format="json(status.traffic)" \
+          | jq -r \
+            --arg tag "${{ inputs.pull-slug }}" \
+            --arg revision_name "${{ inputs.revision-name }}" \
+            '
+              [
+                .status.traffic[]
+                | select(.revisionName == $revision_name)
+                | (if $tag != "" then select(.tag == $tag) else select(.percent == 100) end)
+              ]
+              | (if length > 0 then "true" else "false" end)
+            '
+        )
+
+        if -t "$routed"; then
+          echo "ℹ️ Traffic is already routed"
+          echo "skipped=true" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        echo "ℹ️ No traffic set"
+
+        if -e "${{ inputs.deploy-target }}" "production"; then
+          echo "🔀 Routing 100% production traffic to"
+          echo "  -- Revision name ⇒ ${{ inputs.revision-name }}"
+
+          gcloud run services update-traffic "$GCP_SERVICE" \
+            --region="$GCP_REGION" \
+            --project="$GCP_PROJECT_ID" \
+            --to-revisions="${{ inputs.revision-name }}=100" \
+            --quiet
+        elif -e "${{ inputs.deploy-target }}" "preview"; then
+          echo "🔀 Routing 100% preview traffic to"
+          echo "  -- Revision name ⇒ ${{ inputs.revision-name }}"
+          echo "  -- Tag ⇒ ${{ inputs.pull-slug }}"
+
+          gcloud run services update-traffic "$GCP_SERVICE" \
+            --region="$GCP_REGION" \
+            --project="$GCP_PROJECT_ID" \
+            --update-tags="${{ inputs.pull-slug }}=${{ inputs.revision-name }}" \
+            --quiet
+        fi
+
+        echo "✅ Traffic updated"

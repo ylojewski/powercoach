@@ -1,0 +1,81 @@
+name: Find Vercel deployment
+description: Retrieves one deployment data from Vercel API
+
+inputs:
+  branch-sha:
+    description: Github branch SHA
+    required: true
+  deploy-target:
+    description: Deploy target, "preview" (pull event) or "production" (push event)
+    required: true
+  manager-sha:
+    description: SHA of the Manager source directory
+    required: true
+
+outputs:
+  found:
+    description: Whether the deployment has been found
+    value: ${{ steps.find.outputs.found }}
+  id:
+    description: The found deployment id
+    value: ${{ steps.find.outputs.id }}
+  value:
+    description: The found deployment
+    value: ${{ steps.find.outputs.value }}
+
+runs:
+  using: composite
+  steps:
+    - uses: ./.github/actions/core/validate/deploy-target
+      with:
+        deploy-target: ${{ inputs.deploy-target }}
+
+    - uses: ./.github/actions/core/metadata
+      id: metadata
+      with:
+        branch-sha: ${{ inputs.branch-sha }}
+        manager-sha: ${{ inputs.manager-sha }}
+
+    - name: Find Vercel deployment
+      id: find
+      shell: bash
+      run: |
+        query="state=READY"
+        query+="&target=${{ inputs.deploy-target }}"
+        query+="&meta-${{ steps.metadata.outputs.branch-long-camel-value }}"
+        query+="&meta-${{ steps.metadata.outputs.manager-long-camel-value }}"
+
+        url="https://api.vercel.com/v6/deployments?$query"
+
+        echo "🔍 Searching exactly one deployment with:"
+        echo "  -- URL ⇒ $url"
+
+        response=$(
+          curl \
+            --silent \
+            --fail \
+            --header "Authorization: Bearer $VCL_TOKEN" \
+            --url "$url" \
+          | jq -r '.deployments'
+        )
+
+        count="$(printf '%s' "$response" | jq 'length')"
+
+        if -0 "$count"; then
+          echo "ℹ️ No deployments found"
+          echo "found=false" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        if -g "$count"; then
+          echo "❌ Error: multiple deployments found (expected exactly 1):"
+          echo_m "$(printf '%s' "$response" | jq -r '.[].uid')"
+          exit 1
+        fi
+
+        echo "ℹ️ Found one deployment"
+
+        echo "found=true" >> "$GITHUB_OUTPUT"
+        echo "id=$(printf '%s' "$response" | jq -r '.[0].uid')" >> "$GITHUB_OUTPUT"
+
+        GITHUB_OUTPUT_M "value" "$(printf '%s' "$response" | jq -r '.[0]')"
