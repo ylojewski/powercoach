@@ -62,7 +62,7 @@ runs:
           echo "ℹ️ No Artifacts Registry images found"
         else
           echo "ℹ️ Found $count Artifacts Registry images"
-          GITHUB_OUTPUT_M "images" "$(printf '%s' "$response" | jq -r '.[].image + ":" + (.[] .tag | split("/") | last)')"
+          GITHUB_OUTPUT_M "images" "$(printf '%s' "$response" | jq -r '.[] | "\(.image):\(.tag | split("/") | last)"')"
         fi
 
         GITHUB_OUTPUT_M "images-value" "$(printf '%s' "$response" | jq -r '.')"
