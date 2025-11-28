@@ -20,24 +20,33 @@ inputs:
 runs:
   using: composite
   steps:
-    - shell: bash
-      run: |
-        {
-          echo "$(printf %${{ inputs.level }}s | tr ' ' '#') ${{ inputs.title }}"
-          echo ""
+    - uses: actions/github-script@v7
+      env:
+        DATA: ${{ inputs.data }}
+        LAYOUT: ${{ inputs.layout }}
+        LEVEL: ${{ inputs.level }}
+        TITLE: ${{ inputs.title }}
+      with:
+        script: |
+          const fs = require('fs');
+          const { DATA, LAYOUT, LEVEL, TITLE, GITHUB_STEP_SUMMARY } = process.env;
+          const isTable = LAYOUT === 'table';
+          const data = JSON.parse(DATA.replace(/:\s*"([^"]*)"/gs, (_, value) => {
+            return `: "${value.replace(/\n/g, '\\n')}"`;
+          }))
 
-          if [[ "${{ inputs.layout }}" == "table" ]]; then
-            echo "| Name | Value |"
-            echo "| --- | --- |"
-          fi
+          let output = '#'.repeat(parseInt(LEVEL)) + ' ' + TITLE + '\n\n';
 
-          jq -r 'to_entries[] | "\(.key)|\(.value)"' <<< '${{ inputs.data }}' \
-          | while IFS="|" read -r key value; do
-              if [[ "$value" == "true" ]]; then value="✅"; fi
-              if [[ "$value" == "false" ]]; then value="❌"; fi
-              if [[ "${{ inputs.layout }}" == "table" ]]; then echo "| $key | ${value:-❌} |"; fi
-              if [[ "${{ inputs.layout }}" == "list" ]]; then echo "- $key ⇒ ${value:-❌}"; fi
-            done
+          if (isTable) {
+            output += '| Name | Value |\n| --- | --- |\n';
+          }
 
-          echo ""
-        } >> "$GITHUB_STEP_SUMMARY"
+          Object.entries(data).forEach(([key, value]) => {
+            const displayedValue = value === true ? '✅' : !value ? '❌' : `${value}`.replace(/\n/g, '<br>');
+            output += isTable
+              ? `| ${key} | ${displayedValue} |\n`
+              : `- ${key} ⇒ ${displayedValue}\n`;
+          });
+
+          output += '\n';
+          fs.appendFileSync(GITHUB_STEP_SUMMARY, output);

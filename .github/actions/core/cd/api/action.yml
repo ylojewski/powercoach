@@ -168,7 +168,7 @@ runs:
             "actions.build": "${{ steps.actions.outputs.build }}",
             "actions.deploy": "${{ steps.actions.outputs.deploy }}",
             "deploy.revision-name": "${{ steps.deploy.outputs.revision-name }}",
-            "delete-temporary.revision-names": ${{ toJSON(steps.delete-temporary.outputs.revision-names || 'false') }},
+            "delete-temporary.revision-names": "${{ steps.delete-temporary.outputs.revision-names }}",
             "revision-name.value": "${{ steps.revision-name.outputs.value }}",
             "traffic.skipped": "${{ steps.traffic.outputs.skipped }}"
           }

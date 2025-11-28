@@ -52,9 +52,11 @@ runs:
     - name: Rollback revision
       id: rollback
       shell: bash
+      env:
+        REVISION_NAMES: ${{ steps.find.outputs.revision-names-value }}
       run: |
         name=$(
-          printf '%s' "${{ steps.find.outputs.revision-names-value }}" \
+          printf '%s' "$REVISION_NAMES" \
           | jq -r \
             --arg production_name "${{ steps.production.outputs.name }}" \
             '
@@ -67,15 +69,16 @@ runs:
         )
 
         if -z "$name"; then
-          echo "❌ Error: no rollback revisions found"
-          exit 1
+          echo "⚠️ Warning: no rollback revision name found"
+          exit 0
         fi
 
-        echo "ℹ️ Rollback revision found ⇒ $name"
+        echo "ℹ️ Rollback revision name found ⇒ $name"
         echo "name=$name" >> "$GITHUB_OUTPUT"
 
     - name: Traffic
       uses: ./.github/actions/google/traffic
+      if: steps.rollback.outputs.name
       with:
         branch-sha: ${{ inputs.main-sha }}
         deploy-target: 'production'
@@ -86,7 +89,7 @@ runs:
         title: Rollback API tasks
         data: |
           {
-            "find.revision-names": ${{ toJSON(steps.find.outputs.revision-names || 'false') }},
+            "find.revision-names": "${{ steps.find.outputs.revision-names }}",
             "production.name": "${{ steps.production.outputs.name }}",
             "rollback.name": "${{ steps.rollback.outputs.name }}"
           }

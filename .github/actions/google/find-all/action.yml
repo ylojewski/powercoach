@@ -65,7 +65,7 @@ runs:
           GITHUB_OUTPUT_M "images" "$(printf '%s' "$response" | jq -r '.[] | "\(.image):\(.tag | split("/") | last)"')"
         fi
 
-        GITHUB_OUTPUT_M "images-value" "$(printf '%s' "$response" | jq -r '.')"
+        GITHUB_OUTPUT_M "images-value" "$(printf '%s' "$response" | jq '.')"
 
     - name: Find on Cloud Run
       id: find-revision-names
@@ -95,4 +95,4 @@ runs:
           GITHUB_OUTPUT_M "revision-names" "$(printf '%s' "$response" | jq -r '.[].metadata.name')"
         fi
 
-        GITHUB_OUTPUT_M "revision-names-value" "$(printf '%s' "$response" | jq -r '.')"
+        GITHUB_OUTPUT_M "revision-names-value" "$(printf '%s' "$response" | jq '.')"

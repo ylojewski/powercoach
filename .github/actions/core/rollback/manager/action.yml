@@ -49,9 +49,11 @@ runs:
     - name: Rollback deployment
       id: rollback
       shell: bash
+      env:
+        DEPLOYMENTS: ${{ steps.find.outputs.value }}
       run: |
         id=$(
-          printf '%s' "${{ steps.find.outputs.value }}" \
+          printf '%s' "$DEPLOYMENTS" \
           | jq -r \
             --arg production_id "${{ steps.production.outputs.id }}" \
             '
@@ -64,8 +66,8 @@ runs:
         )
 
         if -z "$id"; then
-          echo "❌ Error: no rollback deployments found"
-          exit 1
+          echo "⚠️ Warning: no rollback deployments found"
+          exit 0
         fi
 
         echo "ℹ️ Rollback deployment found ⇒ $id"
@@ -73,6 +75,7 @@ runs:
 
     - name: Assign host
       uses: ./.github/actions/vercel/assign
+      if: steps.rollback.outputs.id
       with:
         host: ${{ steps.host.outputs.value }}
         id: ${{ steps.rollback.outputs.id }}
@@ -83,7 +86,7 @@ runs:
         data: |
           {
             "host.value": "${{ steps.host.outputs.value }}",
-            "find.hosts": ${{ toJSON(steps.find.outputs.hosts || 'false') }},
+            "find.hosts": "${{ steps.find.outputs.hosts }}",
             "production.id": "${{ steps.production.outputs.id }}",
             "rollback.id": "${{ steps.rollback.outputs.id }}"
           }

@@ -89,4 +89,4 @@ runs:
         echo "found=true" >> "$GITHUB_OUTPUT"
 
         GITHUB_OUTPUT_M "hosts" "$(printf '%s' "$deployments" | jq -r '.[].url')"
-        GITHUB_OUTPUT_M "value" "$(printf '%s' "$deployments" | jq -r '.')"
+        GITHUB_OUTPUT_M "value" "$(printf '%s' "$deployments" | jq '.')"

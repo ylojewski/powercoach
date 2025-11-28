@@ -93,6 +93,7 @@ jobs:
         with:
           branch-sha: ${{ (steps.context.outputs.pull-event == 'true' && steps.context.outputs.branch-sha) || (steps.context.outputs.push-event == 'true' && steps.context.outputs.commit-branch-sha) }}
           pull-slug: ${{ (steps.context.outputs.pull-event == 'true' && steps.context.outputs.pull-slug) || (steps.context.outputs.push-event == 'true' && steps.context.outputs.commit-pull-slug) }}
+          google-auth: ${{ steps.context.outputs.close-event }}
 
       - name: Prune Manager
         uses: ./.github/actions/core/prune/manager

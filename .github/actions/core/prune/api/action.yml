@@ -5,6 +5,10 @@ inputs:
   branch-sha:
     description: Github branch SHA
     required: true
+  google-auth:
+    description: Whether auth to Google
+    required: false
+    default: 'true'
   pull-slug:
     description: Slugified linked issue found in the PR commit messages
     required: true
@@ -26,6 +30,7 @@ runs:
 
     - name: Google auth
       uses: ./.github/actions/google/auth
+      if: inputs.google-auth == 'true'
 
     - name: Find all
       id: find
@@ -127,6 +132,6 @@ runs:
         level: '4'
         data: |
           {
-            "find.images": ${{ toJSON(steps.find.outputs.images || 'false') }},
-            "find.revision-names": ${{ toJSON(steps.find.outputs.revision-names || 'false') }}
+            "find.images": "${{ steps.find.outputs.images }}",
+            "find.revision-names": "${{ steps.find.outputs.revision-names }}"
           }
