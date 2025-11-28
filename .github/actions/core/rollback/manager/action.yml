@@ -31,8 +31,8 @@ runs:
       run: |
         id=$(
           curl \
-            --silent
-            --fail
+            --silent \
+            --fail \
             --header "Authorization: Bearer $VCL_TOKEN" \
             --url "https://api.vercel.com/v4/aliases/${{ steps.host.outputs.value }}" \
           | jq -r '.deployment.id // empty'
