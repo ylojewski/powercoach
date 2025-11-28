@@ -50,8 +50,10 @@ runs:
       id: rollback
       shell: bash
       run: |
+        deployments="${{ steps.find.outputs.value }}"
+
         id=$(
-          printf '%s' "${{ steps.find.outputs.value }}" \
+          printf '%s' "$deployments" \
           | jq -r \
             --arg production_id "${{ steps.production.outputs.id }}" \
             '

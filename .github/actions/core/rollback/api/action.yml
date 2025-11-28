@@ -53,8 +53,10 @@ runs:
       id: rollback
       shell: bash
       run: |
+        revision_names="${{ steps.find.outputs.revision-names-value }}"
+
         name=$(
-          printf '%s' "${{ steps.find.outputs.revision-names-value }}" \
+          printf '%s' "$revision_names" \
           | jq -r \
             --arg production_name "${{ steps.production.outputs.name }}" \
             '
