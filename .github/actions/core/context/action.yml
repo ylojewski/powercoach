@@ -73,8 +73,7 @@ runs:
         fi
 
         if -e "${{ github.event_name }}" "pull_request" &&
-           -e "${{ github.event.action }}" "closed" &&
-           -f "${{ github.event.pull_request.merged }}"; then
+           -e "${{ github.event.action }}" "closed"; then
           echo "close=true" >> "$GITHUB_OUTPUT"
         else
           echo "close=false" >> "$GITHUB_OUTPUT"
@@ -178,8 +177,12 @@ runs:
       run: |
         action="false"
 
-        if -t "${{ steps.event.outputs.close }}" ||
-           -t "${{ steps.event.outputs.push }}"; then
+        if -t "${{ steps.event.outputs.close }}" && 
+           -f "${{ github.event.pull_request.merged }}"; then
+          action="true"
+        fi
+
+        if -t "${{ steps.event.outputs.push }}"; then
           action="true"
         fi
 
