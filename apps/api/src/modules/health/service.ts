@@ -4,6 +4,6 @@ export function getHealthStatus(): HealthResponse {
   return {
     live: true,
     ready: true,
-    uptime: 42
+    uptime: 55
   }
 }
