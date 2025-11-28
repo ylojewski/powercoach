@@ -8,23 +8,35 @@ outputs:
   branch-sha:
     description: Github branch SHA
     value: ${{ steps.sha.outputs.branch }}
-  ci-action:
-    description: Whether CI should be ran
-    value: ${{ steps.ci.outputs.action }}
   cd-action:
     description: Whether CD should be ran
     value: ${{ steps.cd.outputs.action }}
+  ci-action:
+    description: Whether CI should be ran
+    value: ${{ steps.ci.outputs.action }}
+  close-event:
+    description: Whether it is a closed pull request event (no merge)
+    value: ${{ steps.event.outputs.close }}
+  commit-branch-sha:
+    description: Github branch SHA found in the last commit message
+    value: ${{ steps.commit.outputs.branch-sha }}
+  commit-pull-slug:
+    description: Slugified Github PR branch name found in the last commit message
+    value: ${{ steps.commit.outputs.pull-slug }}
   deploy-target:
     description: Deploy target, "preview" (pull event) or "production" (push event)
     value: ${{ steps.deploy.outputs.target }}
   manager-sha:
     description: SHA of the Manager source directory
     value: ${{ steps.sha.outputs.manager }}
+  prune-action:
+    description: Whether prune should be ran
+    value: ${{ steps.prune.outputs.action }}
   pull-event:
     description: Whether it is a pull request event
     value: ${{ steps.event.outputs.pull }}
   pull-slug:
-    description: Slugified linked issue found in the PR commit messages
+    description: Slugified Github PR branch name
     value: ${{ steps.pull.outputs.slug }}
   push-event:
     description: Whether it is a push event
@@ -60,6 +72,14 @@ runs:
           echo "pull=true" >> "$GITHUB_OUTPUT"
         fi
 
+        if -e "${{ github.event_name }}" "pull_request" &&
+           -e "${{ github.event.action }}" "closed" &&
+           -f "${{ github.event.pull_request.merged }}"; then
+          echo "close=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "close=false" >> "$GITHUB_OUTPUT"
+        fi
+
     - name: Deploy target
       id: deploy
       shell: bash
@@ -72,17 +92,26 @@ runs:
           echo "target=preview" >> "$GITHUB_OUTPUT"
         fi
 
+    - name: Commit data
+      id: commit
+      if: steps.event.outputs.push == 'true'
+      shell: bash
+      run: |
+        branch=$(
+          echo "${{ github.event.head_commit.message }}" \
+          | sed -nE 's#^From[[:space:]]+((feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)/[a-z]+/[A-Za-z0-9_-]+)$#\1#p'
+        )
+
+        if -n "$branch"; then
+          echo "branch-sha=$(sumify "$branch")" >> "$GITHUB_OUTPUT"
+          echo "pull-slug=$(slugify "$branch")" >> "$GITHUB_OUTPUT"
+        fi
+
     - name: Pull Github event slug
       id: pull
       if: steps.event.outputs.pull == 'true'
       shell: bash
-      run: |
-        echo "slug=$(
-          echo ${{ github.head_ref }} \
-          | tr '[:upper:]' '[:lower:]' \
-          | sed -E 's/[^a-z0-9]+/-/g' \
-          | sed -E 's/^-+|-+$//g'
-        )" >> "$GITHUB_OUTPUT"
+      run: echo "slug=$(slugify "${{ github.head_ref }}")" >> "$GITHUB_OUTPUT"
 
     - name: Turbo
       shell: bash
@@ -117,6 +146,10 @@ runs:
           action="true"
         fi
 
+        if -t "${{ steps.event.outputs.close }}"; then
+          action="false"
+        fi
+
         echo "action=$action" >> "$GITHUB_OUTPUT"
 
     - name: CD
@@ -128,27 +161,29 @@ runs:
       id: sha
       shell: bash
       run: |
-        cut_flag="-c1-10"
-
-        files_sha() {
-          git ls-files -z "$1" \
-            | sort -z \
-            | xargs -0 sha256sum \
-            | sha256sum \
-            | cut -d' ' -f1 \
-            | cut "$cut_flag"
-        }
-
-        echo "api=$(files_sha apps/api)" >> "$GITHUB_OUTPUT"
-        echo "manager=$(files_sha apps/manager)" >> "$GITHUB_OUTPUT"
+        echo "api=$(sumify --dir apps/api)" >> "$GITHUB_OUTPUT"
+        echo "manager=$(sumify --dir apps/manager)" >> "$GITHUB_OUTPUT"
 
         if -t "${{ steps.event.outputs.pull }}"; then
-          echo "branch=$(printf '%s' '${{ github.head_ref }}' | sha256sum | cut $cut_flag)" >> "$GITHUB_OUTPUT"
+          echo "branch=$(sumify "${{ github.head_ref }}")" >> "$GITHUB_OUTPUT"
         fi
 
         if -t "${{ steps.event.outputs.push }}"; then
-          echo "branch=$(printf '%s' '${{ github.ref_name }}' | sha256sum | cut $cut_flag)" >> "$GITHUB_OUTPUT"
+          echo "branch=$(sumify "${{ github.ref_name }}")" >> "$GITHUB_OUTPUT"
         fi
+
+    - name: Prune
+      id: prune
+      shell: bash
+      run: |
+        action="false"
+
+        if -t "${{ steps.event.outputs.close }}" ||
+           -t "${{ steps.event.outputs.push }}"; then
+          action="true"
+        fi
+
+        echo "action=$action" >> "$GITHUB_OUTPUT"
 
     - uses: ./.github/actions/core/summary
       with:
@@ -157,10 +192,14 @@ runs:
           {
             "API SHA": "${{ steps.sha.outputs.api }}",
             "Branch SHA": "${{ steps.sha.outputs.branch }}",
-            "CI action": "${{ steps.ci.outputs.action }}",
             "CD action": "${{ steps.cd.outputs.action }}",
+            "CI action": "${{ steps.ci.outputs.action }}",
+            "Close event": "${{ steps.event.outputs.close }}",
+            "Commit branch SHA": "${{ steps.commit.outputs.branch-sha }}",
+            "Commit pull slug": "${{ steps.commit.outputs.pull-slug }}",
             "Deploy target": "${{ steps.deploy.outputs.target }}",
             "Manager SHA": "${{ steps.sha.outputs.manager }}",
+            "Prune action": "${{ steps.prune.outputs.action }}",
             "Pull event": "${{ steps.event.outputs.pull }}",
             "Pull slug": "${{ steps.pull.outputs.slug }}",
             "Push event": "${{ steps.event.outputs.push }}",
