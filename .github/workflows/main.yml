@@ -8,12 +8,14 @@ on:
     branches:
       - main
     paths:
+      - '.github/**'
       - 'apps/api/**'
       - 'apps/manager/**'
     types:
-      - opened
+      - closed
       - edited
       - reopened
+      - opened
       - synchronize
 
 permissions:
@@ -37,10 +39,10 @@ jobs:
         id: context
 
       - uses: ./.github/actions/core/status
-        if: steps.context.outputs.pull-event == 'true'
+        if: steps.context.outputs.pull-event == 'true' && steps.context.outputs.close-event == 'false'
 
       - uses: ./.github/actions/core/ci
-        if: steps.context.outputs.ci-action == 'TO_RESTORE_BEFORE_MERGING'
+        if: steps.context.outputs.ci-action == 'true'
         with:
           turbo-filter: ${{ steps.context.outputs.turbo-filter }}
 
@@ -77,3 +79,25 @@ jobs:
           pull-event: ${{ steps.context.outputs.pull-event }}
           pull-slug: ${{ steps.context.outputs.pull-slug }}
           push-event: ${{ steps.context.outputs.push-event }}
+
+      - name: Prune API
+        uses: ./.github/actions/core/prune/api
+        if: steps.context.outputs.prune-action == 'true'
+        env:
+          GCP_ARTIFACTS_REPOSITORY: ${{ vars.GCP_ARTIFACTS_REPOSITORY }}
+          GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+          GCP_REGION: ${{ vars.GCP_REGION }}
+          GCP_SERVICE: ${{ vars.GCP_SERVICE }}
+          GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          GCP_WIF_PROVIDER: ${{ secrets.GCP_WIF_PROVIDER }}
+        with:
+          branch-sha: ${{ (steps.context.outputs.pull-event == 'true' && steps.context.outputs.branch-sha) || (steps.context.outputs.push-event == 'true' && steps.context.outputs.commit-branch-sha) }}
+          pull-slug: ${{ (steps.context.outputs.pull-event == 'true' && steps.context.outputs.pull-slug) || (steps.context.outputs.push-event == 'true' && steps.context.outputs.commit-pull-slug) }}
+
+      - name: Prune Manager
+        uses: ./.github/actions/core/prune/manager
+        if: steps.context.outputs.prune-action == 'true'
+        env:
+          VCL_TOKEN: ${{ secrets.VCL_TOKEN }}
+        with:
+          branch-sha: ${{ (steps.context.outputs.pull-event == 'true' && steps.context.outputs.branch-sha) || (steps.context.outputs.push-event == 'true' && steps.context.outputs.commit-branch-sha) }}
