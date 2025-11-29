@@ -10,6 +10,10 @@ describe('generateVercel', () => {
     mkdirSync(OUTPUT_DIR)
   })
 
+  beforeEach(() => {
+    vi.unstubAllEnvs()
+  })
+
   afterEach(() => {
     rmSync(OUTPUT_FILE, { force: true })
     vi.resetModules()
@@ -23,6 +27,19 @@ describe('generateVercel', () => {
   it('should generate a vercel.json file', async () => {
     vi.stubEnv('VITE_API_BASE_URL', 'http://localhost:8080')
 
+    await import('./vercelPrepare')
+
+    expect(existsSync(OUTPUT_FILE)).toBe(true)
+    expect(JSON.parse(readFileSync(OUTPUT_FILE, 'utf-8'))).toMatchObject(
+      expect.objectContaining({
+        rewrites: expect.arrayContaining([
+          { destination: 'http://localhost:8080/:path*', source: '/api/:path*' }
+        ])
+      })
+    )
+  })
+
+  it('uses default values when env vars are missing', async () => {
     await import('./vercelPrepare')
 
     expect(existsSync(OUTPUT_FILE)).toBe(true)

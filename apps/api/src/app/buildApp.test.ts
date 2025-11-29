@@ -3,7 +3,7 @@ import { FastifyRequest } from 'fastify'
 import { z } from 'zod'
 
 import { type AppConfig, resetCachedConfig } from '@/src/core'
-import { HEALTH_MODULE_NAME } from '@/src/modules'
+import { HEALTH_MODULE_NAME, USER_MODULE_NAME } from '@/src/modules'
 import { HELMET_PLUGIN_NAME, SENSIBLE_PLUGIN_NAME } from '@/src/plugins'
 import { LogLevel } from '@/src/types'
 import { invalidConfig, productionConfig, testConfig } from '@/test/fixtures'
@@ -12,6 +12,16 @@ import { getAjvOptions, stubEnv, spyOnStdout, flushAsync } from '@/test/utils'
 import { ajvOptions } from './ajvOptions'
 import { AppFastifyInstance, buildApp } from './buildApp'
 import { REQUEST_ID_HEADER, REQUEST_ID_LOG_LABEL, REQUEST_MODULE_NAME } from './constants'
+
+const mockedUser = vi.hoisted(() => ({
+  email: 'demo@power.coach',
+  id: '00000000-0000-4000-8000-000000000000'
+}))
+
+vi.mock('@powercoach/db', () => ({
+  fallbackUser: mockedUser,
+  fetchFirstUser: vi.fn(async () => mockedUser)
+}))
 
 describe('buildApp', () => {
   beforeEach(() => {
@@ -75,6 +85,7 @@ describe('buildApp', () => {
       expect(app.hasPlugin(HELMET_PLUGIN_NAME)).toBe(true)
       expect(app.hasPlugin(SENSIBLE_PLUGIN_NAME)).toBe(true)
       expect(app.hasPlugin(HEALTH_MODULE_NAME)).toBe(true)
+      expect(app.hasPlugin(USER_MODULE_NAME)).toBe(true)
     })
 
     it('generates a reliable request id if none is given', async () => {
@@ -132,6 +143,13 @@ describe('buildApp', () => {
     it('mounts the health module on /v1/health', async () => {
       const { headers } = await app.inject({ url: '/v1/health' })
       expect(headers[REQUEST_MODULE_NAME]).toBe(HEALTH_MODULE_NAME)
+    })
+
+    it('mounts the user module on /v1/user', async () => {
+      const response = await app.inject({ url: '/v1/user' })
+
+      expect(response.headers[REQUEST_MODULE_NAME]).toBe(USER_MODULE_NAME)
+      expect(response.json()).toStrictEqual(mockedUser)
     })
   })
 })

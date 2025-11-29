@@ -9,7 +9,7 @@ import Fastify, {
 } from 'fastify'
 
 import { type AppConfig, buildLoggerOptions, loadConfig, parseConfig } from '@/src/core'
-import { healthModule } from '@/src/modules'
+import { healthModule, userModule } from '@/src/modules'
 import { helmetPlugin, sensiblePlugin } from '@/src/plugins'
 
 import { ajvOptions } from './ajvOptions'
@@ -53,6 +53,7 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<AppFastif
   await app.register(helmetPlugin)
   await app.register(sensiblePlugin)
   await app.register(healthModule, { prefix: '/v1/health' })
+  await app.register(userModule, { prefix: '/v1/user' })
 
   return app
 }

@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { LogLevel, NodeEnv } from '@/src/types'
 
 export const envSchema = z.object({
+  DATABASE_URL: z.string().url(),
   HOST: z.union([z.ipv4(), z.literal('localhost')]),
   LOG_LEVEL: z.enum(LogLevel),
   NODE_ENV: z.enum(NodeEnv),

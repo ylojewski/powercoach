@@ -19,6 +19,7 @@ export interface CreateEmptyAppOptions {
 export async function buildTestApp(): Promise<AppFastifyInstance> {
   const app = await buildApp({
     config: {
+      DATABASE_URL: 'postgres://postgres:postgres@localhost:5432/powercoach',
       HOST: '127.0.0.1',
       LOG_LEVEL: LogLevel.silent,
       NODE_ENV: NodeEnv.development,
@@ -42,6 +43,7 @@ export async function buildDummyApp(options?: CreateEmptyAppOptions): Promise<Fa
 
   if (withConfig) {
     app.decorate('config', {
+      DATABASE_URL: 'postgres://postgres:postgres@localhost:5432/powercoach',
       HOST: '0.0.0.0',
       LOG_LEVEL: LogLevel.info,
       NODE_ENV: typeof withConfig === 'boolean' ? NodeEnv.test : withConfig,

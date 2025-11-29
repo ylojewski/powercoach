@@ -4,6 +4,9 @@ export function stubEnv(appConfig: Partial<AppConfig>) {
   if (appConfig.HOST) {
     vi.stubEnv('HOST', appConfig.HOST)
   }
+  if (appConfig.DATABASE_URL) {
+    vi.stubEnv('DATABASE_URL', appConfig.DATABASE_URL)
+  }
   if (appConfig.LOG_LEVEL) {
     vi.stubEnv('LOG_LEVEL', appConfig.LOG_LEVEL)
   }

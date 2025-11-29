@@ -2,6 +2,7 @@ import { AppConfig } from '@/src/core'
 import { LogLevel, NodeEnv } from '@/src/types'
 
 export const productionConfig: AppConfig = {
+  DATABASE_URL: 'postgres://postgres:postgres@localhost:5432/powercoach',
   HOST: '0.0.0.0',
   LOG_LEVEL: LogLevel.info,
   NODE_ENV: NodeEnv.production,
@@ -9,6 +10,7 @@ export const productionConfig: AppConfig = {
 } as const
 
 export const testConfig: AppConfig = {
+  DATABASE_URL: 'postgres://postgres:postgres@localhost:5432/powercoach',
   HOST: '0.0.0.0',
   LOG_LEVEL: LogLevel.info,
   NODE_ENV: NodeEnv.test,
@@ -16,6 +18,7 @@ export const testConfig: AppConfig = {
 } as const
 
 export const devolopmentConfig: AppConfig = {
+  DATABASE_URL: 'postgres://postgres:postgres@localhost:5432/powercoach',
   HOST: 'localhost',
   LOG_LEVEL: LogLevel.debug,
   NODE_ENV: NodeEnv.development,
@@ -23,6 +26,7 @@ export const devolopmentConfig: AppConfig = {
 } as const
 
 export const invalidConfig: AppConfig = {
+  DATABASE_URL: 'invalid-url',
   HOST: '256.256.256.256',
   LOG_LEVEL: 'invalid' as LogLevel,
   NODE_ENV: 'invalid' as NodeEnv,

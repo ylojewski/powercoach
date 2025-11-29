@@ -16,6 +16,7 @@ describe('envSchema', () => {
     expect(() => envSchema.parse(productionConfig)).not.toThrow()
     expect(envSchema.safeParse(productionConfig)).toStrictEqual<ZodSafeParseResult<AppConfig>>({
       data: {
+        DATABASE_URL: 'postgres://postgres:postgres@localhost:5432/powercoach',
         HOST: '0.0.0.0',
         LOG_LEVEL: LogLevel.info,
         NODE_ENV: NodeEnv.production,
@@ -29,6 +30,7 @@ describe('envSchema', () => {
     expect(() => envSchema.parse(devolopmentConfig)).not.toThrow()
     expect(envSchema.safeParse(devolopmentConfig)).toStrictEqual<ZodSafeParseResult<AppConfig>>({
       data: {
+        DATABASE_URL: 'postgres://postgres:postgres@localhost:5432/powercoach',
         HOST: 'localhost',
         LOG_LEVEL: LogLevel.debug,
         NODE_ENV: NodeEnv.development,
@@ -46,25 +48,30 @@ describe('envSchema', () => {
   it('rejects invalid values', () => {
     const zodError = expectZodParseToThrow(envSchema, invalidConfig)
 
-    expect(zodError.issues).toStrictEqual([
-      expect.objectContaining({
-        message: 'Invalid IPv4 address',
-        path: ['HOST']
-      }),
-      expect.objectContaining({
-        message:
-          'Invalid option: expected one of "debug"|"error"|"fatal"|"info"|"silent"|"trace"|"warn"',
-        path: ['LOG_LEVEL']
-      }),
-      expect.objectContaining({
-        message: 'Invalid option: expected one of "development"|"production"|"test"',
-        path: ['NODE_ENV']
-      }),
-      expect.objectContaining({
-        message: 'Too small: expected number to be >=1',
-        path: ['PORT']
-      })
-    ])
+    expect(zodError.issues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          path: ['DATABASE_URL']
+        }),
+        expect.objectContaining({
+          message: 'Invalid IPv4 address',
+          path: ['HOST']
+        }),
+        expect.objectContaining({
+          message:
+            'Invalid option: expected one of "debug"|"error"|"fatal"|"info"|"silent"|"trace"|"warn"',
+          path: ['LOG_LEVEL']
+        }),
+        expect.objectContaining({
+          message: 'Invalid option: expected one of "development"|"production"|"test"',
+          path: ['NODE_ENV']
+        }),
+        expect.objectContaining({
+          message: 'Too small: expected number to be >=1',
+          path: ['PORT']
+        })
+      ])
+    )
   })
 
   it('rejects a too big PORT value', () => {

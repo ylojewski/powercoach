@@ -20,6 +20,7 @@ describe('loadConfig', () => {
 
   it('loads configuration from process.env', async () => {
     stubEnv({
+      DATABASE_URL: 'postgres://postgres:postgres@localhost:5432/powercoach',
       HOST: '127.0.0.1',
       LOG_LEVEL: LogLevel.info,
       NODE_ENV: NodeEnv.production,
@@ -27,6 +28,7 @@ describe('loadConfig', () => {
     })
 
     expect(loadConfig()).toStrictEqual<AppConfig>({
+      DATABASE_URL: 'postgres://postgres:postgres@localhost:5432/powercoach',
       HOST: '127.0.0.1',
       LOG_LEVEL: LogLevel.info,
       NODE_ENV: NodeEnv.production,
@@ -37,6 +39,7 @@ describe('loadConfig', () => {
 
   it('uses cached configuration on subsequent calls', async () => {
     stubEnv({
+      DATABASE_URL: 'postgres://postgres:postgres@localhost:5432/powercoach',
       HOST: '127.0.0.1',
       LOG_LEVEL: LogLevel.info,
       NODE_ENV: NodeEnv.production,
@@ -48,6 +51,7 @@ describe('loadConfig', () => {
 
     expect(first).toBe(second)
     expect(second).toStrictEqual<AppConfig>({
+      DATABASE_URL: 'postgres://postgres:postgres@localhost:5432/powercoach',
       HOST: '127.0.0.1',
       LOG_LEVEL: LogLevel.info,
       NODE_ENV: NodeEnv.production,
@@ -85,7 +89,13 @@ describe('loadConfig', () => {
   })
 
   it('throws when validation fails', async () => {
-    stubEnv({ PORT: 70000 })
+    stubEnv({
+      DATABASE_URL: 'postgres://postgres:postgres@localhost:5432/powercoach',
+      HOST: '127.0.0.1',
+      LOG_LEVEL: LogLevel.info,
+      NODE_ENV: NodeEnv.production,
+      PORT: 70000
+    })
     expect(() => loadConfig()).toThrowError(/Invalid environment configuration/i)
   })
 })
