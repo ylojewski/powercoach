@@ -2,7 +2,7 @@ import { ZodSafeParseResult } from 'zod'
 
 import { LogLevel, NodeEnv } from '@/src/types'
 import {
-  devolopmentConfig,
+  developmentConfig,
   productionConfig,
   invalidConfig,
   tooBigPortConfig
@@ -26,8 +26,8 @@ describe('envSchema', () => {
   })
 
   it('should accept localhost as HOST', () => {
-    expect(() => envSchema.parse(devolopmentConfig)).not.toThrow()
-    expect(envSchema.safeParse(devolopmentConfig)).toStrictEqual<ZodSafeParseResult<AppConfig>>({
+    expect(() => envSchema.parse(developmentConfig)).not.toThrow()
+    expect(envSchema.safeParse(developmentConfig)).toStrictEqual<ZodSafeParseResult<AppConfig>>({
       data: {
         HOST: 'localhost',
         LOG_LEVEL: LogLevel.debug,

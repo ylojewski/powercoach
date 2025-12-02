@@ -19,7 +19,7 @@ export interface CreateEmptyAppOptions {
 export async function buildTestApp(): Promise<AppFastifyInstance> {
   const app = await buildApp({
     config: {
-      HOST: '127.0.0.1',
+      HOST: '0.0.0.0',
       LOG_LEVEL: LogLevel.silent,
       NODE_ENV: NodeEnv.development,
       PORT: 1
@@ -45,7 +45,7 @@ export async function buildDummyApp(options?: CreateEmptyAppOptions): Promise<Fa
       HOST: '0.0.0.0',
       LOG_LEVEL: LogLevel.info,
       NODE_ENV: typeof withConfig === 'boolean' ? NodeEnv.test : withConfig,
-      PORT: 3000
+      PORT: 8080
     } as AppConfig)
   }
 

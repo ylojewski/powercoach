@@ -15,7 +15,7 @@ export const testConfig: AppConfig = {
   PORT: 8080
 } as const
 
-export const devolopmentConfig: AppConfig = {
+export const developmentConfig: AppConfig = {
   HOST: 'localhost',
   LOG_LEVEL: LogLevel.debug,
   NODE_ENV: NodeEnv.development,

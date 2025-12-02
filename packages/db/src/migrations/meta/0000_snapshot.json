@@ -1,0 +1,50 @@
+{
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  },
+  "dialect": "postgresql",
+  "enums": {},
+  "id": "b2a1ae4c-3a9e-4d0b-8de4-db79b186b364",
+  "policies": {},
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "roles": {},
+  "schemas": {},
+  "sequences": {},
+  "tables": {
+    "public.metadata": {
+      "checkConstraints": {},
+      "columns": {
+        "id": {
+          "name": "id",
+          "notNull": true,
+          "primaryKey": true,
+          "type": "serial"
+        },
+        "key": {
+          "name": "key",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "value": {
+          "name": "value",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "text"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "foreignKeys": {},
+      "indexes": {},
+      "isRLSEnabled": false,
+      "name": "metadata",
+      "policies": {},
+      "schema": "",
+      "uniqueConstraints": {}
+    }
+  },
+  "version": "7",
+  "views": {}
+}

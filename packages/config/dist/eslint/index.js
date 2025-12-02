@@ -65,7 +65,10 @@ var typescriptConfig = {
     ...strictRules,
     ...stylisticRules,
     "@typescript-eslint/await-thenable": "error",
-    "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      { argsIgnorePattern: "^_", caughtErrors: "none" }
+    ],
     "@typescript-eslint/return-await": ["error", "never"]
   }
 };

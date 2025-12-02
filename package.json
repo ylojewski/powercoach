@@ -17,15 +17,15 @@
   "private": true,
   "scripts": {
     "build": "turbo build --concurrency=1",
-    "ci": "turbo ci --concurrency=1",
     "commitlint": "commitlint",
     "deploy:api": "pnpm deploy --legacy --filter @powercoach/api --prod --ignore-scripts deploy/api",
     "dev": "turbo dev --concurrency=1",
     "format": "prettier . --check && turbo format --concurrency=1",
-    "format:write": "prettier . --write && turbo format:write --concurrency=1",
+    "format:write": "prettier . --write --list-different && turbo format:write --concurrency=1",
     "lint": "turbo lint --concurrency=1",
     "lint-staged": "lint-staged",
     "lint:fix": "turbo lint --concurrency=1 -- --fix",
+    "pre-commit": "turbo pre-commit --concurrency=1",
     "prepare": "husky",
     "test": "turbo test --concurrency=1",
     "typecheck": "turbo typecheck --concurrency=1"

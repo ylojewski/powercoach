@@ -3,13 +3,19 @@ import { fileURLToPath } from 'node:url'
 
 import { type ViteUserConfig } from 'vitest/config'
 
-export function buildConfig(importUrl: string): ViteUserConfig {
+interface Config {
+  exclude?: string[]
+  include?: string[]
+}
+
+export function buildConfig(importUrl: string, config?: Config): ViteUserConfig {
   const importPath = fileURLToPath(importUrl)
   const importDir = dirname(importPath)
 
   return {
     resolve: {
       alias: {
+        '@/scripts': path.resolve(importDir, './scripts'),
         '@/src': path.resolve(importDir, './src'),
         '@/test': path.resolve(importDir, './test')
       }
@@ -20,9 +26,10 @@ export function buildConfig(importUrl: string): ViteUserConfig {
           'src/**/index.{ts,tsx}',
           'src/**/*.{test,spec}.{ts,tsx}',
           'src/**/*.d.ts',
-          'test'
+          'test',
+          ...(config?.exclude ?? [])
         ],
-        include: ['src/**/*.{ts,tsx}'],
+        include: ['src/**/*.{ts,tsx}', ...(config?.include ?? [])],
         provider: 'v8',
         reporter: ['text', 'json', 'lcov'],
         reportsDirectory: 'coverage',

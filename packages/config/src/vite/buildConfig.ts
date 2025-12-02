@@ -6,7 +6,12 @@ import { type UserConfig } from 'vite'
 
 import { buildConfig as buildVitestConfig } from '@/src/vitest'
 
-export function buildConfig(importUrl: string): UserConfig {
+interface Config {
+  exclude?: string[]
+  include?: string[]
+}
+
+export function buildConfig(importUrl: string, config?: Config): UserConfig {
   const importPath = fileURLToPath(importUrl)
   const importDir = dirname(importPath)
 
@@ -22,17 +27,18 @@ export function buildConfig(importUrl: string): UserConfig {
     },
     resolve: {
       alias: {
+        '@/scripts': path.resolve(importDir, './scripts'),
         '@/src': path.resolve(importDir, './src'),
         '@/test': path.resolve(importDir, './test')
       }
     },
     server: {
-      host: '127.0.0.1',
+      host: 'localhost',
       port: 3000,
       strictPort: true
     },
     test: {
-      ...buildVitestConfig(importUrl).test,
+      ...buildVitestConfig(importUrl, config).test,
       environment: 'jsdom',
       setupFiles: ['test/setup.ts']
     }

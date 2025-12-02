@@ -11,6 +11,7 @@
     "@typescript-eslint/parser": "^8.46.2",
     "@typescript-eslint/utils": "^8.46.2",
     "@vitejs/plugin-react": "^5.1.0",
+    "drizzle-kit": "^0.31.7",
     "eslint": "9.38.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.32.0",
@@ -25,6 +26,7 @@
   "exports": {
     "./changeset.config.json": "./dist/changeset/config.json",
     "./commitlint": "./dist/commitlint/index.js",
+    "./drizzle": "./dist/drizzle/index.js",
     "./eslint": "./dist/eslint/index.js",
     "./lint-staged": "./dist/lint-staged/index.js",
     "./prettier": "./dist/prettier/index.js",
@@ -39,11 +41,11 @@
   "private": true,
   "scripts": {
     "build": "tsup --config tsup.config.js",
-    "ci": "pnpm lint && pnpm format && pnpm typecheck && pnpm build",
     "format": "prettier . --check",
-    "format:write": "prettier . --write",
+    "format:write": "prettier . --write --list-different",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+    "pre-commit": "pnpm lint:fix && pnpm format:write && pnpm typecheck && pnpm build",
     "typecheck": "tsc --project tsconfig.src.json --noEmit"
   },
   "type": "module",

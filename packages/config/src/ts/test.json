@@ -9,6 +9,7 @@
     "noEmit": true,
     "noUncheckedIndexedAccess": true,
     "paths": {
+      "@/scripts/*": ["scripts/*"],
       "@/src/*": ["src/*"],
       "@/test/*": ["test/*"]
     },
