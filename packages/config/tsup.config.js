@@ -10,6 +10,7 @@ export default defineConfig({
   entry: [
     'src/changeset/config.json',
     'src/commitlint/index.ts',
+    'src/drizzle/index.ts',
     'src/eslint/index.ts',
     'src/lint-staged/index.ts',
     'src/prettier/index.ts',

@@ -6,14 +6,14 @@ interface PackageJson {
   main: string
 }
 
-export function buildConfig(pkg: PackageJson): Options {
+export function buildConfig(pkg: PackageJson, options?: Options): Options {
   const { main } = pkg
   const dependencies = Object.keys(pkg.dependencies ?? {})
   const devDependencies = Object.keys(pkg.devDependencies ?? {})
 
   return {
     clean: true,
-    dts: false,
+    dts: options?.dts ?? false,
     entry: [main],
     external: [...dependencies, ...devDependencies],
     format: ['esm'],

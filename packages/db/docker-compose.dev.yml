@@ -1,0 +1,18 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: powercoach_db_dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: powercoach_dev
+    ports:
+      - '5432:5432'
+    volumes:
+      - powercoach_dev_data:/var/lib/postgresql/data
+
+volumes:
+  powercoach_dev_data:

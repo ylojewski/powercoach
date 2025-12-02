@@ -4,12 +4,13 @@ import react from '@vitejs/plugin-react';
 
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-function buildConfig(importUrl) {
+function buildConfig(importUrl, config) {
   const importPath = fileURLToPath(importUrl);
   const importDir = dirname(importPath);
   return {
     resolve: {
       alias: {
+        "@/scripts": path.resolve(importDir, "./scripts"),
         "@/src": path.resolve(importDir, "./src"),
         "@/test": path.resolve(importDir, "./test")
       }
@@ -20,9 +21,10 @@ function buildConfig(importUrl) {
           "src/**/index.{ts,tsx}",
           "src/**/*.{test,spec}.{ts,tsx}",
           "src/**/*.d.ts",
-          "test"
+          "test",
+          ...config?.exclude ?? []
         ],
-        include: ["src/**/*.{ts,tsx}"],
+        include: ["src/**/*.{ts,tsx}", ...config?.include ?? []],
         provider: "v8",
         reporter: ["text", "json", "lcov"],
         reportsDirectory: "coverage",
@@ -40,7 +42,7 @@ function buildConfig(importUrl) {
 __name(buildConfig, "buildConfig");
 
 // src/vite/buildConfig.ts
-function buildConfig2(importUrl) {
+function buildConfig2(importUrl, config) {
   const importPath = fileURLToPath(importUrl);
   const importDir = dirname(importPath);
   return {
@@ -55,17 +57,18 @@ function buildConfig2(importUrl) {
     },
     resolve: {
       alias: {
+        "@/scripts": path.resolve(importDir, "./scripts"),
         "@/src": path.resolve(importDir, "./src"),
         "@/test": path.resolve(importDir, "./test")
       }
     },
     server: {
-      host: "127.0.0.1",
+      host: "localhost",
       port: 3e3,
       strictPort: true
     },
     test: {
-      ...buildConfig(importUrl).test,
+      ...buildConfig(importUrl, config).test,
       environment: "jsdom",
       setupFiles: ["test/setup.ts"]
     }

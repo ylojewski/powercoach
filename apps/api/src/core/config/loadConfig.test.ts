@@ -20,27 +20,27 @@ describe('loadConfig', () => {
 
   it('loads configuration from process.env', async () => {
     stubEnv({
-      HOST: '127.0.0.1',
+      HOST: '0.0.0.0',
       LOG_LEVEL: LogLevel.info,
       NODE_ENV: NodeEnv.production,
-      PORT: 4000
+      PORT: 8080
     })
 
     expect(loadConfig()).toStrictEqual<AppConfig>({
-      HOST: '127.0.0.1',
+      HOST: '0.0.0.0',
       LOG_LEVEL: LogLevel.info,
       NODE_ENV: NodeEnv.production,
-      PORT: 4000
+      PORT: 8080
     })
     expect(config).toHaveBeenCalledTimes(1)
   })
 
   it('uses cached configuration on subsequent calls', async () => {
     stubEnv({
-      HOST: '127.0.0.1',
+      HOST: '0.0.0.0',
       LOG_LEVEL: LogLevel.info,
       NODE_ENV: NodeEnv.production,
-      PORT: 4000
+      PORT: 8080
     })
 
     const first = loadConfig()
@@ -48,10 +48,10 @@ describe('loadConfig', () => {
 
     expect(first).toBe(second)
     expect(second).toStrictEqual<AppConfig>({
-      HOST: '127.0.0.1',
+      HOST: '0.0.0.0',
       LOG_LEVEL: LogLevel.info,
       NODE_ENV: NodeEnv.production,
-      PORT: 4000
+      PORT: 8080
     })
     expect(config).toHaveBeenCalledTimes(1)
   })

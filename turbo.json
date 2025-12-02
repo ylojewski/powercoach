@@ -13,9 +13,6 @@
       ],
       "outputs": ["dist/**"]
     },
-    "ci": {
-      "cache": false
-    },
     "dev": {
       "cache": false,
       "persistent": true
@@ -31,6 +28,9 @@
     "lint": {
       "inputs": ["$TURBO_DEFAULT$", "pnpm-lock.yaml", "eslint.config.*"],
       "outputs": []
+    },
+    "pre-commit": {
+      "cache": false
     },
     "test": {
       "inputs": [

@@ -1,0 +1,57 @@
+{
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "drizzle-orm": "^0.44.7",
+    "pg": "^8.16.3",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.38.0",
+    "@powercoach/config": "workspace:*",
+    "@types/node": "^24.9.2",
+    "@types/pg": "^8.15.6",
+    "@typescript-eslint/eslint-plugin": "^8.46.2",
+    "@typescript-eslint/parser": "^8.46.2",
+    "@vitest/coverage-v8": "^4.0.6",
+    "drizzle-kit": "^0.31.7",
+    "eslint": "9.38.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "pino-pretty": "^13.1.2",
+    "prettier": "^3.6.2",
+    "simple-git": "^3.30.0",
+    "tsup": "^8.5.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.6"
+  },
+  "engines": {
+    "node": "20"
+  },
+  "files": ["dist", "node_modules"],
+  "main": "dist/index.js",
+  "name": "@powercoach/db",
+  "private": true,
+  "scripts": {
+    "build": "tsup --config tsup.config.js",
+    "db:down": "docker compose -f docker-compose.dev.yml down --volumes --remove-orphans",
+    "db:generate": "pnpm drizzle-kit generate",
+    "db:migrate": "pnpm drizzle-kit migrate",
+    "db:reset": "pnpm db:down && pnpm db:up && pnpm db:migrate && pnpm db:seed",
+    "db:seed": "tsx --tsconfig tsconfig.src.json scripts/seed.ts",
+    "db:up": "docker compose -f docker-compose.dev.yml up -d",
+    "format": "prettier . --check",
+    "format:write": "prettier . --write --list-different",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "pre-commit": "pnpm lint:fix && pnpm format:write && pnpm typecheck && pnpm test && pnpm build",
+    "test": "vitest run --coverage --reporter=verbose",
+    "test:watch": "vitest",
+    "typecheck": "pnpm run typecheck:src && pnpm run typecheck:test",
+    "typecheck:src": "tsc --project tsconfig.src.json --noEmit",
+    "typecheck:test": "tsc --project tsconfig.test.json --noEmit"
+  },
+  "type": "module",
+  "types": "index.d.ts",
+  "version": "0.1.0"
+}
