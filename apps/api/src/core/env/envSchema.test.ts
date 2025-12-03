@@ -1,20 +1,21 @@
+import { NodeEnv } from '@powercoach/util-env'
+import { expectZodParseToThrow } from '@powercoach/util-test'
 import { ZodSafeParseResult } from 'zod'
 
-import { LogLevel, NodeEnv } from '@/src/types'
+import { LogLevel } from '@/src/types'
 import {
   developmentConfig,
   productionConfig,
   invalidConfig,
   tooBigPortConfig
 } from '@/test/fixtures'
-import { expectZodParseToThrow } from '@/test/utils'
 
-import { AppConfig, envSchema } from './envSchema'
+import { Env, envSchema } from './envSchema'
 
 describe('envSchema', () => {
   it('parses valid values', () => {
     expect(() => envSchema.parse(productionConfig)).not.toThrow()
-    expect(envSchema.safeParse(productionConfig)).toStrictEqual<ZodSafeParseResult<AppConfig>>({
+    expect(envSchema.safeParse(productionConfig)).toStrictEqual<ZodSafeParseResult<Env>>({
       data: {
         HOST: '0.0.0.0',
         LOG_LEVEL: LogLevel.info,
@@ -27,7 +28,7 @@ describe('envSchema', () => {
 
   it('should accept localhost as HOST', () => {
     expect(() => envSchema.parse(developmentConfig)).not.toThrow()
-    expect(envSchema.safeParse(developmentConfig)).toStrictEqual<ZodSafeParseResult<AppConfig>>({
+    expect(envSchema.safeParse(developmentConfig)).toStrictEqual<ZodSafeParseResult<Env>>({
       data: {
         HOST: 'localhost',
         LOG_LEVEL: LogLevel.debug,
@@ -48,6 +49,10 @@ describe('envSchema', () => {
 
     expect(zodError.issues).toStrictEqual([
       expect.objectContaining({
+        message: 'Invalid option: expected one of "development"|"production"|"test"',
+        path: ['NODE_ENV']
+      }),
+      expect.objectContaining({
         message: 'Invalid IPv4 address',
         path: ['HOST']
       }),
@@ -55,10 +60,6 @@ describe('envSchema', () => {
         message:
           'Invalid option: expected one of "debug"|"error"|"fatal"|"info"|"silent"|"trace"|"warn"',
         path: ['LOG_LEVEL']
-      }),
-      expect.objectContaining({
-        message: 'Invalid option: expected one of "development"|"production"|"test"',
-        path: ['NODE_ENV']
       }),
       expect.objectContaining({
         message: 'Too small: expected number to be >=1',

@@ -28,6 +28,9 @@ importers:
       prettier:
         specifier: ^3.6.2
         version: 3.6.2
+      rimraf:
+        specifier: ^6.1.2
+        version: 6.1.2
       turbo:
         specifier: ^2.6.0
         version: 2.6.0
@@ -43,6 +46,9 @@ importers:
       '@fastify/sensible':
         specifier: ^6.0.3
         version: 6.0.3
+      '@powercoach/util-env':
+        specifier: workspace:*
+        version: link:../../packages/util-env
       '@sinclair/typebox':
         specifier: ^0.34.41
         version: 0.34.41
@@ -71,6 +77,9 @@ importers:
       '@powercoach/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@powercoach/util-test':
+        specifier: workspace:*
+        version: link:../../packages/util-test
       '@types/node':
         specifier: ^24.9.2
         version: 24.9.2
@@ -250,6 +259,9 @@ importers:
 
   packages/db:
     dependencies:
+      '@powercoach/util-env':
+        specifier: workspace:*
+        version: link:../util-env
       dotenv:
         specifier: ^17.2.3
         version: 17.2.3
@@ -269,6 +281,9 @@ importers:
       '@powercoach/config':
         specifier: workspace:*
         version: link:../config
+      '@powercoach/util-test':
+        specifier: workspace:*
+        version: link:../util-test
       '@types/node':
         specifier: ^24.9.2
         version: 24.9.2
@@ -296,9 +311,6 @@ importers:
       eslint-plugin-import:
         specifier: ^2.32.0
         version: 2.32.0(@typescript-eslint/parser@8.46.3(eslint@9.38.0(jiti@2.6.1))(typescript@5.9.3))(eslint@9.38.0(jiti@2.6.1))
-      pino-pretty:
-        specifier: ^13.1.2
-        version: 13.1.2
       prettier:
         specifier: ^3.6.2
         version: 3.6.2
@@ -316,6 +328,104 @@ importers:
         version: 5.9.3
       vitest:
         specifier: ^4.0.6
+        version: 4.0.8(@edge-runtime/vm@3.2.0)(@types/node@24.9.2)(jiti@2.6.1)(jsdom@27.1.0)(tsx@4.20.6)(yaml@2.8.1)
+
+  packages/util-env:
+    dependencies:
+      dotenv:
+        specifier: ^17.2.3
+        version: 17.2.3
+      zod:
+        specifier: ^4.1.12
+        version: 4.1.12
+    devDependencies:
+      '@eslint/js':
+        specifier: 9.38.0
+        version: 9.38.0
+      '@powercoach/config':
+        specifier: workspace:*
+        version: link:../config
+      '@powercoach/util-test':
+        specifier: workspace:*
+        version: link:../util-test
+      '@types/node':
+        specifier: ^24.9.2
+        version: 24.9.2
+      '@typescript-eslint/eslint-plugin':
+        specifier: ^8.46.2
+        version: 8.46.3(@typescript-eslint/parser@8.46.3(eslint@9.38.0(jiti@2.6.1))(typescript@5.9.3))(eslint@9.38.0(jiti@2.6.1))(typescript@5.9.3)
+      '@typescript-eslint/parser':
+        specifier: ^8.46.2
+        version: 8.46.3(eslint@9.38.0(jiti@2.6.1))(typescript@5.9.3)
+      '@vitest/coverage-v8':
+        specifier: ^4.0.6
+        version: 4.0.8(vitest@4.0.8(@edge-runtime/vm@3.2.0)(@types/node@24.9.2)(jiti@2.6.1)(jsdom@27.1.0)(tsx@4.20.6)(yaml@2.8.1))
+      eslint:
+        specifier: 9.38.0
+        version: 9.38.0(jiti@2.6.1)
+      eslint-config-prettier:
+        specifier: ^10.1.8
+        version: 10.1.8(eslint@9.38.0(jiti@2.6.1))
+      eslint-plugin-import:
+        specifier: ^2.32.0
+        version: 2.32.0(@typescript-eslint/parser@8.46.3(eslint@9.38.0(jiti@2.6.1))(typescript@5.9.3))(eslint@9.38.0(jiti@2.6.1))
+      prettier:
+        specifier: ^3.6.2
+        version: 3.6.2
+      tsup:
+        specifier: ^8.5.0
+        version: 8.5.0(jiti@2.6.1)(postcss@8.5.6)(tsx@4.20.6)(typescript@5.9.3)(yaml@2.8.1)
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^4.0.6
+        version: 4.0.8(@edge-runtime/vm@3.2.0)(@types/node@24.9.2)(jiti@2.6.1)(jsdom@27.1.0)(tsx@4.20.6)(yaml@2.8.1)
+
+  packages/util-test:
+    dependencies:
+      zod:
+        specifier: ^4.1.12
+        version: 4.1.12
+    devDependencies:
+      '@eslint/js':
+        specifier: 9.38.0
+        version: 9.38.0
+      '@powercoach/config':
+        specifier: workspace:*
+        version: link:../config
+      '@types/node':
+        specifier: ^24.9.2
+        version: 24.9.2
+      '@typescript-eslint/eslint-plugin':
+        specifier: ^8.46.2
+        version: 8.46.3(@typescript-eslint/parser@8.46.3(eslint@9.38.0(jiti@2.6.1))(typescript@5.9.3))(eslint@9.38.0(jiti@2.6.1))(typescript@5.9.3)
+      '@typescript-eslint/parser':
+        specifier: ^8.46.2
+        version: 8.46.3(eslint@9.38.0(jiti@2.6.1))(typescript@5.9.3)
+      '@vitest/coverage-v8':
+        specifier: ^4.0.6
+        version: 4.0.8(vitest@4.0.8(@edge-runtime/vm@3.2.0)(@types/node@24.9.2)(jiti@2.6.1)(jsdom@27.1.0)(tsx@4.20.6)(yaml@2.8.1))
+      eslint:
+        specifier: 9.38.0
+        version: 9.38.0(jiti@2.6.1)
+      eslint-config-prettier:
+        specifier: ^10.1.8
+        version: 10.1.8(eslint@9.38.0(jiti@2.6.1))
+      eslint-plugin-import:
+        specifier: ^2.32.0
+        version: 2.32.0(@typescript-eslint/parser@8.46.3(eslint@9.38.0(jiti@2.6.1))(typescript@5.9.3))(eslint@9.38.0(jiti@2.6.1))
+      prettier:
+        specifier: ^3.6.2
+        version: 3.6.2
+      tsup:
+        specifier: ^8.5.0
+        version: 8.5.0(jiti@2.6.1)(postcss@8.5.6)(tsx@4.20.6)(typescript@5.9.3)(yaml@2.8.1)
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^4.0.8
         version: 4.0.8(@edge-runtime/vm@3.2.0)(@types/node@24.9.2)(jiti@2.6.1)(jsdom@27.1.0)(tsx@4.20.6)(yaml@2.8.1)
 
 packages:
@@ -1691,6 +1801,20 @@ packages:
     peerDependenciesMeta:
       '@types/node':
         optional: true
+
+  '@isaacs/balanced-match@4.0.1':
+    resolution:
+      {
+        integrity: sha512-yzMTt9lEb8Gv7zRioUilSglI0c0smZ9k5D65677DLWLtWJaXIS3CqcGyUFByYKlnUj6TkjLVs54fBl6+TiGQDQ==
+      }
+    engines: { node: 20 || >=22 }
+
+  '@isaacs/brace-expansion@5.0.0':
+    resolution:
+      {
+        integrity: sha512-ZT55BDLV0yv0RBm2czMiZ+SqCGO7AvmOM3G/w2xhVPH+te0aKgFjmBvGlL1dH+ql2tgGO3MVrbb3jCKyvpgnxA==
+      }
+    engines: { node: 20 || >=22 }
 
   '@isaacs/cliui@8.0.2':
     resolution:
@@ -4745,6 +4869,13 @@ packages:
       }
     hasBin: true
 
+  glob@13.0.0:
+    resolution:
+      {
+        integrity: sha512-tvZgpqk6fz4BaNZ66ZsRaZnbHvP/jG3uKJvAZOwEVUL4RTA5nJeeLYfyN9/VA8NX/V3IBG+hkeuGpKjvELkVhA==
+      }
+    engines: { node: 20 || >=22 }
+
   global-directory@4.0.1:
     resolution:
       {
@@ -5764,6 +5895,13 @@ packages:
       }
     engines: { node: '>=4' }
 
+  minimatch@10.1.1:
+    resolution:
+      {
+        integrity: sha512-enIvLvRAFZYXJzkCYG5RKmPfrFArdLv+R+lbQ53BmIMLIry74bjKzX6iHAm8WYamJkhSSEabrWN5D97XnKObjQ==
+      }
+    engines: { node: 20 || >=22 }
+
   minimatch@3.1.2:
     resolution:
       {
@@ -6200,6 +6338,13 @@ packages:
         integrity: sha512-Xa4Nw17FS9ApQFJ9umLiJS4orGjm7ZzwUrwamcGQuHSzDyth9boKDaycYdDcZDuqYATXw4HFXgaqWTctW/v1HA==
       }
     engines: { node: '>=16 || 14 >=14.18' }
+
+  path-scurry@2.0.1:
+    resolution:
+      {
+        integrity: sha512-oWyT4gICAu+kaA7QWk/jvCHWarMKNs6pXOGWKDTr7cw4IGcUbW+PeTfbaQiLGheFRpjo6O9J0PmyMfQPjH71oA==
+      }
+    engines: { node: 20 || >=22 }
 
   path-to-regexp@1.9.0:
     resolution:
@@ -6699,6 +6844,14 @@ packages:
       {
         integrity: sha512-q1b3N5QkRUWUl7iyylaaj3kOpIT0N2i9MqIEQXP73GVsN9cw3fdx8X63cEmWhJGi2PPCF23Ijp7ktmd39rawIA==
       }
+
+  rimraf@6.1.2:
+    resolution:
+      {
+        integrity: sha512-cFCkPslJv7BAXJsYlK1dZsbP8/ZNLkCAQ0bi1hf5EKX2QHegmDFEFA6QhuYJlk7UDdc+02JjO80YSOrWPpw06g==
+      }
+    engines: { node: 20 || >=22 }
+    hasBin: true
 
   rolldown@1.0.0-beta.35:
     resolution:
@@ -8916,6 +9069,12 @@ snapshots:
       iconv-lite: 0.7.0
     optionalDependencies:
       '@types/node': 24.9.2
+
+  '@isaacs/balanced-match@4.0.1': {}
+
+  '@isaacs/brace-expansion@5.0.0':
+    dependencies:
+      '@isaacs/balanced-match': 4.0.1
 
   '@isaacs/cliui@8.0.2':
     dependencies:
@@ -11204,6 +11363,12 @@ snapshots:
       package-json-from-dist: 1.0.1
       path-scurry: 1.11.1
 
+  glob@13.0.0:
+    dependencies:
+      minimatch: 10.1.1
+      minipass: 7.1.2
+      path-scurry: 2.0.1
+
   global-directory@4.0.1:
     dependencies:
       ini: 4.1.1
@@ -11751,6 +11916,10 @@ snapshots:
 
   min-indent@1.0.1: {}
 
+  minimatch@10.1.1:
+    dependencies:
+      '@isaacs/brace-expansion': 5.0.0
+
   minimatch@3.1.2:
     dependencies:
       brace-expansion: 1.1.12
@@ -11974,6 +12143,11 @@ snapshots:
   path-scurry@1.11.1:
     dependencies:
       lru-cache: 10.4.3
+      minipass: 7.1.2
+
+  path-scurry@2.0.1:
+    dependencies:
+      lru-cache: 11.2.2
       minipass: 7.1.2
 
   path-to-regexp@1.9.0:
@@ -12245,6 +12419,11 @@ snapshots:
   reusify@1.1.0: {}
 
   rfdc@1.4.1: {}
+
+  rimraf@6.1.2:
+    dependencies:
+      glob: 13.0.0
+      package-json-from-dist: 1.0.1
 
   rolldown@1.0.0-beta.35:
     dependencies:

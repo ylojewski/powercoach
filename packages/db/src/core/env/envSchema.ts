@@ -1,10 +1,8 @@
+import { envSchema as baseEnvSchema } from '@powercoach/util-env'
 import { z } from 'zod'
 
-import { NodeEnv } from '@/src/types'
-
-export const envSchema = z.object({
-  DATABASE_URL: z.url({ protocol: /^postgres(ql)?$/ }),
-  NODE_ENV: z.enum(NodeEnv)
+export const envSchema = baseEnvSchema.extend({
+  DATABASE_URL: z.url({ protocol: /^postgres(ql)?$/ })
 })
 
 export type Env = z.infer<typeof envSchema>

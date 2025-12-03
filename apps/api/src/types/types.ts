@@ -7,9 +7,3 @@ export enum LogLevel {
   trace = 'trace',
   warn = 'warn'
 }
-
-export enum NodeEnv {
-  development = 'development',
-  production = 'production',
-  test = 'test'
-}

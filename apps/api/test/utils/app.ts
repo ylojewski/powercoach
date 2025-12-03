@@ -1,9 +1,10 @@
 import { Options } from '@fastify/ajv-compiler'
+import { NodeEnv } from '@powercoach/util-env'
 import Fastify, { FastifyInstance, FastifyPluginAsync } from 'fastify'
 
 import { AppFastifyInstance, buildApp } from '@/src/app'
-import { type AppConfig } from '@/src/core'
-import { LogLevel, NodeEnv } from '@/src/types'
+import { type Env } from '@/src/core'
+import { LogLevel } from '@/src/types'
 
 type FastifySpy = {
   [K in keyof FastifyInstance]: FastifyInstance[K] extends (...args: infer _) => unknown ? K : never
@@ -46,7 +47,7 @@ export async function buildDummyApp(options?: CreateEmptyAppOptions): Promise<Fa
       LOG_LEVEL: LogLevel.info,
       NODE_ENV: typeof withConfig === 'boolean' ? NodeEnv.test : withConfig,
       PORT: 8080
-    } as AppConfig)
+    } as Env)
   }
 
   if (plugins) {

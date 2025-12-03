@@ -1,13 +1,13 @@
+import { NodeEnv } from '@powercoach/util-env'
+import { expectZodParseToThrow } from '@powercoach/util-test'
 import { ZodSafeParseResult } from 'zod'
 
-import { NodeEnv } from '@/src/types'
 import {
   developmentConfig,
   productionConfig,
   invalidConfig,
   unknownProtocolConfig
 } from '@/test/fixtures'
-import { expectZodParseToThrow } from '@/test/utils'
 
 import { Env, envSchema } from './envSchema'
 
@@ -45,12 +45,12 @@ describe('envSchema', () => {
 
     expect(zodError.issues).toStrictEqual([
       expect.objectContaining({
-        message: 'Invalid URL',
-        path: ['DATABASE_URL']
-      }),
-      expect.objectContaining({
         message: 'Invalid option: expected one of "development"|"production"|"test"',
         path: ['NODE_ENV']
+      }),
+      expect.objectContaining({
+        message: 'Invalid URL',
+        path: ['DATABASE_URL']
       })
     ])
   })

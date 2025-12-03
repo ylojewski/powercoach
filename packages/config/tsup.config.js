@@ -1,7 +1,7 @@
-import { buildConfig } from '@powercoach/config/tsup'
 import { defineConfig } from 'tsup'
 
 import packageJson from './package.json'
+import { buildConfig } from './src/tsup'
 
 const config = buildConfig(packageJson)
 
@@ -16,6 +16,7 @@ export default defineConfig({
     'src/prettier/index.ts',
     'src/ts/src.json',
     'src/ts/test.json',
+    'src/tsup/dts/index.ts',
     'src/tsup/index.ts',
     'src/vite/index.ts',
     'src/vitest/index.ts'

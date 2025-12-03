@@ -1,5 +1,6 @@
+import { NodeEnv } from '@powercoach/util-env'
+
 import { Env } from '@/src/core'
-import { NodeEnv } from '@/src/types'
 
 export const productionConfig: Env = {
   DATABASE_URL:

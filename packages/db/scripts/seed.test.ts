@@ -1,5 +1,6 @@
 import { rm, writeFile } from 'node:fs/promises'
 
+import { spyOnConsole } from '@powercoach/util-test'
 import { simpleGit } from 'simple-git'
 import { type MockedFunction, type MockedObject } from 'vitest'
 
@@ -58,12 +59,7 @@ vi.mock('@/src/schema', () => ({
   metadata: {}
 }))
 
-vi.spyOn(console, 'log').mockImplementation(() => {
-  /* NOOP */
-})
-vi.spyOn(console, 'error').mockImplementation(() => {
-  /* NOOP */
-})
+spyOnConsole(['log', 'error'])
 
 describe('seed', () => {
   beforeAll(async () => {

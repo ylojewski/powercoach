@@ -1,12 +1,12 @@
 import process from 'node:process'
 
 import { buildApp } from '@/src/app'
-import { loadConfig } from '@/src/core'
+import { loadEnv } from '@/src/core'
 
 type ShutdownSignal = 'SIGINT' | 'SIGTERM'
 
 export async function start() {
-  const config = loadConfig()
+  const config = loadEnv()
   const app = await buildApp({ config })
 
   const closeApp = async () => {

@@ -57,8 +57,7 @@ Before committing (locally or in a PR), the following root-level pnpm scripts th
 Mandatory tasks are (in that order):
 
 ```bash
-pnpm ci
-pnpm build
+pnpm pre-commit
 ```
 
 Scripts prefixed with deploy: are explicitly excluded.
