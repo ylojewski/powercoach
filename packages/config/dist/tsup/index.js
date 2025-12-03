@@ -2,13 +2,13 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
 // src/tsup/buildConfig.ts
-function buildConfig(pkg, options) {
+function buildConfig(pkg) {
   const { main } = pkg;
   const dependencies = Object.keys(pkg.dependencies ?? {});
   const devDependencies = Object.keys(pkg.devDependencies ?? {});
   return {
     clean: true,
-    dts: options?.dts ?? false,
+    dts: false,
     entry: [main],
     external: [...dependencies, ...devDependencies],
     format: ["esm"],

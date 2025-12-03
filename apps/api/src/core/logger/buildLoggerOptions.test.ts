@@ -1,6 +1,5 @@
+import { NodeEnv } from '@powercoach/util-env'
 import { expect } from 'vitest'
-
-import { NodeEnv } from '@/src/types'
 
 import { buildLoggerOptions } from './buildLoggerOptions'
 

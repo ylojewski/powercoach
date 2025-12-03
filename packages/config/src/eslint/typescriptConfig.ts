@@ -37,19 +37,26 @@ export const typescriptConfig: Linter.Config = {
   }
 }
 
-export const typescriptTestConfig: Linter.Config = {
-  ...typescriptConfig,
-  files: ['**/*.test.{ts,tsx}', 'test/**/*.{ts,tsx}'],
-  ignores: [],
-  languageOptions: {
-    ...typescriptConfig.languageOptions,
-    globals: {
-      ...(typescriptConfig.languageOptions?.globals ?? {}),
-      ...globals.vitest
-    },
-    parserOptions: {
-      ...(typescriptConfig.languageOptions?.parserOptions ?? {}),
-      project: ['./tsconfig.test.json']
+export function buildTypescriptTestConfig(files: string[], project: string[]): Linter.Config {
+  return {
+    ...typescriptConfig,
+    files,
+    ignores: [],
+    languageOptions: {
+      ...typescriptConfig.languageOptions,
+      globals: {
+        ...(typescriptConfig.languageOptions?.globals ?? {}),
+        ...globals.vitest
+      },
+      parserOptions: {
+        ...(typescriptConfig.languageOptions?.parserOptions ?? {}),
+        project
+      }
     }
   }
 }
+
+export const typescriptTestConfig: Linter.Config = buildTypescriptTestConfig(
+  ['**/*.test.{ts,tsx}', 'test/**/*.{ts,tsx}'],
+  ['./tsconfig.test.json']
+)

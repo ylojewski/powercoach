@@ -3,7 +3,7 @@ import process from 'node:process'
 import { expect, MockedFunction } from 'vitest'
 
 import { AppFastifyInstance, buildApp } from '@/src/app'
-import { loadConfig } from '@/src/core'
+import { loadEnv } from '@/src/core'
 import { testConfig } from '@/test/fixtures'
 import { expectFunction, flushAsync } from '@/test/utils'
 
@@ -14,16 +14,16 @@ vi.mock('@/src/app', () => ({
 }))
 
 vi.mock('@/src/core', () => ({
-  loadConfig: vi.fn()
+  loadEnv: vi.fn()
 }))
 
 const buildAppMock = buildApp as MockedFunction<typeof buildApp>
-const loadConfigMock = loadConfig as MockedFunction<typeof loadConfig>
+const loadEnvMock = loadEnv as MockedFunction<typeof loadEnv>
 
 describe('start', () => {
   beforeEach(() => {
     buildAppMock.mockReset()
-    loadConfigMock.mockReset()
+    loadEnvMock.mockReset()
   })
 
   afterEach(() => {
@@ -31,7 +31,7 @@ describe('start', () => {
   })
 
   it('starts the server and wires shutdown handlers', async () => {
-    loadConfigMock.mockReturnValue(testConfig)
+    loadEnvMock.mockReturnValue(testConfig)
     const address = `http://${testConfig.HOST}:${testConfig.PORT}`
 
     const handlers = new Map<string | symbol, (signal: string) => void>()
@@ -54,7 +54,7 @@ describe('start', () => {
 
     await start()
 
-    expect(loadConfigMock).toHaveBeenCalledTimes(1)
+    expect(loadEnvMock).toHaveBeenCalledTimes(1)
     expect(buildAppMock).toHaveBeenCalledWith({ config: testConfig })
     expect(app.listen).toHaveBeenCalledWith({ host: testConfig.HOST, port: testConfig.PORT })
     expect(app.log.info).toHaveBeenCalledWith({ address }, 'Server listening')
@@ -93,7 +93,7 @@ describe('start', () => {
   })
 
   it('exits when the server fails to listen', async () => {
-    loadConfigMock.mockReturnValue(testConfig)
+    loadEnvMock.mockReturnValue(testConfig)
 
     const processExitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
 

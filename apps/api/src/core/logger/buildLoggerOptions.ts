@@ -1,6 +1,5 @@
+import { NodeEnv } from '@powercoach/util-env'
 import { type LoggerOptions, stdSerializers } from 'pino'
-
-import { NodeEnv } from '@/src/types'
 
 export interface BuildLoggerOptions {
   level: LoggerOptions['level']

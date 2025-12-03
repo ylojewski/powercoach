@@ -2,13 +2,14 @@ import { randomUUID } from 'node:crypto'
 import { type IncomingMessage, type ServerResponse } from 'node:http'
 
 import { type TypeBoxTypeProvider } from '@fastify/type-provider-typebox'
+import { parseEnv } from '@powercoach/util-env'
 import Fastify, {
   type FastifyBaseLogger,
   type FastifyInstance,
   type RawServerDefault
 } from 'fastify'
 
-import { type AppConfig, buildLoggerOptions, loadConfig, parseConfig } from '@/src/core'
+import { type Env, buildLoggerOptions, loadEnv, envSchema } from '@/src/core'
 import { healthModule } from '@/src/modules'
 import { helmetPlugin, sensiblePlugin } from '@/src/plugins'
 
@@ -24,13 +25,13 @@ export type AppFastifyInstance = FastifyInstance<
 >
 
 export interface BuildAppOptions {
-  config?: AppConfig
+  config?: Env
 }
 
 export async function buildApp(options: BuildAppOptions = {}): Promise<AppFastifyInstance> {
   const config = options.config
-    ? parseConfig(options.config, ({ message }) => `Invalid configuration: ${message}`)
-    : loadConfig()
+    ? parseEnv(envSchema, options.config, ({ message }) => `Invalid configuration: ${message}`)
+    : loadEnv()
   const loggerOptions = buildLoggerOptions({
     level: config.LOG_LEVEL,
     nodeEnv: config.NODE_ENV
@@ -59,6 +60,6 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<AppFastif
 
 declare module 'fastify' {
   interface FastifyInstance {
-    config: AppConfig
+    config: Env
   }
 }

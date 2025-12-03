@@ -33,6 +33,7 @@
     "./tsconfig.src.json": "./dist/ts/src.json",
     "./tsconfig.test.json": "./dist/ts/test.json",
     "./tsup": "./dist/tsup/index.js",
+    "./tsup/dts": "./dist/tsup/dts/index.js",
     "./vite": "./dist/vite/index.js",
     "./vitest": "./dist/vitest/index.js"
   },

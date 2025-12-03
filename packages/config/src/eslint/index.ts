@@ -1,1 +1,5 @@
 export * from './config'
+export * from './ignoreConfig'
+export * from './sharedStyleConfig'
+export * from './typescriptConfig'
+export * from './webConfig'

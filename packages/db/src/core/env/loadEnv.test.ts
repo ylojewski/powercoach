@@ -1,9 +1,8 @@
+import { NodeEnv } from '@powercoach/util-env'
+import { stubEnv } from '@powercoach/util-test'
 import { config } from 'dotenv'
 
 import { Env } from '@/src/core'
-import { NodeEnv } from '@/src/types'
-import { productionConfig, testConfig } from '@/test/fixtures'
-import { stubEnv } from '@/test/utils'
 
 import { loadEnv, resetCachedConfig } from './loadEnv'
 
@@ -31,53 +30,6 @@ describe('loadEnv', () => {
       NODE_ENV: NodeEnv.production
     })
     expect(config).toHaveBeenCalledTimes(1)
-  })
-
-  it('uses cached configuration on subsequent calls', async () => {
-    stubEnv({
-      DATABASE_URL:
-        'postgresql://user:password@pooler.region.neon.tech/neondb?sslmode=require&channel_binding=require',
-      NODE_ENV: NodeEnv.production
-    })
-
-    const first = loadEnv()
-    const second = loadEnv()
-
-    expect(first).toBe(second)
-    expect(second).toStrictEqual<Env>({
-      DATABASE_URL:
-        'postgresql://user:password@pooler.region.neon.tech/neondb?sslmode=require&channel_binding=require',
-      NODE_ENV: NodeEnv.production
-    })
-    expect(config).toHaveBeenCalledTimes(1)
-  })
-
-  it('should not reset cacheConfig', async () => {
-    vi.resetModules()
-    stubEnv(productionConfig)
-
-    const productionModule = await import('./loadEnv')
-    const first = productionModule.loadEnv()
-
-    productionModule.resetCachedConfig()
-
-    const second = productionModule.loadEnv()
-
-    expect(first === second).toBe(true)
-  })
-
-  it('should reset cacheConfig', async () => {
-    vi.resetModules()
-    stubEnv(testConfig)
-
-    const testModule = await import('./loadEnv')
-    const first = testModule.loadEnv()
-
-    testModule.resetCachedConfig()
-
-    const second = testModule.loadEnv()
-
-    expect(first === second).toBe(false)
   })
 
   it('throws when validation fails', async () => {

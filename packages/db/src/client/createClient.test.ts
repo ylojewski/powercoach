@@ -1,3 +1,4 @@
+import { spyOnConsole } from '@powercoach/util-test'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { Client } from 'pg'
 import { type MockedFunction } from 'vitest'
@@ -21,6 +22,8 @@ vi.mock('@/src/core', () => ({
     DATABASE_URL: 'postgres://user:pass@localhost:5432/db'
   }))
 }))
+
+spyOnConsole(['log', 'error'])
 
 describe('createClient', () => {
   beforeEach(() => {

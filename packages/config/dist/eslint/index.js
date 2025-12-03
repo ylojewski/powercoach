@@ -6,7 +6,8 @@ import tseslint from '@typescript-eslint/eslint-plugin';
 import tsparser from '@typescript-eslint/parser';
 import globals from 'globals';
 
-// src/eslint/config.ts
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
 // src/eslint/ignoreConfig.ts
 var ignoreConfig = {
@@ -72,22 +73,29 @@ var typescriptConfig = {
     "@typescript-eslint/return-await": ["error", "never"]
   }
 };
-var typescriptTestConfig = {
-  ...typescriptConfig,
-  files: ["**/*.test.{ts,tsx}", "test/**/*.{ts,tsx}"],
-  ignores: [],
-  languageOptions: {
-    ...typescriptConfig.languageOptions,
-    globals: {
-      ...typescriptConfig.languageOptions?.globals ?? {},
-      ...globals.vitest
-    },
-    parserOptions: {
-      ...typescriptConfig.languageOptions?.parserOptions ?? {},
-      project: ["./tsconfig.test.json"]
+function buildTypescriptTestConfig(files, project) {
+  return {
+    ...typescriptConfig,
+    files,
+    ignores: [],
+    languageOptions: {
+      ...typescriptConfig.languageOptions,
+      globals: {
+        ...typescriptConfig.languageOptions?.globals ?? {},
+        ...globals.vitest
+      },
+      parserOptions: {
+        ...typescriptConfig.languageOptions?.parserOptions ?? {},
+        project
+      }
     }
-  }
-};
+  };
+}
+__name(buildTypescriptTestConfig, "buildTypescriptTestConfig");
+var typescriptTestConfig = buildTypescriptTestConfig(
+  ["**/*.test.{ts,tsx}", "test/**/*.{ts,tsx}"],
+  ["./tsconfig.test.json"]
+);
 var webConfig = {
   languageOptions: {
     globals: {
@@ -107,4 +115,4 @@ var config = [
   prettierConfig
 ];
 
-export { config };
+export { buildTypescriptTestConfig, config, ignoreConfig, sharedStyleConfig, typescriptConfig, typescriptTestConfig, webConfig };

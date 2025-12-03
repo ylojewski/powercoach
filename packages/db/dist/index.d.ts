@@ -1,6 +1,7 @@
 import * as drizzle_orm_node_postgres from 'drizzle-orm/node-postgres';
 import { Client } from 'pg';
-import { z, ZodError } from 'zod';
+import * as _powercoach_util_env from '@powercoach/util-env';
+import { z } from 'zod';
 import * as drizzle_orm_pg_core from 'drizzle-orm/pg-core';
 
 declare function createClient(): Promise<{
@@ -10,22 +11,17 @@ declare function createClient(): Promise<{
     pg: Client;
 }>;
 
-declare enum NodeEnv {
-    development = "development",
-    production = "production",
-    test = "test"
-}
-
 declare const envSchema: z.ZodObject<{
+    NODE_ENV: z.ZodEnum<typeof _powercoach_util_env.NodeEnv>;
     DATABASE_URL: z.ZodURL;
-    NODE_ENV: z.ZodEnum<typeof NodeEnv>;
 }, z.core.$strip>;
 type Env = z.infer<typeof envSchema>;
 
-declare function loadEnv(): Env;
-declare function resetCachedConfig(): void;
-
-declare function parseEnv(config: unknown, format: (error: ZodError) => string): Env;
+declare const loadEnv: () => Readonly<{
+    NODE_ENV: _powercoach_util_env.NodeEnv;
+    DATABASE_URL: string;
+}>;
+declare const resetCachedConfig: () => void;
 
 declare const metadata: drizzle_orm_pg_core.PgTableWithColumns<{
     name: "metadata";
@@ -86,4 +82,4 @@ declare const metadata: drizzle_orm_pg_core.PgTableWithColumns<{
     dialect: "pg";
 }>;
 
-export { type Env, NodeEnv, createClient, envSchema, loadEnv, metadata, parseEnv, resetCachedConfig };
+export { type Env, createClient, envSchema, loadEnv, metadata, resetCachedConfig };

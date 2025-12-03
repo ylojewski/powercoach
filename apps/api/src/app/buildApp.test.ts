@@ -1,13 +1,14 @@
 import { Options } from '@fastify/ajv-compiler'
+import { stubEnv } from '@powercoach/util-test'
 import { FastifyRequest } from 'fastify'
 import { z } from 'zod'
 
-import { type AppConfig, resetCachedConfig } from '@/src/core'
+import { type Env, resetCachedConfig } from '@/src/core'
 import { HEALTH_MODULE_NAME } from '@/src/modules'
 import { HELMET_PLUGIN_NAME, SENSIBLE_PLUGIN_NAME } from '@/src/plugins'
 import { LogLevel } from '@/src/types'
 import { invalidConfig, productionConfig, testConfig } from '@/test/fixtures'
-import { getAjvOptions, stubEnv, spyOnStdout, flushAsync } from '@/test/utils'
+import { getAjvOptions, spyOnStdout, flushAsync } from '@/test/utils'
 
 import { ajvOptions } from './ajvOptions'
 import { AppFastifyInstance, buildApp } from './buildApp'
@@ -26,7 +27,7 @@ describe('buildApp', () => {
       await app.ready()
 
       expect(app.hasDecorator('config')).toBe(true)
-      expect(app.config).toStrictEqual<AppConfig>(testConfig)
+      expect(app.config).toStrictEqual<Env>(testConfig)
 
       await app.close()
     })
@@ -38,20 +39,20 @@ describe('buildApp', () => {
 
   describe('when using the environment configuration', () => {
     it('succeed if valid', async () => {
-      stubEnv(testConfig)
+      stubEnv({ ...testConfig, PORT: testConfig.PORT.toString() })
 
       const app = await buildApp()
       await app.ready()
 
       expect(app.hasDecorator('config')).toBe(true)
-      expect(app.config).toStrictEqual<AppConfig>(testConfig)
+      expect(app.config).toStrictEqual<Env>(testConfig)
 
       await app.close()
     })
 
     it('fails if invalid', async () => {
-      stubEnv(invalidConfig)
-      await expect(buildApp()).rejects.toThrow(/^Invalid environment configuration/i)
+      stubEnv({ ...invalidConfig, PORT: invalidConfig.PORT.toString() })
+      await expect(buildApp()).rejects.toThrow(/^Invalid environment/i)
     })
   })
 
