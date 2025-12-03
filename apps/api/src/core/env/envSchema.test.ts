@@ -3,19 +3,14 @@ import { expectZodParseToThrow } from '@powercoach/util-test'
 import { ZodSafeParseResult } from 'zod'
 
 import { LogLevel } from '@/src/types'
-import {
-  developmentConfig,
-  productionConfig,
-  invalidConfig,
-  tooBigPortConfig
-} from '@/test/fixtures'
+import { developmentEnv, productionEnv, invalidEnv, tooBigPortEnv } from '@/test/fixtures'
 
 import { Env, envSchema } from './envSchema'
 
 describe('envSchema', () => {
   it('parses valid values', () => {
-    expect(() => envSchema.parse(productionConfig)).not.toThrow()
-    expect(envSchema.safeParse(productionConfig)).toStrictEqual<ZodSafeParseResult<Env>>({
+    expect(() => envSchema.parse(productionEnv)).not.toThrow()
+    expect(envSchema.safeParse(productionEnv)).toStrictEqual<ZodSafeParseResult<Env>>({
       data: {
         HOST: '0.0.0.0',
         LOG_LEVEL: LogLevel.info,
@@ -27,8 +22,8 @@ describe('envSchema', () => {
   })
 
   it('should accept localhost as HOST', () => {
-    expect(() => envSchema.parse(developmentConfig)).not.toThrow()
-    expect(envSchema.safeParse(developmentConfig)).toStrictEqual<ZodSafeParseResult<Env>>({
+    expect(() => envSchema.parse(developmentEnv)).not.toThrow()
+    expect(envSchema.safeParse(developmentEnv)).toStrictEqual<ZodSafeParseResult<Env>>({
       data: {
         HOST: 'localhost',
         LOG_LEVEL: LogLevel.debug,
@@ -40,12 +35,12 @@ describe('envSchema', () => {
   })
 
   it('rejects empty values', () => {
-    const validEnvKeys = new RegExp(Object.keys(productionConfig).join('|'))
+    const validEnvKeys = new RegExp(Object.keys(productionEnv).join('|'))
     expect(() => envSchema.parse({})).toThrow(validEnvKeys)
   })
 
   it('rejects invalid values', () => {
-    const zodError = expectZodParseToThrow(envSchema, invalidConfig)
+    const zodError = expectZodParseToThrow(envSchema, invalidEnv)
 
     expect(zodError.issues).toStrictEqual([
       expect.objectContaining({
@@ -69,7 +64,7 @@ describe('envSchema', () => {
   })
 
   it('rejects a too big PORT value', () => {
-    const zodError = expectZodParseToThrow(envSchema, tooBigPortConfig)
+    const zodError = expectZodParseToThrow(envSchema, tooBigPortEnv)
 
     expect(zodError.issues).toStrictEqual([
       expect.objectContaining({

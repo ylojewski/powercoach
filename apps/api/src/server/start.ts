@@ -6,8 +6,8 @@ import { loadEnv } from '@/src/core'
 type ShutdownSignal = 'SIGINT' | 'SIGTERM'
 
 export async function start() {
-  const config = loadEnv()
-  const app = await buildApp({ config })
+  const env = loadEnv()
+  const app = await buildApp({ env })
 
   const closeApp = async () => {
     try {
@@ -39,7 +39,7 @@ export async function start() {
   })
 
   try {
-    const address = await app.listen({ host: config.HOST, port: config.PORT })
+    const address = await app.listen({ host: env.HOST, port: env.PORT })
     app.log.info({ address }, 'Server listening')
   } catch (error) {
     app.log.error({ err: error }, 'Unable to start server')

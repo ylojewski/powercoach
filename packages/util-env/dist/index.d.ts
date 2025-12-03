@@ -17,9 +17,9 @@ interface CreateEnvLoaderOptions<TEnv extends z.ZodType<Env>> {
 }
 declare function createEnvLoader<TEnv extends z.ZodType<Env>>({ format, schema }: CreateEnvLoaderOptions<TEnv>): {
     loadEnv: () => Readonly<z.infer<TEnv>>;
-    resetCachedConfig: () => void;
+    resetCachedEnv: () => void;
 };
 
-declare function parseEnv<TEnv extends z.ZodType<Env>>(schema: TEnv, config: unknown, format: (error: ZodError) => string): z.infer<TEnv>;
+declare function parseEnv<TEnv extends z.ZodType<Env>>(schema: TEnv, env: unknown, format: (error: ZodError) => string): z.infer<TEnv>;
 
 export { type CreateEnvLoaderOptions, type Env, NodeEnv, createEnvLoader, envSchema, parseEnv };

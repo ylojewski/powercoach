@@ -3,11 +3,11 @@ import { stubEnv } from '@powercoach/util-test'
 import { FastifyRequest } from 'fastify'
 import { z } from 'zod'
 
-import { type Env, resetCachedConfig } from '@/src/core'
+import { type Env, resetCachedEnv } from '@/src/core'
 import { HEALTH_MODULE_NAME } from '@/src/modules'
 import { HELMET_PLUGIN_NAME, SENSIBLE_PLUGIN_NAME } from '@/src/plugins'
 import { LogLevel } from '@/src/types'
-import { invalidConfig, productionConfig, testConfig } from '@/test/fixtures'
+import { invalidEnv, productionEnv, testEnv } from '@/test/fixtures'
 import { getAjvOptions, spyOnStdout, flushAsync } from '@/test/utils'
 
 import { ajvOptions } from './ajvOptions'
@@ -18,40 +18,40 @@ describe('buildApp', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.unstubAllEnvs()
-    resetCachedConfig()
+    resetCachedEnv()
   })
 
   describe('when using the passed configuration', () => {
     it('succeed if valid', async () => {
-      const app = await buildApp({ config: testConfig })
+      const app = await buildApp({ env: testEnv })
       await app.ready()
 
-      expect(app.hasDecorator('config')).toBe(true)
-      expect(app.config).toStrictEqual<Env>(testConfig)
+      expect(app.hasDecorator('env')).toBe(true)
+      expect(app.env).toStrictEqual<Env>(testEnv)
 
       await app.close()
     })
 
     it('fails if invalid', async () => {
-      await expect(buildApp({ config: invalidConfig })).rejects.toThrow(/^Invalid configuration/i)
+      await expect(buildApp({ env: invalidEnv })).rejects.toThrow(/^Invalid environment/i)
     })
   })
 
   describe('when using the environment configuration', () => {
     it('succeed if valid', async () => {
-      stubEnv({ ...testConfig, PORT: testConfig.PORT.toString() })
+      stubEnv({ ...testEnv, PORT: testEnv.PORT.toString() })
 
       const app = await buildApp()
       await app.ready()
 
-      expect(app.hasDecorator('config')).toBe(true)
-      expect(app.config).toStrictEqual<Env>(testConfig)
+      expect(app.hasDecorator('env')).toBe(true)
+      expect(app.env).toStrictEqual<Env>(testEnv)
 
       await app.close()
     })
 
     it('fails if invalid', async () => {
-      stubEnv({ ...invalidConfig, PORT: invalidConfig.PORT.toString() })
+      stubEnv({ ...invalidEnv, PORT: invalidEnv.PORT.toString() })
       await expect(buildApp()).rejects.toThrow(/^Invalid environment/i)
     })
   })
@@ -62,7 +62,7 @@ describe('buildApp', () => {
 
     beforeEach(async () => {
       stdoutSpy = spyOnStdout()
-      app = await buildApp({ config: { ...productionConfig, LOG_LEVEL: LogLevel.info } })
+      app = await buildApp({ env: { ...productionEnv, LOG_LEVEL: LogLevel.info } })
     })
 
     afterEach(async () => {

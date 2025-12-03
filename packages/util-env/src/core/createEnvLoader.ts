@@ -29,7 +29,7 @@ export function createEnvLoader<TEnv extends z.ZodType<Env>>({
     return cachedEnv
   }
 
-  function resetCachedConfig() {
+  function resetCachedEnv() {
     if (initialNodeEnv !== NodeEnv.production) {
       cachedEnv = undefined
     }
@@ -37,6 +37,6 @@ export function createEnvLoader<TEnv extends z.ZodType<Env>>({
 
   return {
     loadEnv,
-    resetCachedConfig
+    resetCachedEnv
   }
 }

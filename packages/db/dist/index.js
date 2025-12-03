@@ -9,7 +9,7 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 var envSchema = envSchema$1.extend({
   DATABASE_URL: z.url({ protocol: /^postgres(ql)?$/ })
 });
-var { loadEnv, resetCachedConfig } = createEnvLoader({
+var { loadEnv, resetCachedEnv } = createEnvLoader({
   format: /* @__PURE__ */ __name((error) => `Invalid environment: ${error.message}`, "format"),
   schema: envSchema
 });
@@ -39,6 +39,6 @@ var metadata = pgTable("metadata", {
   value: text("value").notNull()
 });
 
-export { createClient, envSchema, loadEnv, metadata, resetCachedConfig };
+export { createClient, envSchema, loadEnv, metadata, resetCachedEnv };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map

@@ -4,7 +4,7 @@ import { config } from 'dotenv'
 
 import { Env } from '@/src/core'
 
-import { loadEnv, resetCachedConfig } from './loadEnv'
+import { loadEnv, resetCachedEnv } from './loadEnv'
 
 vi.mock('dotenv', () => ({
   config: vi.fn()
@@ -12,7 +12,7 @@ vi.mock('dotenv', () => ({
 
 describe('loadEnv', () => {
   beforeEach(async () => {
-    resetCachedConfig()
+    resetCachedEnv()
     vi.clearAllMocks()
     vi.unstubAllEnvs()
   })
