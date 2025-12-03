@@ -25,16 +25,16 @@ export type AppFastifyInstance = FastifyInstance<
 >
 
 export interface BuildAppOptions {
-  config?: Env
+  env?: Env
 }
 
 export async function buildApp(options: BuildAppOptions = {}): Promise<AppFastifyInstance> {
-  const config = options.config
-    ? parseEnv(envSchema, options.config, ({ message }) => `Invalid configuration: ${message}`)
+  const env = options.env
+    ? parseEnv(envSchema, options.env, ({ message }) => `Invalid environment: ${message}`)
     : loadEnv()
   const loggerOptions = buildLoggerOptions({
-    level: config.LOG_LEVEL,
-    nodeEnv: config.NODE_ENV
+    level: env.LOG_LEVEL,
+    nodeEnv: env.NODE_ENV
   })
   const app = Fastify({
     ajv: { customOptions: ajvOptions },
@@ -45,7 +45,7 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<AppFastif
     requestIdLogLabel: REQUEST_ID_LOG_LABEL
   }).withTypeProvider<TypeBoxTypeProvider>()
 
-  app.decorate('config', config)
+  app.decorate('env', env)
 
   app.addHook('onRequest', async (request, reply) => {
     reply.header(REQUEST_ID_HEADER, request.id)
@@ -60,6 +60,6 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<AppFastif
 
 declare module 'fastify' {
   interface FastifyInstance {
-    config: Env
+    env: Env
   }
 }

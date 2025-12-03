@@ -13,8 +13,8 @@ var NodeEnv = /* @__PURE__ */ ((NodeEnv2) => {
 })(NodeEnv || {});
 
 // src/core/parseEnv.ts
-function parseEnv(schema, config, format) {
-  const result = schema.safeParse(config);
+function parseEnv(schema, env, format) {
+  const result = schema.safeParse(env);
   if (!result.success) {
     throw new Error(format(result.error));
   }
@@ -38,15 +38,15 @@ function createEnvLoader({
     return cachedEnv;
   }
   __name(loadEnv, "loadEnv");
-  function resetCachedConfig() {
+  function resetCachedEnv() {
     if (initialNodeEnv !== "production" /* production */) {
       cachedEnv = void 0;
     }
   }
-  __name(resetCachedConfig, "resetCachedConfig");
+  __name(resetCachedEnv, "resetCachedEnv");
   return {
     loadEnv,
-    resetCachedConfig
+    resetCachedEnv
   };
 }
 __name(createEnvLoader, "createEnvLoader");

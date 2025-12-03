@@ -4,7 +4,7 @@ import { z } from 'zod'
 
 import { type Env } from '@/src/core'
 import { NodeEnv } from '@/src/types'
-import { productionConfig, testConfig } from '@/test/fixtures'
+import { productionEnv, testEnv } from '@/test/fixtures'
 
 import { createEnvLoader } from './createEnvLoader'
 import { envSchema } from './envSchema'
@@ -15,12 +15,12 @@ vi.mock('dotenv', () => ({
 
 describe('createEnvLoader', () => {
   describe('with a base schema', () => {
-    const { loadEnv, resetCachedConfig } = createEnvLoader({
+    const { loadEnv, resetCachedEnv } = createEnvLoader({
       format: () => 'Invalid environment',
       schema: envSchema
     })
     beforeEach(async () => {
-      resetCachedConfig()
+      resetCachedEnv()
       vi.clearAllMocks()
       vi.unstubAllEnvs()
     })
@@ -42,9 +42,9 @@ describe('createEnvLoader', () => {
       expect(config).toHaveBeenCalledTimes(1)
     })
 
-    it('should not reset cacheConfig', async () => {
+    it('should not reset cached env', async () => {
       vi.resetModules()
-      stubEnv(productionConfig)
+      stubEnv(productionEnv)
 
       const productionModule = await import('./createEnvLoader')
       const productionEnvLoader = productionModule.createEnvLoader({
@@ -53,21 +53,21 @@ describe('createEnvLoader', () => {
       })
 
       const first = productionEnvLoader.loadEnv()
-      productionEnvLoader.resetCachedConfig()
+      productionEnvLoader.resetCachedEnv()
       const second = productionEnvLoader.loadEnv()
 
       expect(first === second).toBe(true)
     })
 
-    it('should reset cacheConfig', async () => {
+    it('should reset cached env', async () => {
       vi.resetModules()
-      stubEnv(testConfig)
+      stubEnv(testEnv)
 
       const testModule = await import('./createEnvLoader')
       const testEnvLoader = testModule.createEnvLoader({ format: () => '', schema: envSchema })
 
       const first = testEnvLoader.loadEnv()
-      testEnvLoader.resetCachedConfig()
+      testEnvLoader.resetCachedEnv()
       const second = testEnvLoader.loadEnv()
 
       expect(first === second).toBe(false)
@@ -81,17 +81,17 @@ describe('createEnvLoader', () => {
 
   describe('with a custom schema', () => {
     const customSchema = envSchema.extend({ CUSTOM: z.string() })
-    const customProductionConfig = { ...productionConfig, CUSTOM: 'custom' }
-    const customTestConfig = { ...testConfig, CUSTOM: 'custom' }
+    const customProductionEnv = { ...productionEnv, CUSTOM: 'custom' }
+    const customTestEnv = { ...testEnv, CUSTOM: 'custom' }
     type CustomEnv = z.infer<typeof customSchema>
 
-    const { loadEnv: customLoadEnv, resetCachedConfig: customResetCachedConfig } = createEnvLoader({
+    const { loadEnv: customLoadEnv, resetCachedEnv: customResetCachedEnv } = createEnvLoader({
       format: () => 'Invalid custom environment',
       schema: customSchema
     })
 
     beforeEach(async () => {
-      customResetCachedConfig()
+      customResetCachedEnv()
       vi.clearAllMocks()
       vi.unstubAllEnvs()
     })
@@ -116,9 +116,9 @@ describe('createEnvLoader', () => {
       expect(config).toHaveBeenCalledTimes(1)
     })
 
-    it('should not reset custom cacheConfig', async () => {
+    it('should not reset custom cached env', async () => {
       vi.resetModules()
-      stubEnv(customProductionConfig)
+      stubEnv(customProductionEnv)
 
       const customProductionModule = await import('./createEnvLoader')
       const customProductionEnvLoader = customProductionModule.createEnvLoader({
@@ -127,15 +127,15 @@ describe('createEnvLoader', () => {
       })
 
       const first = customProductionEnvLoader.loadEnv()
-      customProductionEnvLoader.resetCachedConfig()
+      customProductionEnvLoader.resetCachedEnv()
       const second = customProductionEnvLoader.loadEnv()
 
       expect(first === second).toBe(true)
     })
 
-    it('should reset custom cacheConfig', async () => {
+    it('should reset custom cached env', async () => {
       vi.resetModules()
-      stubEnv(customTestConfig)
+      stubEnv(customTestEnv)
 
       const customTestModule = await import('./createEnvLoader')
       const customTestEnvLoader = customTestModule.createEnvLoader({
@@ -144,7 +144,7 @@ describe('createEnvLoader', () => {
       })
 
       const first = customTestEnvLoader.loadEnv()
-      customTestEnvLoader.resetCachedConfig()
+      customTestEnvLoader.resetCachedEnv()
       const second = customTestEnvLoader.loadEnv()
 
       expect(first === second).toBe(false)

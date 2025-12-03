@@ -9,7 +9,7 @@ export const helmetPluginCore: FastifyPluginAsync = async (app) => {
     crossOriginEmbedderPolicy: false
   }
 
-  if (app.config.NODE_ENV !== 'production') {
+  if (app.env.NODE_ENV !== 'production') {
     helmetOptions.contentSecurityPolicy = false
   }
 

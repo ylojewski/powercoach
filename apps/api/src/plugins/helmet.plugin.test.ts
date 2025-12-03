@@ -24,7 +24,7 @@ describe('helmetPlugin', () => {
   it('registers helmet with relaxed CSP outside production', async () => {
     const app = await buildDummyApp({
       plugins: [helmetPlugin],
-      withConfig: NodeEnv.development
+      withEnv: NodeEnv.development
     })
 
     expect(helmetMock).toHaveBeenCalledOnce()
@@ -39,7 +39,7 @@ describe('helmetPlugin', () => {
   it('registers helmet without overriding CSP in production', async () => {
     const app = await buildDummyApp({
       plugins: [helmetPlugin],
-      withConfig: NodeEnv.production
+      withEnv: NodeEnv.production
     })
 
     expect(helmetMock).toHaveBeenCalledOnce()

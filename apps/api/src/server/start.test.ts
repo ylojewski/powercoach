@@ -4,7 +4,7 @@ import { expect, MockedFunction } from 'vitest'
 
 import { AppFastifyInstance, buildApp } from '@/src/app'
 import { loadEnv } from '@/src/core'
-import { testConfig } from '@/test/fixtures'
+import { testEnv } from '@/test/fixtures'
 import { expectFunction, flushAsync } from '@/test/utils'
 
 import { start } from './start'
@@ -31,8 +31,8 @@ describe('start', () => {
   })
 
   it('starts the server and wires shutdown handlers', async () => {
-    loadEnvMock.mockReturnValue(testConfig)
-    const address = `http://${testConfig.HOST}:${testConfig.PORT}`
+    loadEnvMock.mockReturnValue(testEnv)
+    const address = `http://${testEnv.HOST}:${testEnv.PORT}`
 
     const handlers = new Map<string | symbol, (signal: string) => void>()
     const processOnSpy = vi.spyOn(process, 'on').mockImplementation((event, handler) => {
@@ -55,8 +55,8 @@ describe('start', () => {
     await start()
 
     expect(loadEnvMock).toHaveBeenCalledTimes(1)
-    expect(buildAppMock).toHaveBeenCalledWith({ config: testConfig })
-    expect(app.listen).toHaveBeenCalledWith({ host: testConfig.HOST, port: testConfig.PORT })
+    expect(buildAppMock).toHaveBeenCalledWith({ env: testEnv })
+    expect(app.listen).toHaveBeenCalledWith({ host: testEnv.HOST, port: testEnv.PORT })
     expect(app.log.info).toHaveBeenCalledWith({ address }, 'Server listening')
 
     const sigintHandler = handlers.get('SIGINT')
@@ -93,7 +93,7 @@ describe('start', () => {
   })
 
   it('exits when the server fails to listen', async () => {
-    loadEnvMock.mockReturnValue(testConfig)
+    loadEnvMock.mockReturnValue(testEnv)
 
     const processExitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
 

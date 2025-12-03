@@ -1,18 +1,18 @@
 import { Env } from '@/src/core'
 import { NodeEnv } from '@/src/types'
 
-export const productionConfig: Env = {
+export const productionEnv: Env = {
   NODE_ENV: NodeEnv.production
 } as const
 
-export const testConfig: Env = {
+export const testEnv: Env = {
   NODE_ENV: NodeEnv.test
 } as const
 
-export const developmentConfig: Env = {
+export const developmentEnv: Env = {
   NODE_ENV: NodeEnv.development
 } as const
 
-export const invalidConfig: Env = {
+export const invalidEnv: Env = {
   NODE_ENV: 'invalid' as NodeEnv
 } as const

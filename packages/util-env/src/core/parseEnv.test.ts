@@ -1,6 +1,6 @@
 import { z, ZodError } from 'zod'
 
-import { invalidConfig, productionConfig } from '@/test/fixtures'
+import { invalidEnv, productionEnv } from '@/test/fixtures'
 
 import { type Env, envSchema } from './envSchema'
 import { parseEnv } from './parseEnv'
@@ -8,27 +8,27 @@ import { parseEnv } from './parseEnv'
 describe('parseEnv', () => {
   it('succeed parsing a valid basic configuration', () => {
     const format = vi.fn()
-    const config: Env = parseEnv(envSchema, productionConfig, format)
+    const env: Env = parseEnv(envSchema, productionEnv, format)
 
-    expect(config).toStrictEqual<Env>(productionConfig)
+    expect(env).toStrictEqual<Env>(productionEnv)
     expect(format).not.toHaveBeenCalled()
   })
 
   it('succeed parsing a valid custom configuration', () => {
     const customSchema = envSchema.extend({ CUSTOM: z.string() })
-    const customConfig = { ...productionConfig, CUSTOM: 'custom' }
+    const customEnv = { ...productionEnv, CUSTOM: 'custom' }
     type CustomEnv = z.infer<typeof customSchema>
 
     const format = vi.fn()
-    const config: CustomEnv = parseEnv(customSchema, customConfig, format)
+    const env: CustomEnv = parseEnv(customSchema, customEnv, format)
 
-    expect(config).toStrictEqual<CustomEnv>({ ...productionConfig, CUSTOM: 'custom' })
+    expect(env).toStrictEqual<CustomEnv>({ ...productionEnv, CUSTOM: 'custom' })
     expect(format).not.toHaveBeenCalled()
   })
 
   it('fails parsing an invalid base configuration', () => {
     const format = vi.fn(() => 'custom message')
-    expect(() => parseEnv(envSchema, invalidConfig, format)).toThrowError('custom message')
+    expect(() => parseEnv(envSchema, invalidEnv, format)).toThrowError('custom message')
 
     expect(format).toHaveBeenCalledOnce()
     expect(format.mock.calls[0]?.pop()).toBeInstanceOf(ZodError)
@@ -36,10 +36,10 @@ describe('parseEnv', () => {
 
   it('fails parsing an invalid custom configuration', () => {
     const customSchema = envSchema.extend({ UUID: z.uuid() })
-    const customConfig = { ...productionConfig, UUID: 42 }
+    const customEnv = { ...productionEnv, UUID: 42 }
 
     const format = vi.fn(() => 'custom message')
-    expect(() => parseEnv(customSchema, customConfig, format)).toThrowError('custom message')
+    expect(() => parseEnv(customSchema, customEnv, format)).toThrowError('custom message')
 
     expect(format).toHaveBeenCalledOnce()
     expect(format.mock.calls[0]?.pop()).toBeInstanceOf(ZodError)

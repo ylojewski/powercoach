@@ -21,7 +21,7 @@ declare const loadEnv: () => Readonly<{
     NODE_ENV: _powercoach_util_env.NodeEnv;
     DATABASE_URL: string;
 }>;
-declare const resetCachedConfig: () => void;
+declare const resetCachedEnv: () => void;
 
 declare const metadata: drizzle_orm_pg_core.PgTableWithColumns<{
     name: "metadata";
@@ -82,4 +82,4 @@ declare const metadata: drizzle_orm_pg_core.PgTableWithColumns<{
     dialect: "pg";
 }>;
 
-export { type Env, createClient, envSchema, loadEnv, metadata, resetCachedConfig };
+export { type Env, createClient, envSchema, loadEnv, metadata, resetCachedEnv };
