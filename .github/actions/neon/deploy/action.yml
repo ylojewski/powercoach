@@ -1,0 +1,111 @@
+name: Deploy to Neon
+description: Deployment logic for Neon (create branch, wait until READY)
+
+inputs:
+  branch-sha:
+    description: Github branch SHA
+    required: true
+  pull-slug:
+    description: Slugified linked issue found in the PR commit messages
+    required: true
+
+outputs:
+  database-url:
+    description: The deployed branch database url
+    value: ${{ steps.deploy.outputs.database-url }}
+  id:
+    description: The deployed branch ID
+    value: ${{ steps.deploy.outputs.id }}
+
+runs:
+  using: composite
+  steps:
+    - uses: ./.github/actions/core/metadata
+      id: metadata
+      with:
+        branch-sha: ${{ inputs.branch-sha }}
+
+    - name: Deploy to Neon
+      id: deploy
+      shell: bash
+      run: |
+        echo "📦 Creating branch with"
+        echo "  -- Project ID ⇒ $NEON_PROJECT_ID"
+        echo "  -- Branch SHA ⇒ ${{ inputs.branch-sha }}"
+
+        response=$(
+          curl \
+            --silent \
+            --fail \
+            --request POST \
+            --url "https://console.neon.tech/api/v2/projects/$NEON_PROJECT_ID/branches" \
+            --header "authorization: Bearer $NEON_TOKEN" \
+            --header "accept: application/json" \
+            --header "content-type: application/json" \
+            --data '{
+              "branch": { "name": "${{ inputs.pull-slug }}" },
+              "annotation_value": { "${{ steps.metadata.outputs.branch-long }}": "${{ inputs.branch-sha }}" },
+              "endpoints": [{ "type": "read_write" }]
+            }' \
+          | jq -r '{
+            id: .branch.id,
+            database_url: .connection_uris[0].connection_uri
+          }'
+        )
+
+        id=$(printf '%s' $response | jq -r '.id')
+        database_url=$(printf '%s' $response | jq -r '.database_url')
+
+        echo "::add-mask::$database_url"
+
+        if -z "$id"; then
+          echo "❌ Failed to create branch (no ID)"
+          exit 1
+        fi
+
+        if -z "$database_url"; then
+          echo "❌ Failed to create branch (no database url)"
+          exit 1
+        fi
+
+        echo "⏳ Waiting for branch to become READY..."
+
+        wait_for_branch_ready() {
+          local id="$1"
+          local max_attempts="${2:-20}"
+          local delay="${3:-3}"
+          local attempt=1
+
+          while [[ "$attempt" -le "$max_attempts" ]]; do
+            state=$(
+              curl \
+                --silent \
+                --fail \
+                --request GET \
+                --url "https://console.neon.tech/api/v2/projects/$NEON_PROJECT_ID/branches/$id" \
+                --header "authorization: Bearer $NEON_TOKEN" \
+              | jq -r '.branch.current_state'
+            )
+
+            if [[ -z "$state" || "$state" == "null" ]]; then
+              echo "❌ No branch state"
+              exit 2
+            fi
+
+            case "$state" in
+              ready) echo "✅ Branch ready"; return 0 ;;
+              archived) echo "❌ Branch error (state=$state)"; exit 3 ;;
+            esac
+
+            attempt=$((attempt + 1))
+            sleep "$delay"
+          done
+
+          echo "⏰ Deployment timeout"
+          exit 4
+        }
+
+        wait_for_branch_ready "$id"
+
+        echo "id=$id" >> "$GITHUB_OUTPUT"
+        echo "database-url=$database_url" >> "$GITHUB_OUTPUT"

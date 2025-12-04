@@ -1,0 +1,41 @@
+name: Prune DB
+description: Prune Neon preview branches for the given branch SHA
+
+inputs:
+  branch-sha:
+    description: Github branch SHA
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - uses: ./.github/actions/core/summary
+      with:
+        title: Prune DB inputs
+        data: '{ "Branch SHA": "${{ inputs.branch-sha }}" }'
+
+    - name: Find branch
+      id: find
+      uses: ./.github/actions/neon/find
+      with:
+        branch-sha: ${{ inputs.branch-sha }}
+        deploy-target: 'preview'
+
+    - name: Delete branch
+      id: delete
+      if: steps.find.outputs.found == 'true'
+      uses: ./.github/actions/neon/delete
+      with:
+        branch-id: ${{ steps.find.outputs.id }}
+
+    - uses: ./.github/actions/core/summary
+      with:
+        title: Prune DB tasks
+        layout: 'list'
+        level: '4'
+        data: |
+          {
+            "find.found": "${{ steps.find.outputs.found }}",
+            "find.id": "${{ steps.find.outputs.id }}",
+            "delete.ok": "${{ steps.delete.outputs.ok }}"
+          }

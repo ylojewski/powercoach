@@ -1,0 +1,135 @@
+name: Find Neon branch
+description: Retrieves one branch data from Neon API
+
+inputs:
+  branch-sha:
+    description: Github branch SHA
+    required: true
+  deploy-target:
+    description: Deploy target, "preview" (pull event) or "production" (push event)
+    required: true
+
+outputs:
+  database-url:
+    description: The found branch database url
+    value: ${{ steps.find.outputs.database-url }}
+  found:
+    description: Whether the branch has been found
+    value: ${{ steps.find.outputs.found }}
+  id:
+    description: The found branch id
+    value: ${{ steps.find.outputs.id }}
+  value:
+    description: The found branch
+    value: ${{ steps.find.outputs.value }}
+
+runs:
+  using: composite
+  steps:
+    - uses: ./.github/actions/core/validate/deploy-target
+      with:
+        deploy-target: ${{ inputs.deploy-target }}
+
+    - uses: ./.github/actions/core/metadata
+      id: metadata
+      with:
+        branch-sha: ${{ inputs.branch-sha }}
+
+    - name: Find Neon branch
+      id: find
+      shell: bash
+      run: |
+        echo "🔍 Searching exactly one branch"
+        echo "  -- Project ID ⇒ $NEON_PROJECT_ID"
+        echo "  -- Branch SHA ⇒ ${{ inputs.branch-sha }}"
+
+        response=$(
+          curl \
+            --silent \
+            --fail \
+            --request GET \
+            --url "https://console.neon.tech/api/v2/projects/$NEON_PROJECT_ID/branches?limit=50" \
+            --header "authorization: Bearer $NEON_TOKEN" \
+            --header "accept: application/json" \
+          | jq -r \
+            --arg branch_sha "${{ inputs.branch-sha }}" \
+            --arg branch_metadata "${{ steps.metadata.outputs.branch-long }}" \
+            --arg production "${{ inputs.deploy-target == 'production' }}" \
+            '[
+              . as $response
+              | $response.annotations
+                | to_entries[]
+                | if $production == "true" then select(.value.value["environment"] == "production") end
+                | if $production == "false" then select(.value.value[$branch_metadata] == $branch_sha) end
+                | .key as $branch_id
+              | $response.branches[]
+                | select(.id == $branch_id)
+            ]'
+        )
+
+        count="$(printf '%s' "$response" | jq 'length')"
+
+        if -0 "$count"; then
+          echo "ℹ️ No branches found"
+          echo "found=false" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        if -g "$count"; then
+          echo "❌ Error: multiple branches found (expected exactly 1):"
+          echo_m "$(printf '%s' "$response" | jq -r '.[].id')"
+          exit 1
+        fi
+
+        id=$(printf '%s' "$response" | jq -r '.[0].id')
+
+        echo "found=true" >> "$GITHUB_OUTPUT"
+        echo "id=$id" >> "$GITHUB_OUTPUT"
+
+        GITHUB_OUTPUT_M "value" "$(printf '%s' "$response" | jq -r '.')"
+
+        echo "ℹ️ Found one branch"
+        echo "  -- Branch ID ⇒ $id"
+
+        echo "🔍 Computing branch database url"
+        echo "  -- Project ID ⇒ $NEON_PROJECT_ID"
+        echo "  -- Branch ID ⇒ $id"
+
+        host=$(
+          curl \
+            --silent \
+            --fail \
+            --request GET \
+            --url "https://console.neon.tech/api/v2/projects/$NEON_PROJECT_ID/branches/$id/endpoints" \
+            --header "authorization: Bearer $NEON_TOKEN" \
+          | jq -r '
+            .endpoints[]
+            | select(.type == "read_write")
+            | .host // empty
+          '
+        )
+
+        if -z "$host"; then
+          echo "❌ Error: no host found"
+          exit 1
+        fi
+
+        password=$(
+          curl \
+            --silent \
+            --fail \
+            --request GET \
+            --url "https://console.neon.tech/api/v2/projects/$NEON_PROJECT_ID/branches/$id/roles/neondb_owner/reveal_password" \
+            --header "authorization: Bearer $NEON_TOKEN" \
+          | jq -r '.password'
+        )
+
+        if -z "$password"; then
+          echo "❌ Error: no password found"
+          exit 1
+        fi
+
+        database_url="postgresql://neondb_owner:${password}@${host}/neondb?sslmode=require&channel_binding=require"
+
+        echo "::add-mask::$database_url"
+        echo "database-url=$database_url" >> "$GITHUB_OUTPUT"

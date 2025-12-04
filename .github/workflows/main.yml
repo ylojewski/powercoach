@@ -25,6 +25,7 @@ permissions:
   statuses: write
 
 env:
+  CI: 1
   TURBO_TELEMETRY_DISABLED: 1
   VERCEL_TELEMETRY_DISABLED: 1
 
@@ -45,6 +46,18 @@ jobs:
         if: steps.context.outputs.ci-action == 'true'
         with:
           turbo-filter: ${{ steps.context.outputs.turbo-filter }}
+
+      - uses: ./.github/actions/core/cd/db
+        id: db
+        if: steps.context.outputs.cd-action == 'true'
+        env:
+          NEON_PROJECT_ID: ${{ vars.NEON_PROJECT_ID }}
+          NEON_TOKEN: ${{ secrets.NEON_TOKEN }}
+        with:
+          branch-sha: ${{ steps.context.outputs.branch-sha }}
+          deploy-target: ${{ steps.context.outputs.deploy-target }}
+          pull-event: ${{ steps.context.outputs.pull-event }}
+          pull-slug: ${{ steps.context.outputs.pull-slug }}
 
       - uses: ./.github/actions/core/cd/api
         if: steps.context.outputs.cd-action == 'true'
@@ -79,6 +92,15 @@ jobs:
           pull-event: ${{ steps.context.outputs.pull-event }}
           pull-slug: ${{ steps.context.outputs.pull-slug }}
           push-event: ${{ steps.context.outputs.push-event }}
+
+      - name: Prune DB
+        uses: ./.github/actions/core/prune/db
+        if: steps.context.outputs.prune-action == 'true'
+        env:
+          NEON_PROJECT_ID: ${{ vars.NEON_PROJECT_ID }}
+          NEON_TOKEN: ${{ secrets.NEON_TOKEN }}
+        with:
+          branch-sha: ${{ (steps.context.outputs.pull-event == 'true' && steps.context.outputs.branch-sha) || (steps.context.outputs.push-event == 'true' && steps.context.outputs.commit-branch-sha) }}
 
       - name: Prune API
         uses: ./.github/actions/core/prune/api

@@ -47,7 +47,7 @@ runs:
 
         url="https://api.vercel.com/v6/deployments?$query"
 
-        echo "🔍 Searching exactly one deployment with:"
+        echo "🔍 Searching exactly one deployment"
         echo "  -- URL ⇒ $url"
 
         response=$(

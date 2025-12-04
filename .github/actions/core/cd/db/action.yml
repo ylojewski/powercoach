@@ -1,0 +1,129 @@
+name: DB CD
+description: Powercoach continuous deployment. Deploys the DB package to Neon
+
+inputs:
+  branch-sha:
+    description: Github branch SHA
+    required: true
+  deploy-target:
+    description: Deploy target, "preview" (pull event) or "production" (push event)
+    required: true
+  pull-event:
+    description: Whether it is a pull request event
+    required: true
+  pull-slug:
+    description: Slugified linked issue found in the PR commit messages
+    required: false
+
+outputs:
+  database-url:
+    description: The branch database url
+    value: ${{ steps.database-url.outputs.value }}
+
+runs:
+  using: composite
+  steps:
+    - uses: ./.github/actions/core/validate/deploy-target
+      with:
+        deploy-target: ${{ inputs.deploy-target }}
+
+    - uses: ./.github/actions/core/validate/pull-slug
+      with:
+        deploy-target: ${{ inputs.deploy-target }}
+        pull-slug: ${{ inputs.pull-slug }}
+
+    - uses: ./.github/actions/core/summary
+      with:
+        title: DB CD inputs
+        data: |
+          {
+            "Branch SHA": "${{ inputs.branch-sha }}",
+            "Deploy target": "${{ inputs.deploy-target }}",
+            "Pull event": "${{ inputs.pull-event }}",
+            "Pull slug": "${{ inputs.pull-slug }}"
+          }
+
+    - name: Find branch
+      id: find
+      uses: ./.github/actions/neon/find
+      with:
+        branch-sha: ${{ inputs.branch-sha }}
+        deploy-target: ${{ inputs.deploy-target }}
+
+    - name: Actions
+      id: actions
+      shell: bash
+      run: |
+        if -t "${{ inputs.pull-event }}" && -t "${{ steps.find.outputs.found }}"; then
+          echo "delete=true" >> "$GITHUB_OUTPUT"
+          echo "deploy=true" >> "$GITHUB_OUTPUT"
+          echo "seed=true" >> "$GITHUB_OUTPUT"
+        fi
+
+        if -t "${{ inputs.pull-event }}" && -f "${{ steps.find.outputs.found }}"; then
+          echo "deploy=true" >> "$GITHUB_OUTPUT"
+          echo "seed=true" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Delete
+      id: delete
+      if: steps.actions.outputs.delete == 'true'
+      uses: ./.github/actions/neon/delete
+      with:
+        branch-id: ${{ steps.find.outputs.id }}
+
+    - name: Deploy
+      id: deploy
+      if: steps.actions.outputs.deploy == 'true'
+      uses: ./.github/actions/neon/deploy
+      with:
+        branch-sha: ${{ inputs.branch-sha }}
+        pull-slug: ${{ inputs.pull-slug }}
+
+    - name: Database url
+      id: database-url
+      shell: bash
+      run: echo "value=${{ steps.deploy.outputs.database-url || steps.find.outputs.database-url }}" >> "$GITHUB_OUTPUT"
+
+    - name: Migrate
+      id: migrate
+      shell: bash
+      env:
+        DATABASE_URL: ${{ steps.database-url.outputs.value }}
+        NODE_ENV: 'production'
+      working-directory: packages/db
+      run: |
+        pnpm db:migrate
+        echo "ok=true" >> "$GITHUB_OUTPUT"
+
+    - name: Seed
+      id: seed
+      if: steps.actions.outputs.seed == 'true'
+      shell: bash
+      working-directory: packages/db
+      env:
+        DATABASE_URL: ${{ steps.database-url.outputs.value }}
+        NODE_ENV: 'production'
+        PULL_SLUG: ${{ inputs.pull-slug }}
+      run: |
+        pnpm db:seed
+        echo "ok=true" >> "$GITHUB_OUTPUT"
+
+    - uses: ./.github/actions/core/summary
+      with:
+        title: DB CD tasks
+        layout: 'list'
+        level: '4'
+        data: |
+          {
+            "database-url.value": "${{ steps.database-url.outputs.value }}",
+            "find.found": "${{ steps.find.outputs.found }}",
+            "find.id": "${{ steps.find.outputs.id }}",
+            "actions.delete": "${{ steps.actions.outputs.delete }}",
+            "actions.deploy": "${{ steps.actions.outputs.deploy }}",
+            "actions.seed": "${{ steps.actions.outputs.seed }}",
+            "deploy.id": "${{ steps.deploy.outputs.id }}",
+            "delete.ok": "${{ steps.delete.outputs.ok }}",
+            "migrate.ok": "${{ steps.migrate.outputs.ok }}",
+            "seed.ok": "${{ steps.seed.outputs.ok }}"
+          }

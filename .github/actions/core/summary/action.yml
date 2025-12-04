@@ -42,7 +42,11 @@ runs:
           }
 
           Object.entries(data).forEach(([key, value]) => {
-            const displayedValue = value === true ? '✅' : !value ? '❌' : `${value}`.replace(/\n/g, '<br>');
+            const displayedValue =
+              `${value}` === 'true' ? '✅' :
+              `${value}` === 'false' ? '❌' :
+              !value ? '❌' :
+              `${value}`.replace(/\n/g, '<br>');
             output += isTable
               ? `| ${key} | ${displayedValue} |\n`
               : `- ${key} ⇒ ${displayedValue}\n`;

@@ -69,23 +69,25 @@ Scripts prefixed with deploy: are explicitly excluded.
 - MUST always follow conventional commit.
 - MUST use imperative form (e.g. add, update, fix).
 - The subject MUST be defined and one word descriptive.
-- Branch names MUST match the first commit message slug and MUST be of the form
+- Branch name MUST match the first commit message slug and MUST be of the form
 
 `verb/subject/topic`
+
+Examples
 
 ```bash
 feat(manager): add session timeout handling
 feat/manager/add-session-timeout-handling
 ```
 
-- If one task targets multiple apps and or packages, **use \* as subject**
+- If one task targets multiple apps and or packages, **use all as subject**
 
 Examples:
 
 ```bash
 feat(manager): add session timeout handling
 fix(api): sanitize nullable user id
-chore(powercoach): update linter configuration
+chore(all): update linter configuration
 ```
 
 ### Commit message body

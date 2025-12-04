@@ -36,8 +36,8 @@
   "scripts": {
     "build": "tsup --config tsup.config.js",
     "db:down": "docker compose -f docker-compose.dev.yml down --volumes --remove-orphans",
-    "db:generate": "pnpm drizzle-kit generate",
-    "db:migrate": "pnpm drizzle-kit migrate",
+    "db:generate": "pnpm drizzle-kit generate --config=drizzle.config.js",
+    "db:migrate": "pnpm drizzle-kit migrate --config=drizzle.config.js",
     "db:reset": "pnpm db:down && pnpm db:up && pnpm db:migrate && pnpm db:seed",
     "db:seed": "tsx --tsconfig tsconfig.src.json scripts/seed.ts",
     "db:up": "docker compose -f docker-compose.dev.yml up -d",
