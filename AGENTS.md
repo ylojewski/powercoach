@@ -4,6 +4,15 @@ This file defines the minimal rules that apply to every task in the Powercoach m
 
 ---
 
+### Actions to take immediately
+
+**If the issue number is not specified in the prompt, do not start the task and ask for it**
+
+**If the commit message is not specified in the prompt, do not start the task and ask for it**
+
+
+---
+
 ## 1. Repository Context
 
 - The repository is a pnpm + Turborepo monorepo.
@@ -21,7 +30,11 @@ All changes MUST respect this structure and avoid breaking other apps/packages.
 
 ## 2. Task Bootstrap
 
-Always start by installing the dependencies with:
+Always start by :
+
+1. Creating the new branch as described in the fifth section
+
+2. Installing the dependencies with:
 
 ```bash
 pnpm install --frozen-lockfile
@@ -69,7 +82,7 @@ Scripts prefixed with deploy: are explicitly excluded.
 - MUST always follow conventional commit.
 - MUST use imperative form (e.g. add, update, fix).
 - The subject MUST be defined and one word descriptive.
-- Branch name MUST match the first commit message slug and MUST be of the form
+- Branch name MUST match the given commit message and MUST be of the form
 
 `verb/subject/topic`
 
@@ -79,6 +92,8 @@ Examples
 feat(manager): add session timeout handling
 feat/manager/add-session-timeout-handling
 ```
+
+_Dot not add, remove or change any words from the given commit message_
 
 - If one task targets multiple apps and or packages, **use all as subject**
 
@@ -106,8 +121,6 @@ feat(manager): add session timeout handling
 Closes #42
 From feat/manager/add-session-timeout-handling
 ```
-
-**If the issue number is not specified in the prompt, do not start the task and ask for it**
 
 ---
 
