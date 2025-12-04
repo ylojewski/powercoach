@@ -1,0 +1,37 @@
+name: Delete Neon branch
+description: Deletes one branch from Neon API
+
+inputs:
+  branch-id:
+    description: Neon branch ID
+    required: true
+
+outputs:
+  ok:
+    description: Whether the deletion was successful
+    value: ${{ steps.delete.outputs.ok }}
+
+runs:
+  using: composite
+  steps:
+    - name: Delete Neon branch
+      id: delete
+      shell: bash
+      run: |
+        echo "🔍 Deleting branch"
+        echo "  -- Project ID ⇒ $NEON_PROJECT_ID"
+        echo "  -- Branch ID ⇒ ${{ inputs.branch-id }}"
+
+        if curl \
+            --silent \
+            --fail \
+            --output /dev/null \
+            --request DELETE \
+            --url "https://console.neon.tech/api/v2/projects/$NEON_PROJECT_ID/branches/${{ inputs.branch-id }}" \
+            --header "authorization: Bearer $NEON_TOKEN"; then
+          echo "ℹ️ Branch deleted"
+          echo "ok=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "ℹ️ Branch not deleted"
+          echo "ok=false" >> "$GITHUB_OUTPUT"
+        fi
