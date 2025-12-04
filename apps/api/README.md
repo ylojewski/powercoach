@@ -1,6 +1,6 @@
 # @powercoach/api
 
-State-of-the-art Fastify API powered by Turborepo.
+Fastify HTTP API that powers Powercoach services. The server is written in TypeScript, bundled with tsup, and exposed through Turborepo tasks.
 
 ## Prerequisites
 
@@ -20,7 +20,7 @@ pnpm install
 - `pnpm test` – execute the Vitest end-to-end tests.
 - `pnpm lint` – lint the codebase with ESLint.
 - `pnpm format` – format the sources using Prettier.
-- `pnpm typecheck` – check types with Typescript .
+- `pnpm typecheck` – check types with TypeScript.
 
 ## Environment variables
 
@@ -35,12 +35,12 @@ Copy `.env.example` to `.env` and adjust the values if needed.
 
 ## API surface
 
-The API exposes a single health check endpoint:
+Initial endpoints focus on service readiness:
 
-- `GET /v1/health` – returns `{ ok: true, uptime: number }`
+- `GET /v1/health` – returns `{ ok: true, uptime: number }` via the health module in `src/modules/health`.
 
-To add a new module, duplicate the structure in `src/modules/health` and register the module in `src/app/buildApp.ts` with the desired route prefix.
+New modules can mirror the `src/modules/health` structure and be registered in `src/app/buildApp.ts` with their own route prefix. Shared utilities live under `src/app`.
 
 ## Testing strategy
 
-Tests use Fastify's `inject` API for fast, hermetic end-to-end coverage without opening network sockets. Each test spins up an in-memory Fastify instance
+Tests use Fastify's `inject` API for fast, hermetic end-to-end coverage without opening network sockets. Each test spins up an in-memory Fastify instance to validate handlers and plugins without side effects.
