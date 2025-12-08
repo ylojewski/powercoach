@@ -12,6 +12,7 @@ describe('envSchema', () => {
     expect(() => envSchema.parse(productionEnv)).not.toThrow()
     expect(envSchema.safeParse(productionEnv)).toStrictEqual<ZodSafeParseResult<Env>>({
       data: {
+        DATABASE_URL: 'postgresql://user:password@region.neon.tech/neondb?sslmode=require',
         HOST: '0.0.0.0',
         LOG_LEVEL: LogLevel.info,
         NODE_ENV: NodeEnv.production,
@@ -25,6 +26,7 @@ describe('envSchema', () => {
     expect(() => envSchema.parse(developmentEnv)).not.toThrow()
     expect(envSchema.safeParse(developmentEnv)).toStrictEqual<ZodSafeParseResult<Env>>({
       data: {
+        DATABASE_URL: 'postgres://postgres:postgres@localhost:5432/powercoach_dev',
         HOST: 'localhost',
         LOG_LEVEL: LogLevel.debug,
         NODE_ENV: NodeEnv.development,
@@ -46,6 +48,10 @@ describe('envSchema', () => {
       expect.objectContaining({
         message: 'Invalid option: expected one of "development"|"production"|"test"',
         path: ['NODE_ENV']
+      }),
+      expect.objectContaining({
+        message: 'Invalid URL',
+        path: ['DATABASE_URL']
       }),
       expect.objectContaining({
         message: 'Invalid IPv4 address',

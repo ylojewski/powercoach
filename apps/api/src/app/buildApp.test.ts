@@ -1,68 +1,90 @@
-import { Options } from '@fastify/ajv-compiler'
-import { stubEnv } from '@powercoach/util-test'
-import { FastifyRequest } from 'fastify'
+import { type Options } from '@fastify/ajv-compiler'
+import { flushAsync, spyOnConsole, spyOnStdout, stubEnv } from '@powercoach/util-test'
+import { type FastifyRequest } from 'fastify'
 import { z } from 'zod'
 
 import { type Env, resetCachedEnv } from '@/src/core'
 import { HEALTH_MODULE_NAME } from '@/src/modules'
 import { HELMET_PLUGIN_NAME, SENSIBLE_PLUGIN_NAME } from '@/src/plugins'
-import { LogLevel } from '@/src/types'
-import { invalidEnv, productionEnv, testEnv } from '@/test/fixtures'
-import { getAjvOptions, spyOnStdout, flushAsync } from '@/test/utils'
+import { createRealEnv, invalidEnv, testEnv } from '@/test/fixtures'
+import { getAjvOptions } from '@/test/utils'
 
 import { ajvOptions } from './ajvOptions'
-import { AppFastifyInstance, buildApp } from './buildApp'
+import { type AppFastifyInstance, buildApp } from './buildApp'
 import { REQUEST_ID_HEADER, REQUEST_ID_LOG_LABEL, REQUEST_MODULE_NAME } from './constants'
+
+spyOnConsole(['error'])
+const env = createRealEnv()
 
 describe('buildApp', () => {
   beforeEach(() => {
+    resetCachedEnv()
     vi.clearAllMocks()
     vi.unstubAllEnvs()
-    resetCachedEnv()
   })
 
   describe('when using the passed configuration', () => {
     it('succeed if valid', async () => {
-      const app = await buildApp({ env: testEnv })
+      const app = await buildApp({ env })
+      const endSpy = vi.spyOn(app.pg, 'end')
+
       await app.ready()
 
       expect(app.hasDecorator('env')).toBe(true)
-      expect(app.env).toStrictEqual<Env>(testEnv)
+      expect(app.env).toStrictEqual<Env>(env)
+
+      expect(app.hasDecorator('db')).toBe(true)
+      expect(app.db).toBeDefined()
+      expect(typeof app.db.select).toBe('function')
+      expect(typeof app.db.insert).toBe('function')
+      expect(typeof app.db.update).toBe('function')
+      expect(typeof app.db.delete).toBe('function')
 
       await app.close()
+
+      expect(endSpy).toHaveBeenCalledOnce()
     })
 
     it('fails if invalid', async () => {
       await expect(buildApp({ env: invalidEnv })).rejects.toThrow(/^Invalid environment/i)
     })
+
+    it('fails if connexion to database can not be established', async () => {
+      await expect(buildApp({ env: testEnv })).rejects.toThrow(
+        expect.objectContaining({ code: 'ECONNREFUSED' })
+      )
+    })
   })
 
   describe('when using the environment configuration', () => {
     it('succeed if valid', async () => {
-      stubEnv({ ...testEnv, PORT: testEnv.PORT.toString() })
-
+      stubEnv(env)
       const app = await buildApp()
       await app.ready()
-
-      expect(app.hasDecorator('env')).toBe(true)
-      expect(app.env).toStrictEqual<Env>(testEnv)
-
+      expect(app.env).toStrictEqual<Env>(env)
       await app.close()
     })
 
     it('fails if invalid', async () => {
-      stubEnv({ ...invalidEnv, PORT: invalidEnv.PORT.toString() })
+      stubEnv(invalidEnv)
       await expect(buildApp()).rejects.toThrow(/^Invalid environment/i)
+    })
+
+    it('fails if connexion to database can not be established', async () => {
+      stubEnv(testEnv)
+      await expect(buildApp({ env: testEnv })).rejects.toThrow(
+        expect.objectContaining({ code: 'ECONNREFUSED' })
+      )
     })
   })
 
-  describe('instance', () => {
+  describe('production instance', () => {
     let app: AppFastifyInstance
     let stdoutSpy: ReturnType<typeof spyOnStdout>
 
     beforeEach(async () => {
       stdoutSpy = spyOnStdout()
-      app = await buildApp({ env: { ...productionEnv, LOG_LEVEL: LogLevel.info } })
+      app = await buildApp({ env: createRealEnv('production') })
     })
 
     afterEach(async () => {

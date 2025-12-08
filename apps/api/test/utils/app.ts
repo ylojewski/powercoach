@@ -1,10 +1,11 @@
-import { Options } from '@fastify/ajv-compiler'
+import { type Options } from '@fastify/ajv-compiler'
 import { NodeEnv } from '@powercoach/util-env'
-import Fastify, { FastifyInstance, FastifyPluginAsync } from 'fastify'
+import { type NodePgDatabase } from 'drizzle-orm/node-postgres'
+import Fastify, { type FastifyInstance, type FastifyPluginAsync } from 'fastify'
 
-import { AppFastifyInstance, buildApp } from '@/src/app'
+import { type AppFastifyInstance, buildApp } from '@/src/app'
 import { type Env } from '@/src/core'
-import { LogLevel } from '@/src/types'
+import { createRealEnv, testEnv } from '@/test/fixtures'
 
 type FastifySpy = {
   [K in keyof FastifyInstance]: FastifyInstance[K] extends (...args: infer _) => unknown ? K : never
@@ -14,25 +15,12 @@ export interface CreateEmptyAppOptions {
   plugins?: FastifyPluginAsync[]
   ready?: boolean
   spies?: FastifySpy[]
+  withDb?: boolean
   withEnv?: boolean | NodeEnv
 }
 
-export async function buildTestApp(): Promise<AppFastifyInstance> {
-  const app = await buildApp({
-    env: {
-      HOST: '0.0.0.0',
-      LOG_LEVEL: LogLevel.silent,
-      NODE_ENV: NodeEnv.development,
-      PORT: 1
-    }
-  })
-
-  await app.ready()
-  return app
-}
-
 export async function buildDummyApp(options?: CreateEmptyAppOptions): Promise<FastifyInstance> {
-  const { plugins = [], ready = true, spies = [], withEnv } = options ?? {}
+  const { plugins = [], ready = true, spies = [], withDb, withEnv } = options ?? {}
   const app = Fastify()
 
   if (spies) {
@@ -42,12 +30,21 @@ export async function buildDummyApp(options?: CreateEmptyAppOptions): Promise<Fa
   }
 
   if (withEnv) {
-    app.decorate('env', {
-      HOST: '0.0.0.0',
-      LOG_LEVEL: LogLevel.info,
-      NODE_ENV: typeof withEnv === 'boolean' ? NodeEnv.test : withEnv,
-      PORT: 8080
-    } as Env)
+    const env: Env = {
+      ...testEnv,
+      NODE_ENV: typeof withEnv === 'boolean' ? NodeEnv.test : withEnv
+    }
+    app.decorate('env', env)
+  }
+
+  if (withDb) {
+    app.decorate('db', {
+      delete: vi.fn(),
+      execute: vi.fn(),
+      insert: vi.fn(),
+      select: vi.fn(),
+      update: vi.fn()
+    } as unknown as NodePgDatabase)
   }
 
   if (plugins) {
@@ -72,3 +69,13 @@ export function getAjvOptions(app: AppFastifyInstance): Options | undefined {
     return app[optionsSymbol].ajv.customOptions
   }
 }
+
+export const appTest = test.extend<{ app: AppFastifyInstance }>({
+  app: async ({}, use) => {
+    const env = createRealEnv()
+    const app = await buildApp({ env })
+    await app.ready()
+    await use(app)
+    await app.close()
+  }
+})

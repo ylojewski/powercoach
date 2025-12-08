@@ -4,7 +4,10 @@ import * as _powercoach_util_env from '@powercoach/util-env';
 import { z } from 'zod';
 import * as drizzle_orm_pg_core from 'drizzle-orm/pg-core';
 
-declare function createClient(): Promise<{
+interface CreateClientOptions {
+    databaseUrl: string;
+}
+declare function createClient(options?: CreateClientOptions): Promise<{
     db: drizzle_orm_node_postgres.NodePgDatabase<Record<string, never>> & {
         $client: Client;
     };
@@ -82,4 +85,4 @@ declare const metadata: drizzle_orm_pg_core.PgTableWithColumns<{
     dialect: "pg";
 }>;
 
-export { type Env, createClient, envSchema, loadEnv, metadata, resetCachedEnv };
+export { type CreateClientOptions, type Env, createClient, envSchema, loadEnv, metadata, resetCachedEnv };

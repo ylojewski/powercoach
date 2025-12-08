@@ -48,7 +48,7 @@ jobs:
           turbo-filter: ${{ steps.context.outputs.turbo-filter }}
 
       - uses: ./.github/actions/core/cd/db
-        id: db
+        id: db-cd
         if: steps.context.outputs.cd-action == 'true'
         env:
           NEON_PROJECT_ID: ${{ vars.NEON_PROJECT_ID }}
@@ -72,6 +72,7 @@ jobs:
         with:
           api-sha: ${{ steps.context.outputs.api-sha }}
           branch-sha: ${{ steps.context.outputs.branch-sha }}
+          database-url: ${{ steps.db-cd.outputs.database-url }}
           deploy-target: ${{ steps.context.outputs.deploy-target }}
           pull-event: ${{ steps.context.outputs.pull-event }}
           pull-slug: ${{ steps.context.outputs.pull-slug }}

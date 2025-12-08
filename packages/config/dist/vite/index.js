@@ -4,9 +4,11 @@ import react from '@vitejs/plugin-react';
 
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-function buildConfig(importUrl, config) {
+function buildConfig(importUrl, cfg) {
   const importPath = fileURLToPath(importUrl);
   const importDir = dirname(importPath);
+  const globalSetup = cfg?.globalSetup === true ? "test/globalSetup.ts" : cfg?.globalSetup ?? "";
+  const setup = cfg?.setup === true ? "test/setup.ts" : cfg?.setup ?? "";
   return {
     resolve: {
       alias: {
@@ -22,9 +24,9 @@ function buildConfig(importUrl, config) {
           "src/**/*.{test,spec}.{ts,tsx}",
           "src/**/*.d.ts",
           "test",
-          ...config?.exclude ?? []
+          ...cfg?.exclude ?? []
         ],
-        include: ["src/**/*.{ts,tsx}", ...config?.include ?? []],
+        include: ["src/**/*.{ts,tsx}", ...cfg?.include ?? []],
         provider: "v8",
         reporter: ["text", "json", "lcov"],
         reportsDirectory: "coverage",
@@ -35,7 +37,9 @@ function buildConfig(importUrl, config) {
           statements: 100
         }
       },
-      globals: true
+      globals: true,
+      ...globalSetup && { globalSetup: [globalSetup] },
+      ...setup && { setupFiles: [setup] }
     }
   };
 }

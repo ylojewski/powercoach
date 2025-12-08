@@ -31,6 +31,7 @@ var sharedStyleConfig = {
         pathGroups: [{ group: "internal", pattern: "@/**", position: "before" }]
       }
     ],
+    "no-empty-pattern": ["error", { allowObjectPatternsAsParameters: true }],
     "sort-keys": [
       "error",
       "asc",

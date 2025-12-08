@@ -3,10 +3,13 @@ import { Client } from 'pg'
 
 import { loadEnv } from '@/src/core'
 
-export async function createClient() {
-  const { DATABASE_URL } = loadEnv()
+export interface CreateClientOptions {
+  databaseUrl: string
+}
+
+export async function createClient(options?: CreateClientOptions) {
   const pg = new Client({
-    connectionString: DATABASE_URL
+    connectionString: options?.databaseUrl ?? loadEnv().DATABASE_URL
   })
 
   try {
@@ -16,10 +19,8 @@ export async function createClient() {
     throw error
   }
 
-  const db = drizzle(pg)
-
   return {
-    db,
+    db: drizzle(pg),
     pg
   }
 }

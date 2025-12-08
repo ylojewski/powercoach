@@ -5,7 +5,7 @@ import { getHealthStatus } from './service'
 
 export function registerHealthRoutes(app: FastifyInstance) {
   app.route({
-    handler: () => getHealthStatus(),
+    handler: getHealthStatus,
     method: 'GET',
     schema: {
       response: { 200: healthResponseSchema }

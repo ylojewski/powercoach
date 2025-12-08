@@ -2,12 +2,15 @@ import { randomUUID } from 'node:crypto'
 import { type IncomingMessage, type ServerResponse } from 'node:http'
 
 import { type TypeBoxTypeProvider } from '@fastify/type-provider-typebox'
+import { createClient } from '@powercoach/db'
 import { parseEnv } from '@powercoach/util-env'
+import { type NodePgDatabase } from 'drizzle-orm/node-postgres'
 import Fastify, {
   type FastifyBaseLogger,
   type FastifyInstance,
   type RawServerDefault
 } from 'fastify'
+import { Client } from 'pg'
 
 import { type Env, buildLoggerOptions, loadEnv, envSchema } from '@/src/core'
 import { healthModule } from '@/src/modules'
@@ -36,6 +39,7 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<AppFastif
     level: env.LOG_LEVEL,
     nodeEnv: env.NODE_ENV
   })
+  const { db, pg } = await createClient({ databaseUrl: env.DATABASE_URL })
   const app = Fastify({
     ajv: { customOptions: ajvOptions },
     disableRequestLogging: true,
@@ -47,8 +51,14 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<AppFastif
 
   app.decorate('env', env)
 
+  app.decorate('db', db)
+  app.decorate('pg', pg)
+
   app.addHook('onRequest', async (request, reply) => {
     reply.header(REQUEST_ID_HEADER, request.id)
+  })
+  app.addHook('onClose', async () => {
+    await pg.end()
   })
 
   await app.register(helmetPlugin)
@@ -60,6 +70,8 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<AppFastif
 
 declare module 'fastify' {
   interface FastifyInstance {
+    db: NodePgDatabase
     env: Env
+    pg: Client
   }
 }

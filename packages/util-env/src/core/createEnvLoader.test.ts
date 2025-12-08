@@ -1,10 +1,11 @@
 import { stubEnv } from '@powercoach/util-test'
 import { config } from 'dotenv'
+import { type MockedFunction } from 'vitest'
 import { z } from 'zod'
 
 import { type Env } from '@/src/core'
 import { NodeEnv } from '@/src/types'
-import { productionEnv, testEnv } from '@/test/fixtures'
+import { invalidEnv, productionEnv, testEnv } from '@/test/fixtures'
 
 import { createEnvLoader } from './createEnvLoader'
 import { envSchema } from './envSchema'
@@ -13,12 +14,22 @@ vi.mock('dotenv', () => ({
   config: vi.fn()
 }))
 
+const configMock = config as MockedFunction<typeof config>
+
+function mockConfigImplementationOnce<T extends Env>(env: T) {
+  configMock.mockImplementationOnce(() => {
+    stubEnv(env)
+    return { parsed: env }
+  })
+}
+
 describe('createEnvLoader', () => {
   describe('with a base schema', () => {
     const { loadEnv, resetCachedEnv } = createEnvLoader({
       format: () => 'Invalid environment',
       schema: envSchema
     })
+
     beforeEach(async () => {
       resetCachedEnv()
       vi.clearAllMocks()
@@ -26,25 +37,27 @@ describe('createEnvLoader', () => {
     })
 
     it('loads configuration from process.env', async () => {
-      stubEnv({ NODE_ENV: NodeEnv.production })
-      expect(loadEnv()).toStrictEqual<Env>({ NODE_ENV: NodeEnv.production })
+      mockConfigImplementationOnce(productionEnv)
+      expect(loadEnv()).toStrictEqual<Env>(productionEnv)
       expect(config).toHaveBeenCalledTimes(1)
     })
 
     it('uses cached configuration on subsequent calls', async () => {
-      stubEnv({ NODE_ENV: NodeEnv.production })
+      mockConfigImplementationOnce(productionEnv)
 
       const first = loadEnv()
       const second = loadEnv()
 
       expect(first).toBe(second)
-      expect(second).toStrictEqual<Env>({ NODE_ENV: NodeEnv.production })
+      expect(second).toStrictEqual<Env>(productionEnv)
       expect(config).toHaveBeenCalledTimes(1)
     })
 
     it('should not reset cached env', async () => {
       vi.resetModules()
-      stubEnv(productionEnv)
+      vi.stubEnv('NODE_ENV', NodeEnv.production) // Overrides vitest NODE_ENV
+
+      mockConfigImplementationOnce(productionEnv)
 
       const productionModule = await import('./createEnvLoader')
       const productionEnvLoader = productionModule.createEnvLoader({
@@ -59,9 +72,9 @@ describe('createEnvLoader', () => {
       expect(first === second).toBe(true)
     })
 
-    it('should reset cached env', async () => {
+    it('should reset cached env in dev-like environments', async () => {
       vi.resetModules()
-      stubEnv(testEnv)
+      mockConfigImplementationOnce(testEnv)
 
       const testModule = await import('./createEnvLoader')
       const testEnvLoader = testModule.createEnvLoader({ format: () => '', schema: envSchema })
@@ -74,16 +87,17 @@ describe('createEnvLoader', () => {
     })
 
     it('throws when validation fails', async () => {
-      stubEnv({ NODE_ENV: 'invalid' as NodeEnv })
+      mockConfigImplementationOnce(invalidEnv)
       expect(() => loadEnv()).toThrowError(/Invalid environment/i)
     })
   })
 
   describe('with a custom schema', () => {
-    const customSchema = envSchema.extend({ CUSTOM: z.string() })
-    const customProductionEnv = { ...productionEnv, CUSTOM: 'custom' }
-    const customTestEnv = { ...testEnv, CUSTOM: 'custom' }
+    const customSchema = envSchema.extend({ CUSTOM: z.literal('custom') })
     type CustomEnv = z.infer<typeof customSchema>
+    const customProductionEnv: CustomEnv = { ...productionEnv, CUSTOM: 'custom' }
+    const customTestEnv: CustomEnv = { ...testEnv, CUSTOM: 'custom' }
+    const customInvalidEnv: CustomEnv = { ...invalidEnv, CUSTOM: 'invalid' as 'custom' }
 
     const { loadEnv: customLoadEnv, resetCachedEnv: customResetCachedEnv } = createEnvLoader({
       format: () => 'Invalid custom environment',
@@ -97,28 +111,27 @@ describe('createEnvLoader', () => {
     })
 
     it('loads custom configuration from process.env', async () => {
-      stubEnv({ CUSTOM: 'custom', NODE_ENV: NodeEnv.production })
-      expect(customLoadEnv()).toStrictEqual<CustomEnv>({
-        CUSTOM: 'custom',
-        NODE_ENV: NodeEnv.production
-      })
+      mockConfigImplementationOnce(customProductionEnv)
+      expect(customLoadEnv()).toStrictEqual<CustomEnv>(customProductionEnv)
       expect(config).toHaveBeenCalledTimes(1)
     })
 
     it('uses cached custom configuration on subsequent calls', async () => {
-      stubEnv({ CUSTOM: 'custom', NODE_ENV: NodeEnv.production })
+      mockConfigImplementationOnce(customProductionEnv)
 
       const first = customLoadEnv()
       const second = customLoadEnv()
 
       expect(first).toBe(second)
-      expect(second).toStrictEqual<CustomEnv>({ CUSTOM: 'custom', NODE_ENV: NodeEnv.production })
+      expect(second).toStrictEqual<CustomEnv>(customProductionEnv)
       expect(config).toHaveBeenCalledTimes(1)
     })
 
     it('should not reset custom cached env', async () => {
       vi.resetModules()
-      stubEnv(customProductionEnv)
+      vi.stubEnv('NODE_ENV', NodeEnv.production) // Overrides vitest NODE_ENV
+
+      mockConfigImplementationOnce(customProductionEnv)
 
       const customProductionModule = await import('./createEnvLoader')
       const customProductionEnvLoader = customProductionModule.createEnvLoader({
@@ -133,9 +146,9 @@ describe('createEnvLoader', () => {
       expect(first === second).toBe(true)
     })
 
-    it('should reset custom cached env', async () => {
+    it('should reset custom cached env in dev-like environments', async () => {
       vi.resetModules()
-      stubEnv(customTestEnv)
+      mockConfigImplementationOnce(customTestEnv)
 
       const customTestModule = await import('./createEnvLoader')
       const customTestEnvLoader = customTestModule.createEnvLoader({
@@ -151,7 +164,7 @@ describe('createEnvLoader', () => {
     })
 
     it('throws when custom validation fails', async () => {
-      stubEnv({ CUSTOM: '42', NODE_ENV: 'invalid' as NodeEnv })
+      mockConfigImplementationOnce(customInvalidEnv)
       expect(() => customLoadEnv()).toThrowError(/Invalid custom environment/i)
     })
   })
