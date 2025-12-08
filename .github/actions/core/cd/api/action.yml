@@ -8,6 +8,9 @@ inputs:
   branch-sha:
     description: Github branch SHA
     required: true
+  database-url:
+    description: The branch database url
+    required: true
   deploy-target:
     description: Deploy target, "preview" (pull event) or "production" (push event)
     required: true
@@ -94,6 +97,7 @@ runs:
       with:
         api-sha: ${{ inputs.api-sha }}
         branch-sha: ${{ inputs.branch-sha }}
+        database-url: ${{ inputs.database-url }}
         deploy-target: ${{ inputs.deploy-target }}
         image: ${{ steps.image.outputs.name }}
         pull-slug: ${{ inputs.pull-slug }}

@@ -15,10 +15,9 @@ var { loadEnv, resetCachedEnv } = createEnvLoader({
 });
 
 // src/client/createClient.ts
-async function createClient() {
-  const { DATABASE_URL } = loadEnv();
+async function createClient(options) {
   const pg = new Client({
-    connectionString: DATABASE_URL
+    connectionString: options?.databaseUrl ?? loadEnv().DATABASE_URL
   });
   try {
     await pg.connect();
@@ -26,9 +25,8 @@ async function createClient() {
     console.error("\u274C Failed to connect to database:", error);
     throw error;
   }
-  const db = drizzle(pg);
   return {
-    db,
+    db: drizzle(pg),
     pg
   };
 }

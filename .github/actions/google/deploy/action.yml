@@ -8,6 +8,9 @@ inputs:
   branch-sha:
     description: Github branch SHA
     required: true
+  database-url:
+    description: The branch database url
+    required: true
   deploy-target:
     description: Deploy target, "preview" (pull event) or "production" (push event)
     required: true
@@ -56,6 +59,7 @@ runs:
           "--project=$GCP_PROJECT_ID"
           "--quiet"
           "--region=$GCP_REGION"
+          "--set-env-vars=DATABASE_URL=${{ inputs.database-url }}"
           "--set-env-vars=HOST=0.0.0.0"
           "--set-env-vars=LOG_LEVEL=info"
           "--set-env-vars=NODE_ENV=production"

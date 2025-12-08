@@ -5,12 +5,17 @@ import { type ViteUserConfig } from 'vitest/config'
 
 interface Config {
   exclude?: string[]
+  globalSetup?: boolean | string
   include?: string[]
+  setup?: boolean | string
 }
 
-export function buildConfig(importUrl: string, config?: Config): ViteUserConfig {
+export function buildConfig(importUrl: string, cfg?: Config): ViteUserConfig {
   const importPath = fileURLToPath(importUrl)
   const importDir = dirname(importPath)
+
+  const globalSetup = cfg?.globalSetup === true ? 'test/globalSetup.ts' : (cfg?.globalSetup ?? '')
+  const setup = cfg?.setup === true ? 'test/setup.ts' : (cfg?.setup ?? '')
 
   return {
     resolve: {
@@ -27,9 +32,9 @@ export function buildConfig(importUrl: string, config?: Config): ViteUserConfig 
           'src/**/*.{test,spec}.{ts,tsx}',
           'src/**/*.d.ts',
           'test',
-          ...(config?.exclude ?? [])
+          ...(cfg?.exclude ?? [])
         ],
-        include: ['src/**/*.{ts,tsx}', ...(config?.include ?? [])],
+        include: ['src/**/*.{ts,tsx}', ...(cfg?.include ?? [])],
         provider: 'v8',
         reporter: ['text', 'json', 'lcov'],
         reportsDirectory: 'coverage',
@@ -40,7 +45,9 @@ export function buildConfig(importUrl: string, config?: Config): ViteUserConfig 
           statements: 100
         }
       },
-      globals: true
+      globals: true,
+      ...(globalSetup && { globalSetup: [globalSetup] }),
+      ...(setup && { setupFiles: [setup] })
     }
   }
 }

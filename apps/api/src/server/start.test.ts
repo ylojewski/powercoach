@@ -1,11 +1,11 @@
 import process from 'node:process'
 
-import { expect, MockedFunction } from 'vitest'
+import { expectFunction, flushAsync } from '@powercoach/util-test'
+import { type MockedFunction } from 'vitest'
 
-import { AppFastifyInstance, buildApp } from '@/src/app'
+import { type AppFastifyInstance, buildApp } from '@/src/app'
 import { loadEnv } from '@/src/core'
 import { testEnv } from '@/test/fixtures'
-import { expectFunction, flushAsync } from '@/test/utils'
 
 import { start } from './start'
 

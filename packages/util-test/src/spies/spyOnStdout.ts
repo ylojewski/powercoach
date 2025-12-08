@@ -2,7 +2,7 @@ import process from 'node:process'
 
 import { Mock } from 'vitest'
 
-export type ProcessSTDOutWrite = typeof process.stdout.write
+type ProcessSTDOutWrite = typeof process.stdout.write
 
 export function spyOnStdout(): { json<T>(): T; mock: Mock<ProcessSTDOutWrite> } {
   const logs: string[] = []
@@ -16,9 +16,4 @@ export function spyOnStdout(): { json<T>(): T; mock: Mock<ProcessSTDOutWrite> } 
     json: <T>(): T => JSON.parse(`[${logs.join(',')}]`) as T,
     mock
   }
-}
-
-export async function flushAsync() {
-  await new Promise((resolve) => setImmediate(resolve))
-  await new Promise((resolve) => setImmediate(resolve))
 }

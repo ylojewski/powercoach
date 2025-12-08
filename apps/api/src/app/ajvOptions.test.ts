@@ -3,7 +3,7 @@ import { Options } from '@fastify/ajv-compiler'
 import { ajvOptions } from './ajvOptions'
 
 describe('ajvOptions', () => {
-  it('Should return frozen strict options', () => {
+  it('Should return frozen strict AJV options', () => {
     expect(Object.isFrozen(ajvOptions)).toBe(true)
     expect(ajvOptions).toStrictEqual<Options>({
       allErrors: true,

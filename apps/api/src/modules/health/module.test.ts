@@ -1,20 +1,27 @@
-import { FastifyInstance } from 'fastify'
+import { mockQueryResult } from '@powercoach/util-test'
+import { type NodePgDatabase } from 'drizzle-orm/node-postgres'
+import { type FastifyInstance } from 'fastify'
+import { type MockedFunction } from 'vitest'
 
+import { type IsOkQueryRow } from '@/src/repositories'
 import { buildDummyApp } from '@/test/utils'
 
 import { HEALTH_MODULE_NAME, healthModule } from './module'
-import { HEALTH_RESPONSE_SCHEMA_ID, healthResponseSchema } from './schemas'
+import { HEALTH_RESPONSE_SCHEMA_ID, type HealthResponse, healthResponseSchema } from './schemas'
 import * as service from './service'
 
 describe('healthModule', () => {
   let dummyApp: FastifyInstance
+  let executeMock: MockedFunction<NodePgDatabase['execute']>
 
   beforeAll(async () => {
     vi.spyOn(service, 'getHealthStatus')
     dummyApp = await buildDummyApp({
       plugins: [healthModule],
-      spies: ['addSchema', 'route']
+      spies: ['addSchema', 'route'],
+      withDb: true
     })
+    executeMock = dummyApp.db.execute as MockedFunction<NodePgDatabase['execute']>
   })
 
   afterAll(async () => {
@@ -33,11 +40,12 @@ describe('healthModule', () => {
         $id: HEALTH_RESPONSE_SCHEMA_ID,
         additionalProperties: false,
         properties: expect.objectContaining({
+          database: expect.objectContaining({ type: 'boolean' }),
           live: expect.objectContaining({ type: 'boolean' }),
           ready: expect.objectContaining({ type: 'boolean' }),
           uptime: expect.objectContaining({ minimum: 0, type: 'number' })
         }),
-        required: ['live', 'ready', 'uptime']
+        required: ['database', 'live', 'ready', 'uptime']
       })
     )
   })
@@ -58,19 +66,22 @@ describe('healthModule', () => {
   })
 
   it('returns a valid HealthResponse from the GET / route using the service', async () => {
+    executeMock.mockResolvedValueOnce(mockQueryResult<IsOkQueryRow>([{ database: 1 }]))
+
     const response = await dummyApp.inject({ method: 'GET', url: '/' })
 
     expect(response.statusCode).toBe(200)
-    expect(service.getHealthStatus).toHaveBeenCalledOnce()
     expect(response.headers['content-type']).toMatch(/application\/json/)
+    expect(service.getHealthStatus).toHaveBeenCalledTimes(1)
 
     const payload = response.json()
 
-    expect(payload.uptime).toBeGreaterThanOrEqual(0)
-    expect(payload).toStrictEqual({
+    expect(payload).toStrictEqual<HealthResponse>({
+      database: true,
       live: true,
       ready: true,
       uptime: expect.any(Number)
     })
+    expect(payload.uptime).toBeGreaterThanOrEqual(0)
   })
 })
