@@ -55,22 +55,16 @@ runs:
       shell: bash
       run: |
         if -t "${{ inputs.pull-event }}" && -t "${{ steps.find.outputs.found }}"; then
-          echo "delete=true" >> "$GITHUB_OUTPUT"
-          echo "deploy=true" >> "$GITHUB_OUTPUT"
-          echo "seed=true" >> "$GITHUB_OUTPUT"
+          echo "drop=true" >> "$GITHUB_OUTPUT"
+          echo "deploy=false" >> "$GITHUB_OUTPUT"
+          echo "migrate=true" >> "$GITHUB_OUTPUT"
         fi
 
         if -t "${{ inputs.pull-event }}" && -f "${{ steps.find.outputs.found }}"; then
+          echo "drop=false" >> "$GITHUB_OUTPUT"
           echo "deploy=true" >> "$GITHUB_OUTPUT"
-          echo "seed=true" >> "$GITHUB_OUTPUT"
+          echo "migrate=true" >> "$GITHUB_OUTPUT"
         fi
-
-    - name: Delete
-      id: delete
-      if: steps.actions.outputs.delete == 'true'
-      uses: ./.github/actions/neon/delete
-      with:
-        branch-id: ${{ steps.find.outputs.id }}
 
     - name: Deploy
       id: deploy
@@ -85,27 +79,29 @@ runs:
       shell: bash
       run: echo "value=${{ steps.deploy.outputs.database-url || steps.find.outputs.database-url }}" >> "$GITHUB_OUTPUT"
 
-    - name: Migrate
-      id: migrate
+    - name: Drop database
+      id: drop
+      if: steps.actions.outputs.drop == 'true'
       shell: bash
       env:
         DATABASE_URL: ${{ steps.database-url.outputs.value }}
         NODE_ENV: 'production'
       working-directory: packages/db
       run: |
-        pnpm db:migrate
+        pnpm db:drop
         echo "ok=true" >> "$GITHUB_OUTPUT"
 
-    - name: Seed
-      id: seed
-      if: steps.actions.outputs.seed == 'true'
+    - name: Migrate & seed database
+      id: migrate
+      if: steps.actions.outputs.migrate == 'true'
       shell: bash
-      working-directory: packages/db
       env:
         DATABASE_URL: ${{ steps.database-url.outputs.value }}
         NODE_ENV: 'production'
         PULL_SLUG: ${{ inputs.pull-slug }}
+      working-directory: packages/db
       run: |
+        pnpm db:migrate
         pnpm db:seed
         echo "ok=true" >> "$GITHUB_OUTPUT"
 
@@ -119,11 +115,10 @@ runs:
             "database-url.value": "${{ steps.database-url.outputs.value }}",
             "find.found": "${{ steps.find.outputs.found }}",
             "find.id": "${{ steps.find.outputs.id }}",
-            "actions.delete": "${{ steps.actions.outputs.delete }}",
             "actions.deploy": "${{ steps.actions.outputs.deploy }}",
-            "actions.seed": "${{ steps.actions.outputs.seed }}",
+            "actions.drop": "${{ steps.actions.outputs.drop }}",
+            "actions.migrate": "${{ steps.actions.outputs.migrate }}",
             "deploy.id": "${{ steps.deploy.outputs.id }}",
-            "delete.ok": "${{ steps.delete.outputs.ok }}",
-            "migrate.ok": "${{ steps.migrate.outputs.ok }}",
-            "seed.ok": "${{ steps.seed.outputs.ok }}"
+            "drop.ok": "${{ steps.drop.outputs.ok }}",
+            "migrate.ok": "${{ steps.migrate.outputs.ok }}"
           }

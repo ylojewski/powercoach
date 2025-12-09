@@ -39,7 +39,7 @@ var sharedStyleConfig = {
         allowLineSeparatedGroups: true,
         caseSensitive: false,
         minKeys: 2,
-        natural: false
+        natural: true
       }
     ]
   }

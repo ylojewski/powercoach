@@ -29,7 +29,7 @@ describe('healthModule', () => {
     await dummyApp.close()
   })
 
-  it('exposes a custom name', () => {
+  it('exposes a custom module name', () => {
     expect(HEALTH_MODULE_NAME).toBe('powercoach.health.module')
   })
 

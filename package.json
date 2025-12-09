@@ -21,7 +21,7 @@
     "clean": "rimraf --glob \"**/.turbo\" \"**/coverage\" \"apps/**/dist\" \"**/node_modules\"",
     "commitlint": "commitlint",
     "deploy:api": "pnpm deploy --legacy --filter @powercoach/api --prod --ignore-scripts deploy/api",
-    "dev": "turbo dev --concurrency=1",
+    "dev": "turbo dev",
     "format": "prettier . --check && turbo format --concurrency=1",
     "format:write": "prettier . --write --list-different && turbo format:write --concurrency=1",
     "lint": "turbo lint --concurrency=1",
