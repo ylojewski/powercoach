@@ -36,10 +36,12 @@
   "scripts": {
     "build": "tsup --config tsup.config.js",
     "db:down": "docker compose -f docker-compose.dev.yml down --volumes --remove-orphans",
+    "db:drop": "tsx --tsconfig tsconfig.src.json scripts/drop.ts",
     "db:generate": "pnpm drizzle-kit generate --config=drizzle.config.js",
     "db:migrate": "pnpm drizzle-kit migrate --config=drizzle.config.js",
-    "db:reset": "pnpm db:down && pnpm db:up && pnpm db:migrate && pnpm db:seed",
+    "db:reset": "pnpm db:drop && pnpm db:migrate && pnpm db:seed",
     "db:seed": "tsx --tsconfig tsconfig.src.json scripts/seed.ts",
+    "db:studio": "pnpm drizzle-kit studio --config=drizzle.config.js",
     "db:up": "docker compose -f docker-compose.dev.yml up -d",
     "format": "prettier . --check",
     "format:write": "prettier . --write --list-different",

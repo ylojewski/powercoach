@@ -27,7 +27,7 @@ export const sharedStyleConfig: Linter.Config = {
         allowLineSeparatedGroups: true,
         caseSensitive: false,
         minKeys: 2,
-        natural: false
+        natural: true
       }
     ]
   }

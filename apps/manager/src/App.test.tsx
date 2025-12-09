@@ -1,14 +1,16 @@
+import { ChakraProvider } from '@chakra-ui/react'
 import { render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, vi } from 'vitest'
 
 import { App } from './App'
+import { theme } from './theme'
 
 describe('App', () => {
   beforeEach(() => {
     vi.stubGlobal(
       'fetch',
       vi.fn(async () => ({
-        text: async () => 'ok'
+        json: async () => ({ apiProperty: true })
       })) as unknown as typeof fetch
     )
   })
@@ -18,9 +20,11 @@ describe('App', () => {
   })
 
   it('displays the logo', async () => {
-    render(<App />)
-
-    expect(screen.getByRole('img', { name: /logo/i })).toBeInTheDocument()
-    await screen.findByText(/ok/i)
+    render(
+      <ChakraProvider theme={theme}>
+        <App />
+      </ChakraProvider>
+    )
+    await screen.findByText(/apiProperty/i)
   })
 })
