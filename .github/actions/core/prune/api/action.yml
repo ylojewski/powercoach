@@ -63,6 +63,7 @@ runs:
         echo "  -- Temporary tag ⇒ ${{ steps.temporary-image.outputs.tag }}"
 
         gcloud run deploy "$GCP_SERVICE" \
+          --allow-unauthenticated \
           --clear-labels \
           --concurrency=1 \
           --cpu=0.25 \
@@ -71,7 +72,6 @@ runs:
           --max-instances=1 \
           --memory=128Mi \
           --min-instances=0 \
-          --no-allow-unauthenticated \
           --no-traffic \
           --platform=managed \
           --project="$GCP_PROJECT_ID" \
