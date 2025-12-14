@@ -36,19 +36,30 @@ runs:
     - name: Deploy to Vercel (core)
       id: deploy
       shell: bash
+      working-directory: ${{ inputs.out-dir }}
       run: |
         echo "📦 Creating deployment with"
         echo "  -- Branch SHA ⇒ ${{ inputs.branch-sha }}"
         echo "  -- Manager SHA ⇒ ${{ inputs.manager-sha }}"
 
         files=$(
-          find "${{ inputs.out-dir }}" -type f -print0 \
+          find . -type f -print0 \
           | while IFS= read -r -d '' file; do
-              jq -n \
-                --arg file "${file#"${{ inputs.out-dir }}"/}" \
-                --rawfile data "$file" \
-                '{ file: $file, data: $data }'
-            done \
+            case "${file##*.}" in
+              woff|woff2)
+                jq -n \
+                  --arg file "$file" \
+                  --arg data "$(base64 < "$file")" \
+                  '{ file: $file, encoding: "base64", data: $data }'
+              ;;
+              *)
+                jq -n \
+                  --arg file "$file" \
+                  --rawfile data "$file" \
+                  '{ file: $file, encoding: "utf-8", data: $data }'
+              ;;
+            esac
+          done \
           | jq -s '.'
         )
 

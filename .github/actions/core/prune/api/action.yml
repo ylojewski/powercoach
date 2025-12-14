@@ -38,6 +38,13 @@ runs:
       with:
         branch-sha: ${{ inputs.branch-sha }}
 
+    - name: Temporary image
+      id: temporary-image
+      uses: ./.github/actions/google/image
+      with:
+        api-sha: 'temporary'
+        branch-sha: 'temporary'
+
     - name: Deploy temporary revision
       shell: bash
       run: |
@@ -52,19 +59,14 @@ runs:
           exit 0
         fi
 
-        if -z "${{ steps.find.outputs.images }}"; then
-          echo "❌ Error: unable to deploy a temporary revision (no images found)"
-          exit 1
-        fi
-
         echo "🕒 Deploying temporary revision"
-        echo "  -- Temporary tag ⇒ $temporary_tag"
+        echo "  -- Temporary tag ⇒ ${{ steps.temporary-image.outputs.tag }}"
 
         gcloud run deploy "$GCP_SERVICE" \
           --clear-labels \
           --concurrency=1 \
           --cpu=0.25 \
-          --image="$(echo "${{ steps.find.outputs.images }}" | head -n1)" \
+          --image="$(echo "${{ steps.temporary-image.outputs.name }}")" \
           --labels="powercoach-delete=1" \
           --max-instances=1 \
           --memory=128Mi \

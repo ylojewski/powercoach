@@ -7,10 +7,6 @@ on:
   pull_request:
     branches:
       - main
-    paths:
-      - '.github/**'
-      - 'apps/api/**'
-      - 'apps/manager/**'
     types:
       - closed
       - edited
