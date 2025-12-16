@@ -1,3 +1,4 @@
+import { Button } from '@powercoach/ui'
 import { type ReactElement, useEffect, useState } from 'react'
 
 import logo from '@/src/assets/logo.svg'
@@ -21,6 +22,7 @@ export function App(): ReactElement {
         <br />
         {health}
       </h1>
+      <Button />
     </main>
   )
 }

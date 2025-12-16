@@ -8,36 +8,41 @@ import globals from 'globals'
 const strictRules = tseslint.configs.strict?.rules ?? {}
 const stylisticRules = tseslint.configs.stylistic?.rules ?? {}
 
-export const typescriptConfig: Linter.Config = {
-  files: ['**/*.{ts,tsx}'],
-  ignores: ['**/*.test.{ts,tsx}', 'test/**/*.{ts,tsx}'],
-  languageOptions: {
-    globals: {
-      ...globals.node
+export function buildTypescriptConfig(project: string): Linter.Config {
+  return {
+    files: ['**/*.{ts,tsx}'],
+    ignores: ['**/*.test.{ts,tsx}', 'test/**/*.{ts,tsx}'],
+    languageOptions: {
+      globals: {
+        ...globals.node
+      },
+      parser: tsparser,
+      parserOptions: {
+        project: [project],
+        sourceType: 'module',
+        tsconfigRootDir: process.cwd()
+      }
     },
-    parser: tsparser,
-    parserOptions: {
-      project: ['./tsconfig.src.json'],
-      sourceType: 'module',
-      tsconfigRootDir: process.cwd()
+    plugins: {
+      '@typescript-eslint': tseslint as unknown
+    } as Linter.Config['plugins'],
+    rules: {
+      ...strictRules,
+      ...stylisticRules,
+      '@typescript-eslint/await-thenable': 'error',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', caughtErrors: 'none' }
+      ],
+      '@typescript-eslint/return-await': ['error', 'never']
     }
-  },
-  plugins: {
-    '@typescript-eslint': tseslint as unknown
-  } as Linter.Config['plugins'],
-  rules: {
-    ...strictRules,
-    ...stylisticRules,
-    '@typescript-eslint/await-thenable': 'error',
-    '@typescript-eslint/no-unused-vars': [
-      'error',
-      { argsIgnorePattern: '^_', caughtErrors: 'none' }
-    ],
-    '@typescript-eslint/return-await': ['error', 'never']
   }
 }
 
-export function buildTypescriptTestConfig(files: string[], project: string[]): Linter.Config {
+export const typescriptConfig: Linter.Config = buildTypescriptConfig('./tsconfig.src.json')
+export const typescriptLibConfig: Linter.Config = buildTypescriptConfig('./tsconfig.lib.json')
+
+export function buildTypescriptTestConfig(files: string[], project: string): Linter.Config {
   return {
     ...typescriptConfig,
     files,
@@ -50,7 +55,7 @@ export function buildTypescriptTestConfig(files: string[], project: string[]): L
       },
       parserOptions: {
         ...(typescriptConfig.languageOptions?.parserOptions ?? {}),
-        project
+        project: [project]
       }
     }
   }
@@ -58,5 +63,5 @@ export function buildTypescriptTestConfig(files: string[], project: string[]): L
 
 export const typescriptTestConfig: Linter.Config = buildTypescriptTestConfig(
   ['**/*.test.{ts,tsx}', 'test/**/*.{ts,tsx}'],
-  ['./tsconfig.test.json']
+  './tsconfig.test.json'
 )

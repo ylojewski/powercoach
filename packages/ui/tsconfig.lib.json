@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "baseUrl": "./",
+    "jsx": "react-jsx",
+    "outDir": "dist",
+    "rootDir": "./"
+  },
+  "exclude": ["dist", "node_modules", "lib/**/*.test.ts", "lib/**/*.test.tsx"],
+  "extends": "@powercoach/config/tsconfig.lib.json",
+  "include": ["lib", ".storybook/**/*.ts"]
+}

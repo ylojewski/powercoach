@@ -1,3 +1,5 @@
 import { config, buildTypescriptTestConfig } from '@powercoach/config/eslint'
 
-export default [...config, buildTypescriptTestConfig(['**/*.{ts,tsx}'], ['./tsconfig.src.json'])]
+const srcConfig = buildTypescriptTestConfig(['**/*.{ts,tsx}'], './tsconfig.src.json')
+
+export default [...config, srcConfig]

@@ -43,6 +43,7 @@
     "db:seed": "tsx --tsconfig tsconfig.src.json scripts/seed.ts",
     "db:studio": "pnpm drizzle-kit studio --config=drizzle.config.js",
     "db:up": "docker compose -f docker-compose.dev.yml up -d",
+    "dev": "pnpm db:up",
     "format": "prettier . --check",
     "format:write": "prettier . --write --list-different",
     "lint": "eslint .",
