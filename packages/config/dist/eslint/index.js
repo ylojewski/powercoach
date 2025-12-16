@@ -46,34 +46,39 @@ var sharedStyleConfig = {
 };
 var strictRules = tseslint.configs.strict?.rules ?? {};
 var stylisticRules = tseslint.configs.stylistic?.rules ?? {};
-var typescriptConfig = {
-  files: ["**/*.{ts,tsx}"],
-  ignores: ["**/*.test.{ts,tsx}", "test/**/*.{ts,tsx}"],
-  languageOptions: {
-    globals: {
-      ...globals.node
+function buildTypescriptConfig(project) {
+  return {
+    files: ["**/*.{ts,tsx}"],
+    ignores: ["**/*.test.{ts,tsx}", "test/**/*.{ts,tsx}"],
+    languageOptions: {
+      globals: {
+        ...globals.node
+      },
+      parser: tsparser,
+      parserOptions: {
+        project: [project],
+        sourceType: "module",
+        tsconfigRootDir: process.cwd()
+      }
     },
-    parser: tsparser,
-    parserOptions: {
-      project: ["./tsconfig.src.json"],
-      sourceType: "module",
-      tsconfigRootDir: process.cwd()
+    plugins: {
+      "@typescript-eslint": tseslint
+    },
+    rules: {
+      ...strictRules,
+      ...stylisticRules,
+      "@typescript-eslint/await-thenable": "error",
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { argsIgnorePattern: "^_", caughtErrors: "none" }
+      ],
+      "@typescript-eslint/return-await": ["error", "never"]
     }
-  },
-  plugins: {
-    "@typescript-eslint": tseslint
-  },
-  rules: {
-    ...strictRules,
-    ...stylisticRules,
-    "@typescript-eslint/await-thenable": "error",
-    "@typescript-eslint/no-unused-vars": [
-      "error",
-      { argsIgnorePattern: "^_", caughtErrors: "none" }
-    ],
-    "@typescript-eslint/return-await": ["error", "never"]
-  }
-};
+  };
+}
+__name(buildTypescriptConfig, "buildTypescriptConfig");
+var typescriptConfig = buildTypescriptConfig("./tsconfig.src.json");
+var typescriptLibConfig = buildTypescriptConfig("./tsconfig.lib.json");
 function buildTypescriptTestConfig(files, project) {
   return {
     ...typescriptConfig,
@@ -87,7 +92,7 @@ function buildTypescriptTestConfig(files, project) {
       },
       parserOptions: {
         ...typescriptConfig.languageOptions?.parserOptions ?? {},
-        project
+        project: [project]
       }
     }
   };
@@ -95,7 +100,7 @@ function buildTypescriptTestConfig(files, project) {
 __name(buildTypescriptTestConfig, "buildTypescriptTestConfig");
 var typescriptTestConfig = buildTypescriptTestConfig(
   ["**/*.test.{ts,tsx}", "test/**/*.{ts,tsx}"],
-  ["./tsconfig.test.json"]
+  "./tsconfig.test.json"
 );
 var webConfig = {
   languageOptions: {
@@ -115,5 +120,14 @@ var config = [
   webConfig,
   prettierConfig
 ];
+var libConfig = [
+  ignoreConfig,
+  sharedStyleConfig,
+  js.configs.recommended,
+  typescriptLibConfig,
+  typescriptTestConfig,
+  webConfig,
+  prettierConfig
+];
 
-export { buildTypescriptTestConfig, config, ignoreConfig, sharedStyleConfig, typescriptConfig, typescriptTestConfig, webConfig };
+export { buildTypescriptConfig, buildTypescriptTestConfig, config, ignoreConfig, libConfig, sharedStyleConfig, typescriptConfig, typescriptLibConfig, typescriptTestConfig, webConfig };

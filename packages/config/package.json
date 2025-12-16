@@ -21,6 +21,7 @@
     "tsup": "^8.5.0",
     "typescript": "^5.9.3",
     "vite": "^7.2.2",
+    "vite-plugin-dts": "^4.5.4",
     "vitest": "^4.0.8"
   },
   "exports": {
@@ -30,6 +31,7 @@
     "./eslint": "./dist/eslint/index.js",
     "./lint-staged": "./dist/lint-staged/index.js",
     "./prettier": "./dist/prettier/index.js",
+    "./tsconfig.lib.json": "./dist/ts/lib.json",
     "./tsconfig.src.json": "./dist/ts/src.json",
     "./tsconfig.test.json": "./dist/ts/test.json",
     "./tsup": "./dist/tsup/index.js",

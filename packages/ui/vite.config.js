@@ -1,7 +1,6 @@
 import { buildConfig } from '@powercoach/config/vite'
 
 export default buildConfig(import.meta.url, {
-  api: true,
-  include: ['scripts'],
-  setup: true
+  exclude: ['lib/**/*.stories.tsx'],
+  lib: true
 })
