@@ -31,7 +31,6 @@
     "./eslint": "./dist/eslint/index.js",
     "./lint-staged": "./dist/lint-staged/index.js",
     "./prettier": "./dist/prettier/index.js",
-    "./tsconfig.lib.json": "./dist/ts/lib.json",
     "./tsconfig.src.json": "./dist/ts/src.json",
     "./tsconfig.test.json": "./dist/ts/test.json",
     "./tsup": "./dist/tsup/index.js",

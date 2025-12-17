@@ -40,7 +40,6 @@ export function buildTypescriptConfig(project: string): Linter.Config {
 }
 
 export const typescriptConfig: Linter.Config = buildTypescriptConfig('./tsconfig.src.json')
-export const typescriptLibConfig: Linter.Config = buildTypescriptConfig('./tsconfig.lib.json')
 
 export function buildTypescriptTestConfig(files: string[], project: string): Linter.Config {
   return {

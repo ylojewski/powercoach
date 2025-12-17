@@ -1,3 +1,3 @@
-import { libConfig } from '@powercoach/config/eslint'
+import { config } from '@powercoach/config/eslint'
 
-export default libConfig
+export default config

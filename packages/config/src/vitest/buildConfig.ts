@@ -7,12 +7,11 @@ export interface Config {
   exclude?: string[]
   globalSetup?: boolean | string
   include?: string[]
-  lib?: boolean
   setup?: boolean | string
 }
 
 export function buildConfig(importUrl: string, config?: Config): ViteUserConfig {
-  const { exclude, globalSetup, include, lib, setup } = config ?? {}
+  const { exclude, globalSetup, include, setup } = config ?? {}
 
   const importPath = fileURLToPath(importUrl)
   const importDir = dirname(importPath)
@@ -20,26 +19,24 @@ export function buildConfig(importUrl: string, config?: Config): ViteUserConfig 
   const globalSetupFile = globalSetup === true ? 'test/globalSetup.ts' : globalSetup || ''
   const setupFile = setup === true ? 'test/setup.ts' : setup || ''
 
-  const rootDir = lib ? 'lib' : 'src'
-
   return {
     resolve: {
       alias: {
-        [`@/${rootDir}`]: resolve(importDir, rootDir),
         '@/scripts': resolve(importDir, 'scripts'),
+        '@/src': resolve(importDir, 'src'),
         '@/test': resolve(importDir, 'test')
       }
     },
     test: {
       coverage: {
         exclude: [
-          `${rootDir}/**/{index,main}.{ts,tsx}`,
-          `${rootDir}/**/*.{test,spec}.{ts,tsx}`,
-          `${rootDir}/**/*.d.ts`,
+          'src/**/index.{ts,tsx}',
+          'src/**/*.test.{ts,tsx}',
+          'src/**/*.d.ts',
           'test',
           ...(exclude ?? [])
         ],
-        include: [`${rootDir}/**/*.{ts,tsx}`, ...(include ?? [])],
+        include: ['src/**/*.{ts,tsx}', ...(include ?? [])],
         provider: 'v8',
         reporter: ['text', 'json', 'lcov'],
         reportsDirectory: 'coverage',
