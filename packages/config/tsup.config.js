@@ -14,7 +14,6 @@ export default defineConfig({
     'src/eslint/index.ts',
     'src/lint-staged/index.ts',
     'src/prettier/index.ts',
-    'src/ts/lib.json',
     'src/ts/src.json',
     'src/ts/test.json',
     'src/tsup/dts/index.ts',

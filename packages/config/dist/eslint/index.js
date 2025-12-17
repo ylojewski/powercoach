@@ -78,7 +78,6 @@ function buildTypescriptConfig(project) {
 }
 __name(buildTypescriptConfig, "buildTypescriptConfig");
 var typescriptConfig = buildTypescriptConfig("./tsconfig.src.json");
-var typescriptLibConfig = buildTypescriptConfig("./tsconfig.lib.json");
 function buildTypescriptTestConfig(files, project) {
   return {
     ...typescriptConfig,
@@ -120,14 +119,5 @@ var config = [
   webConfig,
   prettierConfig
 ];
-var libConfig = [
-  ignoreConfig,
-  sharedStyleConfig,
-  js.configs.recommended,
-  typescriptLibConfig,
-  typescriptTestConfig,
-  webConfig,
-  prettierConfig
-];
 
-export { buildTypescriptConfig, buildTypescriptTestConfig, config, ignoreConfig, libConfig, sharedStyleConfig, typescriptConfig, typescriptLibConfig, typescriptTestConfig, webConfig };
+export { buildTypescriptConfig, buildTypescriptTestConfig, config, ignoreConfig, sharedStyleConfig, typescriptConfig, typescriptTestConfig, webConfig };

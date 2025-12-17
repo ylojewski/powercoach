@@ -8,5 +8,5 @@
   },
   "exclude": ["dist", "node_modules"],
   "extends": "@powercoach/config/tsconfig.test.json",
-  "include": ["lib/**/*.test.ts", "lib/**/*.test.tsx"]
+  "include": ["src/**/*.test.ts", "src/**/*.test.tsx", "scripts/**/*.test.ts"]
 }

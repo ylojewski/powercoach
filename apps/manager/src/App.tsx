@@ -18,11 +18,11 @@ export function App(): ReactElement {
     <main style={{ display: 'flex' }}>
       <img alt="logo" src={logo} width={80} />
       <h1>
-        Powercoach Manager #55
+        Powercoach Manager
         <br />
         {health}
       </h1>
-      <Button />
+      <Button>Button</Button>
     </main>
   )
 }

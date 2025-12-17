@@ -1,0 +1,10 @@
+import { render, screen } from '@testing-library/react'
+
+import { __COMPONENT_CLASS__ } from './__COMPONENT__'
+
+describe('__COMPONENT_CLASS__', () => {
+  it('renders', async () => {
+    render(<__COMPONENT_CLASS__>__COMPONENT__</__COMPONENT_CLASS__>)
+    await screen.findByText(/__COMPONENT__/i)
+  })
+})

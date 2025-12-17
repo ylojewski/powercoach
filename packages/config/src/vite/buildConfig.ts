@@ -2,31 +2,30 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import react from '@vitejs/plugin-react'
-import { defineConfig, loadEnv, type UserConfigFnObject } from 'vite'
+import { defineConfig, loadEnv, PluginOption, type UserConfigFnObject } from 'vite'
 import dts from 'vite-plugin-dts'
 
 import { buildConfig as buildVitestConfig, type Config as VitestConfig } from '@/src/vitest'
 
-export type Config = Omit<VitestConfig, 'lib'> & {
+export interface Config extends VitestConfig {
   api?: boolean | string
   lib?: boolean | string
+  plugins?: PluginOption[]
 }
 
 export function buildConfig(importUrl: string, config?: Config): UserConfigFnObject {
   return defineConfig(({ mode }) => {
-    const { api, lib } = config ?? {}
+    const { api, lib, plugins } = config ?? {}
 
     const importPath = fileURLToPath(importUrl)
     const importDir = dirname(importPath)
 
     const apiTarget = api === true ? (loadEnv(mode, importDir).VITE_API_BASE_URL ?? '') : api || ''
-    const libFile = lib === true ? 'lib/index.ts' : lib || ''
-
-    const rootDir = libFile ? 'lib' : 'src'
+    const libFile = lib === true ? 'src/index.ts' : lib || ''
 
     return {
       build: {
-        ...(libFile && {
+        ...(lib && {
           lib: {
             entry: resolve(importDir, libFile),
             fileName: 'index',
@@ -41,8 +40,9 @@ export function buildConfig(importUrl: string, config?: Config): UserConfigFnObj
         sourcemap: true
       },
       plugins: [
+        ...(plugins ?? []),
         react(),
-        (libFile && dts({ rollupTypes: true, tsconfigPath: './tsconfig.lib.json' })) || null
+        lib ? dts({ rollupTypes: true, tsconfigPath: './tsconfig.src.json' }) : null
       ],
       preview: {
         port: 4173,
@@ -50,8 +50,8 @@ export function buildConfig(importUrl: string, config?: Config): UserConfigFnObj
       },
       resolve: {
         alias: {
-          [`@/${rootDir}`]: resolve(importDir, rootDir),
           '@/scripts': resolve(importDir, 'scripts'),
+          '@/src': resolve(importDir, 'src'),
           '@/test': resolve(importDir, 'test')
         }
       },
@@ -71,7 +71,7 @@ export function buildConfig(importUrl: string, config?: Config): UserConfigFnObj
         strictPort: true
       },
       test: {
-        ...buildVitestConfig(importUrl, { ...config, lib: Boolean(config?.lib) }).test,
+        ...buildVitestConfig(importUrl, config).test,
         environment: 'jsdom'
       }
     }

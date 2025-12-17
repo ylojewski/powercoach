@@ -1,16 +1,11 @@
-import { dirname } from 'path'
-import { fileURLToPath } from 'url'
-
 import { type StorybookConfig } from '@storybook/react-vite'
-
-function getAbsolutePath(value: string): string {
-  return dirname(fileURLToPath(import.meta.resolve(`${value}/package.json`)))
-}
+import tailwindcss from '@tailwindcss/vite'
+import { mergeConfig } from 'vite'
 
 const config: StorybookConfig = {
-  addons: [],
-  framework: getAbsolutePath('@storybook/react-vite'),
-  stories: ['../lib/**/*.stories.tsx']
+  framework: '@storybook/react-vite',
+  stories: ['../src/**/*.stories.tsx'],
+  viteFinal: async (viteConfig) => mergeConfig(viteConfig, { plugins: [tailwindcss()] })
 }
 
 export default config

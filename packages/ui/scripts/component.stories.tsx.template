@@ -1,0 +1,14 @@
+import { type Meta, type StoryObj } from '@storybook/react-vite'
+
+import { __COMPONENT_CLASS__ } from './__COMPONENT__'
+
+const meta = {
+  component: __COMPONENT_CLASS__,
+  title: 'Components/__COMPONENT_CLASS__'
+} satisfies Meta<typeof __COMPONENT_CLASS__>
+
+type Story = StoryObj<typeof meta>
+
+export const Default: Story = {}
+
+export default meta
