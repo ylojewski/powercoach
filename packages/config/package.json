@@ -1,4 +1,29 @@
 {
+  "name": "@powercoach/config",
+  "version": "0.0.0",
+  "scripts": {
+    "build": "tsup --config tsup.config.js",
+    "format": "prettier . --check",
+    "format:write": "prettier . --write --list-different",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "pre-commit": "pnpm lint:fix && pnpm format:write && pnpm typecheck && pnpm build",
+    "typecheck": "tsc --project tsconfig.src.json --noEmit"
+  },
+  "exports": {
+    "./changeset.config.json": "./dist/changeset/config.json",
+    "./commitlint": "./dist/commitlint/index.js",
+    "./drizzle": "./dist/drizzle/index.js",
+    "./eslint": "./dist/eslint/index.js",
+    "./lint-staged": "./dist/lint-staged/index.js",
+    "./prettier": "./dist/prettier/index.js",
+    "./tsconfig.src.json": "./dist/ts/src.json",
+    "./tsconfig.test.json": "./dist/ts/test.json",
+    "./tsup": "./dist/tsup/index.js",
+    "./tsup/dts": "./dist/tsup/dts/index.js",
+    "./vite": "./dist/vite/index.js",
+    "./vitest": "./dist/vitest/index.js"
+  },
   "dependencies": {
     "globals": "^16.5.0"
   },
@@ -24,32 +49,7 @@
     "vite-plugin-dts": "^4.5.4",
     "vitest": "^4.0.8"
   },
-  "exports": {
-    "./changeset.config.json": "./dist/changeset/config.json",
-    "./commitlint": "./dist/commitlint/index.js",
-    "./drizzle": "./dist/drizzle/index.js",
-    "./eslint": "./dist/eslint/index.js",
-    "./lint-staged": "./dist/lint-staged/index.js",
-    "./prettier": "./dist/prettier/index.js",
-    "./tsconfig.src.json": "./dist/ts/src.json",
-    "./tsconfig.test.json": "./dist/ts/test.json",
-    "./tsup": "./dist/tsup/index.js",
-    "./tsup/dts": "./dist/tsup/dts/index.js",
-    "./vite": "./dist/vite/index.js",
-    "./vitest": "./dist/vitest/index.js"
-  },
   "files": ["dist"],
-  "name": "@powercoach/config",
   "private": true,
-  "scripts": {
-    "build": "tsup --config tsup.config.js",
-    "format": "prettier . --check",
-    "format:write": "prettier . --write --list-different",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "pre-commit": "pnpm lint:fix && pnpm format:write && pnpm typecheck && pnpm build",
-    "typecheck": "tsc --project tsconfig.src.json --noEmit"
-  },
-  "type": "module",
-  "version": "0.0.0"
+  "type": "module"
 }

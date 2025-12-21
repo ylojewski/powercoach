@@ -1,4 +1,31 @@
 {
+  "name": "@powercoach/ui",
+  "version": "0.1.0",
+  "scripts": {
+    "build": "vite build",
+    "dev": "storybook dev -p 6006",
+    "format": "prettier . --check",
+    "format:write": "prettier . --write --list-different",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "pre-commit": "pnpm lint:fix && pnpm format:write && pnpm typecheck && pnpm test && pnpm build",
+    "preview": "vite preview",
+    "shadcn:add": "tsx --tsconfig tsconfig.src.json scripts/shadcnAdd.ts",
+    "test": "vitest run --coverage --reporter=verbose",
+    "test:watch": "vitest",
+    "typecheck": "pnpm run typecheck:src && pnpm run typecheck:test",
+    "typecheck:src": "tsc --project tsconfig.src.json --noEmit",
+    "typecheck:test": "tsc --project tsconfig.test.json --noEmit"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "style": "./dist/index.css",
+      "require": "./dist/index.js",
+      "import": "./dist/index.js"
+    },
+    "./index.css": "./dist/index.css"
+  },
   "devDependencies": {
     "@powercoach/config": "workspace:*",
     "@radix-ui/react-slot": "^1.2.4",
@@ -31,39 +58,16 @@
     "vite": "^7.2.2",
     "vitest": "^4.0.8"
   },
-  "engines": {
-    "node": "20"
-  },
-  "exports": {
-    ".": "./dist/index.js",
-    "./index.css": "./dist/index.css"
-  },
-  "files": ["dist"],
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "name": "@powercoach/ui",
   "peerDependencies": {
     "react": "^19.2.2",
     "react-dom": "^19.2.2"
   },
-  "private": true,
-  "scripts": {
-    "build": "vite build",
-    "dev": "storybook dev -p 6006",
-    "format": "prettier . --check",
-    "format:write": "prettier . --write --list-different",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "pre-commit": "pnpm lint:fix && pnpm format:write && pnpm typecheck && pnpm test && pnpm build",
-    "preview": "vite preview",
-    "shadcn:add": "tsx --tsconfig tsconfig.src.json scripts/shadcnAdd.ts",
-    "test": "vitest run --coverage --reporter=verbose",
-    "test:watch": "vitest",
-    "typecheck": "pnpm run typecheck:src && pnpm run typecheck:test",
-    "typecheck:src": "tsc --project tsconfig.src.json --noEmit",
-    "typecheck:test": "tsc --project tsconfig.test.json --noEmit"
+  "engines": {
+    "node": "20"
   },
-  "type": "module",
-  "types": "./dist/index.d.ts",
-  "version": "0.1.0"
+  "files": ["dist"],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "private": true,
+  "type": "module"
 }
