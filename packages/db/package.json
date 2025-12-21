@@ -1,4 +1,28 @@
 {
+  "name": "@powercoach/db",
+  "version": "0.1.0",
+  "scripts": {
+    "build": "tsup --config tsup.config.js",
+    "db:down": "docker compose -f docker-compose.dev.yml down --volumes --remove-orphans",
+    "db:drop": "tsx --tsconfig tsconfig.src.json scripts/drop.ts",
+    "db:generate": "pnpm drizzle-kit generate --config=drizzle.config.js",
+    "db:migrate": "pnpm drizzle-kit migrate --config=drizzle.config.js",
+    "db:reset": "pnpm db:drop && pnpm db:migrate && pnpm db:seed",
+    "db:seed": "tsx --tsconfig tsconfig.src.json scripts/seed.ts",
+    "db:studio": "pnpm drizzle-kit studio --config=drizzle.config.js",
+    "db:up": "docker compose -f docker-compose.dev.yml up -d",
+    "dev": "pnpm db:up",
+    "format": "prettier . --check",
+    "format:write": "prettier . --write --list-different",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "pre-commit": "pnpm lint:fix && pnpm format:write && pnpm typecheck && pnpm test && pnpm build",
+    "test": "vitest run --coverage --reporter=verbose",
+    "test:watch": "vitest",
+    "typecheck": "pnpm run typecheck:src && pnpm run typecheck:test",
+    "typecheck:src": "tsc --project tsconfig.src.json --noEmit",
+    "typecheck:test": "tsc --project tsconfig.test.json --noEmit"
+  },
   "dependencies": {
     "@powercoach/util-env": "workspace:*",
     "dotenv": "^17.2.3",
@@ -26,36 +50,12 @@
     "typescript": "^5.9.3",
     "vitest": "^4.0.6"
   },
+  "types": "dist/index.d.ts",
   "engines": {
     "node": "20"
   },
   "files": ["dist", "node_modules"],
   "main": "dist/index.js",
-  "name": "@powercoach/db",
   "private": true,
-  "scripts": {
-    "build": "tsup --config tsup.config.js",
-    "db:down": "docker compose -f docker-compose.dev.yml down --volumes --remove-orphans",
-    "db:drop": "tsx --tsconfig tsconfig.src.json scripts/drop.ts",
-    "db:generate": "pnpm drizzle-kit generate --config=drizzle.config.js",
-    "db:migrate": "pnpm drizzle-kit migrate --config=drizzle.config.js",
-    "db:reset": "pnpm db:drop && pnpm db:migrate && pnpm db:seed",
-    "db:seed": "tsx --tsconfig tsconfig.src.json scripts/seed.ts",
-    "db:studio": "pnpm drizzle-kit studio --config=drizzle.config.js",
-    "db:up": "docker compose -f docker-compose.dev.yml up -d",
-    "dev": "pnpm db:up",
-    "format": "prettier . --check",
-    "format:write": "prettier . --write --list-different",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "pre-commit": "pnpm lint:fix && pnpm format:write && pnpm typecheck && pnpm test && pnpm build",
-    "test": "vitest run --coverage --reporter=verbose",
-    "test:watch": "vitest",
-    "typecheck": "pnpm run typecheck:src && pnpm run typecheck:test",
-    "typecheck:src": "tsc --project tsconfig.src.json --noEmit",
-    "typecheck:test": "tsc --project tsconfig.test.json --noEmit"
-  },
-  "type": "module",
-  "types": "dist/index.d.ts",
-  "version": "0.1.0"
+  "type": "module"
 }

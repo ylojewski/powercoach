@@ -1,4 +1,22 @@
 {
+  "name": "@powercoach/manager",
+  "version": "0.1.0",
+  "scripts": {
+    "build": "vite build && pnpm vercel:prepare",
+    "dev": "vite dev",
+    "format": "prettier . --check",
+    "format:write": "prettier . --write --list-different",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "pre-commit": "pnpm lint:fix && pnpm format:write && pnpm typecheck && pnpm test && pnpm build",
+    "preview": "vite preview",
+    "test": "vitest run --coverage --reporter=verbose",
+    "test:watch": "vitest",
+    "typecheck": "pnpm run typecheck:src && pnpm run typecheck:test",
+    "typecheck:src": "tsc --project tsconfig.src.json --noEmit",
+    "typecheck:test": "tsc --project tsconfig.test.json --noEmit",
+    "vercel:prepare": "tsx scripts/vercelPrepare.ts"
+  },
   "dependencies": {
     "@powercoach/ui": "workspace:*",
     "react": "^19.2.2",
@@ -31,24 +49,6 @@
     "node": "20"
   },
   "main": "src/main.tsx",
-  "name": "@powercoach/manager",
   "private": true,
-  "scripts": {
-    "build": "vite build && pnpm vercel:prepare",
-    "dev": "vite dev",
-    "format": "prettier . --check",
-    "format:write": "prettier . --write --list-different",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "pre-commit": "pnpm lint:fix && pnpm format:write && pnpm typecheck && pnpm test && pnpm build",
-    "preview": "vite preview",
-    "test": "vitest run --coverage --reporter=verbose",
-    "test:watch": "vitest",
-    "typecheck": "pnpm run typecheck:src && pnpm run typecheck:test",
-    "typecheck:src": "tsc --project tsconfig.src.json --noEmit",
-    "typecheck:test": "tsc --project tsconfig.test.json --noEmit",
-    "vercel:prepare": "tsx scripts/vercelPrepare.ts"
-  },
-  "type": "module",
-  "version": "0.1.0"
+  "type": "module"
 }

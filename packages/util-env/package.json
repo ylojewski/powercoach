@@ -1,4 +1,19 @@
 {
+  "name": "@powercoach/util-env",
+  "version": "0.1.0",
+  "scripts": {
+    "build": "tsup --config tsup.config.js",
+    "format": "prettier . --check",
+    "format:write": "prettier . --write --list-different",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "pre-commit": "pnpm lint:fix && pnpm format:write && pnpm typecheck && pnpm test && pnpm build",
+    "test": "vitest run --coverage --reporter=verbose",
+    "test:watch": "vitest",
+    "typecheck": "pnpm run typecheck:src && pnpm run typecheck:test",
+    "typecheck:src": "tsc --project tsconfig.src.json --noEmit",
+    "typecheck:test": "tsc --project tsconfig.test.json --noEmit"
+  },
   "dependencies": {
     "dotenv": "^17.2.3",
     "zod": "^4.1.12"
@@ -19,27 +34,12 @@
     "typescript": "^5.9.3",
     "vitest": "^4.0.6"
   },
+  "types": "dist/index.d.ts",
   "engines": {
     "node": "20"
   },
   "files": ["dist", "node_modules"],
   "main": "dist/index.js",
-  "name": "@powercoach/util-env",
   "private": true,
-  "scripts": {
-    "build": "tsup --config tsup.config.js",
-    "format": "prettier . --check",
-    "format:write": "prettier . --write --list-different",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "pre-commit": "pnpm lint:fix && pnpm format:write && pnpm typecheck && pnpm test && pnpm build",
-    "test": "vitest run --coverage --reporter=verbose",
-    "test:watch": "vitest",
-    "typecheck": "pnpm run typecheck:src && pnpm run typecheck:test",
-    "typecheck:src": "tsc --project tsconfig.src.json --noEmit",
-    "typecheck:test": "tsc --project tsconfig.test.json --noEmit"
-  },
-  "type": "module",
-  "types": "dist/index.d.ts",
-  "version": "0.1.0"
+  "type": "module"
 }
