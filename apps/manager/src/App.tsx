@@ -15,7 +15,7 @@ export function App(): ReactElement {
   }, [])
 
   return (
-    <main style={{ display: 'flex' }}>
+    <main style={{ display: 'flex' }} className="root">
       <img alt="logo" src={logo} width={80} />
       <h1>
         Powercoach Manager

@@ -23,4 +23,10 @@ describe('App', () => {
     expect(screen.getByRole('img', { name: /logo/i })).toBeInTheDocument()
     await screen.findByText(/ok/i)
   })
+
+  it('adds a .root to the main container for the UI package', async () => {
+    const { container } = render(<App />)
+
+    expect(container.firstChild).toHaveClass('root')
+  })
 })
