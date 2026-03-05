@@ -1,6 +1,16 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
+/* https://base-ui.com/react/overview/quick-start#portals */
+.root {
+  isolation: isolate;
+}
+
+/* https://base-ui.com/react/overview/quick-start#ios-26-safari */
+body {
+  position: relative;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

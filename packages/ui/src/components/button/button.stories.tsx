@@ -7,14 +7,13 @@ const meta = {
     children: 'Button'
   },
   argTypes: {
-    asChild: { control: 'boolean' },
+    intent: {
+      control: 'select',
+      options: ['default']
+    },
     size: {
       control: 'select',
-      options: ['default', 'sm', 'lg', 'icon', 'icon-sm', 'icon-lg']
-    },
-    variant: {
-      control: 'select',
-      options: ['default', 'secondary', 'destructive', 'outline', 'ghost', 'link']
+      options: ['default']
     }
   },
   component: Button,

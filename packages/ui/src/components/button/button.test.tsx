@@ -8,12 +8,8 @@ describe('Button', () => {
     await screen.findByText(/button/i)
   })
 
-  it('renders asChild', async () => {
-    render(
-      <Button asChild>
-        <a href="#">link</a>
-      </Button>
-    )
+  it('renders as a link', async () => {
+    render(<Button render={<a href="#">link</a>}></Button>)
     await screen.findByText(/link/i)
   })
 })

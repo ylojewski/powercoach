@@ -10,7 +10,6 @@
     "lint:fix": "eslint . --fix",
     "pre-commit": "pnpm lint:fix && pnpm format:write && pnpm typecheck && pnpm test && pnpm build",
     "preview": "vite preview",
-    "shadcn:add": "tsx --tsconfig tsconfig.src.json scripts/shadcnAdd.ts",
     "test": "vitest run --coverage --reporter=verbose",
     "test:watch": "vitest",
     "typecheck": "pnpm run typecheck:src && pnpm run typecheck:test",
@@ -26,9 +25,11 @@
     },
     "./index.css": "./dist/index.css"
   },
+  "dependencies": {
+    "@base-ui/react": "^1.2.0"
+  },
   "devDependencies": {
     "@powercoach/config": "workspace:*",
-    "@radix-ui/react-slot": "^1.2.4",
     "@storybook/react-vite": "^10.1.9",
     "@tailwindcss/vite": "^4.1.18",
     "@testing-library/jest-dom": "^6.6.3",
@@ -48,7 +49,6 @@
     "jsdom": "^27.1.0",
     "lucide-react": "^0.561.0",
     "prettier": "^3.6.2",
-    "shadcn": "^3.6.1",
     "storybook": "^10.1.9",
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.18",

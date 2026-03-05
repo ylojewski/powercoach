@@ -21,7 +21,9 @@ var packageJsonSortOrder = JSON.stringify(Object.fromEntries(packageJsonSortMap)
 var config = {
   arrowParens: "always",
   jsonRecursiveSort: true,
-  overrides: [{ files: "package.json", options: { jsonSortOrder: packageJsonSortOrder, parser: "json" } }],
+  overrides: [
+    { files: "package.json", options: { jsonSortOrder: packageJsonSortOrder, parser: "json" } }
+  ],
   plugins: [sortJsonPlugin],
   printWidth: 100,
   semi: false,
