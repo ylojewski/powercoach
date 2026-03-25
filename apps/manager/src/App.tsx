@@ -15,14 +15,22 @@ export function App(): ReactElement {
   }, [])
 
   return (
-    <main style={{ display: 'flex' }} className="root">
-      <img alt="logo" src={logo} width={80} />
-      <h1>
-        Powercoach Manager
-        <br />
-        {health}
-      </h1>
-      <Button>Button</Button>
+    <main className="root">
+      <div className="flex">
+        <img alt="logo" src={logo} width={80} />
+        <h1>
+          Powercoach Manager
+          <br />
+          {health}
+        </h1>
+      </div>
+      <div className="flex gap-1">
+        <Button>Button</Button>
+        <Button variant="destructive">Destructive</Button>
+        <Button variant="outline">Outline</Button>
+        <Button variant="ghost">Ghost</Button>
+        <Button variant="link">Link</Button>
+      </div>
     </main>
   )
 }
