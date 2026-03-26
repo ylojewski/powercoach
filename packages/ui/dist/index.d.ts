@@ -189,10 +189,8 @@ declare type BreakpointQuery = Breakpoint | `max-${Breakpoint}` | `${Breakpoint}
 
 declare const BREAKPOINTS: {
     readonly '2xl': 1536;
-    readonly '3xl': 1600;
-    readonly '4xl': 2000;
     readonly lg: 1024;
-    readonly md: 800;
+    readonly md: 768;
     readonly sm: 640;
     readonly xl: 1280;
 };

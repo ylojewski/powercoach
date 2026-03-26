@@ -3,6 +3,8 @@ import { type ReactElement, useEffect, useState } from 'react'
 
 import logo from '@/src/assets/logo.svg'
 
+import CardDemo from './CardDemo'
+
 export function App(): ReactElement {
   const [health, setHealth] = useState<string>('loading')
 
@@ -31,6 +33,7 @@ export function App(): ReactElement {
         <Button variant="ghost">Ghost</Button>
         <Button variant="link">Link</Button>
       </div>
+      <CardDemo />
     </main>
   )
 }

@@ -19,8 +19,11 @@
   },
   "dependencies": {
     "@powercoach/ui": "workspace:*",
+    "@tailwindcss/vite": "^4.1.18",
+    "lucide-react": "^0.561.0",
     "react": "^19.2.2",
-    "react-dom": "^19.2.2"
+    "react-dom": "^19.2.2",
+    "tailwindcss": "^4.1.18"
   },
   "devDependencies": {
     "@powercoach/config": "workspace:*",
