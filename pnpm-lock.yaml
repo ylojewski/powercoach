@@ -158,6 +158,9 @@ importers:
       react-dom:
         specifier: ^19.2.2
         version: 19.2.3(react@19.2.3)
+      react-router:
+        specifier: ^7.14.0
+        version: 7.14.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       tailwindcss:
         specifier: ^4.1.18
         version: 4.1.18
@@ -402,6 +405,9 @@ importers:
       '@powercoach/config':
         specifier: workspace:*
         version: link:../config
+      '@powercoach/util-test':
+        specifier: workspace:*
+        version: link:../util-test
       '@storybook/react-vite':
         specifier: ^10.1.9
         version: 10.1.9(esbuild@0.27.1)(msw@2.12.4(@types/node@22.19.0)(typescript@5.9.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(rollup@4.52.5)(storybook@10.1.9(@testing-library/dom@10.4.1)(prettier@3.6.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(typescript@5.9.3)(vite@7.2.2(@types/node@22.19.0)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.20.6)(yaml@2.8.1))
@@ -8790,6 +8796,19 @@ packages:
       }
     engines: { node: '>=0.10.0' }
 
+  react-router@7.14.0:
+    resolution:
+      {
+        integrity: sha512-m/xR9N4LQLmAS0ZhkY2nkPA1N7gQ5TUVa5n8TgANuDTARbn1gt+zLPXEm7W0XDTbrQ2AJSJKhoa6yx1D8BcpxQ==
+      }
+    engines: { node: '>=20.0.0' }
+    peerDependencies:
+      react: '>=18'
+      react-dom: '>=18'
+    peerDependenciesMeta:
+      react-dom:
+        optional: true
+
   react@19.2.3:
     resolution:
       {
@@ -16048,6 +16067,14 @@ snapshots:
   react-is@17.0.2: {}
 
   react-refresh@0.18.0: {}
+
+  react-router@7.14.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
+    dependencies:
+      cookie: 1.0.2
+      react: 19.2.3
+      set-cookie-parser: 2.7.2
+    optionalDependencies:
+      react-dom: 19.2.3(react@19.2.3)
 
   react@19.2.3: {}
 
