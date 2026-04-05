@@ -20,6 +20,11 @@ declare function spyOnStdout(): {
 
 declare function stubEnv(env: Record<string, string | number>): void;
 
+declare const RGB_RED: "rgb(255, 0, 0)";
+declare const RGB_GREEN: "rgb(0, 255, 0)";
+declare const RGB_BLUE: "rgb(0, 0, 255)";
+declare function appendStyle(css: string): HTMLStyleElement;
+
 declare function flushAsync(): Promise<void>;
 
-export { expectFunction, expectZodParseToThrow, flushAsync, mockQueryResult, spyOnConsole, spyOnStdout, stubEnv };
+export { RGB_BLUE, RGB_GREEN, RGB_RED, appendStyle, expectFunction, expectZodParseToThrow, flushAsync, mockQueryResult, spyOnConsole, spyOnStdout, stubEnv };

@@ -65,6 +65,18 @@ function stubEnv(env) {
 }
 __name(stubEnv, "stubEnv");
 
+// src/utils/appendStyle.ts
+var RGB_RED = "rgb(255, 0, 0)";
+var RGB_GREEN = "rgb(0, 255, 0)";
+var RGB_BLUE = "rgb(0, 0, 255)";
+function appendStyle(css) {
+  const style = document.createElement("style");
+  style.textContent = css;
+  document.head.append(style);
+  return style;
+}
+__name(appendStyle, "appendStyle");
+
 // src/utils/flushAsync.ts
 async function flushAsync() {
   await new Promise((resolve) => setImmediate(resolve));
@@ -72,6 +84,6 @@ async function flushAsync() {
 }
 __name(flushAsync, "flushAsync");
 
-export { expectFunction, expectZodParseToThrow, flushAsync, mockQueryResult, spyOnConsole, spyOnStdout, stubEnv };
+export { RGB_BLUE, RGB_GREEN, RGB_RED, appendStyle, expectFunction, expectZodParseToThrow, flushAsync, mockQueryResult, spyOnConsole, spyOnStdout, stubEnv };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map

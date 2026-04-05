@@ -38,6 +38,7 @@
   },
   "devDependencies": {
     "@powercoach/config": "workspace:*",
+    "@powercoach/util-test": "workspace:*",
     "@storybook/react-vite": "^10.1.9",
     "@tailwindcss/vite": "^4.1.18",
     "@testing-library/jest-dom": "^6.6.3",

@@ -1,6 +1,6 @@
 import { type Preview } from '@storybook/react-vite'
 
-import '../src/powercoach/styles/globals.css'
+import '../src/styles'
 
 const preview: Preview = {
   parameters: {

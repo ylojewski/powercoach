@@ -1,4 +1,4 @@
 @import 'tailwindcss';
 @import '@powercoach/ui';
 
-@source './**/*.tsx';
+@custom-variant dark (&:where(.dark, .dark *));
