@@ -22,7 +22,8 @@ var config = {
   arrowParens: "always",
   jsonRecursiveSort: true,
   overrides: [
-    { files: "package.json", options: { jsonSortOrder: packageJsonSortOrder, parser: "json" } }
+    { files: "package.json", options: { jsonSortOrder: packageJsonSortOrder, parser: "json" } },
+    { files: "**/*.svg", options: { parser: "html" } }
   ],
   plugins: [sortJsonPlugin],
   printWidth: 100,

@@ -1,0 +1,14 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="16"
+  height="16"
+  viewBox="0 0 16 16"
+  shape-rendering="crispEdges"
+>
+  <g>
+    <path d="M0 4.5H1V12H0Z" />
+    <path d="M1.5 2H2.5V14.5H1.5Z" />
+    <path d="M3 2H4V14.5H3Z" />
+    <path fill-rule="evenodd" d="M4.5 2H16V10H8V14.5H4.5Z M8 5.5H12.5V6.5H8Z" />
+  </g>
+</svg>

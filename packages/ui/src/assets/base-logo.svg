@@ -1,0 +1,106 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="1140"
+  height="108"
+  viewBox="0 0 1140 108"
+  shape-rendering="crispEdges"
+>
+  <g class="container">
+    <g class="plate-left">
+      <g>
+        <path class="extrusion" d="M8 20V80H0L8 88H16V28Z" />
+        <path class="plate" d="M0 20H8V80H0Z" />
+      </g>
+      <g transform="translate(10 0)">
+        <path class="extrusion" d="M8 0V100H0L8 108H16V8Z" />
+        <path class="plate" d="M0 0H8V100H0Z" />
+      </g>
+      <g transform="translate(20 0)">
+        <path class="extrusion" d="M8 0V100H0L8 108H16V8Z" />
+        <path class="plate" d="M0 0H8V100H0Z" />
+      </g>
+    </g>
+    <g class="power" transform="translate(30 0)">
+      <g>
+        <path class="extrusion" d="M100 0L108 8V72H36V108H8L0 100H28V64H100Z M28 28H72V36H28Z" />
+        <path fill-rule="evenodd" d="M0 0H100V64H28V100H0Z M28 28H72V36H28Z" />
+      </g>
+      <g transform="translate(108 0)">
+        <path class="extrusion" d="M100 0L108 8V108H8L0 100H100Z M28 28H72V36H36V72H28Z" />
+        <path fill-rule="evenodd" d="M0 0H100V100H0Z M28 28H72V72H28Z" />
+      </g>
+      <g transform="translate(216 0)">
+        <path
+          class="extrusion"
+          d="M100 0L108 8V108H8L0 100H100Z M28 0L36 8V72H28Z M64 36L72 44V72H64Z"
+        />
+        <path d="M0 0H28V72H36V36H64V72H72V0H100V100H0Z" />
+      </g>
+      <g transform="translate(324 0)">
+        <path
+          class="extrusion"
+          d="M100 0L108 8V72H42L36 64H100Z M28 28H72V36H36V72H28Z M100 72L108 80V108H8L0 100H100Z"
+        />
+        <path d="M0 0H100V64H36V36H72V28H28V72H100V100H0Z" />
+      </g>
+      <g transform="translate(432 0)">
+        <path
+          class="extrusion"
+          d="M28 28H72L64 36H28Z M100 0L108 8V48L98 58L90 50L100 40Z M100 60L108 68V108H80L72 100H100Z M0 100L8 108H36V72H72L64 64H28V100Z"
+        />
+        <path
+          fill-rule="evenodd"
+          d="M0 0H100V40L90 50L100 60V100H72V72L64 64H28V100H0Z M28 28H72L64 36H28Z"
+        />
+      </g>
+    </g>
+    <g class="coach" transform="translate(570 0)">
+      <g>
+        <path
+          class="extrusion"
+          d="M100 0L108 8V36H36V72H28V28H100Z M100 72L108 80V108H8L0 100H100Z"
+        />
+        <path d="M0 0H100V28H28V72H100V100H0Z" />
+      </g>
+      <g transform="translate(108 0)">
+        <path class="extrusion" d="M100 0L108 8V108H8L0 100H100Z M28 28H72V36H36V72H28Z" />
+        <path fill-rule="evenodd" d="M0 0H100V100H0Z M28 28H72V72H28Z" />
+      </g>
+      <g transform="translate(216 0)">
+        <path
+          class="extrusion"
+          d="M0 28H72V36H8Z M64 36L72 44V72H28V64H64Z M100 0L108 8V108H8L0 100H100Z"
+        />
+        <path d="M0 0H100V100H0V36H64V64H28V72H72V28H0Z" />
+      </g>
+      <g transform="translate(324 0)">
+        <path
+          class="extrusion"
+          d="M100 0L108 8V36H36V72H28V28H100Z M100 72L108 80V108H8L0 100H100Z"
+        />
+        <path d="M0 0H100V28H28V72H100V100H0Z" />
+      </g>
+      <g transform="translate(432 0)">
+        <path
+          class="extrusion"
+          d="M28 0V36H36V8Z M0 100H28V64H72V72H36V108H8Z M100 0V100H72L80 108H108V8Z"
+        />
+        <path d="M0 0H28V36H72V0H100V100H72V64H28V100H0Z" />
+      </g>
+    </g>
+    <g class="plate-right" transform="translate(1104 0)">
+      <g>
+        <path class="extrusion" d="M8 0V100H0L8 108H16V8Z" />
+        <path class="plate" d="M0 0H8V100H0Z" />
+      </g>
+      <g transform="translate(10 0)">
+        <path class="extrusion" d="M8 0V100H0L8 108H16V8Z" />
+        <path class="plate" d="M0 0H8V100H0Z" />
+      </g>
+      <g transform="translate(20 0)">
+        <path class="extrusion" d="M8 20V80H0L8 88H16V28Z" />
+        <path class="plate" d="M0 20H8V80H0Z" />
+      </g>
+    </g>
+  </g>
+</svg>

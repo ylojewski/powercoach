@@ -4,7 +4,7 @@
     "baseUrl": "./",
     "jsx": "react-jsx",
     "rootDir": "./",
-    "types": ["vite/client", "vitest/globals"]
+    "types": ["vite/client", "vite-plugin-svgr/client", "vitest/globals"]
   },
   "exclude": ["dist", "node_modules"],
   "extends": "@powercoach/config/tsconfig.test.json",
