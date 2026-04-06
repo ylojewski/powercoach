@@ -618,6 +618,24 @@ export declare function KbdGroup({ className, ...props }: React_2.ComponentProps
 
 export declare function Label({ className, render, ...props }: useRender.ComponentProps<'label'>): default_2.ReactElement;
 
+export declare function Logo({ className, variant, ...props }: LogoProps): default_2.ReactElement;
+
+export declare function LogoIcon({ className, variant, ...props }: LogoIconProps): default_2.ReactElement;
+
+export declare interface LogoIconProps extends VariantProps<typeof logoIconVariants>, default_2.SVGProps<SVGSVGElement> {
+}
+
+export declare const logoIconVariants: (props?: ({
+    variant?: "black" | "white" | null | undefined;
+} & ClassProp) | undefined) => string;
+
+export declare interface LogoProps extends VariantProps<typeof logoVariants>, default_2.SVGProps<SVGSVGElement> {
+}
+
+export declare const logoVariants: (props?: ({
+    variant?: "black" | "white" | null | undefined;
+} & ClassProp) | undefined) => string;
+
 export declare interface MediaQueryInput {
     min?: Breakpoint | number;
     max?: Breakpoint | number;

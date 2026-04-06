@@ -1,0 +1,26 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="130"
+  height="100"
+  viewBox="0 0 130 100"
+  shape-rendering="crispEdges"
+>
+  <g class="container">
+    <g>
+      <g>
+        <path class="plate" d="M0 20H8V80H0Z" />
+      </g>
+      <g transform="translate(10 0)">
+        <path class="plate" d="M0 0H8V100H0Z" />
+      </g>
+      <g transform="translate(20 0)">
+        <path class="plate" d="M0 0H8V100H0Z" />
+      </g>
+    </g>
+    <g class="power" transform="translate(30 0)">
+      <g>
+        <path fill-rule="evenodd" d="M0 0H100V64H28V100H0Z M28 28H72V36H28Z" />
+      </g>
+    </g>
+  </g>
+</svg>

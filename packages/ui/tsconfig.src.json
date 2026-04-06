@@ -4,7 +4,8 @@
     "baseUrl": "./",
     "jsx": "react-jsx",
     "outDir": "dist",
-    "rootDir": "./"
+    "rootDir": "./",
+    "types": ["vite-plugin-svgr/client"]
   },
   "exclude": [
     "dist",
