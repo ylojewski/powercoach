@@ -168,6 +168,9 @@ importers:
       '@powercoach/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@powercoach/util-test':
+        specifier: workspace:*
+        version: link:../../packages/util-test
       '@testing-library/jest-dom':
         specifier: ^6.6.3
         version: 6.9.1
@@ -560,12 +563,21 @@ importers:
       '@powercoach/config':
         specifier: workspace:*
         version: link:../config
+      '@testing-library/react':
+        specifier: ^16.2.0
+        version: 16.3.0(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@types/node':
         specifier: ^24.9.2
         version: 24.9.2
       '@types/pg':
         specifier: ^8.15.6
         version: 8.15.6
+      '@types/react':
+        specifier: ^19.2.2
+        version: 19.2.7
+      '@types/react-dom':
+        specifier: ^19.2.2
+        version: 19.2.3(@types/react@19.2.7)
       '@typescript-eslint/eslint-plugin':
         specifier: ^8.46.2
         version: 8.46.3(@typescript-eslint/parser@8.46.3(eslint@9.38.0(jiti@2.6.1))(typescript@5.9.3))(eslint@9.38.0(jiti@2.6.1))(typescript@5.9.3)
@@ -590,6 +602,15 @@ importers:
       prettier:
         specifier: ^3.6.2
         version: 3.6.2
+      react:
+        specifier: ^19.2.2
+        version: 19.2.3
+      react-dom:
+        specifier: ^19.2.2
+        version: 19.2.3(react@19.2.3)
+      react-router:
+        specifier: ^7.14.0
+        version: 7.14.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       tsup:
         specifier: ^8.5.0
         version: 8.5.0(@microsoft/api-extractor@7.55.2(@types/node@24.9.2))(jiti@2.6.1)(postcss@8.5.6)(tsx@4.20.6)(typescript@5.9.3)(yaml@2.8.1)

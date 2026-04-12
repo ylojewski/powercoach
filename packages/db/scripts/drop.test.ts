@@ -1,4 +1,4 @@
-import { spyOnConsole } from '@powercoach/util-test/src'
+import { spyOnConsole } from '@powercoach/util-test'
 
 const sqlMock = vi.fn()
 const executeMock = vi.fn()

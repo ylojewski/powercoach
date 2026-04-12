@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client'
 
 import './styles'
 
-import { AppRouter } from './components/AppRouter'
+import { Router } from './components/Router'
 
 const rootElement = window.document.getElementById('root')
 
@@ -13,6 +13,6 @@ if (!rootElement) {
 
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
-    <AppRouter />
+    <Router />
   </React.StrictMode>
 )

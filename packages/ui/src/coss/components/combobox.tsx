@@ -150,6 +150,7 @@ export function ComboboxPopup({
   alignOffset,
   align = 'start',
   anchor: anchorProp,
+  portalProps,
   ...props
 }: ComboboxPrimitive.Popup.Props & {
   align?: ComboboxPrimitive.Positioner.Props['align']
@@ -157,12 +158,13 @@ export function ComboboxPopup({
   alignOffset?: ComboboxPrimitive.Positioner.Props['alignOffset']
   side?: ComboboxPrimitive.Positioner.Props['side']
   anchor?: ComboboxPrimitive.Positioner.Props['anchor']
+  portalProps?: ComboboxPrimitive.Portal.Props
 }): React.ReactElement {
   const { chipsRef } = React.useContext(ComboboxContext)
   const anchor = anchorProp ?? chipsRef
 
   return (
-    <ComboboxPrimitive.Portal>
+    <ComboboxPrimitive.Portal {...portalProps}>
       <ComboboxPrimitive.Positioner
         align={align}
         alignOffset={alignOffset}

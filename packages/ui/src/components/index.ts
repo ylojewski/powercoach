@@ -1,2 +1,3 @@
-export * from './logo'
-export * from './logo-icon'
+export * from './HorizontalPanel'
+export * from './Logo'
+export * from './LogoIcon'

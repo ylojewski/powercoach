@@ -4,8 +4,6 @@ import { extname } from 'node:path'
 
 import { Spinner as CliSpinner } from 'cli-spinner'
 
-const EXCLUDED_FILES = ['components/sheet.tsx', 'components/sidebar.tsx'] as const
-
 class Spinner {
   private message: string | null = null
   private spinner: CliSpinner | null = null
@@ -143,12 +141,6 @@ async function fixEdgeCases(directory: string): Promise<void> {
   await writeFile(`${directory}/hooks/use-media-query.ts`, useMediaQueryContent, 'utf-8')
 }
 
-async function deleteExcludedFiles(directory: string): Promise<void> {
-  for (const excludedFile of EXCLUDED_FILES) {
-    await rm(`${directory}/${excludedFile}`, { force: true })
-  }
-}
-
 const spinner = new Spinner('Initiating @coss/style')
 
 await rm('./coss', { force: true, recursive: true })
@@ -163,9 +155,6 @@ initCoss.on('close', async () => {
 
   await rm('../src/coss', { force: true, recursive: true })
   await cp('./coss/packages/ui/src', '../src/coss', { recursive: true })
-
-  spinner.start('Deleting excluded files')
-  await deleteExcludedFiles('../src/coss')
 
   spinner.start('Deleting .gitkeep files')
   await deleteGitKeepFiles('../src/coss')

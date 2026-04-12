@@ -3,6 +3,10 @@ import { QueryResultRow, QueryResult } from 'pg';
 import process from 'node:process';
 import { Mock } from 'vitest';
 
+declare function expectCollapsed(element: HTMLElement): void;
+
+declare function expectExpanded(element: HTMLElement): void;
+
 declare function expectFunction(fn: unknown): asserts fn is (...args: unknown[]) => unknown;
 
 declare function expectZodParseToThrow(schema: ZodObject, values: unknown): ZodError;
@@ -27,4 +31,4 @@ declare function appendStyle(css: string): HTMLStyleElement;
 
 declare function flushAsync(): Promise<void>;
 
-export { RGB_BLUE, RGB_GREEN, RGB_RED, appendStyle, expectFunction, expectZodParseToThrow, flushAsync, mockQueryResult, spyOnConsole, spyOnStdout, stubEnv };
+export { RGB_BLUE, RGB_GREEN, RGB_RED, appendStyle, expectCollapsed, expectExpanded, expectFunction, expectZodParseToThrow, flushAsync, mockQueryResult, spyOnConsole, spyOnStdout, stubEnv };

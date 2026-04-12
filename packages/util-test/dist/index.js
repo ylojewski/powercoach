@@ -4,6 +4,18 @@ import process from 'process';
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
+// src/expects/expectCollapsed.ts
+function expectCollapsed(element) {
+  expect(element.getAttribute("aria-expanded")).toBe("false");
+}
+__name(expectCollapsed, "expectCollapsed");
+
+// src/expects/expectExpanded.ts
+function expectExpanded(element) {
+  expect(element.getAttribute("aria-expanded")).toBe("true");
+}
+__name(expectExpanded, "expectExpanded");
+
 // src/expects/expectFunction.ts
 function expectFunction(fn) {
   expect(fn).toBeInstanceOf(Function);
@@ -84,6 +96,6 @@ async function flushAsync() {
 }
 __name(flushAsync, "flushAsync");
 
-export { RGB_BLUE, RGB_GREEN, RGB_RED, appendStyle, expectFunction, expectZodParseToThrow, flushAsync, mockQueryResult, spyOnConsole, spyOnStdout, stubEnv };
+export { RGB_BLUE, RGB_GREEN, RGB_RED, appendStyle, expectCollapsed, expectExpanded, expectFunction, expectZodParseToThrow, flushAsync, mockQueryResult, spyOnConsole, spyOnStdout, stubEnv };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map
