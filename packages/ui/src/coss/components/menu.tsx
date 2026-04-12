@@ -32,6 +32,7 @@ export function MenuPopup({
   alignOffset,
   side = 'bottom',
   anchor,
+  portalProps,
   ...props
 }: MenuPrimitive.Popup.Props & {
   align?: MenuPrimitive.Positioner.Props['align']
@@ -39,9 +40,10 @@ export function MenuPopup({
   alignOffset?: MenuPrimitive.Positioner.Props['alignOffset']
   side?: MenuPrimitive.Positioner.Props['side']
   anchor?: MenuPrimitive.Positioner.Props['anchor']
+  portalProps?: MenuPrimitive.Portal.Props
 }): React.ReactElement {
   return (
-    <MenuPrimitive.Portal>
+    <MenuPortal {...portalProps}>
       <MenuPrimitive.Positioner
         align={align}
         alignOffset={alignOffset}
@@ -62,7 +64,7 @@ export function MenuPopup({
           <div className="max-h-(--available-height) w-full overflow-y-auto p-1">{children}</div>
         </MenuPrimitive.Popup>
       </MenuPrimitive.Positioner>
-    </MenuPrimitive.Portal>
+    </MenuPortal>
   )
 }
 

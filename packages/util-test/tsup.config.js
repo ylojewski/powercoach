@@ -3,4 +3,9 @@ import { defineConfig } from 'tsup'
 
 import packageJson from './package.json'
 
-export default defineConfig(buildConfig({ ...packageJson, main: 'src/index.ts' }))
+const config = buildConfig({ ...packageJson, main: 'src/index.ts' })
+
+export default defineConfig({
+  ...config,
+  entry: ['src/index.ts', 'src/react/index.ts']
+})

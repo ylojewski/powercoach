@@ -19,3 +19,17 @@ stubEnv({ NODE_ENV: 'test' })
 ```
 
 Utilities are designed to be small building blocks that keep tests focused on behavior instead of setup noise.
+
+## React helpers
+
+React test helpers are available from the dedicated `@powercoach/util-test/react` subpath so
+Node-only test packages do not need to load React test tooling through the main entrypoint.
+
+```tsx
+import { renderWithRouter } from '@powercoach/util-test/react'
+
+renderWithRouter(<Layout />, {
+  initialEntry: '/reviews',
+  pathnameProbe: true
+})
+```

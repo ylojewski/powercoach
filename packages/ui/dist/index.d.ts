@@ -77,8 +77,9 @@ export declare function AlertDialogFooter({ className, variant, ...props }: defa
 
 export declare function AlertDialogHeader({ className, ...props }: default_2.ComponentProps<'div'>): default_2.ReactElement;
 
-declare function AlertDialogPopup({ className, bottomStickOnMobile, ...props }: AlertDialogPrimitive.Popup.Props & {
+declare function AlertDialogPopup({ className, bottomStickOnMobile, portalProps, ...props }: AlertDialogPrimitive.Popup.Props & {
     bottomStickOnMobile?: boolean;
+    portalProps?: AlertDialogPrimitive.Portal.Props;
 }): default_2.ReactElement;
 export { AlertDialogPopup as AlertDialogContent }
 export { AlertDialogPopup }
@@ -129,12 +130,13 @@ export declare function AutocompleteItem({ className, children, ...props }: Auto
 
 export declare function AutocompleteList({ className, ...props }: AutocompletePrimitive.List.Props): default_2.ReactElement;
 
-export declare function AutocompletePopup({ className, children, side, sideOffset, alignOffset, align, anchor, ...props }: AutocompletePrimitive.Popup.Props & {
+export declare function AutocompletePopup({ className, children, side, sideOffset, alignOffset, align, anchor, portalProps, ...props }: AutocompletePrimitive.Popup.Props & {
     align?: AutocompletePrimitive.Positioner.Props['align'];
     sideOffset?: AutocompletePrimitive.Positioner.Props['sideOffset'];
     alignOffset?: AutocompletePrimitive.Positioner.Props['alignOffset'];
     side?: AutocompletePrimitive.Positioner.Props['side'];
     anchor?: AutocompletePrimitive.Positioner.Props['anchor'];
+    portalProps?: AutocompletePrimitive.Portal.Props;
 }): default_2.ReactElement;
 
 export { AutocompletePrimitive }
@@ -304,12 +306,13 @@ export declare function ComboboxItem({ className, children, ...props }: Combobox
 
 export declare function ComboboxList({ className, ...props }: ComboboxPrimitive.List.Props): React_2.ReactElement;
 
-export declare function ComboboxPopup({ className, children, side, sideOffset, alignOffset, align, anchor: anchorProp, ...props }: ComboboxPrimitive.Popup.Props & {
+export declare function ComboboxPopup({ className, children, side, sideOffset, alignOffset, align, anchor: anchorProp, portalProps, ...props }: ComboboxPrimitive.Popup.Props & {
     align?: ComboboxPrimitive.Positioner.Props['align'];
     sideOffset?: ComboboxPrimitive.Positioner.Props['sideOffset'];
     alignOffset?: ComboboxPrimitive.Positioner.Props['alignOffset'];
     side?: ComboboxPrimitive.Positioner.Props['side'];
     anchor?: ComboboxPrimitive.Positioner.Props['anchor'];
+    portalProps?: ComboboxPrimitive.Portal.Props;
 }): React_2.ReactElement;
 
 export { ComboboxPrimitive }
@@ -334,7 +337,9 @@ export declare const CommandDialog: typeof Dialog_2.Root;
 
 export declare function CommandDialogBackdrop({ className, ...props }: Dialog_2.Backdrop.Props): React_2.ReactElement;
 
-export declare function CommandDialogPopup({ className, children, ...props }: Dialog_2.Popup.Props): React_2.ReactElement;
+export declare function CommandDialogPopup({ className, children, portalProps, ...props }: Dialog_2.Popup.Props & {
+    portalProps?: Dialog_2.Portal.Props;
+}): React_2.ReactElement;
 
 export declare const CommandDialogPortal: typeof Dialog_2.Portal;
 
@@ -368,6 +373,7 @@ export declare const Dialog: typeof Dialog_2.Root;
 
 export { Dialog_2 as CommandDialogPrimitive }
 export { Dialog_2 as DialogPrimitive }
+export { Dialog_2 as SheetPrimitive }
 
 declare function DialogBackdrop({ className, ...props }: Dialog_2.Backdrop.Props): default_2.ReactElement;
 export { DialogBackdrop }
@@ -389,10 +395,11 @@ export declare function DialogPanel({ className, scrollFade, render, ...props }:
     scrollFade?: boolean;
 }): default_2.ReactElement;
 
-declare function DialogPopup({ className, children, showCloseButton, bottomStickOnMobile, closeProps, ...props }: Dialog_2.Popup.Props & {
+declare function DialogPopup({ className, children, showCloseButton, bottomStickOnMobile, closeProps, portalProps, ...props }: Dialog_2.Popup.Props & {
     showCloseButton?: boolean;
     bottomStickOnMobile?: boolean;
     closeProps?: Dialog_2.Close.Props;
+    portalProps?: Dialog_2.Portal.Props;
 }): default_2.ReactElement;
 export { DialogPopup as DialogContent }
 export { DialogPopup }
@@ -466,11 +473,12 @@ export declare function DrawerPanel({ className, scrollFade, scrollable, allowSe
     allowSelection?: boolean;
 }): default_2.ReactElement;
 
-export declare function DrawerPopup({ className, children, showCloseButton, position: positionProp, variant, showBar, ...props }: DrawerPrimitive.Popup.Props & {
+export declare function DrawerPopup({ className, children, showCloseButton, position: positionProp, variant, showBar, portalProps, ...props }: DrawerPrimitive.Popup.Props & {
     showCloseButton?: boolean;
     position?: DrawerPosition;
     variant?: 'default' | 'straight' | 'inset';
     showBar?: boolean;
+    portalProps?: DrawerPrimitive.Portal.Props;
 }): default_2.ReactElement;
 
 export declare const DrawerPortal: typeof DrawerPrimitive.Portal;
@@ -567,6 +575,18 @@ export { GroupText }
 export declare const groupVariants: (props?: ({
     orientation?: "horizontal" | "vertical" | null | undefined;
 } & ClassProp) | undefined) => string;
+
+export declare function HorizontalPanel<Value = unknown>({ children, className, collapsible, style, ...props }: HorizontalPanelProps<Value>): default_2.ReactElement;
+
+export declare function HorizontalPanelContent({ className, children, ...props }: AccordionPrimitive.Panel.Props): default_2.ReactElement;
+
+export declare function HorizontalPanelItem({ className, ...props }: AccordionPrimitive.Item.Props): default_2.ReactElement;
+
+export declare interface HorizontalPanelProps<Value = unknown> extends AccordionPrimitive.Root.Props<Value> {
+    collapsible?: boolean;
+}
+
+export declare function HorizontalPanelTrigger({ className, children, onClick, ...props }: AccordionPrimitive.Trigger.Props): default_2.ReactElement;
 
 export declare function Input({ className, size, unstyled, nativeInput, ...props }: InputProps): React_2.ReactElement;
 
@@ -674,12 +694,13 @@ declare function MenuItem({ className, inset, variant, ...props }: MenuPrimitive
 export { MenuItem as DropdownMenuItem }
 export { MenuItem }
 
-declare function MenuPopup({ children, className, sideOffset, align, alignOffset, side, anchor, ...props }: MenuPrimitive.Popup.Props & {
+declare function MenuPopup({ children, className, sideOffset, align, alignOffset, side, anchor, portalProps, ...props }: MenuPrimitive.Popup.Props & {
     align?: MenuPrimitive.Positioner.Props['align'];
     sideOffset?: MenuPrimitive.Positioner.Props['sideOffset'];
     alignOffset?: MenuPrimitive.Positioner.Props['alignOffset'];
     side?: MenuPrimitive.Positioner.Props['side'];
     anchor?: MenuPrimitive.Positioner.Props['anchor'];
+    portalProps?: MenuPrimitive.Portal.Props;
 }): React_2.ReactElement;
 export { MenuPopup as DropdownMenuContent }
 export { MenuPopup }
@@ -789,7 +810,8 @@ export declare const PopoverCreateHandle: typeof PopoverPrimitive.createHandle;
 
 export declare function PopoverDescription({ className, ...props }: PopoverPrimitive.Description.Props): default_2.ReactElement;
 
-declare function PopoverPopup({ children, className, side, align, sideOffset, alignOffset, tooltipStyle, anchor, ...props }: PopoverPrimitive.Popup.Props & {
+declare function PopoverPopup({ children, className, side, align, sideOffset, alignOffset, tooltipStyle, anchor, portalProps, ...props }: PopoverPrimitive.Popup.Props & {
+    portalProps?: PopoverPrimitive.Portal.Props;
     side?: PopoverPrimitive.Positioner.Props['side'];
     align?: PopoverPrimitive.Positioner.Props['align'];
     sideOffset?: PopoverPrimitive.Positioner.Props['sideOffset'];
@@ -810,10 +832,11 @@ declare const PreviewCard: typeof PreviewCardPrimitive.Root;
 export { PreviewCard as HoverCard }
 export { PreviewCard }
 
-declare function PreviewCardPopup({ className, children, align, sideOffset, anchor, ...props }: PreviewCardPrimitive.Popup.Props & {
+declare function PreviewCardPopup({ className, children, align, sideOffset, anchor, portalProps, ...props }: PreviewCardPrimitive.Popup.Props & {
     align?: PreviewCardPrimitive.Positioner.Props['align'];
     sideOffset?: PreviewCardPrimitive.Positioner.Props['sideOffset'];
     anchor?: PreviewCardPrimitive.Positioner.Props['anchor'];
+    portalProps?: PreviewCardPrimitive.Portal.Props;
 }): default_2.ReactElement;
 export { PreviewCardPopup as HoverCardContent }
 export { PreviewCardPopup }
@@ -900,6 +923,128 @@ export declare function Separator({ className, orientation, ...props }: Separato
 
 export { SeparatorPrimitive }
 
+export declare const Sheet: typeof Dialog_2.Root;
+
+declare function SheetBackdrop({ className, ...props }: Dialog_2.Backdrop.Props): default_2.ReactElement;
+export { SheetBackdrop }
+export { SheetBackdrop as SheetOverlay }
+
+export declare function SheetClose(props: Dialog_2.Close.Props): default_2.ReactElement;
+
+export declare function SheetDescription({ className, ...props }: Dialog_2.Description.Props): default_2.ReactElement;
+
+export declare function SheetFooter({ className, variant, render, ...props }: useRender.ComponentProps<'div'> & {
+    variant?: 'default' | 'bare';
+}): default_2.ReactElement;
+
+export declare function SheetHeader({ className, render, ...props }: useRender.ComponentProps<'div'>): default_2.ReactElement;
+
+export declare function SheetPanel({ className, scrollFade, render, ...props }: useRender.ComponentProps<'div'> & {
+    scrollFade?: boolean;
+}): default_2.ReactElement;
+
+declare function SheetPopup({ className, children, showCloseButton, side, variant, closeProps, portalProps, ...props }: Dialog_2.Popup.Props & {
+    showCloseButton?: boolean;
+    side?: 'right' | 'left' | 'top' | 'bottom';
+    variant?: 'default' | 'inset';
+    closeProps?: Dialog_2.Close.Props;
+    portalProps?: Dialog_2.Portal.Props;
+}): default_2.ReactElement;
+export { SheetPopup as SheetContent }
+export { SheetPopup }
+
+export declare const SheetPortal: typeof Dialog_2.Portal;
+
+export declare function SheetTitle({ className, ...props }: Dialog_2.Title.Props): default_2.ReactElement;
+
+export declare function SheetTrigger(props: Dialog_2.Trigger.Props): default_2.ReactElement;
+
+export declare function SheetViewport({ className, side, variant, ...props }: Dialog_2.Viewport.Props & {
+    side?: 'right' | 'left' | 'top' | 'bottom';
+    variant?: 'default' | 'inset';
+}): default_2.ReactElement;
+
+export declare function Sidebar({ side, variant, collapsible, className, children, ...props }: React_2.ComponentProps<'div'> & {
+    side?: 'left' | 'right';
+    variant?: 'sidebar' | 'floating' | 'inset';
+    collapsible?: 'offcanvas' | 'icon' | 'none';
+}): React_2.ReactElement;
+
+export declare function SidebarContent({ className, ...props }: React_2.ComponentProps<'div'>): React_2.ReactElement;
+
+export declare const SidebarContext: React_2.Context<SidebarContextProps | null>;
+
+export declare interface SidebarContextProps {
+    state: 'expanded' | 'collapsed';
+    open: boolean;
+    setOpen: (open: boolean) => void;
+    openMobile: boolean;
+    setOpenMobile: (open: boolean) => void;
+    isMobile: boolean;
+    toggleSidebar: () => void;
+}
+
+export declare function SidebarFooter({ className, ...props }: React_2.ComponentProps<'div'>): React_2.ReactElement;
+
+export declare function SidebarGroup({ className, ...props }: React_2.ComponentProps<'div'>): React_2.ReactElement;
+
+export declare function SidebarGroupAction({ className, render, ...props }: useRender.ComponentProps<'button'>): React_2.ReactElement;
+
+export declare function SidebarGroupContent({ className, ...props }: React_2.ComponentProps<'div'>): React_2.ReactElement;
+
+export declare function SidebarGroupLabel({ className, render, ...props }: useRender.ComponentProps<'div'>): React_2.ReactElement;
+
+export declare function SidebarHeader({ className, ...props }: React_2.ComponentProps<'div'>): React_2.ReactElement;
+
+export declare function SidebarInput({ className, ...props }: React_2.ComponentProps<typeof Input>): React_2.ReactElement;
+
+export declare function SidebarInset({ className, ...props }: React_2.ComponentProps<'main'>): React_2.ReactElement;
+
+export declare function SidebarMenu({ className, ...props }: React_2.ComponentProps<'ul'>): React_2.ReactElement;
+
+export declare function SidebarMenuAction({ className, showOnHover, render, ...props }: useRender.ComponentProps<'button'> & {
+    showOnHover?: boolean;
+}): React_2.ReactElement;
+
+export declare function SidebarMenuBadge({ className, ...props }: React_2.ComponentProps<'div'>): React_2.ReactElement;
+
+export declare function SidebarMenuButton({ isActive, variant, size, tooltip, className, render, ...props }: useRender.ComponentProps<'button'> & {
+    isActive?: boolean;
+    tooltip?: string | React_2.ComponentProps<typeof TooltipPopup>;
+} & VariantProps<typeof sidebarMenuButtonVariants>): React_2.ReactElement;
+
+declare const sidebarMenuButtonVariants: (props?: ({
+    size?: "default" | "sm" | "lg" | null | undefined;
+    variant?: "default" | "outline" | null | undefined;
+} & ClassProp) | undefined) => string;
+
+export declare function SidebarMenuItem({ className, ...props }: React_2.ComponentProps<'li'>): React_2.ReactElement;
+
+export declare function SidebarMenuSkeleton({ className, showIcon, ...props }: React_2.ComponentProps<'div'> & {
+    showIcon?: boolean;
+}): React_2.ReactElement;
+
+export declare function SidebarMenuSub({ className, ...props }: React_2.ComponentProps<'ul'>): React_2.ReactElement;
+
+export declare function SidebarMenuSubButton({ size, isActive, className, render, ...props }: useRender.ComponentProps<'a'> & {
+    size?: 'sm' | 'md';
+    isActive?: boolean;
+}): React_2.ReactElement;
+
+export declare function SidebarMenuSubItem({ className, ...props }: React_2.ComponentProps<'li'>): React_2.ReactElement;
+
+export declare function SidebarProvider({ defaultOpen, open: openProp, onOpenChange: setOpenProp, className, style, children, ...props }: React_2.ComponentProps<'div'> & {
+    defaultOpen?: boolean;
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
+}): React_2.ReactElement;
+
+export declare function SidebarRail({ className, ...props }: React_2.ComponentProps<'button'>): React_2.ReactElement;
+
+export declare function SidebarSeparator({ className, ...props }: React_2.ComponentProps<typeof Separator>): React_2.ReactElement;
+
+export declare function SidebarTrigger({ className, onClick, ...props }: React_2.ComponentProps<typeof Button>): React_2.ReactElement;
+
 export declare function Skeleton({ className, ...props }: default_2.ComponentProps<'div'>): default_2.ReactElement;
 
 export declare function Slider({ className, children, defaultValue, value, min, max, ...props }: SliderPrimitive.Root.Props): React_2.ReactElement;
@@ -950,7 +1095,7 @@ export declare type TabsVariant = 'default' | 'underline';
 
 export declare function Textarea({ className, size, unstyled, ref, ...props }: TextareaProps): React_2.ReactElement;
 
-export declare type TextareaProps = React_2.ComponentPropsWithoutRef<'textarea'> & React_2.RefAttributes<HTMLElement> & {
+export declare type TextareaProps = React_2.ComponentPropsWithoutRef<'textarea'> & React_2.RefAttributes<HTMLTextAreaElement> & {
     size?: 'sm' | 'default' | 'lg' | number;
     unstyled?: boolean;
 };
@@ -1006,11 +1151,12 @@ export declare const Tooltip: typeof TooltipPrimitive.Root;
 
 export declare const TooltipCreateHandle: typeof TooltipPrimitive.createHandle;
 
-declare function TooltipPopup({ className, align, sideOffset, side, anchor, children, ...props }: TooltipPrimitive.Popup.Props & {
+declare function TooltipPopup({ className, align, sideOffset, side, anchor, children, portalProps, ...props }: TooltipPrimitive.Popup.Props & {
     align?: TooltipPrimitive.Positioner.Props['align'];
     side?: TooltipPrimitive.Positioner.Props['side'];
     sideOffset?: TooltipPrimitive.Positioner.Props['sideOffset'];
     anchor?: TooltipPrimitive.Positioner.Props['anchor'];
+    portalProps?: TooltipPrimitive.Portal.Props;
 }): default_2.ReactElement;
 export { TooltipPopup as TooltipContent }
 export { TooltipPopup }
@@ -1028,5 +1174,7 @@ export declare const useComboboxFilter: typeof ComboboxPrimitive.useFilter;
 export declare function useIsMobile(): boolean;
 
 export declare function useMediaQuery(query: BreakpointQuery | MediaQueryInput | (string & {})): boolean;
+
+export declare function useSidebar(): SidebarContextProps;
 
 export { }

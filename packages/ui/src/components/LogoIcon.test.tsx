@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 
-import { LogoIcon } from './logo-icon'
+import { LogoIcon } from './LogoIcon'
 
 describe('LogoIcon', () => {
   it('renders the logo icon with the default variant styles', () => {

@@ -10,14 +10,27 @@
     "pre-commit": "pnpm lint:fix && pnpm format:write && pnpm typecheck && pnpm build",
     "typecheck": "tsc --project tsconfig.src.json --noEmit"
   },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./react": {
+      "types": "./dist/react/index.d.ts",
+      "import": "./dist/react/index.js"
+    }
+  },
   "dependencies": {
     "zod": "^4.1.12"
   },
   "devDependencies": {
     "@eslint/js": "9.38.0",
     "@powercoach/config": "workspace:*",
+    "@testing-library/react": "^16.2.0",
     "@types/node": "^24.9.2",
     "@types/pg": "^8.15.6",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
     "@typescript-eslint/eslint-plugin": "^8.46.2",
     "@typescript-eslint/parser": "^8.46.2",
     "@vitest/coverage-v8": "^4.0.6",
@@ -26,9 +39,18 @@
     "eslint-plugin-import": "^2.32.0",
     "pg": "^8.16.3",
     "prettier": "^3.6.2",
+    "react": "^19.2.2",
+    "react-dom": "^19.2.2",
+    "react-router": "^7.14.0",
     "tsup": "^8.5.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.8"
+  },
+  "peerDependencies": {
+    "@testing-library/react": "^16.2.0",
+    "react": "^19.2.2",
+    "react-dom": "^19.2.2",
+    "react-router": "^7.14.0"
   },
   "types": "dist/index.d.ts",
   "engines": {
@@ -36,6 +58,20 @@
   },
   "files": ["dist", "node_modules"],
   "main": "dist/index.js",
+  "peerDependenciesMeta": {
+    "@testing-library/react": {
+      "optional": true
+    },
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    },
+    "react-router": {
+      "optional": true
+    }
+  },
   "private": true,
   "type": "module"
 }

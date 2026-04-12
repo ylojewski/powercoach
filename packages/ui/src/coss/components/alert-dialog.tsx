@@ -51,12 +51,14 @@ export function AlertDialogViewport({
 export function AlertDialogPopup({
   className,
   bottomStickOnMobile = true,
+  portalProps,
   ...props
 }: AlertDialogPrimitive.Popup.Props & {
   bottomStickOnMobile?: boolean
+  portalProps?: AlertDialogPrimitive.Portal.Props
 }): React.ReactElement {
   return (
-    <AlertDialogPortal>
+    <AlertDialogPortal {...portalProps}>
       <AlertDialogBackdrop />
       <AlertDialogViewport
         className={cn(bottomStickOnMobile && 'max-sm:grid-rows-[1fr_auto] max-sm:p-0 max-sm:pt-12')}
