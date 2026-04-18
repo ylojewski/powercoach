@@ -13,7 +13,7 @@ import Fastify, {
 import { Client } from 'pg'
 
 import { type Env, buildLoggerOptions, loadEnv, envSchema } from '@/src/core'
-import { healthModule } from '@/src/modules'
+import { coachesModule, healthModule } from '@/src/modules'
 import { helmetPlugin, sensiblePlugin } from '@/src/plugins'
 
 import { ajvOptions } from './ajvOptions'
@@ -31,15 +31,17 @@ export interface BuildAppOptions {
   env?: Env
 }
 
-export async function buildApp(options: BuildAppOptions = {}): Promise<AppFastifyInstance> {
-  const env = options.env
+function resolveEnv(options: BuildAppOptions): Env {
+  return options.env
     ? parseEnv(envSchema, options.env, ({ message }) => `Invalid environment: ${message}`)
     : loadEnv()
+}
+
+export function createBaseApp(env: Env): AppFastifyInstance {
   const loggerOptions = buildLoggerOptions({
     level: env.LOG_LEVEL,
     nodeEnv: env.NODE_ENV
   })
-  const { db, pg } = await createClient({ databaseUrl: env.DATABASE_URL })
   const app = Fastify({
     ajv: { customOptions: ajvOptions },
     disableRequestLogging: true,
@@ -51,19 +53,36 @@ export async function buildApp(options: BuildAppOptions = {}): Promise<AppFastif
 
   app.decorate('env', env)
 
-  app.decorate('db', db)
-  app.decorate('pg', pg)
-
   app.addHook('onRequest', async (request, reply) => {
     reply.header(REQUEST_ID_HEADER, request.id)
   })
+
+  return app
+}
+
+export async function registerCorePlugins(app: AppFastifyInstance): Promise<void> {
+  await app.register(helmetPlugin)
+  await app.register(sensiblePlugin)
+}
+
+export async function registerCoreModules(app: AppFastifyInstance): Promise<void> {
+  await app.register(coachesModule, { prefix: '/v1/coaches' })
+  await app.register(healthModule, { prefix: '/v1/health' })
+}
+
+export async function buildApp(options: BuildAppOptions = {}): Promise<AppFastifyInstance> {
+  const env = resolveEnv(options)
+  const { db, pg } = await createClient({ databaseUrl: env.DATABASE_URL })
+  const app = createBaseApp(env)
+
+  app.decorate('db', db)
+  app.decorate('pg', pg)
   app.addHook('onClose', async () => {
     await pg.end()
   })
 
-  await app.register(helmetPlugin)
-  await app.register(sensiblePlugin)
-  await app.register(healthModule, { prefix: '/v1/health' })
+  await registerCorePlugins(app)
+  await registerCoreModules(app)
 
   return app
 }

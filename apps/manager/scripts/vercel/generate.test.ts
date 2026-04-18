@@ -3,7 +3,7 @@ import { rmSync, mkdirSync, existsSync, readFileSync } from 'node:fs'
 const OUTPUT_DIR = 'dist' as const
 const OUTPUT_FILE = 'dist/vercel.json' as const
 
-describe('generateVercel', () => {
+describe('generate', () => {
   beforeAll(() => {
     vi.spyOn(console, 'info').mockImplementation(() => {
       /* NOOP */
@@ -25,7 +25,7 @@ describe('generateVercel', () => {
 
   it('generates a vercel.json file', async () => {
     vi.stubEnv('VITE_API_BASE_URL', 'http://localhost:8080')
-    await import('./vercelPrepare')
+    await import('./generate')
     expect(existsSync(OUTPUT_FILE)).toBe(true)
     expect(console.info).toHaveBeenCalledExactlyOnceWith('✅ dist/vercel.json')
     expect(JSON.parse(readFileSync(OUTPUT_FILE, 'utf-8'))).toMatchObject(
@@ -39,7 +39,7 @@ describe('generateVercel', () => {
 
   it('throws on missing env var', async () => {
     vi.stubEnv('VITE_API_BASE_URL', '')
-    await expect(import('./vercelPrepare')).rejects.toThrow(
+    await expect(import('./generate')).rejects.toThrow(
       /process.env.VITE_API_BASE_URL is not defined/i
     )
     expect(existsSync(OUTPUT_FILE)).toBe(false)
@@ -48,7 +48,7 @@ describe('generateVercel', () => {
   it('does not logs when --quiet', async () => {
     vi.stubEnv('VITE_API_BASE_URL', 'http://localhost:8080')
     vi.spyOn(process, 'argv', 'get').mockReturnValue(['--quiet'])
-    await import('./vercelPrepare')
+    await import('./generate')
     expect(console.info).not.toHaveBeenCalled()
   })
 })

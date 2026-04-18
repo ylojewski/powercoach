@@ -8,6 +8,8 @@ interface HorizontalPanelStyle extends React.CSSProperties {
   '--horizontal-panel-collapsed-width'?: string
   '--horizontal-panel-item-border-width'?: string
   '--horizontal-panel-item-count'?: string
+  '--horizontal-panel-trigger-label-hover-size'?: string
+  '--horizontal-panel-trigger-label-size'?: string
   '--horizontal-panel-trigger-width'?: string
 }
 
@@ -35,6 +37,8 @@ export function HorizontalPanel<Value = unknown>({
       'calc(var(--horizontal-panel-item-count) * (var(--horizontal-panel-trigger-width) + var(--horizontal-panel-item-border-width)))',
     '--horizontal-panel-item-border-width': '1px',
     '--horizontal-panel-item-count': String(panelCount),
+    '--horizontal-panel-trigger-label-hover-size': '1.125rem',
+    '--horizontal-panel-trigger-label-size': '1rem',
     '--horizontal-panel-trigger-width': '40px',
     ...style
   }
@@ -43,7 +47,7 @@ export function HorizontalPanel<Value = unknown>({
   return (
     <HorizontalPanelContext.Provider value={contextValue}>
       <Accordion.Root
-        className={cn('absolute inset-0 @container flex justify-end', className)}
+        className={cn('@container absolute inset-0 flex justify-end', className)}
         data-slot="accordion"
         style={horizontalPanelStyle}
         orientation="horizontal"
@@ -62,7 +66,7 @@ export function HorizontalPanelItem({
   return (
     <Accordion.Item
       className={cn(
-        'flex h-full border-l border-gray-200 [border-left-width:var(--horizontal-panel-item-border-width)] dark:border-gray-700',
+        'flex h-full border-l [border-left-width:var(--horizontal-panel-item-border-width)] border-gray-200 dark:border-gray-700',
         className
       )}
       data-slot="accordion-item"
@@ -100,7 +104,7 @@ export function HorizontalPanelTrigger({
         onClick={handleClick}
         {...props}
       >
-        <span className="absolute top-[calc(var(--horizontal-panel-trigger-width)/2-1rem)] left-1/2 rotate-90 origin-[0]">
+        <span className="absolute top-[calc(var(--horizontal-panel-trigger-width)/2-var(--horizontal-panel-trigger-label-size))] left-1/2 origin-[0] rotate-90">
           {children}
         </span>
         <span
@@ -116,7 +120,7 @@ export function HorizontalPanelTrigger({
             className="absolute inset-0 overflow-hidden text-background"
             data-slot="horizontal-panel-trigger-label"
           >
-            <span className="absolute top-[calc(var(--horizontal-panel-trigger-width)/2-1rem)] left-1/2 rotate-90 origin-[0] font-heading text-xl">
+            <span className="absolute top-[calc(var(--horizontal-panel-trigger-width)/2-var(--horizontal-panel-trigger-label-hover-size))] left-1/2 origin-[0] rotate-90 font-heading text-xl">
               {children}
             </span>
           </span>
@@ -135,14 +139,14 @@ export function HorizontalPanelContent({
     <Accordion.Panel
       className={cn(
         'overflow-hidden',
-        'w-[var(--accordion-panel-width)] data-[starting-style]:w-0  data-[ending-style]:w-0',
+        'w-[var(--accordion-panel-width)] data-[ending-style]:w-0 data-[starting-style]:w-0',
         'transition-[width] duration-300 ease-in-out',
         className
       )}
       data-slot="accordion-panel"
       {...props}
     >
-      <div className="w-[calc(100cqw-var(--horizontal-panel-collapsed-width))] h-full border-l border-gray-200 bg-background [border-left-width:var(--horizontal-panel-item-border-width)] dark:border-gray-700">
+      <div className="h-full w-[calc(100cqw-var(--horizontal-panel-collapsed-width))] border-l [border-left-width:var(--horizontal-panel-item-border-width)] border-gray-200 bg-background dark:border-gray-700">
         {children}
       </div>
     </Accordion.Panel>

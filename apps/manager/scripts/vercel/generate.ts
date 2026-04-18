@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from 'node:fs'
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 
 import { config } from 'dotenv'
 
@@ -14,6 +14,7 @@ for (const envVar of ENV_VARS) {
   content = content.replaceAll(`\${${envVar}}`, process.env[envVar])
 }
 
+mkdirSync('dist', { recursive: true })
 writeFileSync('dist/vercel.json', content, 'utf8')
 
 if (!process.argv.includes('--quiet')) {

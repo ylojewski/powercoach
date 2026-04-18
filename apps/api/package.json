@@ -2,12 +2,13 @@
   "name": "@powercoach/api",
   "version": "0.1.0",
   "scripts": {
-    "build": "tsup --config tsup.config.js",
+    "build": "tsup --config tsup.config.js && pnpm openapi:generate",
     "dev": "tsx watch --tsconfig tsconfig.src.json src/index.ts",
     "format": "prettier . --check",
     "format:write": "prettier . --write --list-different",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+    "openapi:generate": "tsx --tsconfig tsconfig.src.json scripts/openapi/generate.ts",
     "pre-commit": "pnpm lint:fix && pnpm format:write && pnpm typecheck && pnpm test && pnpm build",
     "test": "vitest run --coverage --reporter=verbose",
     "test:watch": "vitest",
@@ -15,10 +16,15 @@
     "typecheck:src": "tsc --project tsconfig.src.json --noEmit",
     "typecheck:test": "tsc --project tsconfig.test.json --noEmit"
   },
+  "exports": {
+    ".": "./dist/index.js",
+    "./openapi.json": "./dist/openapi.json"
+  },
   "dependencies": {
     "@fastify/ajv-compiler": "^4.0.5",
     "@fastify/helmet": "^13.0.2",
     "@fastify/sensible": "^6.0.3",
+    "@fastify/swagger": "^9.7.0",
     "@powercoach/db": "workspace:*",
     "@powercoach/util-env": "workspace:*",
     "@sinclair/typebox": "^0.34.41",

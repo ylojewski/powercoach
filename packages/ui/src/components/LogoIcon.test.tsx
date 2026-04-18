@@ -4,7 +4,7 @@ import { LogoIcon } from './LogoIcon'
 
 describe('LogoIcon', () => {
   it('renders the logo icon with the default variant styles', () => {
-    render(<LogoIcon data-testid="logo-icon" />)
+    render(<LogoIcon />)
 
     const logoIcon = screen.getByTestId('logo-icon')
     const className = logoIcon.getAttribute('class') ?? ''

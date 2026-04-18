@@ -25,5 +25,11 @@ export function LogoIcon({
   variant = 'black',
   ...props
 }: LogoIconProps): React.ReactElement {
-  return <LogoIconSVG className={cn(logoIconVariants({ variant }), className)} {...props} />
+  return (
+    <LogoIconSVG
+      className={cn(logoIconVariants({ variant }), className)}
+      {...props}
+      data-testid="logo-icon"
+    />
+  )
 }

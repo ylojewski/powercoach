@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 
-import { routerPaths } from '@/src/constants/router-paths'
+import { RouterPath } from '@/src/constants'
 
 import { Router } from './Router'
 
@@ -14,11 +14,11 @@ vi.mock('./NotFound', () => ({
 
 describe('Router', () => {
   beforeEach(() => {
-    window.history.pushState({}, '', routerPaths.home)
+    window.history.pushState({}, '', RouterPath.Home)
   })
 
   it('renders the layout on application routes', () => {
-    window.history.pushState({}, '', routerPaths.reviews)
+    window.history.pushState({}, '', RouterPath.Reviews)
     render(<Router />)
     expect(screen.getByText('Layout component')).toBeInTheDocument()
   })

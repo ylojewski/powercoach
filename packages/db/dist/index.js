@@ -2,7 +2,7 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { Client } from 'pg';
 import { envSchema as envSchema$1, createEnvLoader } from '@powercoach/util-env';
 import { z } from 'zod';
-import { pgTable, text, serial } from 'drizzle-orm/pg-core';
+import { pgTable, text, serial, integer, primaryKey } from 'drizzle-orm/pg-core';
 
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
@@ -31,12 +31,45 @@ async function createClient(options) {
   };
 }
 __name(createClient, "createClient");
+var coaches = pgTable("coaches", {
+  email: text("email").notNull().unique(),
+  firstName: text("first_name").notNull(),
+  id: serial("id").primaryKey(),
+  lastName: text("last_name").notNull(),
+  password: text("password").notNull()
+});
+
+// src/schema/athletes.ts
+var athletes = pgTable("athletes", {
+  coachId: integer("coach_id").notNull().references(() => coaches.id),
+  email: text("email").notNull().unique(),
+  firstName: text("first_name").notNull(),
+  id: serial("id").primaryKey(),
+  lastName: text("last_name").notNull(),
+  password: text("password").notNull()
+});
+var organizations = pgTable("organizations", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull()
+});
+
+// src/schema/coachOrganizations.ts
+var coachOrganizations = pgTable(
+  "coach_organizations",
+  {
+    coachId: integer("coach_id").notNull().references(() => coaches.id),
+    organizationId: integer("organization_id").notNull().references(() => organizations.id)
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.coachId, table.organizationId] })
+  })
+);
 var metadata = pgTable("metadata", {
   id: serial("id").primaryKey(),
   key: text("key").notNull(),
   value: text("value").notNull()
 });
 
-export { createClient, envSchema, loadEnv, metadata, resetCachedEnv };
+export { athletes, coachOrganizations, coaches, createClient, envSchema, loadEnv, metadata, organizations, resetCachedEnv };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map

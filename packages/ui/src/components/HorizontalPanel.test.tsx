@@ -26,6 +26,12 @@ describe('HorizontalPanel', () => {
 
     expect(horizontalPanel.style.getPropertyValue('--horizontal-panel-item-count')).toBe('2')
     expect(horizontalPanel.style.getPropertyValue('--horizontal-panel-trigger-width')).toBe('40px')
+    expect(horizontalPanel.style.getPropertyValue('--horizontal-panel-trigger-label-size')).toBe(
+      '1rem'
+    )
+    expect(
+      horizontalPanel.style.getPropertyValue('--horizontal-panel-trigger-label-hover-size')
+    ).toBe('1.125rem')
     expect(horizontalPanel.style.getPropertyValue('--horizontal-panel-item-border-width')).toBe(
       '1px'
     )
@@ -97,14 +103,16 @@ describe('HorizontalPanel', () => {
     expect(fillClassName).toContain('group-data-[panel-open]:translate-x-0')
     expect(labelClassName).toContain('text-background')
     expect(overlayLabelClassName).toContain(
-      'top-[calc(var(--horizontal-panel-trigger-width)/2-1rem)]'
+      'top-[calc(var(--horizontal-panel-trigger-width)/2-var(--horizontal-panel-trigger-label-hover-size))]'
     )
     expect(overlayLabelClassName).toContain('left-1/2')
     expect(overlayLabelClassName).toContain('font-heading')
     expect(overlayLabelClassName).toContain('origin-[0]')
     expect(overlayLabelClassName).toContain('rotate-90')
     expect(overlayLabelClassName).toContain('text-xl')
-    expect(baseLabelClassName).toContain('top-[calc(var(--horizontal-panel-trigger-width)/2-1rem)]')
+    expect(baseLabelClassName).toContain(
+      'top-[calc(var(--horizontal-panel-trigger-width)/2-var(--horizontal-panel-trigger-label-size))]'
+    )
     expect(baseLabelClassName).toContain('left-1/2')
     expect(baseLabelClassName).toContain('origin-[0]')
     expect(baseLabelClassName).toContain('rotate-90')
