@@ -4,27 +4,46 @@ import { type FastifyRequest } from 'fastify'
 import { z } from 'zod'
 
 import { type Env, resetCachedEnv } from '@/src/core'
-import { HEALTH_MODULE_NAME } from '@/src/modules'
-import { HELMET_PLUGIN_NAME, SENSIBLE_PLUGIN_NAME } from '@/src/plugins'
+import { COACHES_MODULE_NAME, HEALTH_MODULE_NAME, coachesModule, healthModule } from '@/src/modules'
+import {
+  HELMET_PLUGIN_NAME,
+  SENSIBLE_PLUGIN_NAME,
+  SWAGGER_PLUGIN_NAME,
+  helmetPlugin,
+  sensiblePlugin
+} from '@/src/plugins'
 import { createRealEnv, invalidEnv, testEnv } from '@/test/fixtures'
 import { getAjvOptions } from '@/test/utils'
 
 import { ajvOptions } from './ajvOptions'
-import { type AppFastifyInstance, buildApp } from './buildApp'
-import { REQUEST_ID_HEADER, REQUEST_ID_LOG_LABEL, REQUEST_MODULE_NAME } from './constants'
+import {
+  type AppFastifyInstance,
+  buildApp,
+  registerCoreModules,
+  registerCorePlugins
+} from './buildApp'
+import { REQUEST_ID_HEADER, REQUEST_ID_LOG_LABEL } from './constants'
 
 spyOnConsole(['error'])
-const env = createRealEnv()
 
 describe('buildApp', () => {
+  let databaseUrl: string | undefined
+
   beforeEach(() => {
+    databaseUrl ??= process.env.DATABASE_URL
+
     resetCachedEnv()
     vi.clearAllMocks()
     vi.unstubAllEnvs()
+
+    if (databaseUrl) {
+      vi.stubEnv('DATABASE_URL', databaseUrl)
+    }
   })
 
   describe('when using the passed configuration', () => {
     it('succeed if valid', async () => {
+      const env = createRealEnv()
       const app = await buildApp({ env })
       const endSpy = vi.spyOn(app.pg, 'end')
 
@@ -58,6 +77,7 @@ describe('buildApp', () => {
 
   describe('when using the environment configuration', () => {
     it('succeed if valid', async () => {
+      const env = createRealEnv()
       stubEnv(env)
       const app = await buildApp()
       await app.ready()
@@ -92,11 +112,12 @@ describe('buildApp', () => {
       await app.close()
     })
 
-    it('starts with a predefined set of options, plugins and modules', async () => {
+    it('starts with a predefined set of options', async () => {
       await app.ready()
       expect(getAjvOptions(app)).toStrictEqual<Options>(ajvOptions)
       expect(app.hasPlugin(HELMET_PLUGIN_NAME)).toBe(true)
       expect(app.hasPlugin(SENSIBLE_PLUGIN_NAME)).toBe(true)
+      expect(app.hasPlugin(COACHES_MODULE_NAME)).toBe(true)
       expect(app.hasPlugin(HEALTH_MODULE_NAME)).toBe(true)
     })
 
@@ -152,9 +173,39 @@ describe('buildApp', () => {
       )
     })
 
-    it('mounts the health module on /v1/health', async () => {
-      const { headers } = await app.inject({ url: '/v1/health' })
-      expect(headers[REQUEST_MODULE_NAME]).toBe(HEALTH_MODULE_NAME)
+    it('does not register swagger on the standard application instance', async () => {
+      await app.ready()
+
+      expect(app.hasPlugin(SWAGGER_PLUGIN_NAME)).toBe(false)
+      expect(() => app.swagger()).toThrow()
     })
+  })
+})
+
+describe('registerCorePlugins', () => {
+  it('registers the standard runtime plugins', async () => {
+    const app = {
+      register: vi.fn().mockResolvedValue(undefined)
+    } as unknown as AppFastifyInstance
+
+    await registerCorePlugins(app)
+
+    expect(app.register).toHaveBeenCalledTimes(2)
+    expect(app.register).toHaveBeenCalledWith(helmetPlugin)
+    expect(app.register).toHaveBeenCalledWith(sensiblePlugin)
+  })
+})
+
+describe('registerCoreModules', () => {
+  it('registers the core modules', async () => {
+    const app = {
+      register: vi.fn().mockResolvedValue(undefined)
+    } as unknown as AppFastifyInstance
+
+    await registerCoreModules(app)
+
+    expect(app.register).toHaveBeenCalledTimes(2)
+    expect(app.register).toHaveBeenCalledWith(coachesModule, { prefix: '/v1/coaches' })
+    expect(app.register).toHaveBeenCalledWith(healthModule, { prefix: '/v1/health' })
   })
 })

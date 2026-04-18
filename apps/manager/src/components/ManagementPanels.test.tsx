@@ -2,7 +2,7 @@ import { expectCollapsed, expectExpanded } from '@powercoach/util-test'
 import { renderWithRouter } from '@powercoach/util-test/react'
 import { fireEvent, screen } from '@testing-library/react'
 
-import { routerPaths } from '@/src/constants/router-paths'
+import { RouterPath } from '@/src/constants'
 
 import { ManagementPanels } from './ManagementPanels'
 
@@ -26,7 +26,7 @@ describe('ManagementPanels', () => {
   describe('when rendered on the home route', () => {
     beforeEach(() => {
       renderWithRouter(<ManagementPanels />, {
-        initialEntry: routerPaths.home,
+        initialEntry: RouterPath.Home,
         pathnameProbe: true
       })
 
@@ -35,18 +35,22 @@ describe('ManagementPanels', () => {
 
     it('renders the home route with all panels collapsed', () => {
       expect(allButtons).toEqual([programsButton, reviewsButton, metricsButton, notesButton])
+      expect(programsButton).toHaveAttribute('href', RouterPath.Programs)
+      expect(reviewsButton).toHaveAttribute('href', RouterPath.Reviews)
+      expect(metricsButton).toHaveAttribute('href', RouterPath.Metrics)
+      expect(notesButton).toHaveAttribute('href', RouterPath.Notes)
       expectCollapsed(metricsButton)
       expectCollapsed(notesButton)
       expectCollapsed(reviewsButton)
       expectCollapsed(programsButton)
-      expect(pathname).toHaveTextContent(routerPaths.home)
+      expect(pathname).toHaveTextContent(RouterPath.Home)
     })
   })
 
   describe('when rendered on the metrics route', () => {
     beforeEach(() => {
       renderWithRouter(<ManagementPanels />, {
-        initialEntry: routerPaths.metrics,
+        initialEntry: RouterPath.Metrics,
         pathnameProbe: true
       })
 
@@ -58,14 +62,14 @@ describe('ManagementPanels', () => {
       expectCollapsed(notesButton)
       expectCollapsed(reviewsButton)
       expectCollapsed(programsButton)
-      expect(pathname).toHaveTextContent(routerPaths.metrics)
+      expect(pathname).toHaveTextContent(RouterPath.Metrics)
     })
   })
 
   describe('when rendered on the notes route', () => {
     beforeEach(() => {
       renderWithRouter(<ManagementPanels />, {
-        initialEntry: routerPaths.notes,
+        initialEntry: RouterPath.Notes,
         pathnameProbe: true
       })
 
@@ -77,14 +81,14 @@ describe('ManagementPanels', () => {
       expectExpanded(notesButton)
       expectCollapsed(reviewsButton)
       expectCollapsed(programsButton)
-      expect(pathname).toHaveTextContent(routerPaths.notes)
+      expect(pathname).toHaveTextContent(RouterPath.Notes)
     })
   })
 
   describe('when rendered on the reviews route', () => {
     beforeEach(() => {
       renderWithRouter(<ManagementPanels />, {
-        initialEntry: routerPaths.reviews,
+        initialEntry: RouterPath.Reviews,
         pathnameProbe: true
       })
 
@@ -96,14 +100,14 @@ describe('ManagementPanels', () => {
       expectCollapsed(notesButton)
       expectExpanded(reviewsButton)
       expectCollapsed(programsButton)
-      expect(pathname).toHaveTextContent(routerPaths.reviews)
+      expect(pathname).toHaveTextContent(RouterPath.Reviews)
     })
 
     it('keeps the active panel open when its trigger is clicked', () => {
       fireEvent.click(reviewsButton)
 
       expectExpanded(reviewsButton)
-      expect(pathname).toHaveTextContent(routerPaths.reviews)
+      expect(pathname).toHaveTextContent(RouterPath.Reviews)
     })
 
     it('switches from reviews to programs when another panel is opened', () => {
@@ -113,14 +117,14 @@ describe('ManagementPanels', () => {
       expectCollapsed(notesButton)
       expectCollapsed(reviewsButton)
       expectExpanded(programsButton)
-      expect(pathname).toHaveTextContent(routerPaths.programs)
+      expect(pathname).toHaveTextContent(RouterPath.Programs)
     })
   })
 
   describe('when rendered on the programs route', () => {
     beforeEach(() => {
       renderWithRouter(<ManagementPanels />, {
-        initialEntry: routerPaths.programs,
+        initialEntry: RouterPath.Programs,
         pathnameProbe: true
       })
 
@@ -132,7 +136,7 @@ describe('ManagementPanels', () => {
       expectCollapsed(notesButton)
       expectCollapsed(reviewsButton)
       expectExpanded(programsButton)
-      expect(pathname).toHaveTextContent(routerPaths.programs)
+      expect(pathname).toHaveTextContent(RouterPath.Programs)
     })
   })
 })

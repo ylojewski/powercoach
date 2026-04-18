@@ -2,6 +2,7 @@
   "name": "powercoach",
   "version": "0.1.0",
   "scripts": {
+    "apps:sync": "pnpm --filter @powercoach/api openapi:generate && pnpm --filter @powercoach/manager store:generate",
     "build": "turbo build --concurrency=1",
     "clean": "rimraf --glob \"**/.turbo\" \"**/coverage\" \"apps/**/dist\" \"**/node_modules\"",
     "commitlint": "commitlint",

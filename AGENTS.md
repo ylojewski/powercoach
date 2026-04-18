@@ -6,10 +6,11 @@ This file defines the minimal rules that apply to every task in the Powercoach m
 
 ### Actions to take immediately
 
-**If the issue number is not specified in the prompt, do not start the task and ask for it**
+**1. If the issue number is not specified in the prompt, do not start the task and ask for it**
 
-**If the commit message is not specified in the prompt, do not start the task and ask for it**
+**2. If the commit message is not specified in the prompt, do not start the task and ask for it**
 
+**If and only if the first prompt starts with the /skip command : ignore 1 & 2, do not create any new branch (stay on the current branch), do not commit your changes, continue with the rest of this file. Do so without asking for another /skip command for the entire context**
 
 ---
 

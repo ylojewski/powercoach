@@ -1,5 +1,4 @@
 import { NodeEnv } from '@powercoach/util-env'
-import { inject } from 'vitest'
 
 import { Env } from '@/src/core'
 import { LogLevel } from '@/src/types'
@@ -42,8 +41,14 @@ export const tooBigPortEnv: Env = {
 } as const
 
 export function createRealEnv(env: 'production' | 'test' = 'test'): Env {
+  const { DATABASE_URL } = process.env
+
+  if (!DATABASE_URL) {
+    throw new Error('DATABASE_URL is not defined')
+  }
+
   return {
-    ...(env === 'production' ? productionEnv : env === 'test' ? testEnv : developmentEnv),
-    DATABASE_URL: inject('databaseUrl')
+    ...(env === 'production' ? productionEnv : testEnv),
+    DATABASE_URL
   }
 }

@@ -13,26 +13,32 @@ if (!pullSlug) {
     .replace(/^-+|-+$/g, '')
 }
 
-let execute: ((db: NodePgDatabase) => Promise<void>) | null = null
-let seed = ''
+const mainExecute = (await import(`@/src/seeds/main`)).execute
+const executedSeeds = ['main']
 
-try {
-  const path = `../src/seeds/${pullSlug}`
-  execute = (await import(path)).execute
-  seed = pullSlug
-} catch (error) {
-  console.log(`ℹ️ No "${pullSlug}" seeds found`)
-}
+let additiveExecute: ((db: NodePgDatabase) => Promise<void>) | null = null
 
-if (!execute) {
-  execute = (await import(`@/src/seeds/main`)).execute
-  seed = 'main'
+if (pullSlug && pullSlug !== 'main') {
+  try {
+    const path = `../src/seeds/${pullSlug}`
+    additiveExecute = (await import(path)).execute
+  } catch (error) {
+    console.log(`ℹ️ No "${pullSlug}" additive seed found`)
+  }
 }
 
 const { db, pg } = await createClient()
 
 try {
-  await execute(db)
+  await mainExecute(db)
+
+  if (additiveExecute) {
+    await additiveExecute(db)
+    executedSeeds.push(pullSlug)
+  }
+
+  const seed = executedSeeds.join('+')
+
   await db.insert(metadata).values({ key: 'seed', value: seed })
   await pg.end()
   console.log(`✅ Seed "${seed}" executed`)

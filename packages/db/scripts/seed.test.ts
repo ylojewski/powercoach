@@ -37,6 +37,7 @@ const BAD_SEED_CONTENT = `
 
 const simpleGitMock = simpleGit as MockedFunction<typeof simpleGit>
 const metadataMock = metadata as MockedObject<typeof metadata>
+const mainSeedExecuteMock = vi.fn()
 const branchMock = vi.fn().mockImplementation(() => ({ current: PULL_NAME }))
 const insertMock = vi.fn().mockImplementation(() => ({ values: valuesMock }))
 const valuesMock = vi.fn()
@@ -57,6 +58,10 @@ vi.mock('@/src/client', () => ({
 
 vi.mock('@/src/schema', () => ({
   metadata: {}
+}))
+
+vi.mock('@/src/seeds/main', () => ({
+  execute: mainSeedExecuteMock
 }))
 
 spyOnConsole(['log', 'error'])
@@ -85,31 +90,46 @@ describe('seed', () => {
     await import('./seed')
     expect(simpleGitMock).toHaveBeenCalledOnce()
     expect(branchMock).toHaveBeenCalledOnce()
-    expect(valuesMock).toHaveBeenCalledExactlyOnceWith({ key: 'seed', value: PULL_SLUG })
+    expect(mainSeedExecuteMock).toHaveBeenCalledOnce()
+    expect(valuesMock).toHaveBeenCalledExactlyOnceWith({ key: 'seed', value: `main+${PULL_SLUG}` })
   })
 
-  it('executes a seed based on the branch name', async () => {
+  it('executes the main seed before an additive branch seed', async () => {
     vi.stubEnv('PULL_SLUG', PULL_SLUG)
     await import('./seed')
     expect(simpleGitMock).not.toHaveBeenCalledOnce()
     expect(branchMock).not.toHaveBeenCalledOnce()
+    expect(mainSeedExecuteMock).toHaveBeenCalledOnce()
     expect(globalThis.seedImported).toBe(true)
     expect(globalThis.seedExecuted).toBe(true)
     expect(insertMock).toHaveBeenCalledWith(metadataMock)
-    expect(valuesMock).toHaveBeenCalledExactlyOnceWith({ key: 'seed', value: PULL_SLUG })
+    expect(valuesMock).toHaveBeenCalledExactlyOnceWith({ key: 'seed', value: `main+${PULL_SLUG}` })
     expect(endMock).toHaveBeenCalledOnce()
   })
 
-  it('executes the main seed if no branch seed is provided', async () => {
-    vi.stubEnv('PULL_SLUG', 'not-found')
-    await import('./seed')
-    expect(simpleGitMock).not.toHaveBeenCalledOnce()
-    expect(branchMock).not.toHaveBeenCalledOnce()
-    expect(globalThis.seedImported).toBe(false)
-    expect(globalThis.seedExecuted).toBe(false)
-    expect(insertMock).toHaveBeenCalledWith(metadataMock)
-    expect(valuesMock).toHaveBeenCalledExactlyOnceWith({ key: 'seed', value: 'main' })
-    expect(endMock).toHaveBeenCalledOnce()
+  describe('should execute only the main seed', () => {
+    function expectOnlyMainSeed() {
+      expect(simpleGitMock).not.toHaveBeenCalledOnce()
+      expect(branchMock).not.toHaveBeenCalledOnce()
+      expect(globalThis.seedImported).toBe(false)
+      expect(globalThis.seedExecuted).toBe(false)
+      expect(mainSeedExecuteMock).toHaveBeenCalledOnce()
+      expect(insertMock).toHaveBeenCalledWith(metadataMock)
+      expect(valuesMock).toHaveBeenCalledExactlyOnceWith({ key: 'seed', value: 'main' })
+      expect(endMock).toHaveBeenCalledOnce()
+    }
+
+    it('when no additive branch seed is provided', async () => {
+      vi.stubEnv('PULL_SLUG', 'not-found')
+      await import('./seed')
+      expectOnlyMainSeed()
+    })
+
+    it('when PULL_SLUG is "main"', async () => {
+      vi.stubEnv('PULL_SLUG', 'main')
+      await import('./seed')
+      expectOnlyMainSeed()
+    })
   })
 
   it('exits if a seed execution failed', async () => {
@@ -117,6 +137,7 @@ describe('seed', () => {
     await expect(import('./seed')).rejects.toThrow(new Error('seedError'))
     expect(simpleGitMock).not.toHaveBeenCalledOnce()
     expect(branchMock).not.toHaveBeenCalledOnce()
+    expect(mainSeedExecuteMock).toHaveBeenCalledOnce()
     expect(globalThis.seedImported).toBe(true)
     expect(globalThis.seedExecuted).toBe(true)
     expect(insertMock).not.toHaveBeenCalled()

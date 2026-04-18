@@ -5,7 +5,7 @@ import LogoSVG from '@/src/assets/logo.svg?react'
 import { cn } from '@/src/coss'
 
 export const logoVariants = cva(
-  '[&_.power]:fill-amber-500 [&_.plate-left]:fill-amber-500 [&_.extrusion]:fill-black',
+  '[&_.extrusion]:fill-black [&_.plate-left]:fill-amber-500 [&_.power]:fill-amber-500',
   {
     defaultVariants: {
       variant: 'black'

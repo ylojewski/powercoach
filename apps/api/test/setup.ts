@@ -8,28 +8,22 @@ const testDatabaseName = `test_${randomUUID()}` as const
 let testClient: Client
 
 beforeAll(async () => {
-  const databaseUrl = inject('databaseUrl')
-  const client = new Client({ connectionString: databaseUrl })
+  const adminDatabaseUrl = inject('adminDatabaseUrl')
+  const adminClient = new Client({ connectionString: adminDatabaseUrl })
 
-  await client.connect()
-  await client.query(`CREATE DATABASE "${testDatabaseName}"`)
-  await client.end()
+  await adminClient.connect()
+  await adminClient.query(`CREATE DATABASE "${testDatabaseName}"`)
+  await adminClient.end()
 
-  const testDatabaseUrl = databaseUrl.replace(/\/[^/]+$/, `/${testDatabaseName}`)
+  const testDatabaseUrl = adminDatabaseUrl.replace(/\/[^/]+$/, `/${testDatabaseName}`)
 
   testClient = new Client({ connectionString: testDatabaseUrl })
   vi.stubEnv('DATABASE_URL', testDatabaseUrl)
 
-  await execa('pnpm', ['--filter', '@powercoach/db', 'migrate'], { env: process.env })
-  await execa('pnpm', ['--filter', '@powercoach/db', 'seed'], { env: process.env })
+  await execa('pnpm', ['--filter', '@powercoach/db', 'db:migrate'], { env: process.env })
+  await execa('pnpm', ['--filter', '@powercoach/db', 'db:seed'], { env: process.env })
 })
 
 afterAll(async () => {
   await testClient.end()
-
-  const adminClient = new Client({ connectionString: inject('databaseUrl') })
-
-  await adminClient.connect()
-  await adminClient.query(`DROP DATABASE IF EXISTS "${testDatabaseName}"`)
-  await adminClient.end()
 })

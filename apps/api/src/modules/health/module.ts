@@ -7,13 +7,14 @@ import { registerHealthRoutes } from './routes'
 import { healthResponseSchema } from './schemas'
 
 export const HEALTH_MODULE_NAME = 'powercoach.health.module' as const
+export const HEALTH_MODULE_TAG = 'health' as const
 
 export const healthModuleCore: FastifyPluginAsync = async (app) => {
   app.addSchema(healthResponseSchema)
   app.addHook('onRequest', async (_, reply) => {
     reply.header(REQUEST_MODULE_NAME, HEALTH_MODULE_NAME)
   })
-  registerHealthRoutes(app)
+  registerHealthRoutes(app, HEALTH_MODULE_TAG)
 }
 
 export const healthModule = fastifyPlugin(healthModuleCore, {

@@ -3,9 +3,12 @@ import { defineConfig } from 'tsup'
 
 import pkg from './package.json'
 
-export default defineConfig(
-  buildConfig({
+export default defineConfig({
+  ...buildConfig({
     ...pkg,
     main: 'src/index.ts'
-  })
-)
+  }),
+  define: {
+    'process.env.npm_package_version': JSON.stringify(pkg.version)
+  }
+})

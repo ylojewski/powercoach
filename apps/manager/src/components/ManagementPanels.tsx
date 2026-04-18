@@ -4,49 +4,76 @@ import {
   HorizontalPanelItem,
   HorizontalPanelTrigger
 } from '@powercoach/ui'
-import { type ReactElement } from 'react'
-import { useLocation, useNavigate } from 'react-router'
+import { type ReactElement, type ReactNode } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router'
 
-import { panelPaths, routerPaths, type PanelPath } from '@/src/constants/router-paths'
+import { RouterPath } from '@/src/constants'
 
 import { Metrics } from './Metrics'
 import { Notes } from './Notes'
 import { Programs } from './Programs'
 import { Reviews } from './Reviews'
 
+interface ManagementPanelsLinkProps {
+  children: ReactNode
+  to: RouterPath
+}
+
+function ManagementPanelsLink({ children, to }: ManagementPanelsLinkProps): ReactElement {
+  return (
+    <HorizontalPanelTrigger nativeButton={false} render={<Link to={to} />}>
+      {children}
+    </HorizontalPanelTrigger>
+  )
+}
+
 export function ManagementPanels(): ReactElement {
   const location = useLocation()
   const navigate = useNavigate()
 
-  const activePanel = panelPaths.find((panelPath) => panelPath === location.pathname)
+  const activePanel = (() => {
+    switch (location.pathname) {
+      case RouterPath.Programs:
+      case RouterPath.Reviews:
+      case RouterPath.Metrics:
+      case RouterPath.Notes:
+        return location.pathname
+      default:
+        return undefined
+    }
+  })()
   const value = activePanel ? [activePanel] : []
 
-  const handleValueChange = ([panelPath]: PanelPath[]): void => {
-    navigate(panelPath as PanelPath)
+  const handleValueChange = ([routerPath]: RouterPath[]): void => {
+    navigate(routerPath as RouterPath)
   }
 
   return (
-    <HorizontalPanel<PanelPath> collapsible={false} onValueChange={handleValueChange} value={value}>
-      <HorizontalPanelItem value={routerPaths.programs}>
-        <HorizontalPanelTrigger>programs</HorizontalPanelTrigger>
+    <HorizontalPanel<RouterPath>
+      collapsible={false}
+      onValueChange={handleValueChange}
+      value={value}
+    >
+      <HorizontalPanelItem value={RouterPath.Programs}>
+        <ManagementPanelsLink to={RouterPath.Programs}>programs</ManagementPanelsLink>
         <HorizontalPanelContent>
           <Programs />
         </HorizontalPanelContent>
       </HorizontalPanelItem>
-      <HorizontalPanelItem value={routerPaths.reviews}>
-        <HorizontalPanelTrigger>reviews</HorizontalPanelTrigger>
+      <HorizontalPanelItem value={RouterPath.Reviews}>
+        <ManagementPanelsLink to={RouterPath.Reviews}>reviews</ManagementPanelsLink>
         <HorizontalPanelContent>
           <Reviews />
         </HorizontalPanelContent>
       </HorizontalPanelItem>
-      <HorizontalPanelItem value={routerPaths.metrics}>
-        <HorizontalPanelTrigger>metrics</HorizontalPanelTrigger>
+      <HorizontalPanelItem value={RouterPath.Metrics}>
+        <ManagementPanelsLink to={RouterPath.Metrics}>metrics</ManagementPanelsLink>
         <HorizontalPanelContent>
           <Metrics />
         </HorizontalPanelContent>
       </HorizontalPanelItem>
-      <HorizontalPanelItem value={routerPaths.notes}>
-        <HorizontalPanelTrigger>notes</HorizontalPanelTrigger>
+      <HorizontalPanelItem value={RouterPath.Notes}>
+        <ManagementPanelsLink to={RouterPath.Notes}>notes</ManagementPanelsLink>
         <HorizontalPanelContent>
           <Notes />
         </HorizontalPanelContent>

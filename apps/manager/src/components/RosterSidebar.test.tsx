@@ -1,44 +1,89 @@
 import { renderWithRouter } from '@powercoach/util-test/react'
 import { fireEvent, screen } from '@testing-library/react'
+import { Provider } from 'react-redux'
 
-import { routerPaths } from '@/src/constants/router-paths'
+import { RouterPath } from '@/src/constants'
+import {
+  AUTHENTICATED_COACH_EMAIL,
+  createStore,
+  type GetCurrentCoachContextApiResponse
+} from '@/src/store'
 
 import { RosterSidebar } from './RosterSidebar'
 
-vi.mock('@powercoach/ui', () => ({
-  LogoIcon: () => <svg data-testid="logo-icon" />
-}))
+const rosterResponse: GetCurrentCoachContextApiResponse = {
+  athletes: [
+    {
+      email: 'kiro.flux@example.test',
+      firstName: 'Kiro',
+      id: 11,
+      lastName: 'Flux'
+    },
+    {
+      email: 'nexa.vale@example.test',
+      firstName: 'Nexa',
+      id: 12,
+      lastName: 'Vale'
+    }
+  ],
+  coach: {
+    email: AUTHENTICATED_COACH_EMAIL,
+    firstName: 'Astra',
+    id: 10,
+    lastName: 'Quill'
+  },
+  organizations: [{ id: 1, name: 'Orbit Foundry' }]
+}
+
+function renderRosterSidebar(initialEntry = RouterPath.Home) {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockResolvedValue(
+      new Response(JSON.stringify(rosterResponse), {
+        headers: { 'Content-Type': 'application/json' },
+        status: 200
+      })
+    )
+  )
+
+  return renderWithRouter(
+    <Provider store={createStore()}>
+      <RosterSidebar />
+    </Provider>,
+    {
+      initialEntry,
+      pathnameProbe: true
+    }
+  )
+}
 
 describe('RosterSidebar', () => {
-  it('renders the logo icon with padding and the viewport height', () => {
-    const { container } = renderWithRouter(<RosterSidebar />)
-
-    const rosterSidebar = container.querySelector('aside')
-    const logoIcon = screen.getByTestId('logo-icon')
-    const homeLink = screen.getByRole('link', { name: 'Powercoach home' })
-
-    expect(rosterSidebar).not.toBeNull()
-
-    if (!rosterSidebar) {
-      throw new Error('Roster sidebar not found')
-    }
-
-    expect(rosterSidebar).toHaveClass('h-screen')
-    expect(rosterSidebar).toHaveClass('p-4')
-    expect(homeLink).toContainElement(logoIcon)
+  afterEach(() => {
+    vi.resetAllMocks()
+    vi.unstubAllGlobals()
   })
 
-  it('navigates to the home route when the logo is clicked', () => {
-    renderWithRouter(<RosterSidebar />, {
-      initialEntry: routerPaths.reviews,
-      pathnameProbe: true
-    })
+  it('renders the logo, organization, coach and athlete avatars', async () => {
+    renderRosterSidebar()
+    expect(screen.getByTestId('roster-logo')).toContainElement(screen.getByTestId('logo-icon'))
+    expect(await screen.findByLabelText('Orbit Foundry')).toBeInTheDocument()
+    expect(screen.getByLabelText('Astra Quill')).toBeInTheDocument()
+    expect(screen.getByLabelText('Kiro Flux')).toBeInTheDocument()
+    expect(screen.getByLabelText('Nexa Vale')).toBeInTheDocument()
+  })
 
-    const homeLink = screen.getByRole('link', { name: 'Powercoach home' })
-    const pathname = screen.getByTestId('pathname')
+  it('navigates to home when the logo is clicked', async () => {
+    renderRosterSidebar(RouterPath.Reviews)
+    await screen.findByLabelText('Orbit Foundry')
+    fireEvent.click(screen.getByTestId('roster-logo'))
+    expect(screen.getByTestId('pathname')).toHaveTextContent(RouterPath.Home)
+  })
 
-    fireEvent.click(homeLink)
-
-    expect(pathname).toHaveTextContent(routerPaths.home)
+  it('navigates to home when a roster avatar is clicked', async () => {
+    renderRosterSidebar(RouterPath.Reviews)
+    const organizationLinks = await screen.findAllByTestId('roster-organization')
+    expect(organizationLinks.length).toBeGreaterThanOrEqual(1)
+    fireEvent.click(organizationLinks[0] as HTMLElement)
+    expect(screen.getByTestId('pathname')).toHaveTextContent(RouterPath.Home)
   })
 })
