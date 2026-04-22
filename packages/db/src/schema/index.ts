@@ -1,5 +1,6 @@
 export * from './athletes'
 export * from './coachOrganizations'
+export * from './coachSettings'
 export * from './coaches'
 export * from './metadata'
 export * from './organizations'

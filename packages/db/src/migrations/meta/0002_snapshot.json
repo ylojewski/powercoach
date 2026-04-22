@@ -1,0 +1,311 @@
+{
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  },
+  "dialect": "postgresql",
+  "enums": {},
+  "id": "8c243c5c-8eeb-4d83-b140-9a263cd45a7b",
+  "policies": {},
+  "prevId": "d5a54862-007a-4fee-a496-6ecb28bd897b",
+  "roles": {},
+  "schemas": {},
+  "sequences": {},
+  "tables": {
+    "public.athletes": {
+      "checkConstraints": {},
+      "columns": {
+        "coach_id": {
+          "name": "coach_id",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "integer"
+        },
+        "email": {
+          "name": "email",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "first_name": {
+          "name": "first_name",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "id": {
+          "name": "id",
+          "notNull": true,
+          "primaryKey": true,
+          "type": "serial"
+        },
+        "last_name": {
+          "name": "last_name",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "organization_id": {
+          "name": "organization_id",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "integer"
+        },
+        "password": {
+          "name": "password",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "text"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "foreignKeys": {
+        "athletes_coach_id_coaches_id_fk": {
+          "columnsFrom": ["coach_id"],
+          "columnsTo": ["id"],
+          "name": "athletes_coach_id_coaches_id_fk",
+          "onDelete": "no action",
+          "onUpdate": "no action",
+          "tableFrom": "athletes",
+          "tableTo": "coaches"
+        },
+        "athletes_coach_organization_fk": {
+          "columnsFrom": ["coach_id", "organization_id"],
+          "columnsTo": ["coach_id", "organization_id"],
+          "name": "athletes_coach_organization_fk",
+          "onDelete": "no action",
+          "onUpdate": "no action",
+          "tableFrom": "athletes",
+          "tableTo": "coach_organizations"
+        },
+        "athletes_organization_id_organizations_id_fk": {
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
+          "name": "athletes_organization_id_organizations_id_fk",
+          "onDelete": "no action",
+          "onUpdate": "no action",
+          "tableFrom": "athletes",
+          "tableTo": "organizations"
+        }
+      },
+      "indexes": {},
+      "isRLSEnabled": false,
+      "name": "athletes",
+      "policies": {},
+      "schema": "",
+      "uniqueConstraints": {
+        "athletes_email_unique": {
+          "columns": ["email"],
+          "name": "athletes_email_unique",
+          "nullsNotDistinct": false
+        }
+      }
+    },
+    "public.coach_organizations": {
+      "checkConstraints": {},
+      "columns": {
+        "coach_id": {
+          "name": "coach_id",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "integer"
+        },
+        "organization_id": {
+          "name": "organization_id",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "integer"
+        }
+      },
+      "compositePrimaryKeys": {
+        "coach_organizations_coach_id_organization_id_pk": {
+          "columns": ["coach_id", "organization_id"],
+          "name": "coach_organizations_coach_id_organization_id_pk"
+        }
+      },
+      "foreignKeys": {
+        "coach_organizations_coach_id_coaches_id_fk": {
+          "columnsFrom": ["coach_id"],
+          "columnsTo": ["id"],
+          "name": "coach_organizations_coach_id_coaches_id_fk",
+          "onDelete": "no action",
+          "onUpdate": "no action",
+          "tableFrom": "coach_organizations",
+          "tableTo": "coaches"
+        },
+        "coach_organizations_organization_id_organizations_id_fk": {
+          "columnsFrom": ["organization_id"],
+          "columnsTo": ["id"],
+          "name": "coach_organizations_organization_id_organizations_id_fk",
+          "onDelete": "no action",
+          "onUpdate": "no action",
+          "tableFrom": "coach_organizations",
+          "tableTo": "organizations"
+        }
+      },
+      "indexes": {},
+      "isRLSEnabled": false,
+      "name": "coach_organizations",
+      "policies": {},
+      "schema": "",
+      "uniqueConstraints": {}
+    },
+    "public.coach_settings": {
+      "checkConstraints": {},
+      "columns": {
+        "coach_id": {
+          "name": "coach_id",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "integer"
+        },
+        "default_organization_id": {
+          "name": "default_organization_id",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "integer"
+        }
+      },
+      "compositePrimaryKeys": {
+        "coach_settings_coach_id_pk": {
+          "columns": ["coach_id"],
+          "name": "coach_settings_coach_id_pk"
+        }
+      },
+      "foreignKeys": {
+        "coach_settings_coach_id_coaches_id_fk": {
+          "columnsFrom": ["coach_id"],
+          "columnsTo": ["id"],
+          "name": "coach_settings_coach_id_coaches_id_fk",
+          "onDelete": "no action",
+          "onUpdate": "no action",
+          "tableFrom": "coach_settings",
+          "tableTo": "coaches"
+        },
+        "coach_settings_default_organization_fk": {
+          "columnsFrom": ["coach_id", "default_organization_id"],
+          "columnsTo": ["coach_id", "organization_id"],
+          "name": "coach_settings_default_organization_fk",
+          "onDelete": "no action",
+          "onUpdate": "no action",
+          "tableFrom": "coach_settings",
+          "tableTo": "coach_organizations"
+        }
+      },
+      "indexes": {},
+      "isRLSEnabled": false,
+      "name": "coach_settings",
+      "policies": {},
+      "schema": "",
+      "uniqueConstraints": {}
+    },
+    "public.coaches": {
+      "checkConstraints": {},
+      "columns": {
+        "email": {
+          "name": "email",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "first_name": {
+          "name": "first_name",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "id": {
+          "name": "id",
+          "notNull": true,
+          "primaryKey": true,
+          "type": "serial"
+        },
+        "last_name": {
+          "name": "last_name",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "password": {
+          "name": "password",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "text"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "foreignKeys": {},
+      "indexes": {},
+      "isRLSEnabled": false,
+      "name": "coaches",
+      "policies": {},
+      "schema": "",
+      "uniqueConstraints": {
+        "coaches_email_unique": {
+          "columns": ["email"],
+          "name": "coaches_email_unique",
+          "nullsNotDistinct": false
+        }
+      }
+    },
+    "public.metadata": {
+      "checkConstraints": {},
+      "columns": {
+        "id": {
+          "name": "id",
+          "notNull": true,
+          "primaryKey": true,
+          "type": "serial"
+        },
+        "key": {
+          "name": "key",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "value": {
+          "name": "value",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "text"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "foreignKeys": {},
+      "indexes": {},
+      "isRLSEnabled": false,
+      "name": "metadata",
+      "policies": {},
+      "schema": "",
+      "uniqueConstraints": {}
+    },
+    "public.organizations": {
+      "checkConstraints": {},
+      "columns": {
+        "id": {
+          "name": "id",
+          "notNull": true,
+          "primaryKey": true,
+          "type": "serial"
+        },
+        "name": {
+          "name": "name",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "text"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "foreignKeys": {},
+      "indexes": {},
+      "isRLSEnabled": false,
+      "name": "organizations",
+      "policies": {},
+      "schema": "",
+      "uniqueConstraints": {}
+    }
+  },
+  "version": "7",
+  "views": {}
+}

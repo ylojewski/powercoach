@@ -6,24 +6,27 @@ import { RouterPath } from '@/src/constants'
 import {
   AUTHENTICATED_COACH_EMAIL,
   createStore,
-  type GetCurrentCoachContextApiResponse
+  type GetCurrentSettingsApiResponse,
+  type GetCurrentRosterApiResponse
 } from '@/src/store'
 
 import { RosterSidebar } from './RosterSidebar'
 
-const rosterResponse: GetCurrentCoachContextApiResponse = {
+const rosterResponse: GetCurrentRosterApiResponse = {
   athletes: [
     {
       email: 'kiro.flux@example.test',
       firstName: 'Kiro',
       id: 11,
-      lastName: 'Flux'
+      lastName: 'Flux',
+      organizationId: 1
     },
     {
       email: 'nexa.vale@example.test',
       firstName: 'Nexa',
       id: 12,
-      lastName: 'Vale'
+      lastName: 'Vale',
+      organizationId: 1
     }
   ],
   coach: {
@@ -35,15 +38,25 @@ const rosterResponse: GetCurrentCoachContextApiResponse = {
   organizations: [{ id: 1, name: 'Orbit Foundry' }]
 }
 
+const settingsResponse: GetCurrentSettingsApiResponse = {
+  defaultOrganizationId: 1
+}
+
 function renderRosterSidebar(initialEntry = RouterPath.Home) {
   vi.stubGlobal(
     'fetch',
-    vi.fn().mockResolvedValue(
-      new Response(JSON.stringify(rosterResponse), {
-        headers: { 'Content-Type': 'application/json' },
-        status: 200
-      })
-    )
+    vi.fn().mockImplementation((input: URL | RequestInfo) => {
+      const url =
+        typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url
+      const payload = url.endsWith('/v1/settings/me') ? settingsResponse : rosterResponse
+
+      return Promise.resolve(
+        new Response(JSON.stringify(payload), {
+          headers: { 'Content-Type': 'application/json' },
+          status: 200
+        })
+      )
+    })
   )
 
   return renderWithRouter(

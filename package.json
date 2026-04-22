@@ -6,6 +6,7 @@
     "build": "turbo build --concurrency=1",
     "clean": "rimraf --glob \"**/.turbo\" \"**/coverage\" \"apps/**/dist\" \"**/node_modules\"",
     "commitlint": "commitlint",
+    "db:studio": "pnpm --filter @powercoach/db db:studio",
     "deploy:api": "pnpm deploy --legacy --filter @powercoach/api --prod --ignore-scripts deploy/api",
     "dev": "turbo dev",
     "format": "prettier . --check && turbo format --concurrency=1",
