@@ -2,7 +2,7 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { Client } from 'pg';
 import { envSchema as envSchema$1, createEnvLoader } from '@powercoach/util-env';
 import { z } from 'zod';
-import { pgTable, text, serial, integer, primaryKey } from 'drizzle-orm/pg-core';
+import { pgTable, text, serial, integer, primaryKey, foreignKey } from 'drizzle-orm/pg-core';
 
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
@@ -38,16 +38,6 @@ var coaches = pgTable("coaches", {
   lastName: text("last_name").notNull(),
   password: text("password").notNull()
 });
-
-// src/schema/athletes.ts
-var athletes = pgTable("athletes", {
-  coachId: integer("coach_id").notNull().references(() => coaches.id),
-  email: text("email").notNull().unique(),
-  firstName: text("first_name").notNull(),
-  id: serial("id").primaryKey(),
-  lastName: text("last_name").notNull(),
-  password: text("password").notNull()
-});
 var organizations = pgTable("organizations", {
   id: serial("id").primaryKey(),
   name: text("name").notNull()
@@ -64,12 +54,48 @@ var coachOrganizations = pgTable(
     pk: primaryKey({ columns: [table.coachId, table.organizationId] })
   })
 );
+
+// src/schema/athletes.ts
+var athletes = pgTable(
+  "athletes",
+  {
+    coachId: integer("coach_id").notNull().references(() => coaches.id),
+    email: text("email").notNull().unique(),
+    firstName: text("first_name").notNull(),
+    id: serial("id").primaryKey(),
+    lastName: text("last_name").notNull(),
+    organizationId: integer("organization_id").notNull().references(() => organizations.id),
+    password: text("password").notNull()
+  },
+  (table) => ({
+    coachOrganizationFk: foreignKey({
+      columns: [table.coachId, table.organizationId],
+      foreignColumns: [coachOrganizations.coachId, coachOrganizations.organizationId],
+      name: "athletes_coach_organization_fk"
+    })
+  })
+);
+var coachSettings = pgTable(
+  "coach_settings",
+  {
+    coachId: integer("coach_id").notNull().references(() => coaches.id),
+    defaultOrganizationId: integer("default_organization_id").notNull()
+  },
+  (table) => ({
+    defaultOrganizationFk: foreignKey({
+      columns: [table.coachId, table.defaultOrganizationId],
+      foreignColumns: [coachOrganizations.coachId, coachOrganizations.organizationId],
+      name: "coach_settings_default_organization_fk"
+    }),
+    pk: primaryKey({ columns: [table.coachId] })
+  })
+);
 var metadata = pgTable("metadata", {
   id: serial("id").primaryKey(),
   key: text("key").notNull(),
   value: text("value").notNull()
 });
 
-export { athletes, coachOrganizations, coaches, createClient, envSchema, loadEnv, metadata, organizations, resetCachedEnv };
+export { athletes, coachOrganizations, coachSettings, coaches, createClient, envSchema, loadEnv, metadata, organizations, resetCachedEnv };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map

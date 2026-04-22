@@ -1,2 +1,3 @@
-export * from './coaches'
+export * from './roster'
+export * from './settings'
 export * from './health'

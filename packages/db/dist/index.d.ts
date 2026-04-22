@@ -115,6 +115,23 @@ declare const athletes: drizzle_orm_pg_core.PgTableWithColumns<{
             identity: undefined;
             generated: undefined;
         }, {}, {}>;
+        organizationId: drizzle_orm_pg_core.PgColumn<{
+            name: "organization_id";
+            tableName: "athletes";
+            dataType: "number";
+            columnType: "PgInteger";
+            data: number;
+            driverParam: string | number;
+            notNull: true;
+            hasDefault: false;
+            isPrimaryKey: false;
+            isAutoincrement: false;
+            hasRuntimeDefault: false;
+            enumValues: undefined;
+            baseColumn: never;
+            identity: undefined;
+            generated: undefined;
+        }, {}, {}>;
         password: drizzle_orm_pg_core.PgColumn<{
             name: "password";
             tableName: "athletes";
@@ -160,6 +177,48 @@ declare const coachOrganizations: drizzle_orm_pg_core.PgTableWithColumns<{
         organizationId: drizzle_orm_pg_core.PgColumn<{
             name: "organization_id";
             tableName: "coach_organizations";
+            dataType: "number";
+            columnType: "PgInteger";
+            data: number;
+            driverParam: string | number;
+            notNull: true;
+            hasDefault: false;
+            isPrimaryKey: false;
+            isAutoincrement: false;
+            hasRuntimeDefault: false;
+            enumValues: undefined;
+            baseColumn: never;
+            identity: undefined;
+            generated: undefined;
+        }, {}, {}>;
+    };
+    dialect: "pg";
+}>;
+
+declare const coachSettings: drizzle_orm_pg_core.PgTableWithColumns<{
+    name: "coach_settings";
+    schema: undefined;
+    columns: {
+        coachId: drizzle_orm_pg_core.PgColumn<{
+            name: "coach_id";
+            tableName: "coach_settings";
+            dataType: "number";
+            columnType: "PgInteger";
+            data: number;
+            driverParam: string | number;
+            notNull: true;
+            hasDefault: false;
+            isPrimaryKey: false;
+            isAutoincrement: false;
+            hasRuntimeDefault: false;
+            enumValues: undefined;
+            baseColumn: never;
+            identity: undefined;
+            generated: undefined;
+        }, {}, {}>;
+        defaultOrganizationId: drizzle_orm_pg_core.PgColumn<{
+            name: "default_organization_id";
+            tableName: "coach_settings";
             dataType: "number";
             columnType: "PgInteger";
             data: number;
@@ -372,4 +431,4 @@ declare const organizations: drizzle_orm_pg_core.PgTableWithColumns<{
     dialect: "pg";
 }>;
 
-export { type CreateClientOptions, type Env, athletes, coachOrganizations, coaches, createClient, envSchema, loadEnv, metadata, organizations, resetCachedEnv };
+export { type CreateClientOptions, type Env, athletes, coachOrganizations, coachSettings, coaches, createClient, envSchema, loadEnv, metadata, organizations, resetCachedEnv };

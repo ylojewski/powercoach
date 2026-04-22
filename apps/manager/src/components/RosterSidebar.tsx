@@ -3,7 +3,7 @@ import { type ReactElement } from 'react'
 import { Link } from 'react-router'
 
 import { RouterPath } from '@/src/constants'
-import { useGetCurrentCoachContextQuery } from '@/src/store'
+import { useGetCurrentRosterQuery, useGetCurrentSettingsQuery } from '@/src/store'
 import { getInitials } from '@/src/utils'
 
 interface RosterSidebarAvatarProps {
@@ -31,7 +31,19 @@ function RosterSidebarAvatar({ initials, label }: RosterSidebarAvatarProps): Rea
 }
 
 export function RosterSidebar(): ReactElement {
-  const { data, isLoading } = useGetCurrentCoachContextQuery()
+  const rosterQuery = useGetCurrentRosterQuery({})
+  const settingsQuery = useGetCurrentSettingsQuery()
+
+  const data = {
+    ...(rosterQuery.data && { roster: rosterQuery.data }),
+    ...(settingsQuery.data && { settings: settingsQuery.data })
+  }
+
+  const isLoading = rosterQuery.isLoading && settingsQuery.isLoading
+
+  const defaultOrganization = data.roster?.organizations.find(
+    ({ id }) => id === data.settings?.defaultOrganizationId
+  )
 
   return (
     <aside className="flex h-screen shrink-0 flex-col items-center gap-4">
@@ -45,32 +57,32 @@ export function RosterSidebar(): ReactElement {
       </Link>
       <RosterSidebarSeparator />
 
-      {data && !isLoading && (
+      {data.roster && data.settings && !isLoading && (
         <>
-          {data.organizations.map((organization) => (
+          {defaultOrganization && (
             <Link
               aria-label="Powercoach home"
               data-testid="roster-organization"
-              key={organization.id}
+              key={defaultOrganization.id}
               to={RouterPath.Home}
             >
               <RosterSidebarAvatar
-                initials={getInitials(organization.name)}
-                label={organization.name}
+                initials={getInitials(defaultOrganization.name)}
+                label={defaultOrganization.name}
               />
             </Link>
-          ))}
+          )}
           <RosterSidebarSeparator />
 
           <Link aria-label="Powercoach home" to={RouterPath.Home} data-testid="roster-coach">
             <RosterSidebarAvatar
-              initials={getInitials(`${data.coach.firstName} ${data.coach.lastName}`)}
-              label={`${data.coach.firstName} ${data.coach.lastName}`}
+              initials={getInitials(`${data.roster.coach.firstName} ${data.roster.coach.lastName}`)}
+              label={`${data.roster.coach.firstName} ${data.roster.coach.lastName}`}
             />
           </Link>
           <RosterSidebarSeparator />
 
-          {data.athletes.map((athlete) => (
+          {data.roster.athletes.map((athlete) => (
             <Link
               aria-label="Powercoach home"
               data-testid="roster-athlete"

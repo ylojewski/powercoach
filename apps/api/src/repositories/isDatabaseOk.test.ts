@@ -5,9 +5,9 @@ import { type MockedFunction } from 'vitest'
 
 import { buildDummyApp } from '@/test/utils'
 
-import { isOkQuery, type IsOkQueryRow } from './base'
+import { isDatabaseOk, type IsDatabaseOkRow } from './isDatabaseOk'
 
-describe('base', () => {
+describe('isDatabaseOk repository', () => {
   let dummyApp: FastifyInstance
   let executeMock: MockedFunction<NodePgDatabase['execute']>
 
@@ -24,24 +24,24 @@ describe('base', () => {
     await dummyApp.close()
   })
 
-  describe('isOkQuery', () => {
+  describe('isDatabaseOk', () => {
     it('throws if db execution fails', async () => {
       executeMock.mockRejectedValueOnce(new Error('execute'))
-      await expect(isOkQuery(dummyApp)).rejects.toThrow(/execute/)
+      await expect(isDatabaseOk(dummyApp.db)).rejects.toThrow(/execute/)
     })
     it('returns false if no rows', async () => {
-      executeMock.mockResolvedValueOnce(mockQueryResult<IsOkQueryRow>([]))
-      await expect(isOkQuery(dummyApp)).resolves.toBe(false)
+      executeMock.mockResolvedValueOnce(mockQueryResult<IsDatabaseOkRow>([]))
+      await expect(isDatabaseOk(dummyApp.db)).resolves.toBe(false)
     })
     it('returns false if select failed', async () => {
-      executeMock.mockResolvedValueOnce(mockQueryResult<IsOkQueryRow>([{ database: 0 }]))
-      await expect(isOkQuery(dummyApp)).resolves.toBe(false)
+      executeMock.mockResolvedValueOnce(mockQueryResult<IsDatabaseOkRow>([{ database: 0 }]))
+      await expect(isDatabaseOk(dummyApp.db)).resolves.toBe(false)
     })
     it('returns true', async () => {
-      executeMock.mockResolvedValueOnce(mockQueryResult<IsOkQueryRow>([{ database: 1 }]))
-      executeMock.mockResolvedValueOnce(mockQueryResult<IsOkQueryRow>([{ database: 2 }]))
-      await expect(isOkQuery(dummyApp)).resolves.toBe(true)
-      await expect(isOkQuery(dummyApp)).resolves.toBe(true)
+      executeMock.mockResolvedValueOnce(mockQueryResult<IsDatabaseOkRow>([{ database: 1 }]))
+      executeMock.mockResolvedValueOnce(mockQueryResult<IsDatabaseOkRow>([{ database: 2 }]))
+      await expect(isDatabaseOk(dummyApp.db)).resolves.toBe(true)
+      await expect(isDatabaseOk(dummyApp.db)).resolves.toBe(true)
     })
   })
 })

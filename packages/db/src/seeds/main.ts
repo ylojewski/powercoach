@@ -1,6 +1,6 @@
 import { type NodePgDatabase } from 'drizzle-orm/node-postgres'
 
-import { athletes, coachOrganizations, coaches, organizations } from '@/src/schema'
+import { athletes, coachOrganizations, coachSettings, coaches, organizations } from '@/src/schema'
 
 const DEMO_PASSWORD = 'powercoach-demo' as const
 
@@ -15,18 +15,29 @@ export async function execute(db: NodePgDatabase) {
     })
     .returning({ id: coaches.id })
 
-  const [organization] = await db
+  const [defaultOrganization, secondaryOrganization] = await db
     .insert(organizations)
-    .values({ name: 'Orbit Foundry' })
+    .values([{ name: 'Orbit Foundry' }, { name: 'Nova Athletics' }])
     .returning({ id: organizations.id })
 
-  if (!coach || !organization) {
+  if (!coach || !defaultOrganization || !secondaryOrganization) {
     throw new Error('Failed to seed roster data')
   }
 
-  await db.insert(coachOrganizations).values({
+  await db.insert(coachOrganizations).values([
+    {
+      coachId: coach.id,
+      organizationId: defaultOrganization.id
+    },
+    {
+      coachId: coach.id,
+      organizationId: secondaryOrganization.id
+    }
+  ])
+
+  await db.insert(coachSettings).values({
     coachId: coach.id,
-    organizationId: organization.id
+    defaultOrganizationId: defaultOrganization.id
   })
 
   await db.insert(athletes).values([
@@ -35,6 +46,7 @@ export async function execute(db: NodePgDatabase) {
       email: 'kiro.flux@example.test',
       firstName: 'Kiro',
       lastName: 'Flux',
+      organizationId: defaultOrganization.id,
       password: DEMO_PASSWORD
     },
     {
@@ -42,6 +54,7 @@ export async function execute(db: NodePgDatabase) {
       email: 'nexa.vale@example.test',
       firstName: 'Nexa',
       lastName: 'Vale',
+      organizationId: defaultOrganization.id,
       password: DEMO_PASSWORD
     },
     {
@@ -49,6 +62,7 @@ export async function execute(db: NodePgDatabase) {
       email: 'tomo.pixel@example.test',
       firstName: 'Tomo',
       lastName: 'Pixel',
+      organizationId: secondaryOrganization.id,
       password: DEMO_PASSWORD
     }
   ])

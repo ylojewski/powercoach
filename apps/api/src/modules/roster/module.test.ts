@@ -1,31 +1,51 @@
 import { type FastifyInstance } from 'fastify'
-import { type MockedFunction } from 'vitest'
+import { type Mock, type MockedFunction } from 'vitest'
 
 import { REQUEST_MODULE_NAME } from '@/src/app'
+import { COACH_EMAIL_HEADER } from '@/src/plugins'
 import { buildDummyApp } from '@/test/utils'
 
-import { COACHES_MODULE_NAME, COACHES_MODULE_TAG, coachesModule } from './module'
+import { ROSTER_MODULE_NAME, ROSTER_MODULE_TAG, rosterModule } from './module'
 import {
-  ATHLETE_SUMMARY_SCHEMA_ID,
-  COACH_CONTEXT_RESPONSE_SCHEMA_ID,
-  COACH_SUMMARY_SCHEMA_ID,
-  type CoachContextResponse,
-  coachContextResponseSchema,
-  ORGANIZATION_SUMMARY_SCHEMA_ID
+  ATHLETE_SCHEMA_ID,
+  COACH_SCHEMA_ID,
+  ORGANIZATION_SCHEMA_ID,
+  ROSTER_RESPONSE_SCHEMA_ID,
+  type RosterResponse,
+  rosterQuerystringSchema,
+  rosterResponseSchema
 } from './schemas'
 import * as service from './service'
 
-describe('coachesModule', () => {
+describe('rosterModule', () => {
   let dummyApp: FastifyInstance
-  let getCurrentCoachContextMock: MockedFunction<typeof service.getCurrentCoachContext>
+  let getCurrentRosterMock: MockedFunction<typeof service.getCurrentRoster>
+
+  function mockCoachLookup() {
+    ;(dummyApp.db.select as unknown as Mock).mockReturnValue({
+      from: vi.fn().mockReturnValue({
+        where: vi.fn().mockReturnValue({
+          limit: vi.fn().mockResolvedValue([
+            {
+              email: 'astra.quill@example.test',
+              firstName: 'Astra',
+              id: 10,
+              lastName: 'Quill'
+            }
+          ])
+        })
+      })
+    })
+  }
 
   beforeAll(async () => {
-    getCurrentCoachContextMock = vi.spyOn(service, 'getCurrentCoachContext')
+    getCurrentRosterMock = vi.spyOn(service, 'getCurrentRoster')
     dummyApp = await buildDummyApp({
-      plugins: [coachesModule],
+      plugins: [rosterModule],
       spies: ['addSchema', 'route'],
       withDb: true
     })
+    mockCoachLookup()
   })
 
   afterAll(async () => {
@@ -34,15 +54,15 @@ describe('coachesModule', () => {
   })
 
   it('exposes a custom name and tags', () => {
-    expect(COACHES_MODULE_NAME).toBe('powercoach.coaches.module')
-    expect(COACHES_MODULE_TAG).toBe('coaches')
+    expect(ROSTER_MODULE_NAME).toBe('powercoach.roster.module')
+    expect(ROSTER_MODULE_TAG).toBe('roster')
   })
 
-  it('adds the coaches schemas', () => {
+  it('adds the roster schemas', () => {
     expect(dummyApp.addSchema).toHaveBeenCalledTimes(4)
     expect(dummyApp.addSchema).toHaveBeenCalledWith(
       expect.objectContaining({
-        $id: COACH_SUMMARY_SCHEMA_ID,
+        $id: COACH_SCHEMA_ID,
         properties: expect.objectContaining({
           email: expect.objectContaining({ format: 'email', type: 'string' }),
           firstName: expect.objectContaining({ type: 'string' }),
@@ -54,7 +74,7 @@ describe('coachesModule', () => {
     )
     expect(dummyApp.addSchema).toHaveBeenCalledWith(
       expect.objectContaining({
-        $id: ORGANIZATION_SUMMARY_SCHEMA_ID,
+        $id: ORGANIZATION_SCHEMA_ID,
         properties: expect.objectContaining({
           id: expect.objectContaining({ type: 'number' }),
           name: expect.objectContaining({ type: 'string' })
@@ -64,22 +84,23 @@ describe('coachesModule', () => {
     )
     expect(dummyApp.addSchema).toHaveBeenCalledWith(
       expect.objectContaining({
-        $id: ATHLETE_SUMMARY_SCHEMA_ID,
+        $id: ATHLETE_SCHEMA_ID,
         properties: expect.objectContaining({
           email: expect.objectContaining({ format: 'email', type: 'string' }),
           firstName: expect.objectContaining({ type: 'string' }),
           id: expect.objectContaining({ type: 'number' }),
-          lastName: expect.objectContaining({ type: 'string' })
+          lastName: expect.objectContaining({ type: 'string' }),
+          organizationId: expect.objectContaining({ type: 'number' })
         }),
-        required: ['email', 'firstName', 'id', 'lastName']
+        required: ['email', 'firstName', 'id', 'lastName', 'organizationId']
       })
     )
     expect(dummyApp.addSchema).toHaveBeenCalledWith(
       expect.objectContaining({
-        $id: COACH_CONTEXT_RESPONSE_SCHEMA_ID,
+        $id: ROSTER_RESPONSE_SCHEMA_ID,
         properties: expect.objectContaining({
           athletes: expect.objectContaining({ type: 'array' }),
-          coach: expect.objectContaining({ $ref: COACH_SUMMARY_SCHEMA_ID }),
+          coach: expect.objectContaining({ $ref: COACH_SCHEMA_ID }),
           organizations: expect.objectContaining({ type: 'array' })
         }),
         required: ['athletes', 'coach', 'organizations']
@@ -87,31 +108,33 @@ describe('coachesModule', () => {
     )
   })
 
-  it('registers the GET /me route using the CoachContextResponse schema', () => {
+  it('registers the GET /me route using the RosterResponse schema', () => {
     expect(dummyApp.route).toHaveBeenCalledTimes(1)
     expect(dummyApp.route).toHaveBeenCalledWith(
       expect.objectContaining({
         method: 'GET',
         schema: expect.objectContaining({
-          operationId: 'getCurrentCoachContext',
+          operationId: 'getCurrentRoster',
+          querystring: expect.objectContaining(rosterQuerystringSchema),
           response: expect.objectContaining({
-            200: expect.objectContaining(coachContextResponseSchema)
+            200: expect.objectContaining(rosterResponseSchema)
           }),
-          tags: [COACHES_MODULE_TAG]
+          tags: [ROSTER_MODULE_TAG]
         }),
         url: '/me'
       })
     )
   })
 
-  it('returns a valid CoachContextResponse from the GET /me route using the service', async () => {
-    const coachContextResponse: CoachContextResponse = {
+  it('returns a valid RosterResponse from the GET /me route using the service', async () => {
+    const rosterResponse: RosterResponse = {
       athletes: [
         {
           email: 'kiro.flux@example.test',
           firstName: 'Kiro',
           id: 11,
-          lastName: 'Flux'
+          lastName: 'Flux',
+          organizationId: 1
         }
       ],
       coach: {
@@ -123,18 +146,18 @@ describe('coachesModule', () => {
       organizations: [{ id: 1, name: 'Orbit Foundry' }]
     }
 
-    getCurrentCoachContextMock.mockResolvedValueOnce(coachContextResponse)
+    getCurrentRosterMock.mockResolvedValueOnce(rosterResponse)
 
     const response = await dummyApp.inject({
-      headers: { [service.COACH_EMAIL_HEADER]: coachContextResponse.coach.email },
+      headers: { [COACH_EMAIL_HEADER]: rosterResponse.coach.email },
       method: 'GET',
       url: '/me'
     })
 
     expect(response.statusCode).toBe(200)
     expect(response.headers['content-type']).toMatch(/application\/json/)
-    expect(response.headers[REQUEST_MODULE_NAME]).toBe(COACHES_MODULE_NAME)
-    expect(service.getCurrentCoachContext).toHaveBeenCalledTimes(1)
-    expect(response.json()).toStrictEqual<CoachContextResponse>(coachContextResponse)
+    expect(response.headers[REQUEST_MODULE_NAME]).toBe(ROSTER_MODULE_NAME)
+    expect(service.getCurrentRoster).toHaveBeenCalledTimes(1)
+    expect(response.json()).toStrictEqual<RosterResponse>(rosterResponse)
   })
 })

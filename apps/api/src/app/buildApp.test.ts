@@ -4,11 +4,20 @@ import { type FastifyRequest } from 'fastify'
 import { z } from 'zod'
 
 import { type Env, resetCachedEnv } from '@/src/core'
-import { COACHES_MODULE_NAME, HEALTH_MODULE_NAME, coachesModule, healthModule } from '@/src/modules'
 import {
+  HEALTH_MODULE_NAME,
+  ROSTER_MODULE_NAME,
+  SETTINGS_MODULE_NAME,
+  healthModule,
+  rosterModule,
+  settingsModule
+} from '@/src/modules'
+import {
+  ERROR_PLUGIN_NAME,
   HELMET_PLUGIN_NAME,
   SENSIBLE_PLUGIN_NAME,
   SWAGGER_PLUGIN_NAME,
+  errorPlugin,
   helmetPlugin,
   sensiblePlugin
 } from '@/src/plugins'
@@ -117,7 +126,9 @@ describe('buildApp', () => {
       expect(getAjvOptions(app)).toStrictEqual<Options>(ajvOptions)
       expect(app.hasPlugin(HELMET_PLUGIN_NAME)).toBe(true)
       expect(app.hasPlugin(SENSIBLE_PLUGIN_NAME)).toBe(true)
-      expect(app.hasPlugin(COACHES_MODULE_NAME)).toBe(true)
+      expect(app.hasPlugin(ERROR_PLUGIN_NAME)).toBe(true)
+      expect(app.hasPlugin(ROSTER_MODULE_NAME)).toBe(true)
+      expect(app.hasPlugin(SETTINGS_MODULE_NAME)).toBe(true)
       expect(app.hasPlugin(HEALTH_MODULE_NAME)).toBe(true)
     })
 
@@ -190,9 +201,10 @@ describe('registerCorePlugins', () => {
 
     await registerCorePlugins(app)
 
-    expect(app.register).toHaveBeenCalledTimes(2)
+    expect(app.register).toHaveBeenCalledTimes(3)
     expect(app.register).toHaveBeenCalledWith(helmetPlugin)
     expect(app.register).toHaveBeenCalledWith(sensiblePlugin)
+    expect(app.register).toHaveBeenCalledWith(errorPlugin)
   })
 })
 
@@ -204,8 +216,9 @@ describe('registerCoreModules', () => {
 
     await registerCoreModules(app)
 
-    expect(app.register).toHaveBeenCalledTimes(2)
-    expect(app.register).toHaveBeenCalledWith(coachesModule, { prefix: '/v1/coaches' })
+    expect(app.register).toHaveBeenCalledTimes(3)
+    expect(app.register).toHaveBeenCalledWith(rosterModule, { prefix: '/v1/roster' })
+    expect(app.register).toHaveBeenCalledWith(settingsModule, { prefix: '/v1/settings' })
     expect(app.register).toHaveBeenCalledWith(healthModule, { prefix: '/v1/health' })
   })
 })
