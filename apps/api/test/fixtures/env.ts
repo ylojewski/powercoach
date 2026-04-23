@@ -1,43 +1,56 @@
 import { NodeEnv } from '@powercoach/util-env'
+import {
+  DEFAULT_PORT,
+  INVALID_DATABASE_URL_PROTOCOL,
+  INVALID_HOST,
+  INVALID_LOG_LEVEL,
+  INVALID_NODE_ENV,
+  LOCAL_DATABASE_URL,
+  LOCAL_HOST,
+  NEON_DATABASE_URL,
+  PUBLIC_HOST,
+  TEST_DATABASE_URL,
+  TOO_BIG_PORT
+} from '@powercoach/util-fixture'
 
 import { Env } from '@/src/core'
 import { LogLevel } from '@/src/types'
 
 export const productionEnv: Env = {
-  DATABASE_URL: 'postgresql://user:password@region.neon.tech/neondb?sslmode=require',
-  HOST: '0.0.0.0',
+  DATABASE_URL: NEON_DATABASE_URL,
+  HOST: PUBLIC_HOST,
   LOG_LEVEL: LogLevel.info,
   NODE_ENV: NodeEnv.production,
-  PORT: 8080
+  PORT: DEFAULT_PORT
 } as const
 
 export const testEnv: Env = {
-  DATABASE_URL: 'postgres://test:test@localhost:55000/test_00000000-0000-4000-0000-000000000000',
-  HOST: '0.0.0.0',
+  DATABASE_URL: TEST_DATABASE_URL,
+  HOST: PUBLIC_HOST,
   LOG_LEVEL: LogLevel.info,
   NODE_ENV: NodeEnv.test,
-  PORT: 8080
+  PORT: DEFAULT_PORT
 } as const
 
 export const developmentEnv: Env = {
-  DATABASE_URL: 'postgres://postgres:postgres@localhost:5432/powercoach_dev',
-  HOST: 'localhost',
+  DATABASE_URL: LOCAL_DATABASE_URL,
+  HOST: LOCAL_HOST,
   LOG_LEVEL: LogLevel.debug,
   NODE_ENV: NodeEnv.development,
-  PORT: 8080
+  PORT: DEFAULT_PORT
 } as const
 
 export const invalidEnv: Env = {
-  DATABASE_URL: 'postgr://postgres:postgres@localhost:5432/powercoach_dev',
-  HOST: '256.256.256.256',
-  LOG_LEVEL: 'invalid' as LogLevel,
-  NODE_ENV: 'invalid' as NodeEnv,
+  DATABASE_URL: INVALID_DATABASE_URL_PROTOCOL,
+  HOST: INVALID_HOST,
+  LOG_LEVEL: INVALID_LOG_LEVEL as LogLevel,
+  NODE_ENV: INVALID_NODE_ENV as NodeEnv,
   PORT: 0
 } as const
 
 export const tooBigPortEnv: Env = {
   ...testEnv,
-  PORT: 70000
+  PORT: TOO_BIG_PORT
 } as const
 
 export function createRealEnv(env: 'production' | 'test' = 'test'): Env {

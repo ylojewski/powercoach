@@ -1,1 +1,1 @@
-export * from './mockQueryResult'
+export * from './mockDb'

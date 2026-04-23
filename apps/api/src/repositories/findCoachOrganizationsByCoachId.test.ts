@@ -1,59 +1,44 @@
-import { type FastifyInstance } from 'fastify'
-import { type Mock } from 'vitest'
+import { coaches } from '@powercoach/db'
+import {
+  NO_ORGANIZATIONS_COACH,
+  COACH_EMAIL,
+  DEFAULT_ORGANIZATION,
+  SECONDARY_ORGANIZATION
+} from '@powercoach/util-fixture'
+import { eq } from 'drizzle-orm'
 
-import { buildDummyApp } from '@/test/utils'
+import { appTest } from '@/test/utils'
 
 import { findCoachOrganizationsByCoachId } from './findCoachOrganizationsByCoachId'
 
-function mockCoachOrganizationsLookup(
-  app: FastifyInstance,
-  organizations: Record<string, unknown>[]
-) {
-  ;(app.db.select as unknown as Mock)
-    .mockReturnValueOnce({
-      from: vi.fn().mockReturnValue({
-        where: vi.fn().mockReturnValue({})
-      })
-    })
-    .mockReturnValueOnce({
-      from: vi.fn().mockReturnValue({
-        where: vi.fn().mockReturnValue({
-          orderBy: vi.fn().mockResolvedValue(organizations)
-        })
-      })
-    })
-}
-
 describe('findCoachOrganizationsByCoachId repository', () => {
-  let dummyApp: FastifyInstance
+  appTest('returns the coach organizations ordered by id', async ({ app }) => {
+    const [coach] = await app.db
+      .select({ id: coaches.id })
+      .from(coaches)
+      .where(eq(coaches.email, COACH_EMAIL))
+      .limit(1)
 
-  beforeAll(async () => {
-    dummyApp = await buildDummyApp({ withDb: true })
-  })
+    if (!coach) {
+      throw new Error(`Expected seeded coach "${COACH_EMAIL}" to exist`)
+    }
 
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
-
-  afterAll(async () => {
-    await dummyApp.close()
-  })
-
-  it('returns the coach organizations ordered by id', async () => {
-    mockCoachOrganizationsLookup(dummyApp, [
-      { id: 1, name: 'Orbit Foundry' },
-      { id: 2, name: 'Nova Athletics' }
-    ])
-
-    await expect(findCoachOrganizationsByCoachId(dummyApp.db, 10)).resolves.toStrictEqual([
-      { id: 1, name: 'Orbit Foundry' },
-      { id: 2, name: 'Nova Athletics' }
+    await expect(findCoachOrganizationsByCoachId(app.db, coach.id)).resolves.toStrictEqual([
+      { id: expect.any(Number), name: DEFAULT_ORGANIZATION.name },
+      { id: expect.any(Number), name: SECONDARY_ORGANIZATION.name }
     ])
   })
 
-  it('returns an empty list when the coach has no organizations', async () => {
-    mockCoachOrganizationsLookup(dummyApp, [])
+  appTest('returns an empty list when the coach has no organizations', async ({ app }) => {
+    const [coach] = await app.db
+      .insert(coaches)
+      .values(NO_ORGANIZATIONS_COACH)
+      .returning({ id: coaches.id })
 
-    await expect(findCoachOrganizationsByCoachId(dummyApp.db, 10)).resolves.toStrictEqual([])
+    if (!coach) {
+      throw new Error('Expected inserted coach without organizations to exist')
+    }
+
+    await expect(findCoachOrganizationsByCoachId(app.db, coach.id)).resolves.toStrictEqual([])
   })
 })

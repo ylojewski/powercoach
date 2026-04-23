@@ -1,7 +1,7 @@
-import { type FastifyInstance } from 'fastify'
-import { type Mock } from 'vitest'
+import { GHOST_COACH_EMAIL, COACH_EMAIL, COACH_ROW } from '@powercoach/util-fixture'
 
-import { buildDummyApp } from '@/test/utils'
+import { type AppFastifyInstance } from '@/src/app'
+import { type AppTestOptions, appTest, buildDummyApp } from '@/test/utils'
 
 import {
   COACH_EMAIL_HEADER,
@@ -9,117 +9,96 @@ import {
   coachPlugin,
   getCoachEmailHeader
 } from './coach.plugin'
-import { sensiblePlugin } from './sensible.plugin'
 
-function mockCoachLookup(app: FastifyInstance, coach: Record<string, unknown>[]) {
-  ;(app.db.select as unknown as Mock).mockReturnValue({
-    from: vi.fn().mockReturnValue({
-      where: vi.fn().mockReturnValue({
-        limit: vi.fn().mockResolvedValue(coach)
-      })
-    })
-  })
-}
+const appTestOptions = {
+  beforeReady: async (app: AppFastifyInstance): Promise<void> => {
+    await app.register(coachPlugin)
+    app.get('/coach', async ({ coach }) => coach)
+  }
+} satisfies AppTestOptions
 
 describe('getCoachEmailHeader', () => {
   it('returns the trimmed email when the header is provided as a string', () => {
-    expect(getCoachEmailHeader(' astra.quill@example.test ')).toBe('astra.quill@example.test')
+    expect(getCoachEmailHeader(` ${COACH_EMAIL} `)).toBe(COACH_EMAIL)
   })
+
   it('returns null when the header is empty', () => {
     expect(getCoachEmailHeader('   ')).toBeNull()
   })
+
   it('returns null when the header is missing', () => {
     expect(getCoachEmailHeader(undefined)).toBeNull()
   })
+
   it('returns null when the provided header is not a string', () => {
-    expect(getCoachEmailHeader(['astra.quill@example.test'])).toBeNull()
+    expect(getCoachEmailHeader([COACH_EMAIL])).toBeNull()
   })
 })
 
 describe('coachPlugin', () => {
-  let app: FastifyInstance
-
-  beforeEach(async () => {
-    app = await buildDummyApp({
-      plugins: [sensiblePlugin, coachPlugin],
-      ready: false,
-      withDb: true
-    })
-
-    app.get('/coach', async (request) => request.coach)
-  })
-
-  afterEach(async () => {
-    vi.resetAllMocks()
-    await app.close()
-  })
-
   it('exposes a custom name', () => {
     expect(COACH_PLUGIN_NAME).toBe('powercoach.coach.plugin')
   })
 
-  it('exposes a custom "coach" request decorator', () => {
-    expect(app.hasRequestDecorator('coach')).toBe(true)
+  it('exposes a custom "coach" request decorator', async () => {
+    const app = await buildDummyApp({ plugins: [coachPlugin] })
+
+    try {
+      expect(app.hasRequestDecorator('coach')).toBe(true)
+    } finally {
+      await app.close()
+    }
   })
 
-  it('decorates the request with the coach row', async () => {
-    mockCoachLookup(app, [
-      {
-        email: 'astra.quill@example.test',
-        firstName: 'Astra',
-        id: 10,
-        lastName: 'Quill',
-        password: 'powercoach-demo'
-      }
-    ])
+  appTest(
+    'decorates the request with the coach row',
+    async ({ app }) => {
+      const response = await app.inject({
+        headers: { [COACH_EMAIL_HEADER]: COACH_EMAIL },
+        method: 'GET',
+        url: '/coach'
+      })
 
-    await app.ready()
+      expect(response.statusCode).toBe(200)
+      expect(response.json()).toStrictEqual({
+        ...COACH_ROW,
+        id: expect.any(Number)
+      })
+    },
+    appTestOptions
+  )
 
-    const response = await app.inject({
-      headers: { [COACH_EMAIL_HEADER]: 'astra.quill@example.test' },
-      method: 'GET',
-      url: '/coach'
-    })
+  appTest(
+    'returns unauthorized when the coach email header is missing',
+    async ({ app }) => {
+      const response = await app.inject({ method: 'GET', url: '/coach' })
 
-    expect(response.statusCode).toBe(200)
-    expect(response.json()).toStrictEqual({
-      email: 'astra.quill@example.test',
-      firstName: 'Astra',
-      id: 10,
-      lastName: 'Quill',
-      password: 'powercoach-demo'
-    })
-  })
+      expect(response.statusCode).toBe(401)
+      expect(response.json()).toMatchObject({
+        error: 'Unauthorized',
+        message: `Missing "${COACH_EMAIL_HEADER}" header`,
+        statusCode: 401
+      })
+    },
+    appTestOptions
+  )
 
-  it('returns unauthorized when the coach email header is missing', async () => {
-    await app.ready()
+  appTest(
+    'returns unauthorized when the coach does not exist',
+    async ({ app }) => {
+      const response = await app.inject({
+        headers: { [COACH_EMAIL_HEADER]: GHOST_COACH_EMAIL },
+        method: 'GET',
+        url: '/coach'
+      })
 
-    const response = await app.inject({ method: 'GET', url: '/coach' })
-
-    expect(response.statusCode).toBe(401)
-    expect(response.json()).toMatchObject({
-      error: 'Unauthorized',
-      message: `Missing "${COACH_EMAIL_HEADER}" header`,
-      statusCode: 401
-    })
-  })
-
-  it('returns unauthorized when the coach does not exist', async () => {
-    mockCoachLookup(app, [])
-
-    await app.ready()
-
-    const response = await app.inject({
-      headers: { [COACH_EMAIL_HEADER]: 'ghost.coach@example.test' },
-      method: 'GET',
-      url: '/coach'
-    })
-
-    expect(response.statusCode).toBe(401)
-    expect(response.json()).toMatchObject({
-      error: 'Unauthorized',
-      message: 'Coach "ghost.coach@example.test" not found',
-      statusCode: 401
-    })
-  })
+      expect(response.statusCode).toBe(401)
+      expect(response.json()).toMatchObject({
+        error: 'Unauthorized',
+        message: `Coach "${GHOST_COACH_EMAIL}" not found`,
+        statusCode: 401
+      })
+    },
+    appTestOptions
+  )
 })

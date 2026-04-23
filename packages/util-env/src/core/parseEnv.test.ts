@@ -16,13 +16,16 @@ describe('parseEnv', () => {
 
   it('succeed parsing a valid custom configuration', () => {
     const customSchema = envSchema.extend({ CUSTOM: z.string() })
-    const customEnv = { ...productionEnv, CUSTOM: 'custom' }
     type CustomEnv = z.infer<typeof customSchema>
+    const customEnv = { ...productionEnv, CUSTOM: 'custom' } as unknown as CustomEnv
 
     const format = vi.fn()
     const env: CustomEnv = parseEnv(customSchema, customEnv, format)
 
-    expect(env).toStrictEqual<CustomEnv>({ ...productionEnv, CUSTOM: 'custom' })
+    expect(env).toStrictEqual<CustomEnv>({
+      ...productionEnv,
+      CUSTOM: 'custom'
+    } as unknown as CustomEnv)
     expect(format).not.toHaveBeenCalled()
   })
 
@@ -36,7 +39,7 @@ describe('parseEnv', () => {
 
   it('fails parsing an invalid custom configuration', () => {
     const customSchema = envSchema.extend({ UUID: z.uuid() })
-    const customEnv = { ...productionEnv, UUID: 42 }
+    const customEnv = { ...productionEnv, UUID: 42 } as Record<string, unknown>
 
     const format = vi.fn(() => 'custom message')
     expect(() => parseEnv(customSchema, customEnv, format)).toThrowError('custom message')

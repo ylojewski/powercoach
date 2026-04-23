@@ -2,7 +2,7 @@ import { expectZodParseToThrow } from '@powercoach/util-test'
 import { ZodSafeParseResult } from 'zod'
 
 import { NodeEnv } from '@/src/types'
-import { testEnv, productionEnv, invalidEnv, developmentEnv } from '@/test/fixtures'
+import { developmentEnv, invalidEnv, productionEnv, testEnv } from '@/test/fixtures'
 
 import { type Env, envSchema } from './envSchema'
 

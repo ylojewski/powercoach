@@ -1,4 +1,4 @@
-import { mockQueryResult } from '@powercoach/util-test'
+import { createQueryResultRows } from '@powercoach/util-test'
 import { type NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { type FastifyInstance } from 'fastify'
 import { type MockedFunction } from 'vitest'
@@ -30,16 +30,16 @@ describe('isDatabaseOk repository', () => {
       await expect(isDatabaseOk(dummyApp.db)).rejects.toThrow(/execute/)
     })
     it('returns false if no rows', async () => {
-      executeMock.mockResolvedValueOnce(mockQueryResult<IsDatabaseOkRow>([]))
+      executeMock.mockResolvedValueOnce(createQueryResultRows<IsDatabaseOkRow>([]))
       await expect(isDatabaseOk(dummyApp.db)).resolves.toBe(false)
     })
     it('returns false if select failed', async () => {
-      executeMock.mockResolvedValueOnce(mockQueryResult<IsDatabaseOkRow>([{ database: 0 }]))
+      executeMock.mockResolvedValueOnce(createQueryResultRows<IsDatabaseOkRow>([{ database: 0 }]))
       await expect(isDatabaseOk(dummyApp.db)).resolves.toBe(false)
     })
     it('returns true', async () => {
-      executeMock.mockResolvedValueOnce(mockQueryResult<IsDatabaseOkRow>([{ database: 1 }]))
-      executeMock.mockResolvedValueOnce(mockQueryResult<IsDatabaseOkRow>([{ database: 2 }]))
+      executeMock.mockResolvedValueOnce(createQueryResultRows<IsDatabaseOkRow>([{ database: 1 }]))
+      executeMock.mockResolvedValueOnce(createQueryResultRows<IsDatabaseOkRow>([{ database: 2 }]))
       await expect(isDatabaseOk(dummyApp.db)).resolves.toBe(true)
       await expect(isDatabaseOk(dummyApp.db)).resolves.toBe(true)
     })

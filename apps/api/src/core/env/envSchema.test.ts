@@ -1,9 +1,7 @@
-import { NodeEnv } from '@powercoach/util-env'
 import { expectZodParseToThrow } from '@powercoach/util-test'
 import { ZodSafeParseResult } from 'zod'
 
-import { LogLevel } from '@/src/types'
-import { developmentEnv, productionEnv, invalidEnv, tooBigPortEnv } from '@/test/fixtures'
+import { developmentEnv, invalidEnv, productionEnv, tooBigPortEnv } from '@/test/fixtures'
 
 import { Env, envSchema } from './envSchema'
 
@@ -11,13 +9,7 @@ describe('envSchema', () => {
   it('parses valid values', () => {
     expect(() => envSchema.parse(productionEnv)).not.toThrow()
     expect(envSchema.safeParse(productionEnv)).toStrictEqual<ZodSafeParseResult<Env>>({
-      data: {
-        DATABASE_URL: 'postgresql://user:password@region.neon.tech/neondb?sslmode=require',
-        HOST: '0.0.0.0',
-        LOG_LEVEL: LogLevel.info,
-        NODE_ENV: NodeEnv.production,
-        PORT: 8080
-      },
+      data: productionEnv,
       success: true
     })
   })
@@ -25,13 +17,7 @@ describe('envSchema', () => {
   it('should accept localhost as HOST', () => {
     expect(() => envSchema.parse(developmentEnv)).not.toThrow()
     expect(envSchema.safeParse(developmentEnv)).toStrictEqual<ZodSafeParseResult<Env>>({
-      data: {
-        DATABASE_URL: 'postgres://postgres:postgres@localhost:5432/powercoach_dev',
-        HOST: 'localhost',
-        LOG_LEVEL: LogLevel.debug,
-        NODE_ENV: NodeEnv.development,
-        PORT: 8080
-      },
+      data: developmentEnv,
       success: true
     })
   })

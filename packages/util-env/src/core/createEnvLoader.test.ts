@@ -16,10 +16,10 @@ vi.mock('dotenv', () => ({
 
 const configMock = config as MockedFunction<typeof config>
 
-function mockConfigImplementationOnce<T extends Env>(env: T) {
+function mockConfigImplementationOnce<T extends Record<string, string | number>>(env: T) {
   configMock.mockImplementationOnce(() => {
     stubEnv(env)
-    return { parsed: env }
+    return { parsed: env as Record<string, string> }
   })
 }
 
@@ -95,9 +95,9 @@ describe('createEnvLoader', () => {
   describe('with a custom schema', () => {
     const customSchema = envSchema.extend({ CUSTOM: z.literal('custom') })
     type CustomEnv = z.infer<typeof customSchema>
-    const customProductionEnv: CustomEnv = { ...productionEnv, CUSTOM: 'custom' }
-    const customTestEnv: CustomEnv = { ...testEnv, CUSTOM: 'custom' }
-    const customInvalidEnv: CustomEnv = { ...invalidEnv, CUSTOM: 'invalid' as 'custom' }
+    const customProductionEnv = { ...productionEnv, CUSTOM: 'custom' } as const
+    const customTestEnv = { ...testEnv, CUSTOM: 'custom' } as const
+    const customInvalidEnv = { ...invalidEnv, CUSTOM: 'invalid' as 'custom' } as const
 
     const { loadEnv: customLoadEnv, resetCachedEnv: customResetCachedEnv } = createEnvLoader({
       format: () => 'Invalid custom environment',
@@ -112,7 +112,7 @@ describe('createEnvLoader', () => {
 
     it('loads custom configuration from process.env', async () => {
       mockConfigImplementationOnce(customProductionEnv)
-      expect(customLoadEnv()).toStrictEqual<CustomEnv>(customProductionEnv)
+      expect(customLoadEnv()).toStrictEqual<CustomEnv>(customProductionEnv as unknown as CustomEnv)
       expect(config).toHaveBeenCalledTimes(1)
     })
 
@@ -123,7 +123,7 @@ describe('createEnvLoader', () => {
       const second = customLoadEnv()
 
       expect(first).toBe(second)
-      expect(second).toStrictEqual<CustomEnv>(customProductionEnv)
+      expect(second).toStrictEqual<CustomEnv>(customProductionEnv as unknown as CustomEnv)
       expect(config).toHaveBeenCalledTimes(1)
     })
 
