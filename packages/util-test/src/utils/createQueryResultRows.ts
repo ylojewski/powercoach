@@ -1,6 +1,6 @@
 import { type QueryResult, type QueryResultRow } from 'pg'
 
-export function mockQueryResult<T extends QueryResultRow>(
+export function createQueryResultRows<T extends QueryResultRow>(
   rows: T[],
   command = 'SELECT'
 ): QueryResult<T> {

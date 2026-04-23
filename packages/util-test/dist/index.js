@@ -1,4 +1,5 @@
 import { ZodError } from 'zod';
+import { vi as vi$1 } from 'vitest';
 import process from 'process';
 
 var __defProp = Object.defineProperty;
@@ -34,18 +35,60 @@ function expectZodParseToThrow(schema, values) {
   return zodError;
 }
 __name(expectZodParseToThrow, "expectZodParseToThrow");
-
-// src/mocks/mockQueryResult.ts
-function mockQueryResult(rows, command = "SELECT") {
-  return {
-    command,
-    fields: [],
-    oid: 0,
-    rowCount: rows.length,
-    rows
-  };
+function mockDb() {
+  const children = /* @__PURE__ */ new Map();
+  const target = vi$1.fn();
+  let proxy;
+  const wrapRootMethod = /* @__PURE__ */ __name((value) => {
+    if (typeof value !== "function") {
+      return value;
+    }
+    return (...args) => {
+      const result = Reflect.apply(value, target, args);
+      return result === target ? proxy : result;
+    };
+  }, "wrapRootMethod");
+  const resolveTerminalValue = /* @__PURE__ */ __name(() => {
+    const result = Reflect.apply(target, target, []);
+    return Promise.resolve(result === proxy ? void 0 : result);
+  }, "resolveTerminalValue");
+  proxy = new Proxy(target, {
+    get(_target, prop, receiver) {
+      if (prop === "then") {
+        return (onfulfilled, onrejected) => resolveTerminalValue().then(onfulfilled, onrejected);
+      }
+      if (prop === "catch") {
+        return (onrejected) => resolveTerminalValue().catch(onrejected);
+      }
+      if (prop === "finally") {
+        return (onfinally) => resolveTerminalValue().finally(onfinally);
+      }
+      if (typeof prop === "symbol") {
+        return Reflect.get(target, prop, receiver);
+      }
+      if (prop in target) {
+        const value = Reflect.get(target, prop, target);
+        return wrapRootMethod(value);
+      }
+      if (!children.has(prop)) {
+        const child2 = vi$1.fn(() => proxy);
+        child2.mockName(String(prop));
+        children.set(prop, child2);
+      }
+      const child = children.get(prop);
+      if (!child) {
+        throw new Error(`Missing mockDb child for property "${String(prop)}"`);
+      }
+      return child;
+    },
+    apply(_target, thisArg, argArray) {
+      return Reflect.apply(target, thisArg, argArray);
+    }
+  });
+  target.mockImplementation(() => proxy);
+  return proxy;
 }
-__name(mockQueryResult, "mockQueryResult");
+__name(mockDb, "mockDb");
 
 // src/spies/spyOnConsole.ts
 function spyOnConsole(methods) {
@@ -89,6 +132,18 @@ function appendStyle(css) {
 }
 __name(appendStyle, "appendStyle");
 
+// src/utils/createQueryResultRows.ts
+function createQueryResultRows(rows, command = "SELECT") {
+  return {
+    command,
+    fields: [],
+    oid: 0,
+    rowCount: rows.length,
+    rows
+  };
+}
+__name(createQueryResultRows, "createQueryResultRows");
+
 // src/utils/flushAsync.ts
 async function flushAsync() {
   await new Promise((resolve) => setImmediate(resolve));
@@ -96,6 +151,6 @@ async function flushAsync() {
 }
 __name(flushAsync, "flushAsync");
 
-export { RGB_BLUE, RGB_GREEN, RGB_RED, appendStyle, expectCollapsed, expectExpanded, expectFunction, expectZodParseToThrow, flushAsync, mockQueryResult, spyOnConsole, spyOnStdout, stubEnv };
+export { RGB_BLUE, RGB_GREEN, RGB_RED, appendStyle, createQueryResultRows, expectCollapsed, expectExpanded, expectFunction, expectZodParseToThrow, flushAsync, mockDb, spyOnConsole, spyOnStdout, stubEnv };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map

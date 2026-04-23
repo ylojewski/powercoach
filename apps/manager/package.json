@@ -32,6 +32,7 @@
   "devDependencies": {
     "@powercoach/api": "workspace:*",
     "@powercoach/config": "workspace:*",
+    "@powercoach/util-fixture": "workspace:*",
     "@powercoach/util-test": "workspace:*",
     "@rtk-query/codegen-openapi": "^2.2.0",
     "@testing-library/jest-dom": "^6.6.3",

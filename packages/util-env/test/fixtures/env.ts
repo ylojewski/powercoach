@@ -1,3 +1,5 @@
+import { INVALID_NODE_ENV } from '@powercoach/util-fixture'
+
 import { Env } from '@/src/core'
 import { NodeEnv } from '@/src/types'
 
@@ -14,5 +16,5 @@ export const developmentEnv: Env = {
 } as const
 
 export const invalidEnv: Env = {
-  NODE_ENV: 'invalid' as NodeEnv
+  NODE_ENV: INVALID_NODE_ENV as NodeEnv
 } as const

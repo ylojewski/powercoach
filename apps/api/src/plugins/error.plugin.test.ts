@@ -1,3 +1,4 @@
+import { COACH_EMAIL } from '@powercoach/util-fixture'
 import { Type } from '@sinclair/typebox'
 import { type FastifyInstance } from 'fastify'
 
@@ -17,7 +18,7 @@ describe('errorPlugin', () => {
     })
 
     app.get('/invalid-settings', () => {
-      throw new InvalidCoachSettingsError('astra.quill@example.test')
+      throw new InvalidCoachSettingsError(COACH_EMAIL)
     })
     app.get('/forbidden', () => {
       throw app.httpErrors.forbidden('forbidden')
@@ -57,7 +58,7 @@ describe('errorPlugin', () => {
     expect(response.statusCode).toBe(500)
     expect(response.json()).toStrictEqual({
       error: 'Internal Server Error',
-      message: 'Coach settings for "astra.quill@example.test" are invalid',
+      message: `Coach settings for "${COACH_EMAIL}" are invalid`,
       statusCode: 500
     })
   })

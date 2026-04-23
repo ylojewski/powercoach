@@ -1,68 +1,83 @@
-import { type FastifyInstance } from 'fastify'
-import { type Mock } from 'vitest'
+import { coachOrganizations, coachSettings, coaches, organizations } from '@powercoach/db'
+import {
+  EMPTY_ORGANIZATION,
+  COACH_EMAIL,
+  PRIMARY_ATHLETE_ROW,
+  SECONDARY_ATHLETE_ROW
+} from '@powercoach/util-fixture'
+import { eq } from 'drizzle-orm'
 
-import { buildDummyApp } from '@/test/utils'
+import { appTest } from '@/test/utils'
 
 import { findAthletesByCoachIdAndOrganizationId } from './findAthletesByCoachIdAndOrganizationId'
 
-function mockAthletesLookup(app: FastifyInstance, athletes: Record<string, unknown>[]) {
-  ;(app.db.select as unknown as Mock).mockReturnValue({
-    from: vi.fn().mockReturnValue({
-      where: vi.fn().mockReturnValue({
-        orderBy: vi.fn().mockResolvedValue(athletes)
-      })
-    })
-  })
-}
-
 describe('findAthletesByCoachIdAndOrganizationId repository', () => {
-  let dummyApp: FastifyInstance
+  appTest('returns athletes for the coach and organization ordered by id', async ({ app }) => {
+    const [coach] = await app.db
+      .select({ id: coaches.id })
+      .from(coaches)
+      .where(eq(coaches.email, COACH_EMAIL))
+      .limit(1)
 
-  beforeAll(async () => {
-    dummyApp = await buildDummyApp({ withDb: true })
-  })
+    if (!coach) {
+      throw new Error(`Expected seeded coach "${COACH_EMAIL}" to exist`)
+    }
 
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
+    const [settings] = await app.db
+      .select({ defaultOrganizationId: coachSettings.defaultOrganizationId })
+      .from(coachSettings)
+      .where(eq(coachSettings.coachId, coach.id))
+      .limit(1)
 
-  afterAll(async () => {
-    await dummyApp.close()
-  })
+    if (!settings) {
+      throw new Error(`Expected seeded settings for coach "${COACH_EMAIL}" to exist`)
+    }
 
-  it('returns athletes for the coach and organization ordered by id', async () => {
-    mockAthletesLookup(dummyApp, [
+    await expect(
+      findAthletesByCoachIdAndOrganizationId(app.db, coach.id, settings.defaultOrganizationId)
+    ).resolves.toStrictEqual([
       {
-        coachId: 10,
-        email: 'kiro.flux@example.test',
-        firstName: 'Kiro',
-        id: 11,
-        lastName: 'Flux',
-        organizationId: 1,
-        password: 'powercoach-demo'
+        ...PRIMARY_ATHLETE_ROW,
+        coachId: coach.id,
+        id: expect.any(Number),
+        organizationId: settings.defaultOrganizationId
+      },
+      {
+        ...SECONDARY_ATHLETE_ROW,
+        coachId: coach.id,
+        id: expect.any(Number),
+        organizationId: settings.defaultOrganizationId
       }
     ])
-
-    await expect(findAthletesByCoachIdAndOrganizationId(dummyApp.db, 10, 1)).resolves.toStrictEqual(
-      [
-        {
-          coachId: 10,
-          email: 'kiro.flux@example.test',
-          firstName: 'Kiro',
-          id: 11,
-          lastName: 'Flux',
-          organizationId: 1,
-          password: 'powercoach-demo'
-        }
-      ]
-    )
   })
 
-  it('returns an empty list when no athlete matches the couple', async () => {
-    mockAthletesLookup(dummyApp, [])
+  appTest('returns an empty list when no athlete matches the couple', async ({ app }) => {
+    const [coach] = await app.db
+      .select({ id: coaches.id })
+      .from(coaches)
+      .where(eq(coaches.email, COACH_EMAIL))
+      .limit(1)
 
-    await expect(findAthletesByCoachIdAndOrganizationId(dummyApp.db, 10, 1)).resolves.toStrictEqual(
-      []
-    )
+    if (!coach) {
+      throw new Error(`Expected seeded coach "${COACH_EMAIL}" to exist`)
+    }
+
+    const [organization] = await app.db
+      .insert(organizations)
+      .values(EMPTY_ORGANIZATION)
+      .returning({ id: organizations.id })
+
+    if (!organization) {
+      throw new Error('Expected inserted empty organization to exist')
+    }
+
+    await app.db.insert(coachOrganizations).values({
+      coachId: coach.id,
+      organizationId: organization.id
+    })
+
+    await expect(
+      findAthletesByCoachIdAndOrganizationId(app.db, coach.id, organization.id)
+    ).resolves.toStrictEqual([])
   })
 })

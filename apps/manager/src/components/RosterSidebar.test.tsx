@@ -1,3 +1,9 @@
+import {
+  COACH,
+  DEFAULT_ORGANIZATION,
+  ROSTER_RESPONSE,
+  SETTINGS_RESPONSE
+} from '@powercoach/util-fixture'
 import { renderWithRouter } from '@powercoach/util-test/react'
 import { fireEvent, screen } from '@testing-library/react'
 import { Provider } from 'react-redux'
@@ -13,34 +19,15 @@ import {
 import { RosterSidebar } from './RosterSidebar'
 
 const rosterResponse: GetCurrentRosterApiResponse = {
-  athletes: [
-    {
-      email: 'kiro.flux@example.test',
-      firstName: 'Kiro',
-      id: 11,
-      lastName: 'Flux',
-      organizationId: 1
-    },
-    {
-      email: 'nexa.vale@example.test',
-      firstName: 'Nexa',
-      id: 12,
-      lastName: 'Vale',
-      organizationId: 1
-    }
-  ],
+  athletes: [...ROSTER_RESPONSE.athletes],
   coach: {
-    email: AUTHENTICATED_COACH_EMAIL,
-    firstName: 'Astra',
-    id: 10,
-    lastName: 'Quill'
+    ...ROSTER_RESPONSE.coach,
+    email: AUTHENTICATED_COACH_EMAIL
   },
-  organizations: [{ id: 1, name: 'Orbit Foundry' }]
+  organizations: [...ROSTER_RESPONSE.organizations]
 }
 
-const settingsResponse: GetCurrentSettingsApiResponse = {
-  defaultOrganizationId: 1
-}
+const settingsResponse: GetCurrentSettingsApiResponse = { ...SETTINGS_RESPONSE }
 
 function renderRosterSidebar(initialEntry = RouterPath.Home) {
   vi.stubGlobal(
@@ -79,15 +66,15 @@ describe('RosterSidebar', () => {
   it('renders the logo, organization, coach and athlete avatars', async () => {
     renderRosterSidebar()
     expect(screen.getByTestId('roster-logo')).toContainElement(screen.getByTestId('logo-icon'))
-    expect(await screen.findByLabelText('Orbit Foundry')).toBeInTheDocument()
-    expect(screen.getByLabelText('Astra Quill')).toBeInTheDocument()
+    expect(await screen.findByLabelText(DEFAULT_ORGANIZATION.name)).toBeInTheDocument()
+    expect(screen.getByLabelText(`${COACH.firstName} ${COACH.lastName}`)).toBeInTheDocument()
     expect(screen.getByLabelText('Kiro Flux')).toBeInTheDocument()
     expect(screen.getByLabelText('Nexa Vale')).toBeInTheDocument()
   })
 
   it('navigates to home when the logo is clicked', async () => {
     renderRosterSidebar(RouterPath.Reviews)
-    await screen.findByLabelText('Orbit Foundry')
+    await screen.findByLabelText(DEFAULT_ORGANIZATION.name)
     fireEvent.click(screen.getByTestId('roster-logo'))
     expect(screen.getByTestId('pathname')).toHaveTextContent(RouterPath.Home)
   })

@@ -1,8 +1,8 @@
-import { NodeEnv } from '@powercoach/util-env'
 import { stubEnv } from '@powercoach/util-test'
 import { config } from 'dotenv'
 
 import { Env } from '@/src/core'
+import { productionEnv, unknownProtocolEnv } from '@/test/fixtures'
 
 import { loadEnv, resetCachedEnv } from './loadEnv'
 
@@ -18,25 +18,14 @@ describe('loadEnv', () => {
   })
 
   it('loads configuration from process.env', async () => {
-    stubEnv({
-      DATABASE_URL:
-        'postgresql://user:password@pooler.region.neon.tech/neondb?sslmode=require&channel_binding=require',
-      NODE_ENV: NodeEnv.production
-    })
+    stubEnv(productionEnv)
 
-    expect(loadEnv()).toStrictEqual<Env>({
-      DATABASE_URL:
-        'postgresql://user:password@pooler.region.neon.tech/neondb?sslmode=require&channel_binding=require',
-      NODE_ENV: NodeEnv.production
-    })
+    expect(loadEnv()).toStrictEqual<Env>(productionEnv)
     expect(config).toHaveBeenCalledTimes(1)
   })
 
   it('throws when validation fails', async () => {
-    stubEnv({
-      DATABASE_URL:
-        'postgre://user:password@pooler.region.neon.tech/neondb?sslmode=require&channel_binding=require'
-    })
+    stubEnv({ DATABASE_URL: unknownProtocolEnv.DATABASE_URL })
     expect(() => loadEnv()).toThrowError(/Invalid environment/i)
   })
 })

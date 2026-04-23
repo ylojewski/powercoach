@@ -1,8 +1,10 @@
+import { COACH_EMAIL, DEFAULT_ORGANIZATION } from '@powercoach/util-fixture'
+
 import { getInitials } from './roster'
 
 describe('getInitials', () => {
   it('uses the first and last words for multi-word names', () => {
-    expect(getInitials('Orbit Foundry')).toBe('OF')
+    expect(getInitials(DEFAULT_ORGANIZATION.name)).toBe('OF')
   })
 
   it('uses the first two letters for single-word names', () => {
@@ -10,7 +12,7 @@ describe('getInitials', () => {
   })
 
   it('drops the email domain before computing initials', () => {
-    expect(getInitials('astra.quill@example.test')).toBe('AQ')
+    expect(getInitials(COACH_EMAIL)).toBe('AQ')
   })
 
   it('removes apostrophes before computing initials', () => {

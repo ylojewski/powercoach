@@ -1,45 +1,39 @@
-import { type FastifyInstance } from 'fastify'
-import { type Mock } from 'vitest'
+import { coaches } from '@powercoach/db'
+import { MISSING_SETTINGS_COACH, COACH_EMAIL } from '@powercoach/util-fixture'
+import { eq } from 'drizzle-orm'
 
-import { buildDummyApp } from '@/test/utils'
+import { appTest } from '@/test/utils'
 
 import { findCoachSettingsByCoachId } from './findCoachSettingsByCoachId'
 
-function mockSettingsLookup(app: FastifyInstance, settings: Record<string, unknown>[]) {
-  ;(app.db.select as unknown as Mock).mockReturnValue({
-    from: vi.fn().mockReturnValue({
-      where: vi.fn().mockReturnValue({
-        limit: vi.fn().mockResolvedValue(settings)
-      })
-    })
-  })
-}
-
 describe('findCoachSettingsByCoachId repository', () => {
-  let dummyApp: FastifyInstance
+  appTest('returns coach settings when they exist', async ({ app }) => {
+    const [coach] = await app.db
+      .select({ id: coaches.id })
+      .from(coaches)
+      .where(eq(coaches.email, COACH_EMAIL))
+      .limit(1)
 
-  beforeAll(async () => {
-    dummyApp = await buildDummyApp({ withDb: true })
-  })
+    if (!coach) {
+      throw new Error(`Expected seeded coach "${COACH_EMAIL}" to exist`)
+    }
 
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
-
-  afterAll(async () => {
-    await dummyApp.close()
-  })
-
-  it('returns coach settings when they exist', async () => {
-    mockSettingsLookup(dummyApp, [{ coachId: 10, defaultOrganizationId: 12 }])
-    await expect(findCoachSettingsByCoachId(dummyApp.db, 10)).resolves.toStrictEqual({
-      coachId: 10,
-      defaultOrganizationId: 12
+    await expect(findCoachSettingsByCoachId(app.db, coach.id)).resolves.toStrictEqual({
+      coachId: coach.id,
+      defaultOrganizationId: expect.any(Number)
     })
   })
 
-  it('returns null when coach settings do not exist', async () => {
-    mockSettingsLookup(dummyApp, [])
-    await expect(findCoachSettingsByCoachId(dummyApp.db, 10)).resolves.toBeNull()
+  appTest('returns null when coach settings do not exist', async ({ app }) => {
+    const [coach] = await app.db
+      .insert(coaches)
+      .values(MISSING_SETTINGS_COACH)
+      .returning({ id: coaches.id })
+
+    if (!coach) {
+      throw new Error('Expected inserted coach without settings to exist')
+    }
+
+    await expect(findCoachSettingsByCoachId(app.db, coach.id)).resolves.toBeNull()
   })
 })

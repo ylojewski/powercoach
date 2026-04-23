@@ -1,23 +1,21 @@
+import {
+  COACH_ROW,
+  DEFAULT_ORGANIZATION,
+  PRIMARY_ATHLETE_ROW,
+  SECONDARY_ATHLETE_ROW,
+  SECONDARY_ORGANIZATION,
+  TERTIARY_ATHLETE_ROW
+} from '@powercoach/util-fixture'
 import { type NodePgDatabase } from 'drizzle-orm/node-postgres'
 
 import { athletes, coachOrganizations, coachSettings, coaches, organizations } from '@/src/schema'
 
-const DEMO_PASSWORD = 'powercoach-demo' as const
-
 export async function execute(db: NodePgDatabase) {
-  const [coach] = await db
-    .insert(coaches)
-    .values({
-      email: 'astra.quill@example.test',
-      firstName: 'Astra',
-      lastName: 'Quill',
-      password: DEMO_PASSWORD
-    })
-    .returning({ id: coaches.id })
+  const [coach] = await db.insert(coaches).values(COACH_ROW).returning({ id: coaches.id })
 
   const [defaultOrganization, secondaryOrganization] = await db
     .insert(organizations)
-    .values([{ name: 'Orbit Foundry' }, { name: 'Nova Athletics' }])
+    .values([DEFAULT_ORGANIZATION, SECONDARY_ORGANIZATION])
     .returning({ id: organizations.id })
 
   if (!coach || !defaultOrganization || !secondaryOrganization) {
@@ -42,28 +40,19 @@ export async function execute(db: NodePgDatabase) {
 
   await db.insert(athletes).values([
     {
+      ...PRIMARY_ATHLETE_ROW,
       coachId: coach.id,
-      email: 'kiro.flux@example.test',
-      firstName: 'Kiro',
-      lastName: 'Flux',
-      organizationId: defaultOrganization.id,
-      password: DEMO_PASSWORD
+      organizationId: defaultOrganization.id
     },
     {
+      ...SECONDARY_ATHLETE_ROW,
       coachId: coach.id,
-      email: 'nexa.vale@example.test',
-      firstName: 'Nexa',
-      lastName: 'Vale',
-      organizationId: defaultOrganization.id,
-      password: DEMO_PASSWORD
+      organizationId: defaultOrganization.id
     },
     {
+      ...TERTIARY_ATHLETE_ROW,
       coachId: coach.id,
-      email: 'tomo.pixel@example.test',
-      firstName: 'Tomo',
-      lastName: 'Pixel',
-      organizationId: secondaryOrganization.id,
-      password: DEMO_PASSWORD
+      organizationId: secondaryOrganization.id
     }
   ])
 }

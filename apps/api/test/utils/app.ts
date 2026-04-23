@@ -1,5 +1,6 @@
 import { type Options } from '@fastify/ajv-compiler'
 import { NodeEnv } from '@powercoach/util-env'
+import { mockDb } from '@powercoach/util-test'
 import { type NodePgDatabase } from 'drizzle-orm/node-postgres'
 import Fastify, { type FastifyInstance, type FastifyPluginAsync } from 'fastify'
 
@@ -38,13 +39,7 @@ export async function buildDummyApp(options?: CreateEmptyAppOptions): Promise<Fa
   }
 
   if (withDb) {
-    app.decorate('db', {
-      delete: vi.fn(),
-      execute: vi.fn(),
-      insert: vi.fn(),
-      select: vi.fn(),
-      update: vi.fn()
-    } as unknown as NodePgDatabase)
+    app.decorate('db', mockDb() as unknown as NodePgDatabase)
   }
 
   if (plugins) {
@@ -70,12 +65,29 @@ export function getAjvOptions(app: AppFastifyInstance): Options | undefined {
   }
 }
 
-export const appTest = test.extend<{ app: AppFastifyInstance }>({
-  app: async ({}, use) => {
+export interface AppTestContext {
+  app: AppFastifyInstance
+}
+
+export interface AppTestOptions {
+  beforeReady?: (app: AppFastifyInstance) => Promise<void> | void
+}
+
+export function appTest(
+  name: string,
+  run: (context: AppTestContext) => Promise<void> | void,
+  options?: AppTestOptions
+): void {
+  test(name, async () => {
     const env = createRealEnv()
     const app = await buildApp({ env })
-    await app.ready()
-    await use(app)
-    await app.close()
-  }
-})
+
+    try {
+      await options?.beforeReady?.(app)
+      await app.ready()
+      await run({ app })
+    } finally {
+      await app.close()
+    }
+  })
+}
