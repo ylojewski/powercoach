@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import { generatePath } from 'react-router'
 
 import { RouterPath } from '@/src/constants'
 
@@ -23,8 +24,18 @@ describe('Router', () => {
     expect(screen.getByText('Layout component')).toBeInTheDocument()
   })
 
+  it('renders the layout on athlete application routes', () => {
+    window.history.pushState(
+      {},
+      '',
+      generatePath(RouterPath.AthleteReviews, { athleteSlug: 'kiro-flux' })
+    )
+    render(<Router />)
+    expect(screen.getByText('Layout component')).toBeInTheDocument()
+  })
+
   it('renders the not found route on unknown paths', () => {
-    window.history.pushState({}, '', '/unknown')
+    window.history.pushState({}, '', '/unknown/path')
     render(<Router />)
     expect(screen.getByText('NotFound component')).toBeInTheDocument()
   })

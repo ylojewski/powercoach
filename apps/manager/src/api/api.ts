@@ -8,7 +8,7 @@ const apiBaseUrl =
     ? 'http://localhost/api'
     : new URL('/api', window.location.origin).toString()
 
-export const managerApi = createApi({
+export const api = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: apiBaseUrl,
     prepareHeaders: (headers) => {
@@ -17,5 +17,5 @@ export const managerApi = createApi({
     }
   }),
   endpoints: () => ({}),
-  reducerPath: 'manager'
+  reducerPath: 'api'
 })
