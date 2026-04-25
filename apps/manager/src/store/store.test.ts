@@ -1,11 +1,12 @@
-import { managerApi } from './manager'
+import { api } from '@/src/api'
+
 import { createStore } from './store'
 
 const PROBE_RESPONSE = { ok: true } as const
 
 const {
   endpoints: { getStoreProbe }
-} = managerApi.injectEndpoints({
+} = api.injectEndpoints({
   endpoints: (build) => ({
     getStoreProbe: build.query<{ ok: boolean }, undefined>({
       query: () => ({ url: '/v1/store-probe' })
@@ -43,7 +44,8 @@ describe('createStore', () => {
     const state = store.getState()
 
     expect(fetchMock).toHaveBeenCalledTimes(1)
-    expect(state).toHaveProperty(managerApi.reducerPath)
+    expect(state).toHaveProperty(api.reducerPath)
+    expect(state).toHaveProperty('roster')
     expect(getStoreProbe.select(undefined)(state)).toMatchObject({
       data: PROBE_RESPONSE,
       status: 'fulfilled'

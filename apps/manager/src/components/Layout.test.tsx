@@ -1,6 +1,18 @@
-import { render, screen } from '@testing-library/react'
+import { renderWithRouter } from '@powercoach/util-test/react'
+import { screen, waitFor } from '@testing-library/react'
+import { generatePath } from 'react-router'
+
+import { RouterPath } from '@/src/constants'
+import { useRosterFeature } from '@/src/features'
 
 import { Layout } from './Layout'
+
+vi.mock('@/src/features', () => ({
+  useRosterFeature: vi.fn()
+}))
+
+const syncMock = vi.fn()
+const useRosterFeatureMock = vi.mocked(useRosterFeature)
 
 vi.mock('./Home', () => ({
   Home: () => <div data-testid="home">Home component</div>
@@ -12,15 +24,35 @@ vi.mock('./ManagementPanels', () => ({
   )
 }))
 
-vi.mock('./RosterSidebar', () => ({
-  RosterSidebar: () => <div data-testid="roster-sidebar">Roster sidebar component</div>
+vi.mock('./NotFound', () => ({
+  NotFound: () => <div>Not found component</div>
+}))
+
+vi.mock('./Sidebar', () => ({
+  Sidebar: () => <div data-testid="sidebar">Sidebar component</div>
 }))
 
 describe('Layout', () => {
-  it('renders the roster sidebar on the left and the main content to its right', () => {
-    const { container } = render(<Layout />)
+  beforeEach(() => {
+    useRosterFeatureMock.mockReturnValue({
+      activatedAthlete: null,
+      athletes: [],
+      coach: null,
+      defaultOrganization: null,
+      isLoading: false,
+      load: vi.fn().mockReturnValue(vi.fn()),
+      sync: syncMock.mockReturnValue('synced')
+    })
+  })
 
-    const rosterSidebar = screen.getByTestId('roster-sidebar')
+  afterEach(() => {
+    vi.resetAllMocks()
+  })
+
+  it('renders the roster sidebar on the left and the main content to its right', () => {
+    const { container } = renderWithRouter(<Layout />)
+
+    const sidebar = screen.getByTestId('sidebar')
     const home = screen.getByTestId('home')
     const managementPanels = screen.getByTestId('management-panels')
     const layout = container.firstElementChild
@@ -33,7 +65,30 @@ describe('Layout', () => {
       throw new Error('Layout structure not found')
     }
 
-    expect([...layout.children]).toEqual([rosterSidebar, mainContent])
+    expect([...layout.children]).toEqual([sidebar, mainContent])
     expect([...mainContent.children]).toEqual([home, managementPanels])
+  })
+
+  it('syncs features with the current athlete route', async () => {
+    renderWithRouter(<Layout />, {
+      initialEntry: generatePath(RouterPath.AthleteHome, { athleteSlug: 'kiro-flux' }),
+      path: RouterPath.AthleteHome
+    })
+
+    await waitFor(() => {
+      expect(syncMock).toHaveBeenCalledWith({ athleteSlug: 'kiro-flux' })
+    })
+  })
+
+  it('renders not found when the current athlete route cannot be synced', async () => {
+    syncMock.mockReturnValue('not-found')
+
+    renderWithRouter(<Layout />, {
+      initialEntry: generatePath(RouterPath.AthleteHome, { athleteSlug: 'unknown-athlete' }),
+      path: RouterPath.AthleteHome
+    })
+
+    expect(await screen.findByText('Not found component')).toBeInTheDocument()
+    expect(screen.queryByTestId('sidebar')).not.toBeInTheDocument()
   })
 })

@@ -1,4 +1,4 @@
-import { managerApi as api } from '@/src/store/manager'
+import { api } from '@/src/api/api'
 const injectedRtkApi = api.injectEndpoints({
   endpoints: (build) => ({
     getCurrentRoster: build.query<GetCurrentRosterApiResponse, GetCurrentRosterApiArg>({

@@ -4,6 +4,7 @@ import { Provider } from 'react-redux'
 
 import './styles'
 
+import { FeatureLoader } from './components/FeatureLoader'
 import { Router } from './components/Router'
 import { store } from './store'
 
@@ -16,7 +17,9 @@ if (!rootElement) {
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <Provider store={store}>
-      <Router />
+      <FeatureLoader>
+        <Router />
+      </FeatureLoader>
     </Provider>
   </React.StrictMode>
 )

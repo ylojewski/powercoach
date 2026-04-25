@@ -1,20 +1,18 @@
-import {
-  COACH,
-  DEFAULT_ORGANIZATION,
-  ROSTER_RESPONSE,
-  SETTINGS_RESPONSE
-} from '@powercoach/util-fixture'
+import { ROSTER_RESPONSE, SETTINGS_RESPONSE } from '@powercoach/util-fixture'
 import { renderWithRouter } from '@powercoach/util-test/react'
 import { fireEvent, screen } from '@testing-library/react'
 import { Provider } from 'react-redux'
+import { generatePath } from 'react-router'
 
-import { RouterPath } from '@/src/constants'
 import {
   AUTHENTICATED_COACH_EMAIL,
-  createStore,
+  type GetCurrentRosterApiResponse,
   type GetCurrentSettingsApiResponse,
-  type GetCurrentRosterApiResponse
-} from '@/src/store'
+  rosterApi,
+  settingsApi
+} from '@/src/api'
+import { RouterPath } from '@/src/constants'
+import { createStore } from '@/src/store'
 
 import { RosterSidebar } from './RosterSidebar'
 
@@ -29,7 +27,11 @@ const rosterResponse: GetCurrentRosterApiResponse = {
 
 const settingsResponse: GetCurrentSettingsApiResponse = { ...SETTINGS_RESPONSE }
 
-function renderRosterSidebar(initialEntry = RouterPath.Home) {
+function renderRosterSidebar(
+  initialEntry: string = RouterPath.Home,
+  path = '*',
+  store = createStore()
+) {
   vi.stubGlobal(
     'fetch',
     vi.fn().mockImplementation((input: URL | RequestInfo) => {
@@ -46,15 +48,21 @@ function renderRosterSidebar(initialEntry = RouterPath.Home) {
     })
   )
 
-  return renderWithRouter(
-    <Provider store={createStore()}>
-      <RosterSidebar />
+  store.dispatch(settingsApi.endpoints.getCurrentSettings.initiate())
+  store.dispatch(rosterApi.endpoints.getCurrentRoster.initiate({}))
+
+  const renderResult = renderWithRouter(
+    <Provider store={store}>
+      <RosterSidebar renderSeparator={() => <div data-testid="roster-separator" />} />
     </Provider>,
     {
       initialEntry,
+      path,
       pathnameProbe: true
     }
   )
+
+  return { ...renderResult, store }
 }
 
 describe('RosterSidebar', () => {
@@ -63,20 +71,11 @@ describe('RosterSidebar', () => {
     vi.unstubAllGlobals()
   })
 
-  it('renders the logo, organization, coach and athlete avatars', async () => {
+  it('renders organization, coach and athlete links', async () => {
     renderRosterSidebar()
-    expect(screen.getByTestId('roster-logo')).toContainElement(screen.getByTestId('logo-icon'))
-    expect(await screen.findByLabelText(DEFAULT_ORGANIZATION.name)).toBeInTheDocument()
-    expect(screen.getByLabelText(`${COACH.firstName} ${COACH.lastName}`)).toBeInTheDocument()
-    expect(screen.getByLabelText('Kiro Flux')).toBeInTheDocument()
-    expect(screen.getByLabelText('Nexa Vale')).toBeInTheDocument()
-  })
-
-  it('navigates to home when the logo is clicked', async () => {
-    renderRosterSidebar(RouterPath.Reviews)
-    await screen.findByLabelText(DEFAULT_ORGANIZATION.name)
-    fireEvent.click(screen.getByTestId('roster-logo'))
-    expect(screen.getByTestId('pathname')).toHaveTextContent(RouterPath.Home)
+    expect(await screen.findAllByTestId('roster-organization')).toHaveLength(1)
+    expect(screen.getAllByTestId('roster-coach')).toHaveLength(1)
+    expect(screen.getAllByTestId('roster-athlete')).toHaveLength(2)
   })
 
   it('navigates to home when a roster avatar is clicked', async () => {
@@ -85,5 +84,15 @@ describe('RosterSidebar', () => {
     expect(organizationLinks.length).toBeGreaterThanOrEqual(1)
     fireEvent.click(organizationLinks[0] as HTMLElement)
     expect(screen.getByTestId('pathname')).toHaveTextContent(RouterPath.Home)
+  })
+
+  it('navigates to the selected athlete home when an athlete avatar is clicked', async () => {
+    renderRosterSidebar(RouterPath.Reviews)
+    const athleteLinks = await screen.findAllByTestId('roster-athlete')
+    expect(athleteLinks.length).toBeGreaterThanOrEqual(1)
+    fireEvent.click(athleteLinks[0] as HTMLElement)
+    expect(screen.getByTestId('pathname')).toHaveTextContent(
+      generatePath(RouterPath.AthleteHome, { athleteSlug: 'kiro-flux' })
+    )
   })
 })
