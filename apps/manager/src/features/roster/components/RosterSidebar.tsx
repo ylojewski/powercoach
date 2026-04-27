@@ -1,7 +1,7 @@
 import { type ReactElement } from 'react'
 import { generatePath, Link } from 'react-router'
 
-import { RouterPath } from '@/src/constants'
+import { RouterPath } from '@/core'
 
 import { useRosterFeature } from '../hooks'
 import { getAthleteSlug, getInitials } from '../utils'

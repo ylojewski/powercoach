@@ -1,9 +1,7 @@
 import { useCallback } from 'react'
 
+import { useAppDispatch, type Loadable, getLoadableStatusFromQuery } from '@/core'
 import { settingsApi } from '@/src/api'
-import { useAppDispatch } from '@/src/hooks'
-import { type Loadable } from '@/src/types'
-import { getLoadableStatusFromQuery } from '@/src/utils'
 
 interface UseSettingsFeatureResult extends Loadable {
   defaultOrganizationId: number | null

@@ -11,7 +11,11 @@ import {
 } from 'vite'
 import dts from 'vite-plugin-dts'
 
-import { buildConfig as buildVitestConfig, type Config as VitestConfig } from '@/src/vitest'
+import {
+  buildConfig as buildVitestConfig,
+  mapAliases,
+  type Config as VitestConfig
+} from '@/src/vitest'
 
 export interface Config extends VitestConfig {
   api?: boolean | string
@@ -68,6 +72,7 @@ export function buildConfig(importUrl: string, config?: Config): UserConfigFnObj
       },
       resolve: {
         alias: {
+          ...mapAliases(config?.aliases, importDir),
           '@/scripts': resolve(importDir, 'scripts'),
           '@/src': resolve(importDir, 'src'),
           '@/test': resolve(importDir, 'test')

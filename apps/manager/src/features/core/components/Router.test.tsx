@@ -1,9 +1,8 @@
 import { render, screen } from '@testing-library/react'
 import { generatePath } from 'react-router'
 
-import { RouterPath } from '@/src/constants'
-
 import { Router } from './Router'
+import { RouterPath } from '../constants'
 
 vi.mock('./Layout', () => ({
   Layout: () => <>Layout component</>

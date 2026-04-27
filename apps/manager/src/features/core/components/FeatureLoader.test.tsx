@@ -1,11 +1,10 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router'
 
-import { useFeatureLoader } from '@/src/hooks'
-
 import { FeatureLoader } from './FeatureLoader'
+import { useFeatureLoader } from '../hooks'
 
-vi.mock('@/src/hooks', () => ({
+vi.mock('../hooks', () => ({
   useFeatureLoader: vi.fn()
 }))
 

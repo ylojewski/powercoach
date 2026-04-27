@@ -1,7 +1,7 @@
 import { type ReactElement } from 'react'
 import { useParams } from 'react-router'
 
-import { useRosterFeature } from '@/src/features'
+import { useRosterFeature } from '@/roster'
 
 import { Home } from './Home'
 import { ManagementPanels } from './ManagementPanels'

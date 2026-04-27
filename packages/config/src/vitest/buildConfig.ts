@@ -4,10 +4,18 @@ import { fileURLToPath } from 'node:url'
 import { type ViteUserConfig } from 'vitest/config'
 
 export interface Config {
+  aliases?: Record<string, string>
   exclude?: string[]
   globalSetup?: boolean | string
   include?: string[]
   setup?: boolean | string
+}
+
+export function mapAliases(aliases: Config['aliases'], importDir: string): Record<string, string> {
+  return Object.entries(aliases ?? {}).reduce<Record<string, string>>((object, [alias, path]) => {
+    object[alias] = resolve(importDir, path)
+    return object
+  }, {})
 }
 
 export function buildConfig(importUrl: string, config?: Config): ViteUserConfig {
@@ -22,6 +30,7 @@ export function buildConfig(importUrl: string, config?: Config): ViteUserConfig 
   return {
     resolve: {
       alias: {
+        ...mapAliases(config?.aliases, importDir),
         '@/scripts': resolve(importDir, 'scripts'),
         '@/src': resolve(importDir, 'src'),
         '@/test': resolve(importDir, 'test')

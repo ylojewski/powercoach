@@ -3,12 +3,12 @@ import { renderWithRouter } from '@powercoach/util-test/react'
 import { screen } from '@testing-library/react'
 import { generatePath } from 'react-router'
 
-import { RouterPath } from '@/src/constants'
-import { useRosterFeature } from '@/src/features'
+import { useRosterFeature } from '@/roster'
 
 import { Layout } from './Layout'
+import { RouterPath } from '../constants'
 
-vi.mock('@/src/features', () => ({
+vi.mock('@/roster', () => ({
   useRosterFeature: vi.fn()
 }))
 

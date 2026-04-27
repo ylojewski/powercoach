@@ -3,6 +3,14 @@
   "compilerOptions": {
     "baseUrl": "./",
     "jsx": "react-jsx",
+    "paths": {
+      "@/core": ["src/features/core"],
+      "@/roster": ["src/features/roster"],
+      "@/scripts/*": ["scripts/*"],
+      "@/settings": ["src/features/settings"],
+      "@/src/*": ["src/*"],
+      "@/test/*": ["test/*"]
+    },
     "rootDir": "./",
     "types": ["vite/client", "vitest/globals"]
   },

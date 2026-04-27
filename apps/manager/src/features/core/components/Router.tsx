@@ -1,11 +1,10 @@
 import { type ReactElement } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router'
 
-import { RouterPath } from '@/src/constants'
-
 import { FeatureLoader } from './FeatureLoader'
 import { Layout } from './Layout'
 import { NotFound } from './NotFound'
+import { RouterPath } from '../constants'
 
 export function Router(): ReactElement {
   return (

@@ -4,13 +4,13 @@ import { renderWithRouter } from '@powercoach/util-test/react'
 import { fireEvent, screen } from '@testing-library/react'
 import { generatePath } from 'react-router'
 
+import { getAthleteSlug, useRosterFeature } from '@/roster'
 import { type Athlete } from '@/src/api'
-import { RouterPath } from '@/src/constants'
-import { getAthleteSlug, useRosterFeature } from '@/src/features'
 
 import { ManagementPanels } from './ManagementPanels'
+import { RouterPath } from '../constants'
 
-vi.mock('@/src/features', () => ({
+vi.mock('@/roster', () => ({
   getAthleteSlug: vi.fn(() => 'kiro-flux'),
   useRosterFeature: vi.fn()
 }))
