@@ -5,9 +5,10 @@ import {
   HorizontalPanelTrigger
 } from '@powercoach/ui'
 import { type ReactElement, type ReactNode } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router'
+import { generatePath, Link, useLocation, useNavigate } from 'react-router'
 
 import { RouterPath } from '@/src/constants'
+import { getAthleteSlug, useRosterFeature } from '@/src/features'
 
 import { Metrics } from './Metrics'
 import { Notes } from './Notes'
@@ -16,7 +17,7 @@ import { Reviews } from './Reviews'
 
 interface ManagementPanelsLinkProps {
   children: ReactNode
-  to: RouterPath
+  to: string
 }
 
 function ManagementPanelsLink({ children, to }: ManagementPanelsLinkProps): ReactElement {
@@ -28,52 +29,54 @@ function ManagementPanelsLink({ children, to }: ManagementPanelsLinkProps): Reac
 }
 
 export function ManagementPanels(): ReactElement {
-  const location = useLocation()
   const navigate = useNavigate()
+  const { pathname } = useLocation()
+  const { activatedAthlete } = useRosterFeature()
+  const athleteSlug = activatedAthlete ? getAthleteSlug(activatedAthlete) : undefined
 
-  const activePanel = (() => {
-    switch (location.pathname) {
-      case RouterPath.Programs:
-      case RouterPath.Reviews:
-      case RouterPath.Metrics:
-      case RouterPath.Notes:
-        return location.pathname
-      default:
-        return undefined
-    }
-  })()
-  const value = activePanel ? [activePanel] : []
+  const programsPath = athleteSlug
+    ? generatePath(RouterPath.AthletePrograms, { athleteSlug })
+    : RouterPath.Programs
+  const reviewsPath = athleteSlug
+    ? generatePath(RouterPath.AthleteReviews, { athleteSlug })
+    : RouterPath.Reviews
+  const metricsPath = athleteSlug
+    ? generatePath(RouterPath.AthleteMetrics, { athleteSlug })
+    : RouterPath.Metrics
+  const notesPath = athleteSlug
+    ? generatePath(RouterPath.AthleteNotes, { athleteSlug })
+    : RouterPath.Notes
 
-  const handleValueChange = ([routerPath]: RouterPath[]): void => {
-    navigate(routerPath as RouterPath)
+  const handleValueChange = ([panelPath = pathname]: string[]): void => {
+    navigate(panelPath)
   }
 
   return (
-    <HorizontalPanel<RouterPath>
+    <HorizontalPanel<string>
       collapsible={false}
       onValueChange={handleValueChange}
-      value={value}
+      value={[pathname]}
     >
-      <HorizontalPanelItem value={RouterPath.Programs}>
-        <ManagementPanelsLink to={RouterPath.Programs}>programs</ManagementPanelsLink>
+      <HorizontalPanelItem value={programsPath}>
+        <ManagementPanelsLink to={programsPath}>programs</ManagementPanelsLink>
         <HorizontalPanelContent>
           <Programs />
         </HorizontalPanelContent>
       </HorizontalPanelItem>
-      <HorizontalPanelItem value={RouterPath.Reviews}>
-        <ManagementPanelsLink to={RouterPath.Reviews}>reviews</ManagementPanelsLink>
+      <HorizontalPanelItem value={reviewsPath}>
+        <ManagementPanelsLink to={reviewsPath}>reviews</ManagementPanelsLink>
         <HorizontalPanelContent>
           <Reviews />
         </HorizontalPanelContent>
       </HorizontalPanelItem>
-      <HorizontalPanelItem value={RouterPath.Metrics}>
-        <ManagementPanelsLink to={RouterPath.Metrics}>metrics</ManagementPanelsLink>
+      <HorizontalPanelItem value={metricsPath}>
+        <ManagementPanelsLink to={metricsPath}>metrics</ManagementPanelsLink>
         <HorizontalPanelContent>
           <Metrics />
         </HorizontalPanelContent>
       </HorizontalPanelItem>
-      <HorizontalPanelItem value={RouterPath.Notes}>
-        <ManagementPanelsLink to={RouterPath.Notes}>notes</ManagementPanelsLink>
+      <HorizontalPanelItem value={notesPath}>
+        <ManagementPanelsLink to={notesPath}>notes</ManagementPanelsLink>
         <HorizontalPanelContent>
           <Notes />
         </HorizontalPanelContent>

@@ -1,12 +1,14 @@
 import { configureStore } from '@reduxjs/toolkit'
 
-import { managerApi } from './manager'
+import { api } from '@/src/api'
+import { rosterReducer } from '@/src/features'
 
 export function createStore() {
   return configureStore({
-    middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(managerApi.middleware),
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(api.middleware),
     reducer: {
-      [managerApi.reducerPath]: managerApi.reducer
+      [api.reducerPath]: api.reducer,
+      roster: rosterReducer
     }
   })
 }

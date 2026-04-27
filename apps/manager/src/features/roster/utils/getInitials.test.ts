@@ -1,6 +1,6 @@
 import { COACH_EMAIL, DEFAULT_ORGANIZATION } from '@powercoach/util-fixture'
 
-import { getInitials } from './roster'
+import { getInitials } from './getInitials'
 
 describe('getInitials', () => {
   it('uses the first and last words for multi-word names', () => {

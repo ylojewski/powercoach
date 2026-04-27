@@ -1,5 +1,15 @@
 import type React from 'react'
 
+import { useRosterFeature } from '@/src/features'
+
 export function Metrics(): React.ReactElement {
-  return <div>Metrics content</div>
+  const { activatedAthlete } = useRosterFeature()
+
+  return (
+    <div>
+      {activatedAthlete
+        ? `Metrics content for ${activatedAthlete.firstName} ${activatedAthlete.lastName}`
+        : 'Metrics content'}
+    </div>
+  )
 }

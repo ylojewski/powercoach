@@ -9,8 +9,8 @@ const HTTP_METHODS = ['get', 'put', 'post', 'delete', 'patch'] as const
 const OPENAPI_FILE = '@powercoach/api/openapi.json' as const
 
 const require = createRequire(import.meta.url)
-const resolvedStoreDir = dirname(require.resolve('@/src/store'))
-const resolvedGeneratedDir = join(resolvedStoreDir, 'generated')
+const resolvedApiDir = dirname(require.resolve('@/src/api'))
+const resolvedGeneratedDir = join(resolvedApiDir, 'generated')
 const resolvedOpenapiFile = require.resolve(OPENAPI_FILE)
 
 const openapi = JSON.parse(readFileSync(resolvedOpenapiFile, 'utf8')) as OpenAPI.Document
@@ -50,8 +50,8 @@ const generatedFiles = await Promise.all(
     const generatedFile = `${tag}.generated.ts`
 
     await generateEndpoints({
-      apiFile: '@/src/store/manager.ts',
-      apiImport: 'managerApi',
+      apiFile: '@/src/api/api.ts',
+      apiImport: 'api',
       exportName: `${tag}Api`,
       filterEndpoints: operationIds,
       hooks: {
@@ -64,7 +64,7 @@ const generatedFiles = await Promise.all(
     })
 
     if (!process.argv.includes('--quiet')) {
-      console.info(`✅ src/store/generated/${tag}.generated.ts`)
+      console.info(`✅ src/api/generated/${tag}.generated.ts`)
     }
 
     return generatedFile
