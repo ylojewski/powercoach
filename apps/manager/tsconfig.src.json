@@ -4,6 +4,14 @@
     "baseUrl": "./",
     "jsx": "react-jsx",
     "outDir": "dist",
+    "paths": {
+      "@/core": ["src/features/core"],
+      "@/roster": ["src/features/roster"],
+      "@/scripts/*": ["scripts/*"],
+      "@/settings": ["src/features/settings"],
+      "@/src/*": ["src/*"],
+      "@/test/*": ["test/*"]
+    },
     "rootDir": "./",
     "types": ["vite/client"]
   },

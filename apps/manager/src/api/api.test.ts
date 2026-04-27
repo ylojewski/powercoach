@@ -1,4 +1,4 @@
-import { createStore } from '@/src/store'
+import { createStore } from '@/core'
 
 import { api, AUTHENTICATED_COACH_EMAIL, COACH_EMAIL_HEADER } from './api'
 
@@ -60,7 +60,7 @@ describe('api', () => {
     vi.stubGlobal('fetch', fetchMock)
 
     const apiModule = await import('./api')
-    const storeModule = await import('@/src/store')
+    const coreModule = await import('@/core')
 
     const {
       endpoints: { getFallbackManagerProbe }
@@ -73,7 +73,7 @@ describe('api', () => {
       overrideExisting: false
     })
 
-    const store = storeModule.createStore()
+    const store = coreModule.createStore()
     const query = store.dispatch(getFallbackManagerProbe.initiate(undefined))
 
     await query.unwrap()

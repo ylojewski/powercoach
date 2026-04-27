@@ -1,11 +1,9 @@
 import { useCallback, useEffect } from 'react'
 import { useParams } from 'react-router'
 
+import { useAppDispatch, useAppSelector, type Loadable, getLoadableStatusFromQuery } from '@/core'
+import { useSettingsFeature } from '@/settings'
 import { type Athlete, type Coach, type Organization, rosterApi } from '@/src/api'
-import { useSettingsFeature } from '@/src/features'
-import { useAppDispatch, useAppSelector } from '@/src/hooks'
-import { type Loadable } from '@/src/types'
-import { getLoadableStatusFromQuery } from '@/src/utils'
 
 import { activateAthlete, selectActivatedAthlete } from '../store'
 import { getAthleteSlug } from '../utils'

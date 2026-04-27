@@ -4,6 +4,7 @@ import { type PropsWithChildren, type ReactElement } from 'react'
 import { Provider } from 'react-redux'
 import { generatePath, MemoryRouter, Route, Routes } from 'react-router'
 
+import { RouterPath, createStore, type Store } from '@/core'
 import {
   AUTHENTICATED_COACH_EMAIL,
   type GetCurrentRosterApiResponse,
@@ -11,8 +12,6 @@ import {
   rosterApi,
   settingsApi
 } from '@/src/api'
-import { RouterPath } from '@/src/constants'
-import { createStore, type Store } from '@/src/store'
 
 import { activateAthlete, selectActivatedAthlete } from '../store'
 import { getAthleteSlug } from '../utils'

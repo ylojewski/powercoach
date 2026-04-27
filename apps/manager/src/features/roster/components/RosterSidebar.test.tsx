@@ -3,12 +3,12 @@ import { renderWithRouter } from '@powercoach/util-test/react'
 import { fireEvent, screen } from '@testing-library/react'
 import { generatePath } from 'react-router'
 
+import { RouterPath } from '@/core'
 import {
   AUTHENTICATED_COACH_EMAIL,
   type Athlete,
   type GetCurrentRosterApiResponse
 } from '@/src/api'
-import { RouterPath } from '@/src/constants'
 
 import { useRosterFeature } from '../hooks'
 import { RosterSidebar } from './RosterSidebar'

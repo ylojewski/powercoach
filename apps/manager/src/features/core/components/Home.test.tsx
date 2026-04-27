@@ -1,11 +1,11 @@
 import { PRIMARY_ATHLETE_RESPONSE } from '@powercoach/util-fixture'
 import { render, screen } from '@testing-library/react'
 
-import { useRosterFeature } from '@/src/features'
+import { useRosterFeature } from '@/roster'
 
 import { Home } from './Home'
 
-vi.mock('@/src/features', () => ({
+vi.mock('@/roster', () => ({
   useRosterFeature: vi.fn()
 }))
 

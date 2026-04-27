@@ -1,6 +1,6 @@
 import { type BaseQueryFn, type TypedUseQueryStateResult } from '@reduxjs/toolkit/query/react'
 
-import { type LoadableStatus } from '@/src/types'
+import { type LoadableStatus } from '../types'
 
 export function getLoadableStatusFromQuery({
   isError,

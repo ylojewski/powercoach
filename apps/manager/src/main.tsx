@@ -4,8 +4,7 @@ import { Provider } from 'react-redux'
 
 import './styles'
 
-import { Router } from './components/Router'
-import { store } from './store'
+import { Router, store } from './features/core'
 
 const rootElement = window.document.getElementById('root')
 

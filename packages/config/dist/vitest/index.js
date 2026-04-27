@@ -1,8 +1,15 @@
-import { dirname, resolve } from 'path';
+import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+function mapAliases(aliases, importDir) {
+  return Object.entries(aliases ?? {}).reduce((object, [alias, path]) => {
+    object[alias] = resolve(importDir, path);
+    return object;
+  }, {});
+}
+__name(mapAliases, "mapAliases");
 function buildConfig(importUrl, config) {
   const { exclude, globalSetup, include, setup } = config ?? {};
   const importPath = fileURLToPath(importUrl);
@@ -12,6 +19,7 @@ function buildConfig(importUrl, config) {
   return {
     resolve: {
       alias: {
+        ...mapAliases(config?.aliases, importDir),
         "@/scripts": resolve(importDir, "scripts"),
         "@/src": resolve(importDir, "src"),
         "@/test": resolve(importDir, "test")
@@ -45,4 +53,4 @@ function buildConfig(importUrl, config) {
 }
 __name(buildConfig, "buildConfig");
 
-export { buildConfig };
+export { buildConfig, mapAliases };

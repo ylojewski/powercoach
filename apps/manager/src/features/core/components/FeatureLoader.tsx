@@ -1,10 +1,9 @@
 import { type ReactElement, useEffect } from 'react'
 import { Outlet } from 'react-router'
 
-import { useFeatureLoader } from '@/src/hooks'
-
 import { ErrorScreen } from './ErrorScreen'
 import { LoadingScreen } from './LoadingScreen'
+import { useFeatureLoader } from '../hooks'
 
 export function FeatureLoader(): ReactElement {
   const { load, status } = useFeatureLoader()
