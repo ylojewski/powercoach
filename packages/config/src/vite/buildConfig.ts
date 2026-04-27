@@ -2,7 +2,13 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import react from '@vitejs/plugin-react'
-import { defineConfig, loadEnv, PluginOption, type UserConfigFnObject } from 'vite'
+import {
+  type CommonServerOptions,
+  defineConfig,
+  loadEnv,
+  PluginOption,
+  type UserConfigFnObject
+} from 'vite'
 import dts from 'vite-plugin-dts'
 
 import { buildConfig as buildVitestConfig, type Config as VitestConfig } from '@/src/vitest'
@@ -22,6 +28,17 @@ export function buildConfig(importUrl: string, config?: Config): UserConfigFnObj
 
     const apiTarget = api === true ? (loadEnv(mode, importDir).VITE_API_BASE_URL ?? '') : api || ''
     const libFile = lib === true ? 'src/index.ts' : lib || ''
+
+    const apiProxy: CommonServerOptions['proxy'] = {
+      ...(api && {
+        '/api': {
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api/, ''),
+          secure: false,
+          target: apiTarget
+        }
+      })
+    }
 
     return {
       build: {
@@ -46,6 +63,7 @@ export function buildConfig(importUrl: string, config?: Config): UserConfigFnObj
       ],
       preview: {
         port: 4173,
+        proxy: { ...apiProxy },
         strictPort: true
       },
       resolve: {
@@ -58,16 +76,7 @@ export function buildConfig(importUrl: string, config?: Config): UserConfigFnObj
       server: {
         host: 'localhost',
         port: 3000,
-        proxy: {
-          ...(api && {
-            '/api': {
-              changeOrigin: true,
-              rewrite: (path) => path.replace(/^\/api/, ''),
-              secure: false,
-              target: apiTarget
-            }
-          })
-        },
+        proxy: { ...apiProxy },
         strictPort: true
       },
       test: {

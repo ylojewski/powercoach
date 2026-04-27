@@ -37,8 +37,8 @@ vi.mock('@rtk-query/codegen-openapi', () => ({
   generateEndpoints: mocks.generateEndpoints
 }))
 
-const RESOLVED_STORE_FILE = '/virtual/apps/manager/src/store/index.ts' as const
-const RESOLVED_GENERATED_DIR = '/virtual/apps/manager/src/store/generated' as const
+const RESOLVED_API_FILE = '/virtual/apps/manager/src/api/index.ts' as const
+const RESOLVED_GENERATED_DIR = '/virtual/apps/manager/src/api/generated' as const
 const RESOLVED_OPENAPI_FILE = '/virtual/apps/api/dist/openapi.json' as const
 
 const OPENAPI = JSON.stringify({
@@ -97,8 +97,8 @@ describe('generate', () => {
 
     mocks.createRequire.mockReturnValue({ resolve: mocks.requireResolve })
     mocks.requireResolve.mockImplementation((id: string) => {
-      if (id === '@/src/store') {
-        return RESOLVED_STORE_FILE
+      if (id === '@/src/api') {
+        return RESOLVED_API_FILE
       }
 
       if (id === '@powercoach/api/openapi.json') {
@@ -130,8 +130,8 @@ describe('generate', () => {
     expect(mocks.generateEndpoints).toHaveBeenNthCalledWith(
       1,
       expect.objectContaining({
-        apiFile: '@/src/store/manager.ts',
-        apiImport: 'managerApi',
+        apiFile: '@/src/api/api.ts',
+        apiImport: 'api',
         exportName: 'blorboApi',
         filterEndpoints: ['listBlorbo', 'createBlorbo'],
         hooks: GENERATE_ENDPOINTS_HOOKS,
@@ -142,8 +142,8 @@ describe('generate', () => {
     expect(mocks.generateEndpoints).toHaveBeenNthCalledWith(
       2,
       expect.objectContaining({
-        apiFile: '@/src/store/manager.ts',
-        apiImport: 'managerApi',
+        apiFile: '@/src/api/api.ts',
+        apiImport: 'api',
         exportName: 'zindleApi',
         filterEndpoints: ['getZindle'],
         hooks: GENERATE_ENDPOINTS_HOOKS,
@@ -152,8 +152,8 @@ describe('generate', () => {
       })
     )
 
-    expect(console.info).toHaveBeenNthCalledWith(1, '✅ src/store/generated/blorbo.generated.ts')
-    expect(console.info).toHaveBeenNthCalledWith(2, '✅ src/store/generated/zindle.generated.ts')
+    expect(console.info).toHaveBeenNthCalledWith(1, '✅ src/api/generated/blorbo.generated.ts')
+    expect(console.info).toHaveBeenNthCalledWith(2, '✅ src/api/generated/zindle.generated.ts')
 
     expect(mocks.appendFileSync).toHaveBeenNthCalledWith(
       1,

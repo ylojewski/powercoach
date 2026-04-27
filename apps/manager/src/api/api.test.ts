@@ -1,9 +1,10 @@
-import { AUTHENTICATED_COACH_EMAIL, COACH_EMAIL_HEADER, managerApi } from './manager'
-import { createStore } from './store'
+import { createStore } from '@/src/store'
+
+import { api, AUTHENTICATED_COACH_EMAIL, COACH_EMAIL_HEADER } from './api'
 
 const PROBE_RESPONSE = { ok: true } as const
 
-describe('manager', () => {
+describe('api', () => {
   beforeEach(() => {
     vi.resetAllMocks()
   })
@@ -15,7 +16,7 @@ describe('manager', () => {
   it('prefixes requests with /api and seeds the authenticated coach header', async () => {
     const {
       endpoints: { getManagerProbe }
-    } = managerApi.injectEndpoints({
+    } = api.injectEndpoints({
       endpoints: (build) => ({
         getManagerProbe: build.query<{ ok: boolean }, undefined>({
           query: () => ({ url: '/v1/manager-probe' })
@@ -58,12 +59,12 @@ describe('manager', () => {
 
     vi.stubGlobal('fetch', fetchMock)
 
-    const managerModule = await import('./manager')
-    const storeModule = await import('./store')
+    const apiModule = await import('./api')
+    const storeModule = await import('@/src/store')
 
     const {
       endpoints: { getFallbackManagerProbe }
-    } = managerModule.managerApi.injectEndpoints({
+    } = apiModule.api.injectEndpoints({
       endpoints: (build) => ({
         getFallbackManagerProbe: build.query<{ ok: boolean }, undefined>({
           query: () => ({ url: '/v1/manager-probe' })

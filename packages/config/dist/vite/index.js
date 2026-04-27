@@ -56,6 +56,16 @@ function buildConfig2(importUrl, config) {
     const importDir = dirname(importPath);
     const apiTarget = api === true ? loadEnv(mode, importDir).VITE_API_BASE_URL ?? "" : api || "";
     const libFile = lib === true ? "src/index.ts" : lib || "";
+    const apiProxy = {
+      ...api && {
+        "/api": {
+          changeOrigin: true,
+          rewrite: /* @__PURE__ */ __name((path) => path.replace(/^\/api/, ""), "rewrite"),
+          secure: false,
+          target: apiTarget
+        }
+      }
+    };
     return {
       build: {
         ...lib && {
@@ -79,6 +89,7 @@ function buildConfig2(importUrl, config) {
       ],
       preview: {
         port: 4173,
+        proxy: { ...apiProxy },
         strictPort: true
       },
       resolve: {
@@ -91,16 +102,7 @@ function buildConfig2(importUrl, config) {
       server: {
         host: "localhost",
         port: 3e3,
-        proxy: {
-          ...api && {
-            "/api": {
-              changeOrigin: true,
-              rewrite: /* @__PURE__ */ __name((path) => path.replace(/^\/api/, ""), "rewrite"),
-              secure: false,
-              target: apiTarget
-            }
-          }
-        },
+        proxy: { ...apiProxy },
         strictPort: true
       },
       test: {
