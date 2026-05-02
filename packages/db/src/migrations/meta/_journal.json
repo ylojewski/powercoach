@@ -4,23 +4,37 @@
     {
       "breakpoints": true,
       "idx": 0,
-      "tag": "0000_clumsy_marauders",
+      "tag": "0000_create_metadata",
       "version": "7",
       "when": 1764576262323
     },
     {
       "breakpoints": true,
       "idx": 1,
-      "tag": "0001_big_darwin",
+      "tag": "0001_create_roster",
       "version": "7",
       "when": 1776010734630
     },
     {
       "breakpoints": true,
       "idx": 2,
-      "tag": "0002_wonderful_starjammers",
+      "tag": "0002_add_organization_membership",
       "version": "7",
       "when": 1776616083533
+    },
+    {
+      "breakpoints": true,
+      "idx": 3,
+      "tag": "0003_create_exercise_catalog",
+      "version": "7",
+      "when": 1777568865108
+    },
+    {
+      "breakpoints": true,
+      "idx": 4,
+      "tag": "0004_seed_exercise_catalog",
+      "version": "7",
+      "when": 1777568869673
     }
   ],
   "version": "7"

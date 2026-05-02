@@ -11,12 +11,12 @@ export const coachSettings = pgTable(
       .references(() => coaches.id),
     defaultOrganizationId: integer('default_organization_id').notNull()
   },
-  (table) => ({
-    defaultOrganizationFk: foreignKey({
+  (table) => [
+    foreignKey({
       columns: [table.coachId, table.defaultOrganizationId],
       foreignColumns: [coachOrganizations.coachId, coachOrganizations.organizationId],
       name: 'coach_settings_default_organization_fk'
     }),
-    pk: primaryKey({ columns: [table.coachId] })
-  })
+    primaryKey({ columns: [table.coachId] })
+  ]
 )

@@ -13,7 +13,5 @@ export const coachOrganizations = pgTable(
       .notNull()
       .references(() => organizations.id)
   },
-  (table) => ({
-    pk: primaryKey({ columns: [table.coachId, table.organizationId] })
-  })
+  (table) => [primaryKey({ columns: [table.coachId, table.organizationId] })]
 )

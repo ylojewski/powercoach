@@ -19,11 +19,11 @@ export const athletes = pgTable(
       .references(() => organizations.id),
     password: text('password').notNull()
   },
-  (table) => ({
-    coachOrganizationFk: foreignKey({
+  (table) => [
+    foreignKey({
       columns: [table.coachId, table.organizationId],
       foreignColumns: [coachOrganizations.coachId, coachOrganizations.organizationId],
       name: 'athletes_coach_organization_fk'
     })
-  })
+  ]
 )
