@@ -24,6 +24,16 @@ function renderFeatureLoader(): ReturnType<typeof render> {
   )
 }
 
+function renderFeatureLoaderWithChildren(): ReturnType<typeof render> {
+  return render(
+    <MemoryRouter initialEntries={['/']}>
+      <FeatureLoader>
+        <div>Application content</div>
+      </FeatureLoader>
+    </MemoryRouter>
+  )
+}
+
 describe('FeatureLoader', () => {
   beforeEach(() => {
     loadMock.mockReturnValue(unloadMock)
@@ -71,6 +81,16 @@ describe('FeatureLoader', () => {
 
   it('renders the outlet once startup features are loaded', async () => {
     renderFeatureLoader()
+
+    expect(screen.getByText('Application content')).toBeInTheDocument()
+
+    await waitFor(() => {
+      expect(loadMock).toHaveBeenCalledOnce()
+    })
+  })
+
+  it('renders children once startup features are loaded', async () => {
+    renderFeatureLoaderWithChildren()
 
     expect(screen.getByText('Application content')).toBeInTheDocument()
 

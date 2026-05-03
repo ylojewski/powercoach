@@ -22,7 +22,7 @@ describe('Sidebar', () => {
     expect(screen.getByTestId('roster-sidebar')).toBeInTheDocument()
   })
 
-  it('navigates to home when the logo is clicked', () => {
+  it('opens the exercise catalog when the logo is clicked', () => {
     renderWithRouter(<Sidebar />, {
       initialEntry: RouterPath.Reviews,
       pathnameProbe: true
@@ -30,6 +30,6 @@ describe('Sidebar', () => {
 
     fireEvent.click(screen.getByTestId('roster-logo'))
 
-    expect(screen.getByTestId('pathname')).toHaveTextContent(RouterPath.Home)
+    expect(screen.getByTestId('pathname').textContent).toBe(RouterPath.Exercises)
   })
 })

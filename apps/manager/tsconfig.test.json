@@ -5,6 +5,7 @@
     "jsx": "react-jsx",
     "paths": {
       "@/core": ["src/features/core"],
+      "@/exercises": ["src/features/exercises"],
       "@/roster": ["src/features/roster"],
       "@/scripts/*": ["scripts/*"],
       "@/settings": ["src/features/settings"],
