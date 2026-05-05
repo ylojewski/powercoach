@@ -1,17 +1,18 @@
-import { DRAWER_ANIMATION_DELAY, } from '@powercoach/ui'
+import { DRAWER_ANIMATION_DELAY } from '@powercoach/ui'
 import {
+  type Dispatch,
   useEffect,
+  useMemo,
   useState,
   type PropsWithChildren,
   type ReactElement,
-  useMemo,
-  Dispatch,
-  SetStateAction
+  type SetStateAction
 } from 'react'
-import { useLocation } from 'react-router'
+import { matchPath, useLocation } from 'react-router'
 
 export interface UseRoutedDrawerTransitionProps extends PropsWithChildren {
   delay?: number
+  matchDescendants?: boolean
   pathname: string
 }
 
@@ -25,10 +26,14 @@ export interface UseRoutedDrawerTransitionReturn extends PropsWithChildren {
 
 export function useRoutedDrawerTransition({
   delay = DRAWER_ANIMATION_DELAY,
+  matchDescendants = false,
   pathname
 }: UseRoutedDrawerTransitionProps): UseRoutedDrawerTransitionReturn {
   const location = useLocation()
-  const isPathnameMatching = location.pathname === pathname
+  const isPathnameMatching = matchDescendants
+    ? location.pathname === pathname ||
+      Boolean(matchPath({ end: true, path: `${pathname}/*` }, location.pathname))
+    : Boolean(matchPath({ end: true, path: pathname }, location.pathname))
   const [isOpened, setIsOpened] = useState<boolean>(isPathnameMatching)
   const [isAnimating, setIsAnimating] = useState(false)
 
@@ -37,7 +42,7 @@ export function useRoutedDrawerTransition({
       return null
     }
     return <div aria-hidden className="fixed inset-0 z-[60]" />
-  }, [isAnimating])
+  }, [isAnimating, isPathnameMatching])
 
   useEffect(() => {
     setIsAnimating(true)

@@ -29,6 +29,7 @@ function RouterShell(): ReactElement {
             <Route element={<Layout />} path={RouterPath.AthleteReviews} />
             <Route element={<Layout />} path={RouterPath.AthletePrograms} />
             <Route element={<Layout />} path={RouterPath.Exercise} />
+            <Route element={<Layout />} path={RouterPath.ExerciseNew} />
           </Route>
           <Route element={<NotFound />} path="*" />
         </Routes>

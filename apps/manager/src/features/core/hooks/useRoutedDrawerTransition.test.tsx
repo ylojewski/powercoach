@@ -56,4 +56,36 @@ describe('useRoutedDrawerTransition', () => {
     expect(result.current.isPathnameMatching).toBe(false)
     expect(result.current.drawerTransitionOverlay).toBeNull()
   })
+
+  it('matches descendant routes when requested', () => {
+    vi.useFakeTimers()
+
+    const { result } = renderHook(
+      () =>
+        useRoutedDrawerTransition({
+          matchDescendants: true,
+          pathname: RouterPath.Exercise
+        }),
+      { wrapper: createWrapper(RouterPath.ExerciseNew) }
+    )
+
+    expect(result.current.isOpened).toBe(true)
+    expect(result.current.isPathnameMatching).toBe(true)
+  })
+
+  it('does not match similarly prefixed routes as descendants', () => {
+    vi.useFakeTimers()
+
+    const { result } = renderHook(
+      () =>
+        useRoutedDrawerTransition({
+          matchDescendants: true,
+          pathname: RouterPath.Exercise
+        }),
+      { wrapper: createWrapper('/exercise-other') }
+    )
+
+    expect(result.current.isOpened).toBe(false)
+    expect(result.current.isPathnameMatching).toBe(false)
+  })
 })
