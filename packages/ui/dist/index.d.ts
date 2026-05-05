@@ -418,6 +418,8 @@ export declare function Drawer({ swipeDirection, position, ...props }: DrawerPri
     position?: DrawerPosition;
 }): default_2.ReactElement;
 
+export declare const DRAWER_ANIMATION_DELAY = 450;
+
 export declare function DrawerBackdrop({ className, ...props }: DrawerPrimitive.Backdrop.Props): default_2.ReactElement;
 
 export declare function DrawerBar({ className, position: positionProp, render, ...props }: useRender.ComponentProps<'div'> & {
@@ -440,6 +442,10 @@ export declare function DrawerFooter({ className, variant, allowSelection, rende
 export declare function DrawerHeader({ className, allowSelection, render, ...props }: useRender.ComponentProps<'div'> & {
     allowSelection?: boolean;
 }): default_2.ReactElement;
+
+export declare function DrawerIndent({ className, ...props }: DrawerPrimitive.Indent.Props): default_2.ReactElement;
+
+export declare function DrawerIndentBackground({ className, ...props }: DrawerPrimitive.IndentBackground.Props): default_2.ReactElement;
 
 export declare function DrawerMenu({ className, render, ...props }: useRender.ComponentProps<'nav'>): default_2.ReactElement;
 
@@ -486,6 +492,8 @@ export declare const DrawerPortal: typeof DrawerPrimitive.Portal;
 declare type DrawerPosition = 'right' | 'left' | 'top' | 'bottom';
 
 export { DrawerPrimitive }
+
+export declare function DrawerProvider(props: DrawerPrimitive.Provider.Props): default_2.ReactElement;
 
 export declare function DrawerSwipeArea({ className, position: positionProp, ...props }: DrawerPrimitive.SwipeArea.Props & {
     position?: DrawerPosition;

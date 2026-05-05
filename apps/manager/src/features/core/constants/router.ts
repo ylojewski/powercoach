@@ -4,6 +4,7 @@ export enum RouterPath {
   AthleteNotes = '/:athleteSlug/notes',
   AthletePrograms = '/:athleteSlug/programs',
   AthleteReviews = '/:athleteSlug/reviews',
+  Exercise = '/exercise',
   Home = '/',
   Metrics = '/metrics',
   Notes = '/notes',

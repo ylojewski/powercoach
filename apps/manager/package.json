@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "scripts": {
     "build": "vite build && pnpm vercel:generate",
-    "dev": "vite dev",
+    "dev": "vite dev --host",
     "format": "prettier . --check",
     "format:write": "prettier . --write --list-different",
     "lint": "eslint .",

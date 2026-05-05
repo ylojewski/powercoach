@@ -17,7 +17,7 @@ export function Layout(): ReactElement {
   }
 
   return (
-    <div className="flex min-h-screen">
+    <div className="bg-background flex min-h-screen">
       <Sidebar />
       <div className="relative flex-1">
         <Home />

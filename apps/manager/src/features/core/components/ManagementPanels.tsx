@@ -5,7 +5,7 @@ import {
   HorizontalPanelTrigger
 } from '@powercoach/ui'
 import { type ReactElement, type ReactNode } from 'react'
-import { generatePath, Link, useLocation, useNavigate } from 'react-router'
+import { generatePath, Link, useLocation } from 'react-router'
 
 import { getAthleteSlug, useRosterFeature } from '@/roster'
 
@@ -17,19 +17,23 @@ import { RouterPath } from '../constants'
 
 interface ManagementPanelsLinkProps {
   children: ReactNode
+  replace?: boolean
   to: string
 }
 
-function ManagementPanelsLink({ children, to }: ManagementPanelsLinkProps): ReactElement {
+function ManagementPanelsLink({
+  children,
+  replace = false,
+  to
+}: ManagementPanelsLinkProps): ReactElement {
   return (
-    <HorizontalPanelTrigger nativeButton={false} render={<Link to={to} />}>
+    <HorizontalPanelTrigger nativeButton={false} render={<Link replace={replace} to={to} />}>
       {children}
     </HorizontalPanelTrigger>
   )
 }
 
 export function ManagementPanels(): ReactElement {
-  const navigate = useNavigate()
   const { pathname } = useLocation()
   const { activatedAthlete } = useRosterFeature()
   const athleteSlug = activatedAthlete ? getAthleteSlug(activatedAthlete) : undefined
@@ -47,36 +51,36 @@ export function ManagementPanels(): ReactElement {
     ? generatePath(RouterPath.AthleteNotes, { athleteSlug })
     : RouterPath.Notes
 
-  const handleValueChange = ([panelPath = pathname]: string[]): void => {
-    navigate(panelPath)
-  }
-
   return (
-    <HorizontalPanel<string>
-      collapsible={false}
-      onValueChange={handleValueChange}
-      value={[pathname]}
-    >
+    <HorizontalPanel<string> collapsible={false} value={[pathname]}>
       <HorizontalPanelItem value={programsPath}>
-        <ManagementPanelsLink to={programsPath}>programs</ManagementPanelsLink>
+        <ManagementPanelsLink replace={pathname === programsPath} to={programsPath}>
+          programs
+        </ManagementPanelsLink>
         <HorizontalPanelContent>
           <Programs />
         </HorizontalPanelContent>
       </HorizontalPanelItem>
       <HorizontalPanelItem value={reviewsPath}>
-        <ManagementPanelsLink to={reviewsPath}>reviews</ManagementPanelsLink>
+        <ManagementPanelsLink replace={pathname === reviewsPath} to={reviewsPath}>
+          reviews
+        </ManagementPanelsLink>
         <HorizontalPanelContent>
           <Reviews />
         </HorizontalPanelContent>
       </HorizontalPanelItem>
       <HorizontalPanelItem value={metricsPath}>
-        <ManagementPanelsLink to={metricsPath}>metrics</ManagementPanelsLink>
+        <ManagementPanelsLink replace={pathname === metricsPath} to={metricsPath}>
+          metrics
+        </ManagementPanelsLink>
         <HorizontalPanelContent>
           <Metrics />
         </HorizontalPanelContent>
       </HorizontalPanelItem>
       <HorizontalPanelItem value={notesPath}>
-        <ManagementPanelsLink to={notesPath}>notes</ManagementPanelsLink>
+        <ManagementPanelsLink replace={pathname === notesPath} to={notesPath}>
+          notes
+        </ManagementPanelsLink>
         <HorizontalPanelContent>
           <Notes />
         </HorizontalPanelContent>

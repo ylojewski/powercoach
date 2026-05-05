@@ -15,6 +15,8 @@ import { cn } from '@/src/coss/lib/utils'
 
 type DrawerPosition = 'right' | 'left' | 'top' | 'bottom'
 
+export const DRAWER_ANIMATION_DELAY = 450
+
 const DrawerContext: React.Context<{ position: DrawerPosition }> = createContext<{
   position: DrawerPosition
 }>({
@@ -41,6 +43,48 @@ export function Drawer({
     <DrawerContext.Provider value={{ position }}>
       <DrawerPrimitive.Root swipeDirection={swipeDirection ?? directionMap[position]} {...props} />
     </DrawerContext.Provider>
+  )
+}
+
+export function DrawerProvider(props: DrawerPrimitive.Provider.Props): React.ReactElement {
+  return <DrawerPrimitive.Provider {...props} />
+}
+
+export function DrawerIndent({
+  className,
+  ...props
+}: DrawerPrimitive.Indent.Props): React.ReactElement {
+  return (
+    <DrawerPrimitive.Indent
+      className={cn(
+        'origin-top',
+        'overflow-hidden',
+        'transition-[transform]',
+        'duration-[calc(450ms*(1-clamp(0,calc(var(--drawer-swipe-progress,0)*100000),1)))]',
+        'ease-[cubic-bezier(0.32,0.72,0,1)]',
+        'contain-[layout]',
+        'data-active:transform-[scale(calc(0.96+(0.04*var(--drawer-swipe-progress,0))))_translateY(calc(1.4vw*(1.4-var(--drawer-swipe-progress,0))))]',
+        className
+      )}
+      data-slot="drawer-indent"
+      {...props}
+    />
+  )
+}
+
+export function DrawerIndentBackground({
+  className,
+  ...props
+}: DrawerPrimitive.IndentBackground.Props): React.ReactElement {
+  return (
+    <DrawerPrimitive.IndentBackground
+      className={cn(
+        `fixed inset-0 -z-10 bg-black transition-colors duration-450 ease-[cubic-bezier(0.32,0.72,0,1)] data-inactive:bg-transparent`,
+        className
+      )}
+      data-slot="drawer-indent-background"
+      {...props}
+    />
   )
 }
 
@@ -87,7 +131,7 @@ export function DrawerBackdrop({
   return (
     <DrawerPrimitive.Backdrop
       className={cn(
-        'fixed inset-0 z-50 bg-black/32 opacity-[calc(1-var(--drawer-swipe-progress))] backdrop-blur-sm transition-opacity duration-450 ease-[cubic-bezier(0.32,0.72,0,1)] data-ending-style:opacity-0 data-ending-style:duration-[calc(var(--drawer-swipe-strength)*400ms)] data-starting-style:opacity-0 data-swiping:duration-0 supports-[-webkit-touch-callout:none]:absolute',
+        'fixed inset-0 z-50 bg-black/32 opacity-[calc(1-var(--drawer-swipe-progress))] transition-opacity duration-450 ease-[cubic-bezier(0.32,0.72,0,1)] data-ending-style:opacity-0 data-ending-style:duration-[calc(var(--drawer-swipe-strength)*400ms)] data-starting-style:opacity-0 data-swiping:duration-0 supports-[-webkit-touch-callout:none]:absolute',
         className
       )}
       data-slot="drawer-backdrop"

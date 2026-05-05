@@ -1,8 +1,9 @@
 import { PRIMARY_ATHLETE_RESPONSE } from '@powercoach/util-fixture'
 import { expectCollapsed, expectExpanded } from '@powercoach/util-test'
 import { renderWithRouter } from '@powercoach/util-test/react'
-import { fireEvent, screen } from '@testing-library/react'
-import { generatePath } from 'react-router'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { type ReactElement } from 'react'
+import { createMemoryRouter, generatePath, RouterProvider, useLocation } from 'react-router'
 
 import { getAthleteSlug, useRosterFeature } from '@/roster'
 import { type Athlete } from '@/src/api'
@@ -17,6 +18,12 @@ vi.mock('@/roster', () => ({
 
 const getAthleteSlugMock = vi.mocked(getAthleteSlug)
 const useRosterFeatureMock = vi.mocked(useRosterFeature)
+
+function PathnameProbe(): ReactElement {
+  const location = useLocation()
+
+  return <div data-testid="pathname">{location.pathname}</div>
+}
 
 describe('ManagementPanels', () => {
   const athleteSlug = 'kiro-flux'
@@ -45,6 +52,40 @@ describe('ManagementPanels', () => {
       initialEntry,
       pathnameProbe: true
     })
+  }
+
+  function renderRoutedManagementPanels(
+    initialEntries: string[],
+    activatedAthlete: Athlete | null = null
+  ): ReturnType<typeof createMemoryRouter> {
+    getAthleteSlugMock.mockReturnValue('kiro-flux')
+    useRosterFeatureMock.mockReturnValue({
+      activatedAthlete,
+      athletes: [],
+      coach: null,
+      defaultOrganization: null,
+      load: vi.fn().mockReturnValue(vi.fn()),
+      status: 'ready'
+    })
+
+    const router = createMemoryRouter(
+      [
+        {
+          element: (
+            <>
+              <PathnameProbe />
+              <ManagementPanels />
+            </>
+          ),
+          path: '*'
+        }
+      ],
+      { initialEntries }
+    )
+
+    render(<RouterProvider router={router} />)
+
+    return router
   }
 
   function getPanelElements(): void {
@@ -111,6 +152,25 @@ describe('ManagementPanels', () => {
       expectCollapsed(programsButton)
       expect(pathname).toHaveTextContent(generatePath(RouterPath.AthleteHome, { athleteSlug }))
     })
+  })
+
+  it('returns to the athlete home route after opening a panel and navigating back once', async () => {
+    const athleteHomePath = generatePath(RouterPath.AthleteHome, { athleteSlug })
+    const athleteReviewsPath = generatePath(RouterPath.AthleteReviews, { athleteSlug })
+    const router = renderRoutedManagementPanels([athleteHomePath], PRIMARY_ATHLETE_RESPONSE)
+
+    getPanelElements()
+    fireEvent.click(reviewsButton)
+
+    await waitFor(() => {
+      expect(pathname).toHaveTextContent(athleteReviewsPath)
+    })
+
+    await act(async () => {
+      await router.navigate(-1)
+    })
+
+    expect(pathname).toHaveTextContent(athleteHomePath)
   })
 
   describe('when rendered on the metrics route', () => {
