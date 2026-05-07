@@ -1,6 +1,6 @@
 # @powercoach/manager
 
-React + Vite frontend for the Powercoach platform. The app currently displays API health status and is the entry point for future management tooling.
+React + Vite frontend for the Powercoach platform manager.
 
 ## Prerequisites
 
@@ -29,6 +29,9 @@ During local development the Vite dev server proxies `/api` requests to `VITE_AP
 
 ## Architecture notes
 
-- Entry point: `src/main.tsx` renders `<App />` into `index.html`.
-- API usage: `src/App.tsx` fetches `/api/v1/health` to render backend status.
+- Entry point: `src/main.tsx` renders the core router with the Redux store.
+- Core shell: `src/core` owns routing, layout, startup loading and store wiring.
+- Modules: `src/modules` owns manager business areas such as roster, settings, exercises and management panels.
+- Shared primitives: `src/shared` owns generic hooks, types and utilities that do not depend on manager business modules.
+- API usage: `src/api` owns the RTK Query base API and generated endpoints.
 - Vite config: `vite.config.js` wires shared config from `@powercoach/config/vite` and applies the API proxy.

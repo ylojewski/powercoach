@@ -4,11 +4,14 @@
     "baseUrl": "./",
     "jsx": "react-jsx",
     "paths": {
-      "@/core": ["src/features/core"],
-      "@/exercise": ["src/features/exercise"],
-      "@/roster": ["src/features/roster"],
+      "@/api": ["src/api"],
+      "@/api/*": ["src/api/*"],
+      "@/core": ["src/core"],
+      "@/core/*": ["src/core/*"],
+      "@/modules/*": ["src/modules/*"],
       "@/scripts/*": ["scripts/*"],
-      "@/settings": ["src/features/settings"],
+      "@/shared": ["src/shared"],
+      "@/shared/*": ["src/shared/*"],
       "@/src/*": ["src/*"],
       "@/test/*": ["test/*"]
     },

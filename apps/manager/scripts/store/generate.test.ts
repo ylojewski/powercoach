@@ -97,7 +97,7 @@ describe('generate', () => {
 
     mocks.createRequire.mockReturnValue({ resolve: mocks.requireResolve })
     mocks.requireResolve.mockImplementation((id: string) => {
-      if (id === '@/src/api') {
+      if (id === '@/api') {
         return RESOLVED_API_FILE
       }
 
@@ -130,7 +130,7 @@ describe('generate', () => {
     expect(mocks.generateEndpoints).toHaveBeenNthCalledWith(
       1,
       expect.objectContaining({
-        apiFile: '@/src/api/api.ts',
+        apiFile: '@/api/api.ts',
         apiImport: 'api',
         exportName: 'blorboApi',
         filterEndpoints: ['listBlorbo', 'createBlorbo'],
@@ -142,7 +142,7 @@ describe('generate', () => {
     expect(mocks.generateEndpoints).toHaveBeenNthCalledWith(
       2,
       expect.objectContaining({
-        apiFile: '@/src/api/api.ts',
+        apiFile: '@/api/api.ts',
         apiImport: 'api',
         exportName: 'zindleApi',
         filterEndpoints: ['getZindle'],

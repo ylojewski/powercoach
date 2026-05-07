@@ -3,10 +3,10 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default buildConfig(import.meta.url, {
   aliases: {
-    '@/core': 'src/features/core',
-    '@/exercise': 'src/features/exercise',
-    '@/roster': 'src/features/roster',
-    '@/settings': 'src/features/settings'
+    '@/api': 'src/api',
+    '@/core': 'src/core',
+    '@/modules': 'src/modules',
+    '@/shared': 'src/shared'
   },
   api: true,
   exclude: ['src/api/generated'],
