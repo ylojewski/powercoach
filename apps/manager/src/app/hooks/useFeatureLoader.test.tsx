@@ -3,36 +3,36 @@ import { type PropsWithChildren, type ReactElement } from 'react'
 import { MemoryRouter, Route, Routes } from 'react-router'
 
 import { type LoadableStatus, RouterPath } from '@/core'
-import { useRosterFeature } from '@/modules/roster'
-import { useSettingsFeature } from '@/modules/settings'
+import { useRoster } from '@/modules/roster'
+import { useSettings } from '@/modules/settings'
 
 import { useFeatureLoader } from './useFeatureLoader'
 
 vi.mock('@/modules/roster', () => ({
-  useRosterFeature: vi.fn()
+  useRoster: vi.fn()
 }))
 
 vi.mock('@/modules/settings', () => ({
-  useSettingsFeature: vi.fn()
+  useSettings: vi.fn()
 }))
 
 const loadRosterMock = vi.fn()
 const loadSettingsMock = vi.fn()
 const unloadRosterMock = vi.fn()
 const unloadSettingsMock = vi.fn()
-const useRosterFeatureMock = vi.mocked(useRosterFeature)
-const useSettingsFeatureMock = vi.mocked(useSettingsFeature)
+const useRosterMock = vi.mocked(useRoster)
+const useSettingsMock = vi.mocked(useSettings)
 
 function mockFeatures({
   activatedAthlete = null,
   rosterStatus = 'ready',
   settingsStatus = 'ready'
 }: {
-  activatedAthlete?: ReturnType<typeof useRosterFeature>['activatedAthlete']
+  activatedAthlete?: ReturnType<typeof useRoster>['activatedAthlete']
   rosterStatus?: LoadableStatus
   settingsStatus?: LoadableStatus
 } = {}): void {
-  useRosterFeatureMock.mockReturnValue({
+  useRosterMock.mockReturnValue({
     activatedAthlete,
     athletes: [],
     coach: null,
@@ -40,7 +40,7 @@ function mockFeatures({
     load: loadRosterMock.mockReturnValue(unloadRosterMock),
     status: rosterStatus
   })
-  useSettingsFeatureMock.mockReturnValue({
+  useSettingsMock.mockReturnValue({
     defaultOrganizationId: null,
     load: loadSettingsMock.mockReturnValue(unloadSettingsMock),
     status: settingsStatus

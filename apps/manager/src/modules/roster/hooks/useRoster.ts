@@ -2,7 +2,7 @@ import { useCallback, useEffect } from 'react'
 import { useParams } from 'react-router'
 
 import { type Loadable, getLoadableStatusFromQuery, useAppDispatch, useAppSelector } from '@/core'
-import { useSettingsFeature } from '@/modules/settings'
+import { useSettings } from '@/modules/settings'
 import { type Athlete, type Coach, type Organization, rosterApi } from '@/src/api'
 
 import { activateAthlete, selectActivatedAthlete } from '../store'
@@ -15,13 +15,13 @@ interface UseRosterFeatureResult extends Loadable {
   defaultOrganization: Organization | null
 }
 
-export function useRosterFeature(): UseRosterFeatureResult {
+export function useRoster(): UseRosterFeatureResult {
   const dispatch = useAppDispatch()
   const storedActivatedAthlete = useAppSelector(selectActivatedAthlete)
   const rosterQuery = rosterApi.endpoints.getCurrentRoster.useQueryState({})
   const status = getLoadableStatusFromQuery(rosterQuery)
   const { athleteSlug } = useParams()
-  const { defaultOrganizationId } = useSettingsFeature()
+  const { defaultOrganizationId } = useSettings()
 
   const roster = rosterQuery.data
   const { athletes = [], coach = null, organizations = [] } = roster ?? {}

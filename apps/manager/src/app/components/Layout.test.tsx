@@ -4,17 +4,17 @@ import { screen } from '@testing-library/react'
 import { generatePath } from 'react-router'
 
 import { RouterPath } from '@/core'
-import { useRosterFeature } from '@/modules/roster'
+import { useRoster } from '@/modules/roster'
 
 import { Layout } from './Layout'
 
 vi.mock('@/modules/roster', () => ({
-  useRosterFeature: vi.fn()
+  useRoster: vi.fn()
 }))
 
-const useRosterFeatureMock = vi.mocked(useRosterFeature)
+const useRosterMock = vi.mocked(useRoster)
 
-vi.mock('./Home', () => ({
+vi.mock('@/modules/home', () => ({
   Home: () => <div data-testid="home">Home component</div>
 }))
 
@@ -34,7 +34,7 @@ vi.mock('./Sidebar', () => ({
 
 describe('Layout', () => {
   beforeEach(() => {
-    useRosterFeatureMock.mockReturnValue({
+    useRosterMock.mockReturnValue({
       activatedAthlete: null,
       athletes: [],
       coach: null,
@@ -79,7 +79,7 @@ describe('Layout', () => {
   })
 
   it('renders the layout when the current athlete route has an activated athlete', () => {
-    useRosterFeatureMock.mockReturnValue({
+    useRosterMock.mockReturnValue({
       activatedAthlete: PRIMARY_ATHLETE_RESPONSE,
       athletes: [],
       coach: null,

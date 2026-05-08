@@ -1,19 +1,19 @@
 import { PRIMARY_ATHLETE_RESPONSE } from '@powercoach/util-fixture'
 import { render, screen } from '@testing-library/react'
 
-import { useRosterFeature } from '@/modules/roster'
+import { useRoster } from '@/modules/roster'
 
 import { Home } from './Home'
 
 vi.mock('@/modules/roster', () => ({
-  useRosterFeature: vi.fn()
+  useRoster: vi.fn()
 }))
 
-const useRosterFeatureMock = vi.mocked(useRosterFeature)
+const useRosterMock = vi.mocked(useRoster)
 
 describe('Home', () => {
   beforeEach(() => {
-    useRosterFeatureMock.mockReturnValue({
+    useRosterMock.mockReturnValue({
       activatedAthlete: null,
       athletes: [],
       coach: null,
@@ -46,7 +46,7 @@ describe('Home', () => {
   })
 
   it('displays the selected athlete when provided', () => {
-    useRosterFeatureMock.mockReturnValue({
+    useRosterMock.mockReturnValue({
       activatedAthlete: PRIMARY_ATHLETE_RESPONSE,
       athletes: [],
       coach: null,

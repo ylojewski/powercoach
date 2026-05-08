@@ -1,9 +1,9 @@
-import type React from 'react'
+import { type ReactElement } from 'react'
 
-import { useRosterFeature } from '@/modules/roster'
+import { useRoster } from '@/modules/roster'
 
-export function Programs(): React.ReactElement {
-  const { activatedAthlete } = useRosterFeature()
+export function Programs(): ReactElement {
+  const { activatedAthlete } = useRoster()
 
   return (
     <div>

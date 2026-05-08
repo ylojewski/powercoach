@@ -1,9 +1,9 @@
 import { type ReactElement } from 'react'
 
-import { useRosterFeature } from '@/modules/roster'
+import { useRoster } from '@/modules/roster'
 
 export function Home(): ReactElement {
-  const { activatedAthlete } = useRosterFeature()
+  const { activatedAthlete } = useRoster()
 
   return (
     <section className="min-h-screen border-l border-gray-200 dark:border-gray-700">

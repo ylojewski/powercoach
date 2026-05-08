@@ -6,7 +6,7 @@ import { Provider } from 'react-redux'
 import { createStore } from '@/app'
 import { type GetCurrentSettingsApiResponse } from '@/src/api'
 
-import { useSettingsFeature } from './useSettingsFeature'
+import { useSettings } from './useSettings'
 
 const settingsResponse: GetCurrentSettingsApiResponse = { ...SETTINGS_RESPONSE }
 
@@ -25,7 +25,7 @@ function createWrapper(): ({ children }: PropsWithChildren) => ReactElement {
   }
 }
 
-describe('useSettingsFeature', () => {
+describe('useSettings', () => {
   afterEach(() => {
     vi.resetAllMocks()
     vi.unstubAllGlobals()
@@ -37,7 +37,7 @@ describe('useSettingsFeature', () => {
       vi.fn().mockImplementation(() => new Promise<Response>(() => undefined))
     )
 
-    const { result } = renderHook(() => useSettingsFeature(), {
+    const { result } = renderHook(() => useSettings(), {
       wrapper: createWrapper()
     })
 
@@ -63,7 +63,7 @@ describe('useSettingsFeature', () => {
   it('exposes the loaded default organization id', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(createSettingsResponse()))
 
-    const { result } = renderHook(() => useSettingsFeature(), {
+    const { result } = renderHook(() => useSettings(), {
       wrapper: createWrapper()
     })
 
@@ -89,7 +89,7 @@ describe('useSettingsFeature', () => {
   it('exposes the idle state before settings load starts', () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(createSettingsResponse()))
 
-    const { result } = renderHook(() => useSettingsFeature(), {
+    const { result } = renderHook(() => useSettings(), {
       wrapper: createWrapper()
     })
 
@@ -111,7 +111,7 @@ describe('useSettingsFeature', () => {
       )
     )
 
-    const { result } = renderHook(() => useSettingsFeature(), {
+    const { result } = renderHook(() => useSettings(), {
       wrapper: createWrapper()
     })
 

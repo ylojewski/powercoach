@@ -6,18 +6,18 @@ import { type ReactElement } from 'react'
 import { createMemoryRouter, generatePath, RouterProvider, useLocation } from 'react-router'
 
 import { RouterPath } from '@/core'
-import { getAthleteSlug, useRosterFeature } from '@/modules/roster'
+import { getAthleteSlug, useRoster } from '@/modules/roster'
 import { type Athlete } from '@/src/api'
 
 import { ManagementPanels } from './ManagementPanels'
 
 vi.mock('@/modules/roster', () => ({
   getAthleteSlug: vi.fn(() => 'kiro-flux'),
-  useRosterFeature: vi.fn()
+  useRoster: vi.fn()
 }))
 
 const getAthleteSlugMock = vi.mocked(getAthleteSlug)
-const useRosterFeatureMock = vi.mocked(useRosterFeature)
+const useRosterMock = vi.mocked(useRoster)
 
 function PathnameProbe(): ReactElement {
   const location = useLocation()
@@ -39,7 +39,7 @@ describe('ManagementPanels', () => {
     activatedAthlete: Athlete | null = null
   ): void {
     getAthleteSlugMock.mockReturnValue('kiro-flux')
-    useRosterFeatureMock.mockReturnValue({
+    useRosterMock.mockReturnValue({
       activatedAthlete,
       athletes: [],
       coach: null,
@@ -59,7 +59,7 @@ describe('ManagementPanels', () => {
     activatedAthlete: Athlete | null = null
   ): ReturnType<typeof createMemoryRouter> {
     getAthleteSlugMock.mockReturnValue('kiro-flux')
-    useRosterFeatureMock.mockReturnValue({
+    useRosterMock.mockReturnValue({
       activatedAthlete,
       athletes: [],
       coach: null,

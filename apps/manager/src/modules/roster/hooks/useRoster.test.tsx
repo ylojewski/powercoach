@@ -16,7 +16,7 @@ import {
 
 import { activateAthlete, selectActivatedAthlete } from '../store'
 import { getAthleteSlug } from '../utils'
-import { useRosterFeature } from './useRosterFeature'
+import { useRoster } from './useRoster'
 
 const rosterResponse: GetCurrentRosterApiResponse = {
   athletes: [...ROSTER_RESPONSE.athletes],
@@ -83,7 +83,7 @@ function createWrapper(
   return createRouterWrapper(store, options)
 }
 
-describe('useRosterFeature', () => {
+describe('useRoster', () => {
   afterEach(() => {
     vi.resetAllMocks()
     vi.unstubAllGlobals()
@@ -91,7 +91,7 @@ describe('useRosterFeature', () => {
 
   it('loads roster data and derives the default organization from settings', async () => {
     const store = createStore()
-    const { result } = renderHook(() => useRosterFeature(), {
+    const { result } = renderHook(() => useRoster(), {
       wrapper: createWrapper(store)
     })
 
@@ -120,7 +120,7 @@ describe('useRosterFeature', () => {
 
   it('exposes no default organization when settings do not match roster organizations', async () => {
     const store = createStore()
-    const { result } = renderHook(() => useRosterFeature(), {
+    const { result } = renderHook(() => useRoster(), {
       wrapper: createWrapper(store, { defaultOrganizationId: 999 })
     })
 
@@ -138,7 +138,7 @@ describe('useRosterFeature', () => {
 
   it('activates the athlete from the current athlete route context', async () => {
     const store = createStore()
-    const { result } = renderHook(() => useRosterFeature(), {
+    const { result } = renderHook(() => useRoster(), {
       wrapper: createWrapper(store, undefined, {
         initialEntry: generatePath(RouterPath.AthleteHome, { athleteSlug: 'kiro-flux' }),
         path: RouterPath.AthleteHome
@@ -178,7 +178,7 @@ describe('useRosterFeature', () => {
       await store.dispatch(rosterApi.util.upsertQueryData('getCurrentRoster', {}, rosterResponse))
     })
 
-    const { result } = renderHook(() => useRosterFeature(), {
+    const { result } = renderHook(() => useRoster(), {
       wrapper: createWrapper(store, undefined, {
         initialEntry: generatePath(RouterPath.AthleteHome, {
           athleteSlug: getAthleteSlug(secondAthlete)
@@ -201,7 +201,7 @@ describe('useRosterFeature', () => {
 
     store.dispatch(activateAthlete(firstAthlete))
 
-    const { result } = renderHook(() => useRosterFeature(), {
+    const { result } = renderHook(() => useRoster(), {
       wrapper: createWrapper(store)
     })
 
@@ -237,7 +237,7 @@ describe('useRosterFeature', () => {
 
     store.dispatch(activateAthlete(firstAthlete))
 
-    const { result } = renderHook(() => useRosterFeature(), {
+    const { result } = renderHook(() => useRoster(), {
       wrapper: createWrapper(store, undefined, {
         initialEntry: generatePath(RouterPath.AthleteHome, { athleteSlug: 'unknown-athlete' }),
         path: RouterPath.AthleteHome
@@ -276,7 +276,7 @@ describe('useRosterFeature', () => {
       vi.fn().mockImplementation(() => new Promise<Response>(() => undefined))
     )
 
-    const { result } = renderHook(() => useRosterFeature(), {
+    const { result } = renderHook(() => useRoster(), {
       wrapper: createRouterWrapper(store)
     })
 
@@ -310,7 +310,7 @@ describe('useRosterFeature', () => {
       )
     )
 
-    const { result } = renderHook(() => useRosterFeature(), {
+    const { result } = renderHook(() => useRoster(), {
       wrapper: createRouterWrapper(store)
     })
 

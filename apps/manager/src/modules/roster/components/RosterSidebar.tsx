@@ -3,7 +3,7 @@ import { generatePath, Link } from 'react-router'
 
 import { RouterPath } from '@/core'
 
-import { useRosterFeature } from '../hooks'
+import { useRoster } from '../hooks'
 import { getAthleteSlug, getInitials } from '../utils'
 import { RosterSidebarAvatar } from './RosterSidebarAvatar'
 
@@ -12,7 +12,7 @@ export interface RosterSidebarProps {
 }
 
 export function RosterSidebar({ renderSeparator }: RosterSidebarProps): ReactElement {
-  const { activatedAthlete, athletes, coach, defaultOrganization, status } = useRosterFeature()
+  const { activatedAthlete, athletes, coach, defaultOrganization, status } = useRoster()
 
   if (status !== 'ready') {
     return <></>

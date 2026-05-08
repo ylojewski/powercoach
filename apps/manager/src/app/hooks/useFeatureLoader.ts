@@ -1,12 +1,12 @@
 import { useCallback } from 'react'
 
 import { type Loadable, type LoadableStatus } from '@/core'
-import { useRosterFeature } from '@/modules/roster'
-import { useSettingsFeature } from '@/modules/settings'
+import { useRoster } from '@/modules/roster'
+import { useSettings } from '@/modules/settings'
 
 export function useFeatureLoader(): Loadable {
-  const rosterFeature = useRosterFeature()
-  const settingsFeature = useSettingsFeature()
+  const rosterFeature = useRoster()
+  const settingsFeature = useSettings()
 
   const load = useCallback((): VoidFunction => {
     const unloadSettings = settingsFeature.load()

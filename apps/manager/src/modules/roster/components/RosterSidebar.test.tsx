@@ -10,11 +10,11 @@ import {
   type GetCurrentRosterApiResponse
 } from '@/src/api'
 
-import { useRosterFeature } from '../hooks'
+import { useRoster } from '../hooks'
 import { RosterSidebar } from './RosterSidebar'
 
 vi.mock('../hooks', () => ({
-  useRosterFeature: vi.fn()
+  useRoster: vi.fn()
 }))
 
 const rosterResponse: GetCurrentRosterApiResponse = {
@@ -26,10 +26,10 @@ const rosterResponse: GetCurrentRosterApiResponse = {
   organizations: [...ROSTER_RESPONSE.organizations]
 }
 
-const useRosterFeatureMock = vi.mocked(useRosterFeature)
+const useRosterMock = vi.mocked(useRoster)
 
 function mockRosterFeature(activatedAthlete?: Athlete): void {
-  useRosterFeatureMock.mockReturnValue({
+  useRosterMock.mockReturnValue({
     activatedAthlete: activatedAthlete ?? null,
     athletes: rosterResponse.athletes,
     coach: rosterResponse.coach,
@@ -67,7 +67,7 @@ describe('RosterSidebar', () => {
   })
 
   it('renders nothing before roster is ready', () => {
-    useRosterFeatureMock.mockReturnValue({
+    useRosterMock.mockReturnValue({
       activatedAthlete: null,
       athletes: [],
       coach: null,

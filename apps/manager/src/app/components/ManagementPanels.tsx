@@ -8,12 +8,11 @@ import { type ReactElement, type ReactNode } from 'react'
 import { generatePath, Link, useLocation } from 'react-router'
 
 import { RouterPath } from '@/core'
-import { getAthleteSlug, useRosterFeature } from '@/modules/roster'
-
-import { Metrics } from './Metrics'
-import { Notes } from './Notes'
-import { Programs } from './Programs'
-import { Reviews } from './Reviews'
+import { Metrics } from '@/modules/metrics'
+import { Notes } from '@/modules/notes'
+import { Programs } from '@/modules/programs'
+import { Reviews } from '@/modules/reviews'
+import { getAthleteSlug, useRoster } from '@/modules/roster'
 
 interface ManagementPanelsLinkProps {
   children: ReactNode
@@ -35,7 +34,7 @@ function ManagementPanelsLink({
 
 export function ManagementPanels(): ReactElement {
   const { pathname } = useLocation()
-  const { activatedAthlete } = useRosterFeature()
+  const { activatedAthlete } = useRoster()
   const athleteSlug = activatedAthlete ? getAthleteSlug(activatedAthlete) : undefined
 
   const programsPath = athleteSlug

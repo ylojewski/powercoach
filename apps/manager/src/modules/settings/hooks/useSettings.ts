@@ -7,7 +7,7 @@ interface UseSettingsFeatureResult extends Loadable {
   defaultOrganizationId: number | null
 }
 
-export function useSettingsFeature(): UseSettingsFeatureResult {
+export function useSettings(): UseSettingsFeatureResult {
   const dispatch = useAppDispatch()
   const settingsQuery = settingsApi.endpoints.getCurrentSettings.useQueryState()
   const status = getLoadableStatusFromQuery(settingsQuery)
