@@ -3,13 +3,13 @@ import { MemoryRouter } from 'react-router'
 
 import { RouterPath } from '@/app'
 
-import { ExerciseCatalog } from './ExerciseCatalog'
+import { Exercises } from './Exercises'
 
-describe('ExerciseCatalog', () => {
+describe('Exercises', () => {
   it('renders the catalog placeholder', () => {
     render(
       <MemoryRouter>
-        <ExerciseCatalog />
+        <Exercises />
       </MemoryRouter>
     )
 

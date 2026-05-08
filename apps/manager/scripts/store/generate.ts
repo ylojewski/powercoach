@@ -1,4 +1,4 @@
-import { readFileSync, appendFileSync, rmSync, mkdirSync } from 'node:fs'
+import { appendFileSync, existsSync, mkdirSync, readFileSync, rmSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { join, dirname } from 'node:path'
 
@@ -11,7 +11,20 @@ const OPENAPI_FILE = '@powercoach/api/openapi.json' as const
 const require = createRequire(import.meta.url)
 const resolvedApiDir = dirname(require.resolve('@/src/api'))
 const resolvedGeneratedDir = join(resolvedApiDir, 'generated')
-const resolvedOpenapiFile = require.resolve(OPENAPI_FILE)
+const resolvedOpenapiFile = (() => {
+  try {
+    const file = require.resolve(OPENAPI_FILE)
+    return existsSync(file) ? file : undefined
+  } catch {
+    return undefined
+  }
+})()
+
+if (!resolvedOpenapiFile) {
+  throw new Error(
+    `Missing ${OPENAPI_FILE}. Run "pnpm --filter @powercoach/api openapi:generate" before generating the manager store.`
+  )
+}
 
 const openapi = JSON.parse(readFileSync(resolvedOpenapiFile, 'utf8')) as OpenAPI.Document
 

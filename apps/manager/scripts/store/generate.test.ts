@@ -1,6 +1,7 @@
 const mocks = vi.hoisted(() => ({
   appendFileSync: vi.fn(),
   createRequire: vi.fn(),
+  existsSync: vi.fn(),
   generateEndpoints: vi.fn(),
   mkdirSync: vi.fn(),
   readFileSync: vi.fn(),
@@ -11,6 +12,7 @@ const mocks = vi.hoisted(() => ({
 vi.mock('node:fs', () => {
   const fs = {
     appendFileSync: mocks.appendFileSync,
+    existsSync: mocks.existsSync,
     mkdirSync: mocks.mkdirSync,
     readFileSync: mocks.readFileSync,
     rmSync: mocks.rmSync
@@ -107,6 +109,7 @@ describe('generate', () => {
 
       throw new Error(`Unexpected resolve: ${id}`)
     })
+    mocks.existsSync.mockReturnValue(true)
     mocks.readFileSync.mockReturnValue(OPENAPI)
     mocks.generateEndpoints.mockResolvedValue(undefined)
   })
@@ -120,6 +123,7 @@ describe('generate', () => {
     await import('./generate')
 
     expect(mocks.readFileSync).toHaveBeenCalledExactlyOnceWith(RESOLVED_OPENAPI_FILE, 'utf8')
+    expect(mocks.existsSync).toHaveBeenCalledExactlyOnceWith(RESOLVED_OPENAPI_FILE)
     expect(mocks.rmSync).toHaveBeenCalledExactlyOnceWith(RESOLVED_GENERATED_DIR, {
       force: true,
       recursive: true
@@ -173,5 +177,33 @@ describe('generate', () => {
     vi.spyOn(process, 'argv', 'get').mockReturnValue(['node', 'generate', '--quiet'])
     await import('./generate')
     expect(console.info).not.toHaveBeenCalled()
+  })
+
+  it('fails to resolve the openapi file', async () => {
+    mocks.requireResolve.mockClear().mockImplementation((id: string) => {
+      if (id === '@/src/api') {
+        return RESOLVED_API_FILE
+      }
+      throw new Error(`Unexpected resolve: ${id}`)
+    })
+
+    await expect(import('./generate')).rejects.toThrow(
+      `Missing @powercoach/api/openapi.json. Run "pnpm --filter @powercoach/api openapi:generate" before generating the manager store.`
+    )
+
+    expect(mocks.existsSync).not.toHaveBeenCalled()
+    expect(mocks.readFileSync).not.toHaveBeenCalled()
+    expect(mocks.generateEndpoints).not.toHaveBeenCalled()
+  })
+
+  it('throws an explicit error when the openapi file is missing', async () => {
+    mocks.existsSync.mockReturnValue(false)
+
+    await expect(import('./generate')).rejects.toThrow(
+      `Missing @powercoach/api/openapi.json. Run "pnpm --filter @powercoach/api openapi:generate" before generating the manager store.`
+    )
+
+    expect(mocks.readFileSync).not.toHaveBeenCalled()
+    expect(mocks.generateEndpoints).not.toHaveBeenCalled()
   })
 })

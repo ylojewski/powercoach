@@ -7,7 +7,7 @@ export default buildConfig(import.meta.url, {
     '@/modules': 'src/modules'
   },
   api: true,
-  exclude: ['src/api/generated'],
+  exclude: ['src/api/generated', 'src/app/types'],
   include: ['scripts'],
   plugins: [tailwindcss()],
   setup: true

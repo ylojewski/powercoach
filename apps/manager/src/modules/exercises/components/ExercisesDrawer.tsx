@@ -11,13 +11,15 @@ import { useNavigate } from 'react-router'
 
 import { RouterPath, useBackgroundLocationState, useRoutedDrawerTransition } from '@/app'
 
-import { NewCatalogExercise } from './NewCatalogExercise'
+import { Exercises } from './Exercises'
+import { NewExerciseDrawer } from './NewExerciseDrawer'
 
-export function NewCatalogExerciseDrawer(): ReactElement {
+export function ExercisesDrawer(): ReactElement {
   const navigate = useNavigate()
   const backgroundLocationState = useBackgroundLocationState()
   const { drawerTransitionOverlay, isOpened, setIsOpened } = useRoutedDrawerTransition({
-    pathname: RouterPath.ExerciseNew
+    matchDescendants: true,
+    pathname: RouterPath.Exercise
   })
 
   const handleOpenChange = (open: boolean): void => {
@@ -31,7 +33,7 @@ export function NewCatalogExerciseDrawer(): ReactElement {
       return
     }
 
-    navigate(RouterPath.Exercise)
+    navigate(RouterPath.Home)
   }
 
   return (
@@ -40,12 +42,13 @@ export function NewCatalogExerciseDrawer(): ReactElement {
       <Drawer onOpenChange={handleOpenChange} open={isOpened} position="bottom">
         <DrawerPopup showBar showCloseButton className="min-h-[calc(100dvh-4.75rem)] rounded-none">
           <DrawerHeader>
-            <DrawerTitle>New exercise</DrawerTitle>
-            <DrawerDescription>Create a new catalog exercise.</DrawerDescription>
+            <DrawerTitle>Exercise</DrawerTitle>
+            <DrawerDescription>Browse the exercise catalog.</DrawerDescription>
           </DrawerHeader>
           <DrawerPanel scrollable>
-            <NewCatalogExercise />
+            <Exercises />
           </DrawerPanel>
+          <NewExerciseDrawer />
         </DrawerPopup>
       </Drawer>
     </>

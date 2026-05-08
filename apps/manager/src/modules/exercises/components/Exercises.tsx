@@ -4,7 +4,7 @@ import { Link } from 'react-router'
 
 import { RouterPath, useBackgroundLocationState } from '@/app'
 
-export function ExerciseCatalog(): ReactElement {
+export function Exercises(): ReactElement {
   const state = useBackgroundLocationState()
   return (
     <section className="flex flex-col gap-2" data-testid="exercise-catalog">
