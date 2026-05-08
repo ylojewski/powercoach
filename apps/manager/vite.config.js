@@ -4,9 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 export default buildConfig(import.meta.url, {
   aliases: {
     '@/app': 'src/app',
-    '@/exercise': 'src/features/exercise',
-    '@/roster': 'src/features/roster',
-    '@/settings': 'src/features/settings'
+    '@/modules': 'src/modules'
   },
   api: true,
   exclude: ['src/api/generated'],

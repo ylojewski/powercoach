@@ -2,18 +2,18 @@ import { act, renderHook } from '@testing-library/react'
 import { type PropsWithChildren, type ReactElement } from 'react'
 import { MemoryRouter, Route, Routes } from 'react-router'
 
-import { useRosterFeature } from '@/roster'
-import { useSettingsFeature } from '@/settings'
+import { useRosterFeature } from '@/modules/roster'
+import { useSettingsFeature } from '@/modules/settings'
 
 import { useFeatureLoader } from './useFeatureLoader'
 import { RouterPath } from '../constants'
 import { type LoadableStatus } from '../types'
 
-vi.mock('@/roster', () => ({
+vi.mock('@/modules/roster', () => ({
   useRosterFeature: vi.fn()
 }))
 
-vi.mock('@/settings', () => ({
+vi.mock('@/modules/settings', () => ({
   useSettingsFeature: vi.fn()
 }))
 

@@ -1,6 +1,6 @@
 import type React from 'react'
 
-import { useRosterFeature } from '@/roster'
+import { useRosterFeature } from '@/modules/roster'
 
 export function Notes(): React.ReactElement {
   const { activatedAthlete } = useRosterFeature()

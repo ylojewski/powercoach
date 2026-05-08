@@ -6,10 +6,8 @@
     "outDir": "dist",
     "paths": {
       "@/app": ["src/app"],
-      "@/exercise": ["src/features/exercise"],
-      "@/roster": ["src/features/roster"],
+      "@/modules/*": ["src/modules/*"],
       "@/scripts/*": ["scripts/*"],
-      "@/settings": ["src/features/settings"],
       "@/src/*": ["src/*"],
       "@/test/*": ["test/*"]
     },

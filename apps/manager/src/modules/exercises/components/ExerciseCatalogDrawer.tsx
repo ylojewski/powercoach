@@ -14,7 +14,7 @@ import { RouterPath, useBackgroundLocationState, useRoutedDrawerTransition } fro
 import { ExerciseCatalog } from './ExerciseCatalog'
 import { NewCatalogExerciseDrawer } from './NewCatalogExerciseDrawer'
 
-export function ExerciseDrawer(): ReactElement {
+export function ExerciseCatalogDrawer(): ReactElement {
   const navigate = useNavigate()
   const backgroundLocationState = useBackgroundLocationState()
   const { drawerTransitionOverlay, isOpened, setIsOpened } = useRoutedDrawerTransition({

@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 
-import { useRosterFeature } from '@/roster'
-import { useSettingsFeature } from '@/settings'
+import { useRosterFeature } from '@/modules/roster'
+import { useSettingsFeature } from '@/modules/settings'
 
 import { type Loadable, type LoadableStatus } from '../types'
 

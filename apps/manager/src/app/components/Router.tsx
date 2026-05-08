@@ -2,7 +2,7 @@ import { DrawerIndent, DrawerProvider } from '@powercoach/ui'
 import { useMemo, type ReactElement } from 'react'
 import { createBrowserRouter, Route, Routes, RouterProvider, useLocation } from 'react-router'
 
-import { ExerciseDrawer } from '@/exercise'
+import { ExerciseCatalogDrawer } from '@/modules/exercises'
 
 import { FeatureLoader } from './FeatureLoader'
 import { useBackgroundLocationState } from '../hooks'
@@ -34,7 +34,7 @@ function RouterShell(): ReactElement {
           <Route element={<NotFound />} path="*" />
         </Routes>
       </DrawerIndent>
-      <ExerciseDrawer />
+      <ExerciseCatalogDrawer />
     </DrawerProvider>
   )
 }

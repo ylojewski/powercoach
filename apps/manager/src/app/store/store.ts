@@ -1,6 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit'
 
-import { rosterReducer } from '@/roster'
+import { rosterReducer } from '@/modules/roster'
 import { api } from '@/src/api'
 
 export function createStore() {

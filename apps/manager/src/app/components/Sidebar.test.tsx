@@ -5,7 +5,7 @@ import { type ReactElement } from 'react'
 import { Sidebar } from './Sidebar'
 import { RouterPath } from '../constants'
 
-vi.mock('@/roster', () => ({
+vi.mock('@/modules/roster', () => ({
   RosterSidebar: ({ renderSeparator }: { renderSeparator: () => ReactElement }) => (
     <>
       <div data-testid="roster-sidebar">Roster sidebar component</div>

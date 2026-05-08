@@ -2,7 +2,7 @@ import { LogoIcon, Separator } from '@powercoach/ui'
 import { type ReactElement } from 'react'
 import { Link, useLocation } from 'react-router'
 
-import { RosterSidebar } from '@/roster'
+import { RosterSidebar } from '@/modules/roster'
 
 import { RouterPath } from '../constants'
 

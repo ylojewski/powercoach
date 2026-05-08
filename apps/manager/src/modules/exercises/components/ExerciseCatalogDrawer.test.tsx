@@ -4,7 +4,7 @@ import { createMemoryRouter, Outlet, RouterProvider, useLocation } from 'react-r
 
 import { RouterPath } from '@/app'
 
-import { ExerciseDrawer } from './ExerciseDrawer'
+import { ExerciseCatalogDrawer } from './ExerciseCatalogDrawer'
 
 type MemoryRouterOptions = NonNullable<Parameters<typeof createMemoryRouter>[1]>
 type InitialEntries = NonNullable<MemoryRouterOptions['initialEntries']>
@@ -20,7 +20,7 @@ function Shell(): ReactElement {
     <>
       <PathnameProbe />
       <Outlet />
-      <ExerciseDrawer />
+      <ExerciseCatalogDrawer />
     </>
   )
 }
@@ -36,7 +36,7 @@ function renderApp(initialEntries: InitialEntries): ReturnType<typeof createMemo
   return router
 }
 
-describe('ExerciseDrawer', () => {
+describe('ExerciseCatalogDrawer', () => {
   beforeEach(() => {
     vi.useFakeTimers({ shouldAdvanceTime: true })
   })

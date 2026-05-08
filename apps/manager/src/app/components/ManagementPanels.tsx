@@ -7,7 +7,7 @@ import {
 import { type ReactElement, type ReactNode } from 'react'
 import { generatePath, Link, useLocation } from 'react-router'
 
-import { getAthleteSlug, useRosterFeature } from '@/roster'
+import { getAthleteSlug, useRosterFeature } from '@/modules/roster'
 
 import { Metrics } from './Metrics'
 import { Notes } from './Notes'
