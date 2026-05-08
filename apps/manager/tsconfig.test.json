@@ -4,7 +4,7 @@
     "baseUrl": "./",
     "jsx": "react-jsx",
     "paths": {
-      "@/core": ["src/features/core"],
+      "@/app": ["src/app"],
       "@/exercise": ["src/features/exercise"],
       "@/roster": ["src/features/roster"],
       "@/scripts/*": ["scripts/*"],

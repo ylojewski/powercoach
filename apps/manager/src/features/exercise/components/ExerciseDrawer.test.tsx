@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react'
 import { type ReactElement } from 'react'
 import { createMemoryRouter, Outlet, RouterProvider, useLocation } from 'react-router'
 
-import { RouterPath } from '@/core'
+import { RouterPath } from '@/app'
 
 import { ExerciseDrawer } from './ExerciseDrawer'
 

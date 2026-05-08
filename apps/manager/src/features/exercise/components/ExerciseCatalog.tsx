@@ -2,7 +2,7 @@ import { Button } from '@powercoach/ui'
 import { type ReactElement } from 'react'
 import { Link } from 'react-router'
 
-import { RouterPath, useBackgroundLocationState } from '@/core'
+import { RouterPath, useBackgroundLocationState } from '@/app'
 
 export function ExerciseCatalog(): ReactElement {
   const state = useBackgroundLocationState()

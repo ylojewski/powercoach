@@ -1,6 +1,6 @@
 import { PRIMARY_ATHLETE_RESPONSE } from '@powercoach/util-fixture'
 
-import { createStore } from '@/core'
+import { createStore } from '@/app'
 
 import { activateAthlete, rosterReducer, selectActivatedAthlete } from './roster'
 

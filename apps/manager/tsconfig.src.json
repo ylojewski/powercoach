@@ -5,7 +5,7 @@
     "jsx": "react-jsx",
     "outDir": "dist",
     "paths": {
-      "@/core": ["src/features/core"],
+      "@/app": ["src/app"],
       "@/exercise": ["src/features/exercise"],
       "@/roster": ["src/features/roster"],
       "@/scripts/*": ["scripts/*"],

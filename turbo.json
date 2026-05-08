@@ -18,6 +18,21 @@
       "cache": false,
       "persistent": true
     },
+    "@powercoach/db#dev": {
+      "cache": false,
+      "persistent": false
+    },
+    "@powercoach/api#dev": {
+      "cache": false,
+      "dependsOn": ["@powercoach/db#dev"],
+      "persistent": true
+    },
+    "@powercoach/manager#dev": {
+      "cache": false,
+      "dependsOn": ["@powercoach/db#dev"],
+      "persistent": true,
+      "with": ["@powercoach/api#dev"]
+    },
     "format": {
       "inputs": ["$TURBO_DEFAULT$", "pnpm-lock.yaml", ".prettierignore", "prettier.config.*"],
       "outputs": []

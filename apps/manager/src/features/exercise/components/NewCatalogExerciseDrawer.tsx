@@ -9,7 +9,7 @@ import {
 import { type ReactElement } from 'react'
 import { useNavigate } from 'react-router'
 
-import { RouterPath, useBackgroundLocationState, useRoutedDrawerTransition } from '@/core'
+import { RouterPath, useBackgroundLocationState, useRoutedDrawerTransition } from '@/app'
 
 import { NewCatalogExercise } from './NewCatalogExercise'
 

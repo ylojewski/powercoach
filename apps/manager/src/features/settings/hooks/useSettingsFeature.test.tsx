@@ -3,7 +3,7 @@ import { act, renderHook, waitFor } from '@testing-library/react'
 import { type PropsWithChildren, type ReactElement } from 'react'
 import { Provider } from 'react-redux'
 
-import { createStore } from '@/core'
+import { createStore } from '@/app'
 import { type GetCurrentSettingsApiResponse } from '@/src/api'
 
 import { useSettingsFeature } from './useSettingsFeature'

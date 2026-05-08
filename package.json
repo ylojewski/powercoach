@@ -8,7 +8,7 @@
     "commitlint": "commitlint",
     "db:studio": "pnpm --filter @powercoach/db db:studio",
     "deploy:api": "pnpm deploy --legacy --filter @powercoach/api --prod --ignore-scripts deploy/api",
-    "dev": "turbo dev",
+    "dev": "turbo dev --filter=@powercoach/manager",
     "format": "prettier . --check && turbo format --concurrency=1",
     "format:write": "prettier . --write --list-different && turbo format:write --concurrency=1",
     "lint": "turbo lint --concurrency=1",
