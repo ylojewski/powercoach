@@ -7,13 +7,13 @@ import {
 import { type ReactElement, type ReactNode } from 'react'
 import { generatePath, Link, useLocation } from 'react-router'
 
+import { RouterPath } from '@/core'
 import { getAthleteSlug, useRosterFeature } from '@/modules/roster'
 
 import { Metrics } from './Metrics'
 import { Notes } from './Notes'
 import { Programs } from './Programs'
 import { Reviews } from './Reviews'
-import { RouterPath } from '../constants'
 
 interface ManagementPanelsLinkProps {
   children: ReactNode

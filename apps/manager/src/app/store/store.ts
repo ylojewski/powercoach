@@ -1,20 +1,15 @@
 import { configureStore } from '@reduxjs/toolkit'
 
-import { rosterReducer } from '@/modules/roster'
+import { rootReducer } from '@/core'
 import { api } from '@/src/api'
 
 export function createStore() {
   return configureStore({
     middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(api.middleware),
-    reducer: {
-      [api.reducerPath]: api.reducer,
-      roster: rosterReducer
-    }
+    reducer: rootReducer
   })
 }
 
 export const store = createStore()
 
 export type Store = ReturnType<typeof createStore>
-export type State = ReturnType<Store['getState']>
-export type Dispatch = Store['dispatch']

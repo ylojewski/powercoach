@@ -1,7 +1,7 @@
 import { Button } from '@powercoach/ui'
 import { type ReactElement } from 'react'
 
-import { RouterPath, RoutedDrawerLink } from '@/app'
+import { RouterPath, RoutedDrawerLink } from '@/core'
 
 export function Exercises(): ReactElement {
   return (

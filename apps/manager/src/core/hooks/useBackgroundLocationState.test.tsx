@@ -2,8 +2,8 @@ import { renderHook } from '@testing-library/react'
 import { type PropsWithChildren, type ReactElement } from 'react'
 import { MemoryRouter } from 'react-router'
 
-import { useBackgroundLocationState } from './useBackgroundLocationState'
 import { RouterPath } from '../constants'
+import { useBackgroundLocationState } from './useBackgroundLocationState'
 
 function createWrapper(state: unknown): ({ children }: PropsWithChildren) => ReactElement {
   return function Wrapper({ children }: PropsWithChildren): ReactElement {

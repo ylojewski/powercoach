@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
 
-import { RouterPath } from '@/app'
+import { RouterPath } from '@/core'
 
 import { Exercises } from './Exercises'
 

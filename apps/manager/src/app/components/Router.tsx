@@ -2,13 +2,12 @@ import { DrawerIndent, DrawerProvider } from '@powercoach/ui'
 import { useMemo, type ReactElement } from 'react'
 import { createBrowserRouter, Route, Routes, RouterProvider, useLocation } from 'react-router'
 
+import { RouterPath, useBackgroundLocationState } from '@/core'
 import { ExercisesDrawer } from '@/modules/exercises'
 
 import { FeatureLoader } from './FeatureLoader'
-import { useBackgroundLocationState } from '../hooks'
 import { Layout } from './Layout'
 import { NotFound } from './NotFound'
-import { RouterPath } from '../constants'
 
 function RouterShell(): ReactElement {
   const location = useBackgroundLocationState()?.backgroundLocation ?? useLocation()

@@ -2,8 +2,9 @@ import { renderWithRouter } from '@powercoach/util-test/react'
 import { fireEvent, screen } from '@testing-library/react'
 import { type ReactElement } from 'react'
 
+import { RouterPath } from '@/core'
+
 import { Sidebar } from './Sidebar'
-import { RouterPath } from '../constants'
 
 vi.mock('@/modules/roster', () => ({
   RosterSidebar: ({ renderSeparator }: { renderSeparator: () => ReactElement }) => (

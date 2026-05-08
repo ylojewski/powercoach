@@ -1,9 +1,8 @@
 import { useCallback } from 'react'
 
+import { type Loadable, type LoadableStatus } from '@/core'
 import { useRosterFeature } from '@/modules/roster'
 import { useSettingsFeature } from '@/modules/settings'
-
-import { type Loadable, type LoadableStatus } from '../types'
 
 export function useFeatureLoader(): Loadable {
   const rosterFeature = useRosterFeature()

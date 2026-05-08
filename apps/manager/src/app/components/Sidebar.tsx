@@ -2,9 +2,8 @@ import { LogoIcon, Separator } from '@powercoach/ui'
 import { type ReactElement } from 'react'
 import { Link, useLocation } from 'react-router'
 
+import { RouterPath } from '@/core'
 import { RosterSidebar } from '@/modules/roster'
-
-import { RouterPath } from '../constants'
 
 function SidebarSeparator(): ReactElement {
   return <Separator className="bg-gray-200 dark:bg-gray-700" />

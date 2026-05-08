@@ -3,7 +3,7 @@ import { renderWithRouter } from '@powercoach/util-test/react'
 import { fireEvent, screen } from '@testing-library/react'
 import { generatePath } from 'react-router'
 
-import { RouterPath } from '@/app'
+import { RouterPath } from '@/core'
 import {
   AUTHENTICATED_COACH_EMAIL,
   type Athlete,

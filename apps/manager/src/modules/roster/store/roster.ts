@@ -1,13 +1,14 @@
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, type PayloadAction, type WithSlice } from '@reduxjs/toolkit'
 
+import { rootReducer } from '@/core'
 import { type Athlete } from '@/src/api'
 
 export interface RosterState {
   activatedAthlete: Athlete | null
 }
 
-interface RosterSliceState {
-  roster: RosterState
+declare module '@/core/store' {
+  interface ModuleSlices extends WithSlice<typeof rosterSlice> {}
 }
 
 const initialState: RosterState = {
@@ -27,6 +28,8 @@ const rosterSlice = createSlice({
 export const { activateAthlete } = rosterSlice.actions
 export const { reducer: rosterReducer } = rosterSlice
 
-export function selectActivatedAthlete(state: RosterSliceState): Athlete | null {
-  return state.roster.activatedAthlete
+rootReducer.inject(rosterSlice)
+
+export function selectActivatedAthlete(state: { roster?: RosterState }): Athlete | null {
+  return state.roster?.activatedAthlete ?? null
 }

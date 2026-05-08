@@ -4,7 +4,8 @@ import { type PropsWithChildren, type ReactElement } from 'react'
 import { Provider } from 'react-redux'
 import { generatePath, MemoryRouter, Route, Routes } from 'react-router'
 
-import { RouterPath, createStore, type Store } from '@/app'
+import { createStore, type Store } from '@/app'
+import { RouterPath } from '@/core'
 import {
   AUTHENTICATED_COACH_EMAIL,
   type GetCurrentRosterApiResponse,

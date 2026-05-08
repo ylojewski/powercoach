@@ -7,7 +7,7 @@ import {
 } from '@powercoach/ui'
 import { type ReactElement } from 'react'
 
-import { RouterPath, RoutedDrawer } from '@/app'
+import { RouterPath, RoutedDrawer } from '@/core'
 
 import { NewExercise } from './NewExercise'
 

@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 
-import { useAppDispatch, type Loadable, getLoadableStatusFromQuery } from '@/app'
+import { type Loadable, getLoadableStatusFromQuery, useAppDispatch } from '@/core'
 import { settingsApi } from '@/src/api'
 
 interface UseSettingsFeatureResult extends Loadable {

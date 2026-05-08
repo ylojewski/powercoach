@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from 'react'
 import { useParams } from 'react-router'
 
-import { useAppDispatch, useAppSelector, type Loadable, getLoadableStatusFromQuery } from '@/app'
+import { type Loadable, getLoadableStatusFromQuery, useAppDispatch, useAppSelector } from '@/core'
 import { useSettingsFeature } from '@/modules/settings'
 import { type Athlete, type Coach, type Organization, rosterApi } from '@/src/api'
 

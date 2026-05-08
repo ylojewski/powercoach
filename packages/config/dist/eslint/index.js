@@ -68,6 +68,7 @@ function buildTypescriptConfig(project) {
       ...strictRules,
       ...stylisticRules,
       "@typescript-eslint/await-thenable": "error",
+      "@typescript-eslint/no-empty-object-type": ["error", { allowInterfaces: "always" }],
       "@typescript-eslint/no-unused-vars": [
         "error",
         { argsIgnorePattern: "^_", caughtErrors: "none" }

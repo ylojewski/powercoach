@@ -5,11 +5,11 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { type ReactElement } from 'react'
 import { createMemoryRouter, generatePath, RouterProvider, useLocation } from 'react-router'
 
+import { RouterPath } from '@/core'
 import { getAthleteSlug, useRosterFeature } from '@/modules/roster'
 import { type Athlete } from '@/src/api'
 
 import { ManagementPanels } from './ManagementPanels'
-import { RouterPath } from '../constants'
 
 vi.mock('@/modules/roster', () => ({
   getAthleteSlug: vi.fn(() => 'kiro-flux'),

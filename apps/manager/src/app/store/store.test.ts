@@ -1,4 +1,5 @@
 import { api } from '@/src/api'
+import '@/modules/roster'
 
 import { createStore } from './store'
 
