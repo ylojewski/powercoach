@@ -2,16 +2,11 @@ import { renderHook } from '@testing-library/react'
 import { type PropsWithChildren, type ReactElement } from 'react'
 import { MemoryRouter } from 'react-router'
 
-import { RouterPath } from '../constants'
 import { useBackgroundLocationState } from './useBackgroundLocationState'
 
 function createWrapper(state: unknown): ({ children }: PropsWithChildren) => ReactElement {
   return function Wrapper({ children }: PropsWithChildren): ReactElement {
-    return (
-      <MemoryRouter initialEntries={[{ pathname: RouterPath.Home, state }]}>
-        {children}
-      </MemoryRouter>
-    )
+    return <MemoryRouter initialEntries={[{ pathname: '/', state }]}>{children}</MemoryRouter>
   }
 }
 
@@ -44,7 +39,7 @@ describe('useBackgroundLocationState', () => {
     const backgroundLocation = {
       hash: '',
       key: 'bg',
-      pathname: RouterPath.Home,
+      pathname: '/',
       search: '',
       state: null
     }

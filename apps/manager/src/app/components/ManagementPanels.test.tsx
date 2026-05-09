@@ -3,11 +3,12 @@ import { expectCollapsed, expectExpanded } from '@powercoach/util-test'
 import { renderWithRouter } from '@powercoach/util-test/react'
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { type ReactElement } from 'react'
+import { Provider } from 'react-redux'
 import { createMemoryRouter, generatePath, RouterProvider, useLocation } from 'react-router'
 
-import { RouterPath } from '@/core'
 import { getAthleteSlug, useRoster } from '@/modules/roster'
 import { type Athlete } from '@/src/api'
+import { createTestStore } from '@/test/utils/store'
 
 import { ManagementPanels } from './ManagementPanels'
 
@@ -48,9 +49,11 @@ describe('ManagementPanels', () => {
       status: 'ready'
     })
 
+    const store = createTestStore()
     renderWithRouter(<ManagementPanels />, {
       initialEntry,
-      pathnameProbe: true
+      pathnameProbe: true,
+      wrapper: ({ children }) => <Provider store={store}>{children}</Provider>
     })
   }
 
@@ -83,7 +86,11 @@ describe('ManagementPanels', () => {
       { initialEntries }
     )
 
-    render(<RouterProvider router={router} />)
+    render(
+      <Provider store={createTestStore()}>
+        <RouterProvider router={router} />
+      </Provider>
+    )
 
     return router
   }
@@ -99,29 +106,29 @@ describe('ManagementPanels', () => {
 
   describe('when rendered on the home route', () => {
     beforeEach(() => {
-      renderManagementPanels(RouterPath.Home)
+      renderManagementPanels('/')
 
       getPanelElements()
     })
 
     it('renders the home route with all panels collapsed', () => {
       expect(allButtons).toEqual([programsButton, reviewsButton, metricsButton, notesButton])
-      expect(programsButton).toHaveAttribute('href', RouterPath.Programs)
-      expect(reviewsButton).toHaveAttribute('href', RouterPath.Reviews)
-      expect(metricsButton).toHaveAttribute('href', RouterPath.Metrics)
-      expect(notesButton).toHaveAttribute('href', RouterPath.Notes)
+      expect(programsButton).toHaveAttribute('href', '/programs')
+      expect(reviewsButton).toHaveAttribute('href', '/reviews')
+      expect(metricsButton).toHaveAttribute('href', '/metrics')
+      expect(notesButton).toHaveAttribute('href', '/notes')
       expectCollapsed(metricsButton)
       expectCollapsed(notesButton)
       expectCollapsed(reviewsButton)
       expectCollapsed(programsButton)
-      expect(pathname).toHaveTextContent(RouterPath.Home)
+      expect(pathname).toHaveTextContent('/')
     })
   })
 
   describe('when rendered on an athlete home route', () => {
     beforeEach(() => {
       renderManagementPanels(
-        generatePath(RouterPath.AthleteHome, { athleteSlug }),
+        generatePath('/:athleteSlug', { athleteSlug }),
         PRIMARY_ATHLETE_RESPONSE
       )
 
@@ -132,31 +139,31 @@ describe('ManagementPanels', () => {
       expect(allButtons).toEqual([programsButton, reviewsButton, metricsButton, notesButton])
       expect(programsButton).toHaveAttribute(
         'href',
-        generatePath(RouterPath.AthletePrograms, { athleteSlug })
+        generatePath('/:athleteSlug/programs', { athleteSlug })
       )
       expect(reviewsButton).toHaveAttribute(
         'href',
-        generatePath(RouterPath.AthleteReviews, { athleteSlug })
+        generatePath('/:athleteSlug/reviews', { athleteSlug })
       )
       expect(metricsButton).toHaveAttribute(
         'href',
-        generatePath(RouterPath.AthleteMetrics, { athleteSlug })
+        generatePath('/:athleteSlug/metrics', { athleteSlug })
       )
       expect(notesButton).toHaveAttribute(
         'href',
-        generatePath(RouterPath.AthleteNotes, { athleteSlug })
+        generatePath('/:athleteSlug/notes', { athleteSlug })
       )
       expectCollapsed(metricsButton)
       expectCollapsed(notesButton)
       expectCollapsed(reviewsButton)
       expectCollapsed(programsButton)
-      expect(pathname).toHaveTextContent(generatePath(RouterPath.AthleteHome, { athleteSlug }))
+      expect(pathname).toHaveTextContent(generatePath('/:athleteSlug', { athleteSlug }))
     })
   })
 
   it('returns to the athlete home route after opening a panel and navigating back once', async () => {
-    const athleteHomePath = generatePath(RouterPath.AthleteHome, { athleteSlug })
-    const athleteReviewsPath = generatePath(RouterPath.AthleteReviews, { athleteSlug })
+    const athleteHomePath = generatePath('/:athleteSlug', { athleteSlug })
+    const athleteReviewsPath = generatePath('/:athleteSlug/reviews', { athleteSlug })
     const router = renderRoutedManagementPanels([athleteHomePath], PRIMARY_ATHLETE_RESPONSE)
 
     getPanelElements()
@@ -175,7 +182,7 @@ describe('ManagementPanels', () => {
 
   describe('when rendered on the metrics route', () => {
     beforeEach(() => {
-      renderManagementPanels(RouterPath.Metrics)
+      renderManagementPanels('/metrics')
 
       getPanelElements()
     })
@@ -185,14 +192,14 @@ describe('ManagementPanels', () => {
       expectCollapsed(notesButton)
       expectCollapsed(reviewsButton)
       expectCollapsed(programsButton)
-      expect(pathname).toHaveTextContent(RouterPath.Metrics)
+      expect(pathname).toHaveTextContent('/metrics')
     })
   })
 
   describe('when rendered on an athlete metrics route', () => {
     beforeEach(() => {
       renderManagementPanels(
-        generatePath(RouterPath.AthleteMetrics, { athleteSlug }),
+        generatePath('/:athleteSlug/metrics', { athleteSlug }),
         PRIMARY_ATHLETE_RESPONSE
       )
 
@@ -205,13 +212,13 @@ describe('ManagementPanels', () => {
       expectCollapsed(reviewsButton)
       expectCollapsed(programsButton)
       expect(screen.getByText('Metrics content for Kiro Flux')).toBeInTheDocument()
-      expect(pathname).toHaveTextContent(generatePath(RouterPath.AthleteMetrics, { athleteSlug }))
+      expect(pathname).toHaveTextContent(generatePath('/:athleteSlug/metrics', { athleteSlug }))
     })
   })
 
   describe('when rendered on the notes route', () => {
     beforeEach(() => {
-      renderManagementPanels(RouterPath.Notes)
+      renderManagementPanels('/notes')
 
       getPanelElements()
     })
@@ -221,14 +228,14 @@ describe('ManagementPanels', () => {
       expectExpanded(notesButton)
       expectCollapsed(reviewsButton)
       expectCollapsed(programsButton)
-      expect(pathname).toHaveTextContent(RouterPath.Notes)
+      expect(pathname).toHaveTextContent('/notes')
     })
   })
 
   describe('when rendered on an athlete notes route', () => {
     beforeEach(() => {
       renderManagementPanels(
-        generatePath(RouterPath.AthleteNotes, { athleteSlug }),
+        generatePath('/:athleteSlug/notes', { athleteSlug }),
         PRIMARY_ATHLETE_RESPONSE
       )
 
@@ -241,13 +248,13 @@ describe('ManagementPanels', () => {
       expectCollapsed(reviewsButton)
       expectCollapsed(programsButton)
       expect(screen.getByText('Notes content for Kiro Flux')).toBeInTheDocument()
-      expect(pathname).toHaveTextContent(generatePath(RouterPath.AthleteNotes, { athleteSlug }))
+      expect(pathname).toHaveTextContent(generatePath('/:athleteSlug/notes', { athleteSlug }))
     })
   })
 
   describe('when rendered on the reviews route', () => {
     beforeEach(() => {
-      renderManagementPanels(RouterPath.Reviews)
+      renderManagementPanels('/reviews')
 
       getPanelElements()
     })
@@ -257,14 +264,14 @@ describe('ManagementPanels', () => {
       expectCollapsed(notesButton)
       expectExpanded(reviewsButton)
       expectCollapsed(programsButton)
-      expect(pathname).toHaveTextContent(RouterPath.Reviews)
+      expect(pathname).toHaveTextContent('/reviews')
     })
 
     it('keeps the active panel open when its trigger is clicked', () => {
       fireEvent.click(reviewsButton)
 
       expectExpanded(reviewsButton)
-      expect(pathname).toHaveTextContent(RouterPath.Reviews)
+      expect(pathname).toHaveTextContent('/reviews')
     })
 
     it('switches from reviews to programs when another panel is opened', () => {
@@ -274,13 +281,13 @@ describe('ManagementPanels', () => {
       expectCollapsed(notesButton)
       expectCollapsed(reviewsButton)
       expectExpanded(programsButton)
-      expect(pathname).toHaveTextContent(RouterPath.Programs)
+      expect(pathname).toHaveTextContent('/programs')
     })
   })
 
   describe('when rendered on the programs route', () => {
     beforeEach(() => {
-      renderManagementPanels(RouterPath.Programs)
+      renderManagementPanels('/programs')
 
       getPanelElements()
     })
@@ -290,14 +297,14 @@ describe('ManagementPanels', () => {
       expectCollapsed(notesButton)
       expectCollapsed(reviewsButton)
       expectExpanded(programsButton)
-      expect(pathname).toHaveTextContent(RouterPath.Programs)
+      expect(pathname).toHaveTextContent('/programs')
     })
   })
 
   describe('when rendered on an athlete route', () => {
     beforeEach(() => {
       renderManagementPanels(
-        generatePath(RouterPath.AthleteReviews, { athleteSlug }),
+        generatePath('/:athleteSlug/reviews', { athleteSlug }),
         PRIMARY_ATHLETE_RESPONSE
       )
 
@@ -307,23 +314,23 @@ describe('ManagementPanels', () => {
     it('keeps athlete specific panel links and content in sync with the route', () => {
       expect(programsButton).toHaveAttribute(
         'href',
-        generatePath(RouterPath.AthletePrograms, { athleteSlug })
+        generatePath('/:athleteSlug/programs', { athleteSlug })
       )
       expect(reviewsButton).toHaveAttribute(
         'href',
-        generatePath(RouterPath.AthleteReviews, { athleteSlug })
+        generatePath('/:athleteSlug/reviews', { athleteSlug })
       )
       expect(metricsButton).toHaveAttribute(
         'href',
-        generatePath(RouterPath.AthleteMetrics, { athleteSlug })
+        generatePath('/:athleteSlug/metrics', { athleteSlug })
       )
       expect(notesButton).toHaveAttribute(
         'href',
-        generatePath(RouterPath.AthleteNotes, { athleteSlug })
+        generatePath('/:athleteSlug/notes', { athleteSlug })
       )
       expectExpanded(reviewsButton)
       expect(screen.getByText('Reviews content for Kiro Flux')).toBeInTheDocument()
-      expect(pathname).toHaveTextContent(generatePath(RouterPath.AthleteReviews, { athleteSlug }))
+      expect(pathname).toHaveTextContent(generatePath('/:athleteSlug/reviews', { athleteSlug }))
     })
 
     it('switches panels within the selected athlete context', () => {
@@ -334,7 +341,7 @@ describe('ManagementPanels', () => {
       expectCollapsed(reviewsButton)
       expectExpanded(programsButton)
       expect(screen.getByText('Programs content for Kiro Flux')).toBeInTheDocument()
-      expect(pathname).toHaveTextContent(generatePath(RouterPath.AthletePrograms, { athleteSlug }))
+      expect(pathname).toHaveTextContent(generatePath('/:athleteSlug/programs', { athleteSlug }))
     })
   })
 })

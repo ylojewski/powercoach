@@ -1,9 +1,16 @@
 import { render, screen } from '@testing-library/react'
+import { Provider } from 'react-redux'
 import { generatePath } from 'react-router'
 
-import { RouterPath } from '@/core'
+import { createTestStore } from '@/test/utils/store'
 
 import { Router } from './Router'
+
+vi.mock('@/modules/exercises', () => ({
+  exercisesDrawers: null,
+  ExercisesRouterPath: { New: 'new' },
+  exercisesRoutes: null
+}))
 
 vi.mock('./Layout', () => ({
   Layout: () => <>Layout component</>
@@ -27,12 +34,20 @@ vi.mock('./NotFound', () => ({
 
 describe('Router', () => {
   beforeEach(() => {
-    window.history.pushState({}, '', RouterPath.Home)
+    window.history.pushState({}, '', '/')
   })
 
+  function renderRouter(): void {
+    render(
+      <Provider store={createTestStore()}>
+        <Router />
+      </Provider>
+    )
+  }
+
   it('renders the layout on application routes', () => {
-    window.history.pushState({}, '', RouterPath.Reviews)
-    render(<Router />)
+    window.history.pushState({}, '', '/reviews')
+    renderRouter()
     expect(screen.getByTestId('feature-loader')).toBeInTheDocument()
     expect(screen.getByText('Layout component')).toBeInTheDocument()
   })
@@ -41,16 +56,16 @@ describe('Router', () => {
     window.history.pushState(
       {},
       '',
-      generatePath(RouterPath.AthleteReviews, { athleteSlug: 'kiro-flux' })
+      generatePath('/:athleteSlug/reviews', { athleteSlug: 'kiro-flux' })
     )
-    render(<Router />)
+    renderRouter()
     expect(screen.getByTestId('feature-loader')).toBeInTheDocument()
     expect(screen.getByText('Layout component')).toBeInTheDocument()
   })
 
   it('renders the not found route on unknown paths', () => {
     window.history.pushState({}, '', '/unknown/path')
-    render(<Router />)
+    renderRouter()
     expect(screen.getByText('NotFound component')).toBeInTheDocument()
     expect(screen.queryByTestId('feature-loader')).not.toBeInTheDocument()
   })

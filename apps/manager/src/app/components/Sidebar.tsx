@@ -1,8 +1,7 @@
 import { LogoIcon, Separator } from '@powercoach/ui'
 import { type ReactElement } from 'react'
-import { Link, useLocation } from 'react-router'
 
-import { RouterPath } from '@/core'
+import { RoutedDrawerLink, useRouterConfig } from '@/core'
 import { RosterSidebar } from '@/modules/roster'
 
 function SidebarSeparator(): ReactElement {
@@ -10,18 +9,17 @@ function SidebarSeparator(): ReactElement {
 }
 
 export function Sidebar(): ReactElement {
-  const location = useLocation()
+  const { Exercises } = useRouterConfig()
 
   return (
     <aside className="flex min-h-screen w-15 shrink-0 flex-col items-center gap-4 pt-4">
-      <Link
+      <RoutedDrawerLink
         aria-label="Powercoach exercises"
         data-testid="roster-logo"
-        state={{ backgroundLocation: location }}
-        to={RouterPath.Exercise}
+        to={Exercises.Index}
       >
         <LogoIcon />
-      </Link>
+      </RoutedDrawerLink>
       <SidebarSeparator />
       <RosterSidebar renderSeparator={() => <SidebarSeparator />} />
     </aside>

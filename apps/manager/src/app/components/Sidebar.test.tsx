@@ -1,8 +1,9 @@
 import { renderWithRouter } from '@powercoach/util-test/react'
 import { fireEvent, screen } from '@testing-library/react'
 import { type ReactElement } from 'react'
+import { Provider } from 'react-redux'
 
-import { RouterPath } from '@/core'
+import { createTestStore } from '@/test/utils/store'
 
 import { Sidebar } from './Sidebar'
 
@@ -15,22 +16,28 @@ vi.mock('@/modules/roster', () => ({
   )
 }))
 
+function renderSidebar(initialEntry = '/') {
+  const store = createTestStore()
+  return renderWithRouter(<Sidebar />, {
+    initialEntry,
+    pathnameProbe: true,
+    wrapper: ({ children }) => <Provider store={store}>{children}</Provider>
+  })
+}
+
 describe('Sidebar', () => {
   it('renders the logo and roster sidebar content', () => {
-    renderWithRouter(<Sidebar />)
+    renderSidebar()
 
     expect(screen.getByTestId('roster-logo')).toContainElement(screen.getByTestId('logo-icon'))
     expect(screen.getByTestId('roster-sidebar')).toBeInTheDocument()
   })
 
   it('navigates to exercise when the logo is clicked', () => {
-    renderWithRouter(<Sidebar />, {
-      initialEntry: RouterPath.Reviews,
-      pathnameProbe: true
-    })
+    renderSidebar('/reviews')
 
     fireEvent.click(screen.getByTestId('roster-logo'))
 
-    expect(screen.getByTestId('pathname')).toHaveTextContent(RouterPath.Exercise)
+    expect(screen.getByTestId('pathname')).toHaveTextContent('/exercise')
   })
 })

@@ -3,7 +3,6 @@ import { renderWithRouter } from '@powercoach/util-test/react'
 import { screen } from '@testing-library/react'
 import { generatePath } from 'react-router'
 
-import { RouterPath } from '@/core'
 import { useRoster } from '@/modules/roster'
 
 import { Layout } from './Layout'
@@ -70,8 +69,8 @@ describe('Layout', () => {
 
   it('renders not found when the current athlete route has no activated athlete', () => {
     renderWithRouter(<Layout />, {
-      initialEntry: generatePath(RouterPath.AthleteHome, { athleteSlug: 'unknown-athlete' }),
-      path: RouterPath.AthleteHome
+      initialEntry: generatePath('/:athleteSlug', { athleteSlug: 'unknown-athlete' }),
+      path: '/:athleteSlug'
     })
 
     expect(screen.getByText('Not found component')).toBeInTheDocument()
@@ -89,8 +88,8 @@ describe('Layout', () => {
     })
 
     renderWithRouter(<Layout />, {
-      initialEntry: generatePath(RouterPath.AthleteHome, { athleteSlug: 'kiro-flux' }),
-      path: RouterPath.AthleteHome
+      initialEntry: generatePath('/:athleteSlug', { athleteSlug: 'kiro-flux' }),
+      path: '/:athleteSlug'
     })
 
     expect(screen.getByTestId('sidebar')).toBeInTheDocument()

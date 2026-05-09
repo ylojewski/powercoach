@@ -2,7 +2,7 @@ import { act, renderHook } from '@testing-library/react'
 import { type PropsWithChildren, type ReactElement } from 'react'
 import { MemoryRouter, Route, Routes } from 'react-router'
 
-import { type LoadableStatus, RouterPath } from '@/core'
+import { type LoadableStatus } from '@/core'
 import { useRoster } from '@/modules/roster'
 import { useSettings } from '@/modules/settings'
 
@@ -48,8 +48,8 @@ function mockFeatures({
 }
 
 function createWrapper({
-  initialEntry = RouterPath.Home,
-  path = RouterPath.Home
+  initialEntry = '/',
+  path = '/'
 }: {
   initialEntry?: string
   path?: string

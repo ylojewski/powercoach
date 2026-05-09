@@ -1,8 +1,9 @@
 import { act, fireEvent, render, screen } from '@testing-library/react'
 import { type ReactElement } from 'react'
+import { Provider } from 'react-redux'
 import { createMemoryRouter, Outlet, RouterProvider, useLocation } from 'react-router'
 
-import { RouterPath } from '@/core'
+import { createTestStore } from '@/test/utils/store'
 
 import { ExercisesDrawer } from './ExercisesDrawer'
 
@@ -34,7 +35,11 @@ async function renderApp(
   )
 
   await act(async () => {
-    render(<RouterProvider router={router} />)
+    render(
+      <Provider store={createTestStore()}>
+        <RouterProvider router={router} />
+      </Provider>
+    )
   })
 
   return router
@@ -50,20 +55,20 @@ describe('ExercisesDrawer', () => {
   })
 
   it('does not render the catalog when off the exercise route', async () => {
-    await renderApp([RouterPath.Home])
+    await renderApp(['/'])
 
     expect(screen.queryByTestId('exercise-catalog')).not.toBeInTheDocument()
   })
 
   it('opens the drawer with the catalog on the exercise route', async () => {
-    await renderApp([RouterPath.Exercise])
+    await renderApp(['/exercise'])
 
     expect(screen.getByTestId('exercise-catalog')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Exercise' })).toBeInTheDocument()
   })
 
   it('opens the nested drawer on the new catalog exercise route', async () => {
-    await renderApp([RouterPath.ExerciseNew])
+    await renderApp(['/exercise/new'])
 
     expect(screen.getByTestId('exercise-catalog')).toBeInTheDocument()
     expect(screen.getByTestId('exercise-catalog-new')).toBeInTheDocument()
@@ -75,13 +80,13 @@ describe('ExercisesDrawer', () => {
     const backgroundLocation = {
       hash: '',
       key: 'home',
-      pathname: RouterPath.Home,
+      pathname: '/',
       search: '',
       state: null
     }
     const router = await renderApp([
       {
-        pathname: RouterPath.Exercise,
+        pathname: '/exercise',
         state: { backgroundLocation }
       }
     ])
@@ -90,12 +95,12 @@ describe('ExercisesDrawer', () => {
       fireEvent.click(screen.getByRole('link', { name: 'New exercise' }))
     })
 
-    expect(screen.getByTestId('pathname')).toHaveTextContent(RouterPath.ExerciseNew)
+    expect(screen.getByTestId('pathname')).toHaveTextContent('/exercise/new')
     expect(router.state.location.state).toEqual({ backgroundLocation })
   })
 
   it('navigates back when the close button is pressed', async () => {
-    await renderApp([RouterPath.Home, RouterPath.Exercise])
+    await renderApp(['/', '/exercise'])
 
     fireEvent.click(screen.getByRole('button', { name: 'Close' }))
 
@@ -103,11 +108,11 @@ describe('ExercisesDrawer', () => {
       vi.runAllTimers()
     })
 
-    expect(screen.getByTestId('pathname')).toHaveTextContent(RouterPath.Home)
+    expect(screen.getByTestId('pathname')).toHaveTextContent('/')
   })
 
   it('returns to the catalog route when the nested drawer is closed directly', async () => {
-    await renderApp([RouterPath.ExerciseNew])
+    await renderApp(['/exercise/new'])
 
     fireEvent.click(screen.getByRole('button', { name: 'Close' }))
 
@@ -115,18 +120,18 @@ describe('ExercisesDrawer', () => {
       vi.runAllTimers()
     })
 
-    expect(screen.getByTestId('pathname')).toHaveTextContent(RouterPath.Exercise)
+    expect(screen.getByTestId('pathname')).toHaveTextContent('/exercise')
   })
 
   it('does not block programmatic navigation away from the drawer route', async () => {
-    const router = await renderApp([RouterPath.Home, RouterPath.Exercise])
+    const router = await renderApp(['/', '/exercise'])
 
-    expect(screen.getByTestId('pathname')).toHaveTextContent(RouterPath.Exercise)
+    expect(screen.getByTestId('pathname')).toHaveTextContent('/exercise')
 
     await act(async () => {
-      await router.navigate(RouterPath.Home)
+      await router.navigate('/')
     })
 
-    expect(screen.getByTestId('pathname')).toHaveTextContent(RouterPath.Home)
+    expect(screen.getByTestId('pathname')).toHaveTextContent('/')
   })
 })

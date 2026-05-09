@@ -7,7 +7,7 @@ import {
 import { type ReactElement, type ReactNode } from 'react'
 import { generatePath, Link, useLocation } from 'react-router'
 
-import { RouterPath } from '@/core'
+import { useRouterConfig } from '@/core'
 import { Metrics } from '@/modules/metrics'
 import { Notes } from '@/modules/notes'
 import { Programs } from '@/modules/programs'
@@ -35,20 +35,21 @@ function ManagementPanelsLink({
 export function ManagementPanels(): ReactElement {
   const { pathname } = useLocation()
   const { activatedAthlete } = useRoster()
+  const RouterConfig = useRouterConfig()
   const athleteSlug = activatedAthlete ? getAthleteSlug(activatedAthlete) : undefined
 
   const programsPath = athleteSlug
-    ? generatePath(RouterPath.AthletePrograms, { athleteSlug })
-    : RouterPath.Programs
+    ? generatePath(RouterConfig.Programs.AthleteRoot, { athleteSlug })
+    : RouterConfig.Programs.Index
   const reviewsPath = athleteSlug
-    ? generatePath(RouterPath.AthleteReviews, { athleteSlug })
-    : RouterPath.Reviews
+    ? generatePath(RouterConfig.Reviews.AthleteRoot, { athleteSlug })
+    : RouterConfig.Reviews.Index
   const metricsPath = athleteSlug
-    ? generatePath(RouterPath.AthleteMetrics, { athleteSlug })
-    : RouterPath.Metrics
+    ? generatePath(RouterConfig.Metrics.AthleteRoot, { athleteSlug })
+    : RouterConfig.Metrics.Index
   const notesPath = athleteSlug
-    ? generatePath(RouterPath.AthleteNotes, { athleteSlug })
-    : RouterPath.Notes
+    ? generatePath(RouterConfig.Notes.AthleteRoot, { athleteSlug })
+    : RouterConfig.Notes.Index
 
   return (
     <HorizontalPanel<string> collapsible={false} value={[pathname]}>

@@ -1,14 +1,15 @@
 import { ROSTER_RESPONSE } from '@powercoach/util-fixture'
 import { renderWithRouter } from '@powercoach/util-test/react'
 import { fireEvent, screen } from '@testing-library/react'
+import { Provider } from 'react-redux'
 import { generatePath } from 'react-router'
 
-import { RouterPath } from '@/core'
 import {
   AUTHENTICATED_COACH_EMAIL,
   type Athlete,
   type GetCurrentRosterApiResponse
 } from '@/src/api'
+import { createTestStore } from '@/test/utils/store'
 
 import { useRoster } from '../hooks'
 import { RosterSidebar } from './RosterSidebar'
@@ -39,13 +40,15 @@ function mockRosterFeature(activatedAthlete?: Athlete): void {
   })
 }
 
-function renderRosterSidebar(initialEntry: string = RouterPath.Home, path = '*') {
+function renderRosterSidebar(initialEntry = '/', path = '*') {
+  const store = createTestStore()
   return renderWithRouter(
     <RosterSidebar renderSeparator={() => <div data-testid="roster-separator" />} />,
     {
       initialEntry,
       path,
-      pathnameProbe: true
+      pathnameProbe: true,
+      wrapper: ({ children }) => <Provider store={store}>{children}</Provider>
     }
   )
 }
@@ -84,32 +87,32 @@ describe('RosterSidebar', () => {
   })
 
   it('navigates to home when a roster avatar is clicked', async () => {
-    renderRosterSidebar(RouterPath.Reviews)
+    renderRosterSidebar('/reviews')
     const organizationLinks = await screen.findAllByTestId('roster-organization')
     expect(organizationLinks.length).toBeGreaterThanOrEqual(1)
     fireEvent.click(organizationLinks[0] as HTMLElement)
-    expect(screen.getByTestId('pathname')).toHaveTextContent(RouterPath.Home)
+    expect(screen.getByTestId('pathname')).toHaveTextContent('/')
   })
 
   it('activates the coach avatar when the home route is hit', async () => {
-    renderRosterSidebar(RouterPath.Home)
+    renderRosterSidebar('/')
     const coachLink = screen.getByTestId('roster-coach')
     expect(coachLink?.querySelector('[data-slot="avatar"]')).toHaveAttribute('data-active', 'true')
   })
 
   it('navigates to the selected athlete home when an athlete avatar is clicked', async () => {
-    renderRosterSidebar(RouterPath.Reviews)
+    renderRosterSidebar('/reviews')
     const athleteLinks = await screen.findAllByTestId('roster-athlete')
     expect(athleteLinks.length).toBeGreaterThanOrEqual(1)
     fireEvent.click(athleteLinks[0] as HTMLElement)
     expect(screen.getByTestId('pathname')).toHaveTextContent(
-      generatePath(RouterPath.AthleteHome, { athleteSlug: 'kiro-flux' })
+      generatePath('/:athleteSlug', { athleteSlug: 'kiro-flux' })
     )
   })
 
   it('activates the selected athlete avatar when its home route is hit', async () => {
     mockRosterFeature(ROSTER_RESPONSE.athletes[0])
-    renderRosterSidebar(RouterPath.Home)
+    renderRosterSidebar('/')
     const athleteLinks = await screen.findAllByTestId('roster-athlete')
     const [firstAthleteLink] = athleteLinks
     fireEvent.click(firstAthleteLink as HTMLElement)

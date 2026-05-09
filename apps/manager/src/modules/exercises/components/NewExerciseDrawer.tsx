@@ -7,15 +7,17 @@ import {
 } from '@powercoach/ui'
 import { type ReactElement } from 'react'
 
-import { RouterPath, RoutedDrawer } from '@/core'
+import { useRouterConfig, RoutedDrawer } from '@/core'
 
 import { NewExercise } from './NewExercise'
 
 export function NewExerciseDrawer(): ReactElement {
+  const RouterConfig = useRouterConfig()
+
   return (
     <RoutedDrawer
-      fallbackPathname={RouterPath.Exercise}
-      pathname={RouterPath.ExerciseNew}
+      fallbackPathname={RouterConfig.Exercises.Index}
+      pathname={RouterConfig.Exercises.New}
       position="bottom"
     >
       <DrawerPopup showBar showCloseButton className="min-h-[calc(100dvh-4.75rem)] rounded-none">

@@ -1,7 +1,7 @@
 import { type ReactElement } from 'react'
 import { generatePath, Link } from 'react-router'
 
-import { RouterPath } from '@/core'
+import { useRouterConfig } from '@/core'
 
 import { useRoster } from '../hooks'
 import { getAthleteSlug, getInitials } from '../utils'
@@ -13,6 +13,7 @@ export interface RosterSidebarProps {
 
 export function RosterSidebar({ renderSeparator }: RosterSidebarProps): ReactElement {
   const { activatedAthlete, athletes, coach, defaultOrganization, status } = useRoster()
+  const { Home } = useRouterConfig()
 
   if (status !== 'ready') {
     return <></>
@@ -26,7 +27,7 @@ export function RosterSidebar({ renderSeparator }: RosterSidebarProps): ReactEle
             aria-label="Powercoach organization"
             data-testid="roster-organization"
             key={defaultOrganization.id}
-            to={RouterPath.Home}
+            to={Home.Index}
           >
             <RosterSidebarAvatar
               initials={getInitials(defaultOrganization.name)}
@@ -39,7 +40,7 @@ export function RosterSidebar({ renderSeparator }: RosterSidebarProps): ReactEle
 
       {coach && (
         <>
-          <Link aria-label="Powercoach coach home" to={RouterPath.Home} data-testid="roster-coach">
+          <Link aria-label="Powercoach coach home" data-testid="roster-coach" to={Home.Index}>
             <RosterSidebarAvatar
               active={activatedAthlete === null}
               initials={getInitials(`${coach.firstName} ${coach.lastName}`)}
@@ -55,7 +56,7 @@ export function RosterSidebar({ renderSeparator }: RosterSidebarProps): ReactEle
           aria-label="Powercoach athlete home"
           data-testid="roster-athlete"
           key={athlete.id}
-          to={generatePath(RouterPath.AthleteHome, { athleteSlug: getAthleteSlug(athlete) })}
+          to={generatePath(Home.AthleteRoot, { athleteSlug: getAthleteSlug(athlete) })}
         >
           <RosterSidebarAvatar
             active={activatedAthlete?.id === athlete.id}

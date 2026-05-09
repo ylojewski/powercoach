@@ -5,7 +5,6 @@ import { Provider } from 'react-redux'
 import { generatePath, MemoryRouter, Route, Routes } from 'react-router'
 
 import { createStore, type Store } from '@/app'
-import { RouterPath } from '@/core'
 import {
   AUTHENTICATED_COACH_EMAIL,
   type GetCurrentRosterApiResponse,
@@ -58,7 +57,7 @@ function stubFeatureFetch(settingsPayload: GetCurrentSettingsApiResponse = setti
 
 function createRouterWrapper(
   store: Store = createStore(),
-  { initialEntry = RouterPath.Home, path = RouterPath.Home }: WrapperOptions = {}
+  { initialEntry = '/', path = '/' }: WrapperOptions = {}
 ): ({ children }: PropsWithChildren) => ReactElement {
   return function Wrapper({ children }: PropsWithChildren): ReactElement {
     return (
@@ -140,8 +139,8 @@ describe('useRoster', () => {
     const store = createStore()
     const { result } = renderHook(() => useRoster(), {
       wrapper: createWrapper(store, undefined, {
-        initialEntry: generatePath(RouterPath.AthleteHome, { athleteSlug: 'kiro-flux' }),
-        path: RouterPath.AthleteHome
+        initialEntry: generatePath('/:athleteSlug', { athleteSlug: 'kiro-flux' }),
+        path: '/:athleteSlug'
       })
     })
 
@@ -180,10 +179,10 @@ describe('useRoster', () => {
 
     const { result } = renderHook(() => useRoster(), {
       wrapper: createWrapper(store, undefined, {
-        initialEntry: generatePath(RouterPath.AthleteHome, {
+        initialEntry: generatePath('/:athleteSlug', {
           athleteSlug: getAthleteSlug(secondAthlete)
         }),
-        path: RouterPath.AthleteHome
+        path: '/:athleteSlug'
       })
     })
 
@@ -239,8 +238,8 @@ describe('useRoster', () => {
 
     const { result } = renderHook(() => useRoster(), {
       wrapper: createWrapper(store, undefined, {
-        initialEntry: generatePath(RouterPath.AthleteHome, { athleteSlug: 'unknown-athlete' }),
-        path: RouterPath.AthleteHome
+        initialEntry: generatePath('/:athleteSlug', { athleteSlug: 'unknown-athlete' }),
+        path: '/:athleteSlug'
       })
     })
 

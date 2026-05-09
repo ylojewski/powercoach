@@ -6,7 +6,7 @@ interface PathnameProbeProps {
 }
 declare function PathnameProbe({ testId }: PathnameProbeProps): ReactElement;
 
-interface RenderWithRouterOptions extends Omit<RenderOptions, 'wrapper'> {
+interface RenderWithRouterOptions extends RenderOptions {
     initialEntry?: string;
     path?: string;
     pathnameProbe?: boolean | string;
