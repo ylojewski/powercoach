@@ -42,7 +42,7 @@ function createApiResponse(
   })
 }
 
-function stubFeatureFetch(settingsPayload: GetCurrentSettingsApiResponse = settingsResponse): void {
+function stubModuleFetch(settingsPayload: GetCurrentSettingsApiResponse = settingsResponse): void {
   vi.stubGlobal(
     'fetch',
     vi.fn().mockImplementation((input: URL | RequestInfo) => {
@@ -77,7 +77,7 @@ function createWrapper(
   settingsPayload?: GetCurrentSettingsApiResponse,
   options?: WrapperOptions
 ): ({ children }: PropsWithChildren) => ReactElement {
-  stubFeatureFetch(settingsPayload)
+  stubModuleFetch(settingsPayload)
 
   return createRouterWrapper(store, options)
 }

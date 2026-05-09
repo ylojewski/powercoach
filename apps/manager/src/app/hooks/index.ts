@@ -1,1 +1,1 @@
-export * from './useFeatureLoader'
+export * from './useModuleLoader'

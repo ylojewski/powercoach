@@ -16,12 +16,12 @@ vi.mock('./Layout', () => ({
   Layout: () => <>Layout component</>
 }))
 
-vi.mock('./FeatureLoader', async () => {
+vi.mock('./ModuleLoader', async () => {
   const { Outlet } = await vi.importActual<typeof import('react-router')>('react-router')
 
   return {
-    FeatureLoader: () => (
-      <div data-testid="feature-loader">
+    ModuleLoader: () => (
+      <div data-testid="module-loader">
         <Outlet />
       </div>
     )
@@ -48,7 +48,7 @@ describe('Router', () => {
   it('renders the layout on application routes', () => {
     window.history.pushState({}, '', '/reviews')
     renderRouter()
-    expect(screen.getByTestId('feature-loader')).toBeInTheDocument()
+    expect(screen.getByTestId('module-loader')).toBeInTheDocument()
     expect(screen.getByText('Layout component')).toBeInTheDocument()
   })
 
@@ -59,7 +59,7 @@ describe('Router', () => {
       generatePath('/:athleteSlug/reviews', { athleteSlug: 'kiro-flux' })
     )
     renderRouter()
-    expect(screen.getByTestId('feature-loader')).toBeInTheDocument()
+    expect(screen.getByTestId('module-loader')).toBeInTheDocument()
     expect(screen.getByText('Layout component')).toBeInTheDocument()
   })
 
@@ -67,6 +67,6 @@ describe('Router', () => {
     window.history.pushState({}, '', '/unknown/path')
     renderRouter()
     expect(screen.getByText('NotFound component')).toBeInTheDocument()
-    expect(screen.queryByTestId('feature-loader')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('module-loader')).not.toBeInTheDocument()
   })
 })

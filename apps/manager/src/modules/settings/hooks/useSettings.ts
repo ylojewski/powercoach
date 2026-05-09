@@ -2,11 +2,11 @@ import { useCallback } from 'react'
 
 import { type Loadable, getLoadableStatusFromQuery, useAppDispatch, settingsApi } from '@/core'
 
-interface UseSettingsFeatureResult extends Loadable {
+interface UseSettingsResult extends Loadable {
   defaultOrganizationId: number | null
 }
 
-export function useSettings(): UseSettingsFeatureResult {
+export function useSettings(): UseSettingsResult {
   const dispatch = useAppDispatch()
   const settingsQuery = settingsApi.endpoints.getCurrentSettings.useQueryState()
   const status = getLoadableStatusFromQuery(settingsQuery)

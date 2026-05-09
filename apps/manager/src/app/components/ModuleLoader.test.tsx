@@ -1,22 +1,22 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router'
 
-import { FeatureLoader } from './FeatureLoader'
-import { useFeatureLoader } from '../hooks'
+import { ModuleLoader } from './ModuleLoader'
+import { useModuleLoader } from '../hooks'
 
 vi.mock('../hooks', () => ({
-  useFeatureLoader: vi.fn()
+  useModuleLoader: vi.fn()
 }))
 
 const loadMock = vi.fn()
 const unloadMock = vi.fn()
-const useFeatureLoaderMock = vi.mocked(useFeatureLoader)
+const useModuleLoaderMock = vi.mocked(useModuleLoader)
 
-function renderFeatureLoader(): ReturnType<typeof render> {
+function renderModuleLoader(): ReturnType<typeof render> {
   return render(
     <MemoryRouter initialEntries={['/']}>
       <Routes>
-        <Route element={<FeatureLoader />}>
+        <Route element={<ModuleLoader />}>
           <Route element={<div>Application content</div>} path="/" />
         </Route>
       </Routes>
@@ -24,10 +24,10 @@ function renderFeatureLoader(): ReturnType<typeof render> {
   )
 }
 
-describe('FeatureLoader', () => {
+describe('ModuleLoader', () => {
   beforeEach(() => {
     loadMock.mockReturnValue(unloadMock)
-    useFeatureLoaderMock.mockReturnValue({
+    useModuleLoaderMock.mockReturnValue({
       load: loadMock,
       status: 'ready'
     })
@@ -37,13 +37,13 @@ describe('FeatureLoader', () => {
     vi.resetAllMocks()
   })
 
-  it('loads startup features and renders the splash screen while loading', async () => {
-    useFeatureLoaderMock.mockReturnValue({
+  it('loads startup modules and renders the splash screen while loading', async () => {
+    useModuleLoaderMock.mockReturnValue({
       load: loadMock,
       status: 'loading'
     })
 
-    const { unmount } = renderFeatureLoader()
+    const { unmount } = renderModuleLoader()
 
     expect(screen.getByLabelText('loading powercoach')).toBeInTheDocument()
     expect(screen.queryByText('Application content')).not.toBeInTheDocument()
@@ -57,20 +57,20 @@ describe('FeatureLoader', () => {
     expect(unloadMock).toHaveBeenCalledOnce()
   })
 
-  it('renders the error screen if a feature failed to load', async () => {
-    useFeatureLoaderMock.mockReturnValue({
+  it('renders the error screen if a module failed to load', async () => {
+    useModuleLoaderMock.mockReturnValue({
       load: loadMock,
       status: 'error'
     })
 
-    renderFeatureLoader()
+    renderModuleLoader()
 
     expect(screen.getByLabelText('failed to load powercoach')).toBeInTheDocument()
     expect(screen.queryByText('Application content')).not.toBeInTheDocument()
   })
 
-  it('renders the outlet once startup features are loaded', async () => {
-    renderFeatureLoader()
+  it('renders the outlet once startup modules are loaded', async () => {
+    renderModuleLoader()
 
     expect(screen.getByText('Application content')).toBeInTheDocument()
 

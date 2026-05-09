@@ -5,7 +5,7 @@ import { createBrowserRouter, Route, Routes, RouterProvider, useLocation } from 
 import { useBackgroundLocationState, useRouterConfig } from '@/core'
 import { exercisesDrawers, exercisesRoutes } from '@/modules/exercises'
 
-import { FeatureLoader } from './FeatureLoader'
+import { ModuleLoader } from './ModuleLoader'
 import { Layout } from './Layout'
 import { NotFound } from './NotFound'
 
@@ -17,7 +17,7 @@ function RouterShell(): ReactElement {
     <DrawerProvider>
       <DrawerIndent>
         <Routes location={location}>
-          <Route element={<FeatureLoader />}>
+          <Route element={<ModuleLoader />}>
             <Route element={<Layout />} path={RouterConfig.Home.Index} />
             <Route element={<Layout />} path={RouterConfig.Home.AthleteRoot} />
 

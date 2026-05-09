@@ -25,7 +25,7 @@ const rosterResponse: GetCurrentRosterApiResponse = {
 
 const useRosterMock = vi.mocked(useRoster)
 
-function mockRosterFeature(activatedAthlete?: Athlete): void {
+function mockRosterModule(activatedAthlete?: Athlete): void {
   useRosterMock.mockReturnValue({
     activatedAthlete: activatedAthlete ?? null,
     athletes: rosterResponse.athletes,
@@ -51,7 +51,7 @@ function renderRosterSidebar(initialEntry = '/', path = '*') {
 
 describe('RosterSidebar', () => {
   beforeEach(() => {
-    mockRosterFeature()
+    mockRosterModule()
   })
 
   afterEach(() => {
@@ -107,7 +107,7 @@ describe('RosterSidebar', () => {
   })
 
   it('activates the selected athlete avatar when its home route is hit', async () => {
-    mockRosterFeature(ROSTER_RESPONSE.athletes[0])
+    mockRosterModule(ROSTER_RESPONSE.athletes[0])
     renderRosterSidebar('/')
     const athleteLinks = await screen.findAllByTestId('roster-athlete')
     const [firstAthleteLink] = athleteLinks

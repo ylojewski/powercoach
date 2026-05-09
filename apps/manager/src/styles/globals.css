@@ -2,3 +2,18 @@
 @import '@powercoach/ui';
 
 @custom-variant dark (&:where(.dark, .dark *));
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes clip-out-ltr {
+  from { clip-path: inset(0 0 0 0); }
+  to { clip-path: inset(0 0 0 100%); }
+}
+
+@theme {
+  --animate-fade-in: fade-in 0.2s ease-out forwards;
+  --animate-clip-out-ltr: clip-out-ltr 0.3s ease-in-out forwards;
+}

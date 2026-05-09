@@ -6,7 +6,7 @@ import { type LoadableStatus } from '@/core'
 import { useRoster } from '@/modules/roster'
 import { useSettings } from '@/modules/settings'
 
-import { useFeatureLoader } from './useFeatureLoader'
+import { useModuleLoader } from './useModuleLoader'
 
 vi.mock('@/modules/roster', () => ({
   useRoster: vi.fn()
@@ -23,7 +23,7 @@ const unloadSettingsMock = vi.fn()
 const useRosterMock = vi.mocked(useRoster)
 const useSettingsMock = vi.mocked(useSettings)
 
-function mockFeatures({
+function mockModules({
   activatedAthlete = null,
   rosterStatus = 'ready',
   settingsStatus = 'ready'
@@ -67,54 +67,54 @@ function createWrapper({
   }
 }
 
-describe('useFeatureLoader', () => {
+describe('useModuleLoader', () => {
   afterEach(() => {
     vi.resetAllMocks()
   })
 
-  it('loads startup features', () => {
-    mockFeatures()
+  it('loads startup modules', () => {
+    mockModules()
 
-    const { result } = renderHook(() => useFeatureLoader(), {
+    const { result } = renderHook(() => useModuleLoader(), {
       wrapper: createWrapper()
     })
 
     expect(result.current.status).toBe('ready')
 
-    let unloadFeatures: VoidFunction | undefined
+    let unloadModules: VoidFunction | undefined
 
     act(() => {
-      unloadFeatures = result.current.load()
+      unloadModules = result.current.load()
     })
 
     expect(loadSettingsMock).toHaveBeenCalledOnce()
     expect(loadRosterMock).toHaveBeenCalledOnce()
 
     act(() => {
-      unloadFeatures?.()
+      unloadModules?.()
     })
 
     expect(unloadSettingsMock).toHaveBeenCalledOnce()
     expect(unloadRosterMock).toHaveBeenCalledOnce()
   })
 
-  it('is idle before startup features are loaded', () => {
-    mockFeatures({
+  it('is idle before startup modules are loaded', () => {
+    mockModules({
       rosterStatus: 'idle',
       settingsStatus: 'idle'
     })
 
-    const { result } = renderHook(() => useFeatureLoader(), {
+    const { result } = renderHook(() => useModuleLoader(), {
       wrapper: createWrapper()
     })
 
     expect(result.current.status).toBe('idle')
   })
 
-  it('stays loading while a feature is loading', () => {
-    mockFeatures({ settingsStatus: 'loading' })
+  it('stays loading while a module is loading', () => {
+    mockModules({ settingsStatus: 'loading' })
 
-    const { result } = renderHook(() => useFeatureLoader(), {
+    const { result } = renderHook(() => useModuleLoader(), {
       wrapper: createWrapper()
     })
 
@@ -122,29 +122,29 @@ describe('useFeatureLoader', () => {
   })
 
   it('stays loading while roster is loading', () => {
-    mockFeatures({ rosterStatus: 'loading' })
+    mockModules({ rosterStatus: 'loading' })
 
-    const { result } = renderHook(() => useFeatureLoader(), {
+    const { result } = renderHook(() => useModuleLoader(), {
       wrapper: createWrapper()
     })
 
     expect(result.current.status).toBe('loading')
   })
 
-  it('is ready once startup features are ready', () => {
-    mockFeatures()
+  it('is ready once startup modules are ready', () => {
+    mockModules()
 
-    const { result } = renderHook(() => useFeatureLoader(), {
+    const { result } = renderHook(() => useModuleLoader(), {
       wrapper: createWrapper()
     })
 
     expect(result.current.status).toBe('ready')
   })
 
-  it('is errored when a feature is errored', () => {
-    mockFeatures({ rosterStatus: 'error' })
+  it('is errored when a module is errored', () => {
+    mockModules({ rosterStatus: 'error' })
 
-    const { result } = renderHook(() => useFeatureLoader(), {
+    const { result } = renderHook(() => useModuleLoader(), {
       wrapper: createWrapper()
     })
 

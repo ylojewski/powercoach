@@ -16,14 +16,14 @@ import { useSettings } from '@/modules/settings'
 import { activateAthlete, selectActivatedAthlete } from '../store'
 import { getAthleteSlug } from '../utils'
 
-interface UseRosterFeatureResult extends Loadable {
+interface UseRosterResult extends Loadable {
   activatedAthlete: Athlete | null
   athletes: Athlete[]
   coach: Coach | null
   defaultOrganization: Organization | null
 }
 
-export function useRoster(): UseRosterFeatureResult {
+export function useRoster(): UseRosterResult {
   const dispatch = useAppDispatch()
   const storedActivatedAthlete = useAppSelector(selectActivatedAthlete)
   const rosterQuery = rosterApi.endpoints.getCurrentRoster.useQueryState({})
