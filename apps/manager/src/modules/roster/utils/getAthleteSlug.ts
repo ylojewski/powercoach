@@ -1,4 +1,4 @@
-import { type Athlete } from '@/src/api'
+import { type Athlete } from '@/core'
 
 export function getAthleteSlug({ firstName, lastName }: Athlete): string {
   return `${firstName} ${lastName}`

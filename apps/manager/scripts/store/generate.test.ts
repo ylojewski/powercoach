@@ -39,8 +39,8 @@ vi.mock('@rtk-query/codegen-openapi', () => ({
   generateEndpoints: mocks.generateEndpoints
 }))
 
-const RESOLVED_API_FILE = '/virtual/apps/manager/src/api/index.ts' as const
-const RESOLVED_GENERATED_DIR = '/virtual/apps/manager/src/api/generated' as const
+const RESOLVED_API_FILE = '/virtual/apps/manager/src/core/api/index.ts' as const
+const RESOLVED_GENERATED_DIR = '/virtual/apps/manager/src/core/api/generated' as const
 const RESOLVED_OPENAPI_FILE = '/virtual/apps/api/dist/openapi.json' as const
 
 const OPENAPI = JSON.stringify({
@@ -99,7 +99,7 @@ describe('generate', () => {
 
     mocks.createRequire.mockReturnValue({ resolve: mocks.requireResolve })
     mocks.requireResolve.mockImplementation((id: string) => {
-      if (id === '@/src/api') {
+      if (id === '@/core/api') {
         return RESOLVED_API_FILE
       }
 
@@ -134,7 +134,7 @@ describe('generate', () => {
     expect(mocks.generateEndpoints).toHaveBeenNthCalledWith(
       1,
       expect.objectContaining({
-        apiFile: '@/src/api/api.ts',
+        apiFile: './src/core/api/api.ts',
         apiImport: 'api',
         exportName: 'blorboApi',
         filterEndpoints: ['listBlorbo', 'createBlorbo'],
@@ -146,7 +146,7 @@ describe('generate', () => {
     expect(mocks.generateEndpoints).toHaveBeenNthCalledWith(
       2,
       expect.objectContaining({
-        apiFile: '@/src/api/api.ts',
+        apiFile: './src/core/api/api.ts',
         apiImport: 'api',
         exportName: 'zindleApi',
         filterEndpoints: ['getZindle'],
@@ -156,8 +156,8 @@ describe('generate', () => {
       })
     )
 
-    expect(console.info).toHaveBeenNthCalledWith(1, '✅ src/api/generated/blorbo.generated.ts')
-    expect(console.info).toHaveBeenNthCalledWith(2, '✅ src/api/generated/zindle.generated.ts')
+    expect(console.info).toHaveBeenNthCalledWith(1, '✅ src/core/api/generated/blorbo.generated.ts')
+    expect(console.info).toHaveBeenNthCalledWith(2, '✅ src/core/api/generated/zindle.generated.ts')
 
     expect(mocks.appendFileSync).toHaveBeenNthCalledWith(
       1,
@@ -181,7 +181,7 @@ describe('generate', () => {
 
   it('fails to resolve the openapi file', async () => {
     mocks.requireResolve.mockClear().mockImplementation((id: string) => {
-      if (id === '@/src/api') {
+      if (id === '@/core/api') {
         return RESOLVED_API_FILE
       }
       throw new Error(`Unexpected resolve: ${id}`)

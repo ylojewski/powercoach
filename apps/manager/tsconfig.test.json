@@ -5,6 +5,7 @@
     "jsx": "react-jsx",
     "paths": {
       "@/app": ["src/app"],
+      "@/app/*": ["src/app/*"],
       "@/core": ["src/core"],
       "@/core/*": ["src/core/*"],
       "@/modules/*": ["src/modules/*"],

@@ -6,8 +6,8 @@ import { type ReactElement } from 'react'
 import { Provider } from 'react-redux'
 import { createMemoryRouter, generatePath, RouterProvider, useLocation } from 'react-router'
 
+import { type Athlete } from '@/core'
 import { getAthleteSlug, useRoster } from '@/modules/roster'
-import { type Athlete } from '@/src/api'
 import { createTestStore } from '@/test/utils/store'
 
 import { ManagementPanels } from './ManagementPanels'

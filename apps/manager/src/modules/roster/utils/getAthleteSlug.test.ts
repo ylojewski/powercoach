@@ -1,6 +1,6 @@
 import { PRIMARY_ATHLETE_RESPONSE } from '@powercoach/util-fixture'
 
-import { Athlete } from '@/src/api'
+import { Athlete } from '@/core'
 
 import { getAthleteSlug } from './getAthleteSlug'
 

@@ -1,4 +1,4 @@
-import { api } from '@/src/api'
+import { api } from '@/core'
 import '@/modules/roster'
 
 import { createStore } from './store'

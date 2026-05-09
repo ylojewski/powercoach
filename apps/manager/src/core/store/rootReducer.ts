@@ -1,7 +1,6 @@
 import { combineSlices, type ThunkDispatch, type UnknownAction } from '@reduxjs/toolkit'
 
-import { api } from '@/src/api'
-
+import { api } from '../api'
 import { routerSlice } from './routerSlice'
 
 export interface ModuleSlices {}

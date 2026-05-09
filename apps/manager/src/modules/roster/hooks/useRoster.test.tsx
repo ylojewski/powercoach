@@ -11,7 +11,7 @@ import {
   type GetCurrentSettingsApiResponse,
   rosterApi,
   settingsApi
-} from '@/src/api'
+} from '@/core'
 
 import { activateAthlete, selectActivatedAthlete } from '../store'
 import { getAthleteSlug } from '../utils'

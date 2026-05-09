@@ -4,11 +4,7 @@ import { fireEvent, screen } from '@testing-library/react'
 import { Provider } from 'react-redux'
 import { generatePath } from 'react-router'
 
-import {
-  AUTHENTICATED_COACH_EMAIL,
-  type Athlete,
-  type GetCurrentRosterApiResponse
-} from '@/src/api'
+import { AUTHENTICATED_COACH_EMAIL, type Athlete, type GetCurrentRosterApiResponse } from '@/core'
 import { createTestStore } from '@/test/utils/store'
 
 import { useRoster } from '../hooks'

@@ -1,4 +1,4 @@
-import { api } from '@/src/api/api'
+import { api } from '../api'
 const injectedRtkApi = api.injectEndpoints({
   endpoints: (build) => ({
     getCurrentSettings: build.query<GetCurrentSettingsApiResponse, GetCurrentSettingsApiArg>({

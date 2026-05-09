@@ -4,7 +4,7 @@ import { type PropsWithChildren, type ReactElement } from 'react'
 import { Provider } from 'react-redux'
 
 import { createStore } from '@/app'
-import { type GetCurrentSettingsApiResponse } from '@/src/api'
+import { type GetCurrentSettingsApiResponse } from '@/core'
 
 import { useSettings } from './useSettings'
 

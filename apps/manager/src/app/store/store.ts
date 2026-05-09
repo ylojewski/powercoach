@@ -1,7 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit'
 
-import { rootReducer } from '@/core'
-import { api } from '@/src/api'
+import { rootReducer, api } from '@/core'
 
 import { routerConfig } from '../router'
 

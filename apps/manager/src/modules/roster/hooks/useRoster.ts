@@ -1,9 +1,17 @@
 import { useCallback, useEffect } from 'react'
 import { useParams } from 'react-router'
 
-import { type Loadable, getLoadableStatusFromQuery, useAppDispatch, useAppSelector } from '@/core'
+import {
+  type Loadable,
+  getLoadableStatusFromQuery,
+  useAppDispatch,
+  useAppSelector,
+  type Athlete,
+  type Coach,
+  type Organization,
+  rosterApi
+} from '@/core'
 import { useSettings } from '@/modules/settings'
-import { type Athlete, type Coach, type Organization, rosterApi } from '@/src/api'
 
 import { activateAthlete, selectActivatedAthlete } from '../store'
 import { getAthleteSlug } from '../utils'

@@ -60,10 +60,13 @@ describe('RoutedDrawerLink', () => {
     expect(screen.getByRole('link', { name: 'go' })).toBeInTheDocument()
   })
 
-  it('passes the state prop when there is no background location state', async () => {
+  it('sets the current location as backgroundLocation when there is no background location state', async () => {
     await renderLink({ linkState: { foo: 'bar' } })
 
-    expect(getState()).toEqual({ foo: 'bar' })
+    expect(getState()).toEqual({
+      backgroundLocation: expect.objectContaining({ pathname: '/' }),
+      foo: 'bar'
+    })
   })
 
   it('merges the background location state when present on the current location', async () => {

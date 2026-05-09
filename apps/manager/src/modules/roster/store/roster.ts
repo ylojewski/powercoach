@@ -1,7 +1,6 @@
 import { createSlice, type PayloadAction, type WithSlice } from '@reduxjs/toolkit'
 
-import { rootReducer } from '@/core'
-import { type Athlete } from '@/src/api'
+import { rootReducer, type Athlete } from '@/core'
 
 export interface RosterState {
   activatedAthlete: Athlete | null
