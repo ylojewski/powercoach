@@ -6,9 +6,11 @@ import { z } from 'zod'
 import { type Env, resetCachedEnv } from '@/src/core'
 import {
   HEALTH_MODULE_NAME,
+  REFERENCES_MODULE_NAME,
   ROSTER_MODULE_NAME,
   SETTINGS_MODULE_NAME,
   healthModule,
+  referencesModule,
   rosterModule,
   settingsModule
 } from '@/src/modules'
@@ -130,6 +132,7 @@ describe('buildApp', () => {
       expect(app.hasPlugin(ROSTER_MODULE_NAME)).toBe(true)
       expect(app.hasPlugin(SETTINGS_MODULE_NAME)).toBe(true)
       expect(app.hasPlugin(HEALTH_MODULE_NAME)).toBe(true)
+      expect(app.hasPlugin(REFERENCES_MODULE_NAME)).toBe(true)
     })
 
     it('generates a reliable request id if none is given', async () => {
@@ -216,7 +219,8 @@ describe('registerCoreModules', () => {
 
     await registerCoreModules(app)
 
-    expect(app.register).toHaveBeenCalledTimes(3)
+    expect(app.register).toHaveBeenCalledTimes(4)
+    expect(app.register).toHaveBeenCalledWith(referencesModule, { prefix: '/v1/references' })
     expect(app.register).toHaveBeenCalledWith(rosterModule, { prefix: '/v1/roster' })
     expect(app.register).toHaveBeenCalledWith(settingsModule, { prefix: '/v1/settings' })
     expect(app.register).toHaveBeenCalledWith(healthModule, { prefix: '/v1/health' })

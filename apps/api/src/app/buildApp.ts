@@ -13,7 +13,7 @@ import Fastify, {
 import { Client } from 'pg'
 
 import { type Env, buildLoggerOptions, loadEnv, envSchema } from '@/src/core'
-import { healthModule, rosterModule, settingsModule } from '@/src/modules'
+import { healthModule, referencesModule, rosterModule, settingsModule } from '@/src/modules'
 import { errorPlugin, helmetPlugin, sensiblePlugin } from '@/src/plugins'
 
 import { ajvOptions } from './ajvOptions'
@@ -67,6 +67,7 @@ export async function registerCorePlugins(app: AppFastifyInstance): Promise<void
 }
 
 export async function registerCoreModules(app: AppFastifyInstance): Promise<void> {
+  await app.register(referencesModule, { prefix: '/v1/references' })
   await app.register(rosterModule, { prefix: '/v1/roster' })
   await app.register(settingsModule, { prefix: '/v1/settings' })
   await app.register(healthModule, { prefix: '/v1/health' })
