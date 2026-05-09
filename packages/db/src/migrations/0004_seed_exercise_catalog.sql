@@ -3,7 +3,8 @@ INSERT INTO "exercise_roles" ("code", "name", "description")
 VALUES
   ('competition', 'Competition', 'The exact competition exercise or closest discipline reference execution.'),
   ('variant', 'Variant', 'A close variation of a competition exercise using a modified constraint, range, tempo, grip, stance, or setup.'),
-  ('accessory', 'Accessory', 'A support exercise targeting muscles, weak points, or capacities that transfer to one or more competition exercises.')
+  ('accessory', 'Accessory', 'A support exercise targeting muscles, weak points, or capacities that transfer to one or more competition exercises.'),
+  ('drill', 'Drill', 'A technical or skill-focused exercise used to practice positions, timing, control, or movement quality.')
 ON CONFLICT ("code") DO NOTHING;
 --> statement-breakpoint
 INSERT INTO "disciplines" ("code", "name", "description")

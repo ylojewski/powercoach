@@ -26,7 +26,7 @@ export function ExercisesDrawer(): ReactElement {
           <DrawerTitle>Exercise</DrawerTitle>
           <DrawerDescription>Browse the exercise catalog.</DrawerDescription>
         </DrawerHeader>
-        <DrawerPanel scrollable>
+        <DrawerPanel className="min-h-full" scrollable>
           <Exercises />
         </DrawerPanel>
         <NewExerciseDrawer />

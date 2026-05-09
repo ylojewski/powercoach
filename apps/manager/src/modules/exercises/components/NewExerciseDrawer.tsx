@@ -25,7 +25,7 @@ export function NewExerciseDrawer(): ReactElement {
           <DrawerTitle>New exercise</DrawerTitle>
           <DrawerDescription>Create a new catalog exercise.</DrawerDescription>
         </DrawerHeader>
-        <DrawerPanel scrollable>
+        <DrawerPanel scrollable={false} className="flex flex-1 flex-col">
           <NewExercise />
         </DrawerPanel>
       </DrawerPopup>
