@@ -1,6 +1,6 @@
 import { createSelector, createSlice, type PayloadAction, type WithSlice } from '@reduxjs/toolkit'
 
-import { rootReducer } from '@/core'
+import { reducer } from '@/core'
 import { type Exercise } from '@/test/fixtures/references.types'
 
 import {
@@ -161,7 +161,7 @@ export const {
 } = ExercisesSlice.actions
 export const { reducer: ExercisesReducer } = ExercisesSlice
 
-rootReducer.inject(ExercisesSlice)
+reducer.inject(ExercisesSlice)
 
 export function selectExercisesCreation(state: {
   Exercises?: ExercisesState

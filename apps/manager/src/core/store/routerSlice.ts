@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 
-import { type State } from './rootReducer'
+import { type State } from './reducer'
 
 export interface RouterConfig {
   Exercises: {

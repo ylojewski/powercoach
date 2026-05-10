@@ -5,7 +5,7 @@ import { routerSlice } from './routerSlice'
 
 export interface ModuleSlices {}
 
-export const rootReducer = combineSlices(api, routerSlice).withLazyLoadedSlices<ModuleSlices>()
+export const reducer = combineSlices(api, routerSlice).withLazyLoadedSlices<ModuleSlices>()
 
-export type State = ReturnType<typeof rootReducer>
+export type State = ReturnType<typeof reducer>
 export type Dispatch = ThunkDispatch<State, undefined, UnknownAction>

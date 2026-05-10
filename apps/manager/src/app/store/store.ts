@@ -1,6 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit'
 
-import { rootReducer, api } from '@/core'
+import { reducer, api } from '@/core'
 
 import { routerConfig } from '../router'
 
@@ -10,7 +10,7 @@ export function createStore() {
     preloadedState: {
       router: routerConfig
     },
-    reducer: rootReducer
+    reducer
   })
 }
 

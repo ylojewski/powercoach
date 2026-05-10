@@ -1,6 +1,6 @@
 import { createSlice, type PayloadAction, type WithSlice } from '@reduxjs/toolkit'
 
-import { rootReducer, type Athlete } from '@/core'
+import { reducer, type Athlete } from '@/core'
 
 export interface RosterState {
   activatedAthlete: Athlete | null
@@ -27,7 +27,7 @@ const rosterSlice = createSlice({
 export const { activateAthlete } = rosterSlice.actions
 export const { reducer: rosterReducer } = rosterSlice
 
-rootReducer.inject(rosterSlice)
+reducer.inject(rosterSlice)
 
 export function selectActivatedAthlete(state: { roster?: RosterState }): Athlete | null {
   return state.roster?.activatedAthlete ?? null
