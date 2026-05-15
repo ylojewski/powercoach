@@ -1,3 +1,4 @@
+import { cn } from '@powercoach/ui'
 import { type ReactElement, type ReactNode, useEffect, useState } from 'react'
 
 import { LoadingOverlay } from './LoadingOverlay'
@@ -6,10 +7,11 @@ const MIN_DISPLAY_MS = 1000
 
 interface Props {
   children: ReactNode
+  contained?: boolean
   loading: boolean
 }
 
-export function LoadingTransition({ children, loading }: Props): ReactElement {
+export function LoadingTransition({ children, contained = false, loading }: Props): ReactElement {
   const [overlayVisible, setOverlayVisible] = useState(loading)
   const [clipInComplete, setClipInComplete] = useState(!loading)
   const [minDisplayComplete, setMinDisplayComplete] = useState(!loading)
@@ -58,12 +60,15 @@ export function LoadingTransition({ children, loading }: Props): ReactElement {
       {overlayVisible && !clipInComplete && (
         <div
           aria-hidden
-          className="fixed inset-0 z-2147483646 bg-white"
+          className={cn(
+            contained ? 'absolute inset-0 z-10 bg-white' : 'fixed inset-0 z-2147483646 bg-white'
+          )}
           data-testid="loading-transition-background"
         />
       )}
       {overlayVisible && (
         <LoadingOverlay
+          contained={contained}
           exiting={exiting}
           onClipInComplete={() => setClipInComplete(true)}
           onClipOutComplete={() => {

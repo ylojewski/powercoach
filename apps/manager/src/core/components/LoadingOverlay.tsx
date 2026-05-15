@@ -3,12 +3,14 @@ import { type AnimationEvent, type ReactElement, useEffect, useRef } from 'react
 import { createPortal } from 'react-dom'
 
 interface Props {
+  contained?: boolean
   exiting?: boolean
   onClipInComplete?: () => void
   onClipOutComplete?: () => void
 }
 
 export function LoadingOverlay({
+  contained = false,
   exiting = false,
   onClipInComplete,
   onClipOutComplete
@@ -45,7 +47,10 @@ export function LoadingOverlay({
   const overlay = (
     <div
       aria-label="loading powercoach"
-      className={cn('fixed inset-0 z-2147483647', exiting && 'pointer-events-none')}
+      className={cn(
+        contained ? 'absolute inset-0 z-20' : 'fixed inset-0 z-2147483647',
+        exiting && 'pointer-events-none'
+      )}
     >
       <div
         className={cn(
@@ -59,5 +64,9 @@ export function LoadingOverlay({
     </div>
   )
 
-  return typeof document !== 'undefined' ? createPortal(overlay, document.body) : overlay
+  if (contained || typeof document === 'undefined') {
+    return overlay
+  }
+
+  return createPortal(overlay, document.body)
 }

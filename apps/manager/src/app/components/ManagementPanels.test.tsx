@@ -19,11 +19,22 @@ vi.mock('@/modules/roster', () => ({
 
 const getAthleteSlugMock = vi.mocked(getAthleteSlug)
 const useRosterMock = vi.mocked(useRoster)
+const rootPanelPaths = ['metrics', 'notes', 'programs', 'reviews'] as const
 
 function PathnameProbe(): ReactElement {
   const location = useLocation()
 
   return <div data-testid="pathname">{location.pathname}</div>
+}
+
+function getManagementPanelsPath(initialEntry: string): string {
+  const [, rootSegment, childSegment] = initialEntry.split('/')
+
+  if (!rootSegment || rootPanelPaths.includes(rootSegment as (typeof rootPanelPaths)[number])) {
+    return '*'
+  }
+
+  return childSegment ? '/:athleteSlug/:panel' : '/:athleteSlug'
 }
 
 describe('ManagementPanels', () => {
@@ -52,6 +63,7 @@ describe('ManagementPanels', () => {
     const store = createTestStore()
     renderWithRouter(<ManagementPanels />, {
       initialEntry,
+      path: getManagementPanelsPath(initialEntry),
       pathnameProbe: true,
       wrapper: ({ children }) => <Provider store={store}>{children}</Provider>
     })
@@ -80,7 +92,16 @@ describe('ManagementPanels', () => {
               <ManagementPanels />
             </>
           ),
-          path: '*'
+          path: '/:athleteSlug'
+        },
+        {
+          element: (
+            <>
+              <PathnameProbe />
+              <ManagementPanels />
+            </>
+          ),
+          path: '/:athleteSlug/:panel'
         }
       ],
       { initialEntries }

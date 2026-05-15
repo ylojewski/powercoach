@@ -19,7 +19,7 @@ describe('Exercises', () => {
     expect(screen.getByTestId('exercise-catalog')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'New exercise' })).toHaveAttribute(
       'href',
-      '/exercise/new'
+      '/exercises/new'
     )
   })
 })

@@ -7,9 +7,13 @@ import { createTestStore } from '@/test/utils/store'
 import { Router } from './Router'
 
 vi.mock('@/modules/exercises', () => ({
-  exercisesDrawers: null,
+  exercisesDrawers: [],
+  exercisesNavigation: {
+    exerciseIndex: () => '',
+    newExercise: () => 'new'
+  },
   ExercisesRouterPath: { New: 'new' },
-  exercisesRoutes: null
+  exercisesRoutes: []
 }))
 
 vi.mock('./Layout', () => ({
@@ -63,10 +67,10 @@ describe('Router', () => {
     expect(screen.getByText('Layout component')).toBeInTheDocument()
   })
 
-  it('renders the not found route on unknown paths', () => {
+  it('keeps rendering the application shell on unknown nested paths', () => {
     window.history.pushState({}, '', '/unknown/path')
     renderRouter()
-    expect(screen.getByText('NotFound component')).toBeInTheDocument()
-    expect(screen.queryByTestId('module-loader')).not.toBeInTheDocument()
+    expect(screen.getByTestId('module-loader')).toBeInTheDocument()
+    expect(screen.getByText('Layout component')).toBeInTheDocument()
   })
 })

@@ -67,4 +67,21 @@ describe('LoadingTransition', () => {
 
     expect(screen.queryByLabelText('loading powercoach')).not.toBeInTheDocument()
   })
+
+  it('can render the overlay within its own container', () => {
+    render(
+      <section data-testid="loading-container">
+        <LoadingTransition contained loading>
+          <div>Drawer content</div>
+        </LoadingTransition>
+      </section>
+    )
+
+    const container = screen.getByTestId('loading-container')
+    const overlay = screen.getByLabelText('loading powercoach')
+
+    expect(container).toContainElement(overlay)
+    expect(overlay.className).toContain('absolute')
+    expect(screen.getByTestId('loading-transition-background').className).toContain('absolute')
+  })
 })

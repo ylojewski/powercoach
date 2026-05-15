@@ -1,12 +1,5 @@
-import { configureStore } from '@reduxjs/toolkit'
-
-import { routerConfig } from '@/app/router'
-import { reducer, api } from '@/core'
+import { createStore } from '@/app'
 
 export function createTestStore() {
-  return configureStore({
-    middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(api.middleware),
-    preloadedState: { router: routerConfig },
-    reducer: reducer
-  })
+  return createStore()
 }
