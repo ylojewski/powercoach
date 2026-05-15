@@ -1,35 +1,63 @@
 import { cn, LogoIcon } from '@powercoach/ui'
-import { type ReactElement, useEffect, useState } from 'react'
-
-const MIN_DISPLAY_MS = 1000
+import { type AnimationEvent, type ReactElement, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 
 interface Props {
   exiting?: boolean
+  onClipInComplete?: () => void
+  onClipOutComplete?: () => void
 }
 
-export function LoadingOverlay({ exiting = false }: Props): ReactElement {
-  const [minTimePassed, setMinTimePassed] = useState(false)
+export function LoadingOverlay({
+  exiting = false,
+  onClipInComplete,
+  onClipOutComplete
+}: Props): ReactElement {
+  const clipInCompleteRef = useRef(false)
+  const clipOutCompleteRef = useRef(false)
 
   useEffect(() => {
-    const timer = setTimeout(() => setMinTimePassed(true), MIN_DISPLAY_MS)
-    return () => {
-      clearTimeout(timer)
+    if (exiting) {
+      clipOutCompleteRef.current = false
+      return
     }
-  }, [])
 
-  const shouldExit = exiting && minTimePassed
+    clipInCompleteRef.current = false
+  }, [exiting])
 
-  return (
+  function handleAnimationEnd(event: AnimationEvent<HTMLDivElement>): void {
+    if (event.currentTarget !== event.target) {
+      return
+    }
+
+    if (event.animationName === 'clip-in-ltr' && !clipInCompleteRef.current) {
+      clipInCompleteRef.current = true
+      onClipInComplete?.()
+      return
+    }
+
+    if (event.animationName === 'clip-out-ltr' && !clipOutCompleteRef.current) {
+      clipOutCompleteRef.current = true
+      onClipOutComplete?.()
+    }
+  }
+
+  const overlay = (
     <div
-      aria-label="loading"
-      className={cn(
-        'absolute inset-0 bg-white dark:bg-black',
-        shouldExit && 'pointer-events-none animate-clip-out-ltr'
-      )}
+      aria-label="loading powercoach"
+      className={cn('fixed inset-0 z-2147483647', exiting && 'pointer-events-none')}
     >
-      <div className="absolute flex h-full w-full animate-fade-in items-center justify-center border-8 bg-black dark:bg-white test-white dark:text-black">
+      <div
+        className={cn(
+          'flex h-full w-full items-center justify-center border-8 bg-black text-white dark:bg-white dark:text-black',
+          exiting ? 'animate-clip-out-ltr' : 'animate-clip-in-ltr'
+        )}
+        onAnimationEnd={handleAnimationEnd}
+      >
         <LogoIcon variant="white" />
       </div>
     </div>
   )
+
+  return typeof document !== 'undefined' ? createPortal(overlay, document.body) : overlay
 }

@@ -1,6 +1,6 @@
 import { type ReactElement } from 'react'
-import { useParams } from 'react-router'
 
+import { useBackgroundParams } from '@/core'
 import { Home } from '@/modules/home'
 import { useRoster } from '@/modules/roster'
 
@@ -9,7 +9,7 @@ import { NotFound } from './NotFound'
 import { Sidebar } from './Sidebar'
 
 export function Layout(): ReactElement {
-  const { athleteSlug } = useParams()
+  const { athleteSlug } = useBackgroundParams()
   const { activatedAthlete } = useRoster()
 
   if (athleteSlug && !activatedAthlete) {

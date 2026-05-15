@@ -1,15 +1,15 @@
 import { Button } from '@powercoach/ui'
 import { type ReactElement } from 'react'
 
-import { useRouterConfig, RoutedDrawerLink } from '@/core'
+import { BackgroundLink, useNavigation } from '@/core'
 
 export function Exercises(): ReactElement {
-  const RouterConfig = useRouterConfig()
+  const navigation = useNavigation()
 
   return (
     <section className="flex flex-col gap-2" data-testid="exercise-catalog">
       <p>Exercise catalog</p>
-      <Button render={<RoutedDrawerLink to={RouterConfig.Exercises.New} />}>New exercise</Button>
+      <Button render={<BackgroundLink to={navigation.newExercise()} />}>New exercise</Button>
     </section>
   )
 }

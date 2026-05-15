@@ -1,5 +1,4 @@
 import { useCallback, useEffect } from 'react'
-import { useParams } from 'react-router'
 
 import {
   type Loadable,
@@ -9,7 +8,8 @@ import {
   type Athlete,
   type Coach,
   type Organization,
-  rosterApi
+  rosterApi,
+  useBackgroundParams
 } from '@/core'
 import { useSettings } from '@/modules/settings'
 
@@ -28,7 +28,7 @@ export function useRoster(): UseRosterResult {
   const storedActivatedAthlete = useAppSelector(selectActivatedAthlete)
   const rosterQuery = rosterApi.endpoints.getCurrentRoster.useQueryState({})
   const status = getLoadableStatusFromQuery(rosterQuery)
-  const { athleteSlug } = useParams()
+  const { athleteSlug } = useBackgroundParams()
   const { defaultOrganizationId } = useSettings()
 
   const roster = rosterQuery.data

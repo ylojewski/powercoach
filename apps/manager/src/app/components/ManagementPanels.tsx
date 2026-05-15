@@ -5,14 +5,13 @@ import {
   HorizontalPanelTrigger
 } from '@powercoach/ui'
 import { type ReactElement, type ReactNode } from 'react'
-import { generatePath, Link, useLocation } from 'react-router'
+import { Link } from 'react-router'
 
-import { useRouterConfig } from '@/core'
+import { useBackgroundLocation, useNavigation } from '@/core'
 import { Metrics } from '@/modules/metrics'
 import { Notes } from '@/modules/notes'
 import { Programs } from '@/modules/programs'
 import { Reviews } from '@/modules/reviews'
-import { getAthleteSlug, useRoster } from '@/modules/roster'
 
 interface ManagementPanelsLinkProps {
   children: ReactNode
@@ -33,23 +32,13 @@ function ManagementPanelsLink({
 }
 
 export function ManagementPanels(): ReactElement {
-  const { pathname } = useLocation()
-  const { activatedAthlete } = useRoster()
-  const RouterConfig = useRouterConfig()
-  const athleteSlug = activatedAthlete ? getAthleteSlug(activatedAthlete) : undefined
+  const { pathname } = useBackgroundLocation()
+  const navigation = useNavigation()
 
-  const programsPath = athleteSlug
-    ? generatePath(RouterConfig.Programs.AthleteRoot, { athleteSlug })
-    : RouterConfig.Programs.Index
-  const reviewsPath = athleteSlug
-    ? generatePath(RouterConfig.Reviews.AthleteRoot, { athleteSlug })
-    : RouterConfig.Reviews.Index
-  const metricsPath = athleteSlug
-    ? generatePath(RouterConfig.Metrics.AthleteRoot, { athleteSlug })
-    : RouterConfig.Metrics.Index
-  const notesPath = athleteSlug
-    ? generatePath(RouterConfig.Notes.AthleteRoot, { athleteSlug })
-    : RouterConfig.Notes.Index
+  const programsPath = navigation.programsIndex()
+  const reviewsPath = navigation.reviewsIndex()
+  const metricsPath = navigation.metricsIndex()
+  const notesPath = navigation.notesIndex()
 
   return (
     <HorizontalPanel<string> collapsible={false} value={[pathname]}>

@@ -1,54 +1,54 @@
-import { DrawerIndent, DrawerProvider } from '@powercoach/ui'
-import { useMemo, type ReactElement } from 'react'
-import { createBrowserRouter, Route, Routes, RouterProvider, useLocation } from 'react-router'
+import { type ReactElement } from 'react'
+import { createBrowserRouter, RouterProvider } from 'react-router'
 
-import { useBackgroundLocationState, useRouterConfig } from '@/core'
-import { exercisesDrawers, exercisesRoutes } from '@/modules/exercises'
+import { mountRouteDrawers, mountRoutes, RouteDrawerShell } from '@/core'
+import { exercisesRoutes } from '@/modules/exercises'
+import { homeRoutes } from '@/modules/home'
+import { metricsRoutes } from '@/modules/metrics'
+import { notesRoutes } from '@/modules/notes'
+import { programsRoutes } from '@/modules/programs'
+import { reviewsRoutes } from '@/modules/reviews'
 
-import { ModuleLoader } from './ModuleLoader'
 import { Layout } from './Layout'
+import { ModuleLoader } from './ModuleLoader'
 import { NotFound } from './NotFound'
 
-function RouterShell(): ReactElement {
-  const RouterConfig = useRouterConfig()
-  const location = useBackgroundLocationState()?.backgroundLocation ?? useLocation()
-
-  return (
-    <DrawerProvider>
-      <DrawerIndent>
-        <Routes location={location}>
-          <Route element={<ModuleLoader />}>
-            <Route element={<Layout />} path={RouterConfig.Home.Index} />
-            <Route element={<Layout />} path={RouterConfig.Home.AthleteRoot} />
-
-            <Route element={<Layout />} path={RouterConfig.Metrics.Index} />
-            <Route element={<Layout />} path={RouterConfig.Metrics.AthleteRoot} />
-
-            <Route element={<Layout />} path={RouterConfig.Notes.Index} />
-            <Route element={<Layout />} path={RouterConfig.Notes.AthleteRoot} />
-
-            <Route element={<Layout />} path={RouterConfig.Reviews.Index} />
-            <Route element={<Layout />} path={RouterConfig.Reviews.AthleteRoot} />
-
-            <Route element={<Layout />} path={RouterConfig.Programs.Index} />
-            <Route element={<Layout />} path={RouterConfig.Programs.AthleteRoot} />
-
-            <Route element={<Layout />} path={RouterConfig.Exercises.Index}>
-              {exercisesRoutes}
-            </Route>
-          </Route>
-          <Route element={<NotFound />} path="*" />
-        </Routes>
-      </DrawerIndent>
-      {exercisesDrawers}
-    </DrawerProvider>
-  )
-}
+/* eslint-disable sort-keys */
+const router = createBrowserRouter([
+  {
+    element: <ModuleLoader />,
+    children: [
+      {
+        element: (
+          <RouteDrawerShell routeDrawers={[...mountRouteDrawers('/exercises', exercisesRoutes)]} />
+        ),
+        children: [
+          {
+            element: <Layout />,
+            children: [
+              ...mountRoutes('/', homeRoutes),
+              ...mountRoutes('/programs', programsRoutes),
+              ...mountRoutes('/reviews', reviewsRoutes),
+              ...mountRoutes('/metrics', metricsRoutes),
+              ...mountRoutes('/notes', notesRoutes),
+              ...mountRoutes('/:athleteSlug', homeRoutes),
+              ...mountRoutes('/:athleteSlug/programs', programsRoutes),
+              ...mountRoutes('/:athleteSlug/reviews', reviewsRoutes),
+              ...mountRoutes('/:athleteSlug/metrics', metricsRoutes),
+              ...mountRoutes('/:athleteSlug/notes', notesRoutes),
+              ...mountRoutes('/exercises', exercisesRoutes)
+            ]
+          }
+        ]
+      },
+      {
+        element: <NotFound />,
+        path: '*'
+      }
+    ]
+  }
+])
 
 export function Router(): ReactElement {
-  const router = useMemo(() => {
-    return createBrowserRouter([{ element: <RouterShell />, path: '*' }])
-  }, [])
-
   return <RouterProvider router={router} />
 }

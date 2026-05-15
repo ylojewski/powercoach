@@ -1,26 +1,22 @@
 import {
+  Drawer,
   DrawerDescription,
   DrawerHeader,
   DrawerPanel,
   DrawerPopup,
   DrawerTitle
 } from '@powercoach/ui'
-import { type ReactElement } from 'react'
-
-import { useRouterConfig, RoutedDrawer } from '@/core'
+import { type ComponentProps, PropsWithChildren, type ReactElement } from 'react'
 
 import { Exercises } from './Exercises'
-import { NewExerciseDrawer } from './NewExerciseDrawer'
 
-export function ExercisesDrawer(): ReactElement {
-  const RouterConfig = useRouterConfig()
-
+export function ExercisesDrawer({
+  children,
+  open,
+  ...props
+}: PropsWithChildren<ComponentProps<typeof Drawer>>): ReactElement {
   return (
-    <RoutedDrawer
-      fallbackPathname={RouterConfig.Home.Index}
-      pathname={RouterConfig.Exercises.Index}
-      position="bottom"
-    >
+    <Drawer open={open} position="bottom" {...props}>
       <DrawerPopup showBar showCloseButton className="min-h-[calc(100dvh-4.75rem)] rounded-none">
         <DrawerHeader>
           <DrawerTitle>Exercise</DrawerTitle>
@@ -29,8 +25,8 @@ export function ExercisesDrawer(): ReactElement {
         <DrawerPanel className="min-h-full" scrollable>
           <Exercises />
         </DrawerPanel>
-        <NewExerciseDrawer />
+        {children}
       </DrawerPopup>
-    </RoutedDrawer>
+    </Drawer>
   )
 }

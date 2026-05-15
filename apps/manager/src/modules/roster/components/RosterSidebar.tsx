@@ -1,7 +1,7 @@
 import { type ReactElement } from 'react'
-import { generatePath, Link } from 'react-router'
+import { Link } from 'react-router'
 
-import { useRouterConfig } from '@/core'
+import { useNavigation } from '@/core'
 
 import { useRoster } from '../hooks'
 import { getAthleteSlug, getInitials } from '../utils'
@@ -13,7 +13,7 @@ export interface RosterSidebarProps {
 
 export function RosterSidebar({ renderSeparator }: RosterSidebarProps): ReactElement {
   const { activatedAthlete, athletes, coach, defaultOrganization, status } = useRoster()
-  const { Home } = useRouterConfig()
+  const navigation = useNavigation()
 
   if (status !== 'ready') {
     return <></>
@@ -27,7 +27,7 @@ export function RosterSidebar({ renderSeparator }: RosterSidebarProps): ReactEle
             aria-label="Powercoach organization"
             data-testid="roster-organization"
             key={defaultOrganization.id}
-            to={Home.Index}
+            to={navigation.index()}
           >
             <RosterSidebarAvatar
               initials={getInitials(defaultOrganization.name)}
@@ -40,7 +40,11 @@ export function RosterSidebar({ renderSeparator }: RosterSidebarProps): ReactEle
 
       {coach && (
         <>
-          <Link aria-label="Powercoach coach home" data-testid="roster-coach" to={Home.Index}>
+          <Link
+            aria-label="Powercoach coach home"
+            data-testid="roster-coach"
+            to={navigation.index()}
+          >
             <RosterSidebarAvatar
               active={activatedAthlete === null}
               initials={getInitials(`${coach.firstName} ${coach.lastName}`)}
@@ -56,7 +60,7 @@ export function RosterSidebar({ renderSeparator }: RosterSidebarProps): ReactEle
           aria-label="Powercoach athlete home"
           data-testid="roster-athlete"
           key={athlete.id}
-          to={generatePath(Home.AthleteRoot, { athleteSlug: getAthleteSlug(athlete) })}
+          to={navigation.athleteIndex({ athleteSlug: getAthleteSlug(athlete) })}
         >
           <RosterSidebarAvatar
             active={activatedAthlete?.id === athlete.id}

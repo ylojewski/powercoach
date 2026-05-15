@@ -1,2 +1,2 @@
 export * from './reducer'
-export * from './routerSlice'
+export * from './navigationSlice'

@@ -1,4 +1,5 @@
 export * from './useAppDispatch'
 export * from './useAppSelector'
-export * from './useBackgroundLocationState'
-export * from './useRouterConfig'
+export * from './useBackgroundLocation'
+export * from './useBackgroundParams'
+export * from './useNavigation'

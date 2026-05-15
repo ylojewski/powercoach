@@ -1,7 +1,7 @@
 import { type ReactElement, useEffect } from 'react'
 import { Outlet } from 'react-router'
 
-import { LoadingOverlay } from '@/core'
+import { LoadingTransition } from '@/core'
 
 import { ErrorScreen } from './ErrorScreen'
 import { useModuleLoader } from '../hooks'
@@ -17,14 +17,9 @@ export function ModuleLoader(): ReactElement {
     return <ErrorScreen />
   }
 
-  if (status !== 'ready') {
-    return <LoadingOverlay />
-  }
-
   return (
-    <>
+    <LoadingTransition loading={status !== 'ready'}>
       <Outlet />
-      <LoadingOverlay exiting />
-    </>
+    </LoadingTransition>
   )
 }
