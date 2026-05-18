@@ -5,13 +5,7 @@ import { type GetReferencesApiResponse } from '@/core'
 import { useReferences } from '@/modules/references'
 import { createTestStore } from '@/test/utils/store'
 
-import {
-  CreationMethod,
-  setCreationExerciseTitle,
-  setCreationStep,
-  startCreation,
-  Step
-} from '../store'
+import { CreationMethod, setCreationExerciseTitle, startCreation, Step } from '../store'
 import { NewExerciseSourcePanel } from './NewExerciseSourcePanel'
 
 vi.mock('@/modules/references', () => ({
@@ -79,6 +73,8 @@ const exerciseGroupsByPattern = [
 ]
 
 const useReferencesMock = vi.mocked(useReferences)
+let onResume: () => void
+let onStart: () => void
 
 function getCompetitionSquat() {
   const exercise = references.exercises.find(({ code }) => code === 'competition_squat')
@@ -99,7 +95,11 @@ function renderSourcePanel(
 
   render(
     <Provider store={store}>
-      <NewExerciseSourcePanel />
+      <NewExerciseSourcePanel
+        onResume={onResume}
+        onStart={onStart}
+        resumeActionLabel="Resume at muscles"
+      />
     </Provider>
   )
 
@@ -108,6 +108,8 @@ function renderSourcePanel(
 
 describe('NewExerciseSourcePanel', () => {
   beforeEach(() => {
+    onResume = vi.fn()
+    onStart = vi.fn()
     useReferencesMock.mockReturnValue({
       exerciseGroupItemsByPattern: exerciseGroupsByPattern,
       load: vi.fn(),
@@ -169,7 +171,8 @@ describe('NewExerciseSourcePanel', () => {
     expect(store.getState().exercises?.creation.current?.exercise.code).toBe('competition_squat')
     expect(store.getState().exercises?.creation.initial?.method).toBe(CreationMethod.Clone)
     expect(store.getState().exercises?.creation.initial?.exercise.code).toBe('competition_squat')
-    expect(store.getState().exercises?.creation.step).toBe(Step.Overview)
+    expect(store.getState().exercises?.creation.resumeStep).toBe(Step.Overview)
+    expect(onStart).toHaveBeenCalledTimes(1)
   })
 
   it('initializes the local source state from the current creation without prompting on resume', () => {
@@ -180,9 +183,8 @@ describe('NewExerciseSourcePanel', () => {
           method: CreationMethod.Clone
         })
       )
-      createdStore.dispatch(setCreationStep(Step.Start))
     })
-    const cloneResumeButton = screen.getByRole('button', { name: 'Resume' })
+    const cloneResumeButton = screen.getByRole('button', { name: 'Resume at muscles' })
 
     expect(screen.getByPlaceholderText('Exercise to clone')).toHaveValue('Competition squat')
     expect(cloneResumeButton).toBeEnabled()
@@ -192,7 +194,7 @@ describe('NewExerciseSourcePanel', () => {
     expect(screen.queryByText('creation already in progress')).not.toBeInTheDocument()
     expect(store.getState().exercises?.creation.current?.method).toBe(CreationMethod.Clone)
     expect(store.getState().exercises?.creation.current?.exercise.code).toBe('competition_squat')
-    expect(store.getState().exercises?.creation.step).toBe(Step.Overview)
+    expect(onResume).toHaveBeenCalledTimes(1)
   })
 
   it('offers to reset a dirty blank creation', () => {
@@ -208,10 +210,9 @@ describe('NewExerciseSourcePanel', () => {
         })
       )
       createdStore.dispatch(setCreationExerciseTitle('Dirty title'))
-      createdStore.dispatch(setCreationStep(Step.Start))
     })
 
-    expect(screen.getByRole('button', { name: 'Resume' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Resume at muscles' })).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'start over' }))
 
@@ -221,7 +222,8 @@ describe('NewExerciseSourcePanel', () => {
 
     expect(store.getState().exercises?.creation.current?.method).toBe(CreationMethod.Blank)
     expect(store.getState().exercises?.creation.current?.exercise.title).toBe('')
-    expect(store.getState().exercises?.creation.step).toBe(Step.Overview)
+    expect(store.getState().exercises?.creation.resumeStep).toBe(Step.Overview)
+    expect(onStart).toHaveBeenCalledTimes(1)
   })
 
   it('resumes a blank creation without resetting it', () => {
@@ -237,14 +239,13 @@ describe('NewExerciseSourcePanel', () => {
         })
       )
       createdStore.dispatch(setCreationExerciseTitle('Dirty title'))
-      createdStore.dispatch(setCreationStep(Step.Start))
     })
 
-    fireEvent.click(screen.getByRole('button', { name: 'Resume' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Resume at muscles' }))
 
     expect(screen.queryByText('creation already in progress')).not.toBeInTheDocument()
     expect(store.getState().exercises?.creation.current?.exercise.title).toBe('Dirty title')
-    expect(store.getState().exercises?.creation.step).toBe(Step.Overview)
+    expect(onResume).toHaveBeenCalledTimes(1)
   })
 
   it('keeps the clone reset action available after activating another source', () => {
@@ -256,7 +257,6 @@ describe('NewExerciseSourcePanel', () => {
         })
       )
       createdStore.dispatch(setCreationExerciseTitle('Dirty title'))
-      createdStore.dispatch(setCreationStep(Step.Start))
     })
 
     fireEvent.click(screen.getByText('from scratch'))
@@ -280,7 +280,6 @@ describe('NewExerciseSourcePanel', () => {
     expect(store.getState().exercises?.creation.current?.exercise.code).toBe('')
 
     act(() => {
-      store.dispatch(setCreationStep(Step.Start))
       store.dispatch(setCreationExerciseTitle('Dirty title'))
     })
 
@@ -301,6 +300,7 @@ describe('NewExerciseSourcePanel', () => {
     expect(store.getState().exercises?.creation.current?.exercise.code).toBe('competition_squat')
     expect(store.getState().exercises?.creation.initial?.method).toBe(CreationMethod.Clone)
     expect(store.getState().exercises?.creation.initial?.exercise.code).toBe('competition_squat')
-    expect(store.getState().exercises?.creation.step).toBe(Step.Overview)
+    expect(store.getState().exercises?.creation.resumeStep).toBe(Step.Overview)
+    expect(onStart).toHaveBeenCalledTimes(2)
   })
 })

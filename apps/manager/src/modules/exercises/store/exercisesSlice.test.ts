@@ -3,11 +3,11 @@ import { createTestStore } from '@/test/utils/store'
 
 import {
   CreationMethod,
-  selectCreationStep,
+  selectCreationResumeStep,
   selectCurrentCreation,
   selectInitialCreation,
   setCreationExerciseTitle,
-  setCreationStep,
+  setCreationResumeStep,
   startCreation,
   Step
 } from './exercisesSlice'
@@ -40,15 +40,15 @@ describe('exercisesSlice', () => {
 
     expect(selectCurrentCreation(state)).toBeNull()
     expect(selectInitialCreation(state)).toBeNull()
-    expect(selectCreationStep(state)).toBe(Step.Start)
+    expect(selectCreationResumeStep(state)).toBeNull()
   })
 
   it('falls back to the initial state when the slice is missing', () => {
-    const state = {} as Parameters<typeof selectCreationStep>[0]
+    const state = {} as Parameters<typeof selectCreationResumeStep>[0]
 
     expect(selectCurrentCreation(state)).toBeNull()
     expect(selectInitialCreation(state)).toBeNull()
-    expect(selectCreationStep(state)).toBe(Step.Start)
+    expect(selectCreationResumeStep(state)).toBeNull()
   })
 
   it('starts a creation by snapshotting current and initial exercise state', () => {
@@ -72,7 +72,7 @@ describe('exercisesSlice', () => {
     expect(currentCreation?.exercise).not.toBe(exercise)
     expect(initialCreation?.exercise).not.toBe(exercise)
     expect(initialCreation?.exercise).not.toBe(currentCreation?.exercise)
-    expect(selectCreationStep(state)).toBe(Step.Overview)
+    expect(selectCreationResumeStep(state)).toBe(Step.Overview)
   })
 
   it('updates only the current exercise title', () => {
@@ -87,15 +87,15 @@ describe('exercisesSlice', () => {
     expect(selectInitialCreation(state)?.exercise.title).toBe('Competition squat')
   })
 
-  it('updates the creation step independently from the creation snapshot', () => {
+  it('updates the creation resume step independently from the creation snapshot', () => {
     const store = createTestStore()
 
     store.dispatch(startCreation({ exercise: createExercise(), method: CreationMethod.Clone }))
-    store.dispatch(setCreationStep(Step.Muscles))
+    store.dispatch(setCreationResumeStep(Step.Muscles))
 
     const state = store.getState()
 
-    expect(selectCreationStep(state)).toBe(Step.Muscles)
+    expect(selectCreationResumeStep(state)).toBe(Step.Muscles)
     expect(selectCurrentCreation(state)?.method).toBe(CreationMethod.Clone)
   })
 

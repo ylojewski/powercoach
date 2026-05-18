@@ -4,7 +4,7 @@ import { Provider } from 'react-redux'
 
 import { createTestStore } from '@/test/utils/store'
 
-import { selectCreationStep, Step } from '../store'
+import { selectCreationResumeStep, setCreationResumeStep, Step } from '../store'
 import { NewExercise } from './NewExercise'
 
 vi.mock('@powercoach/ui', async (importOriginal) => {
@@ -14,11 +14,13 @@ vi.mock('@powercoach/ui', async (importOriginal) => {
     ...actual,
     HorizontalPanel: ({
       children,
-      onValueChange
+      onValueChange,
+      value
     }: PropsWithChildren<{
       onValueChange: (value: string[]) => void
+      value: string[]
     }>): ReactElement => (
-      <div>
+      <div data-testid="horizontal-panel" data-value={value.join(',')}>
         <button onClick={() => onValueChange(['overview'])}>change step</button>
         {children}
       </div>
@@ -54,7 +56,22 @@ vi.mock('./NewExerciseReviewPanel', () => ({
 }))
 
 vi.mock('./NewExerciseSourcePanel', () => ({
-  NewExerciseSourcePanel: () => <div>start</div>
+  NewExerciseSourcePanel: ({
+    onResume,
+    onStart,
+    resumeActionLabel
+  }: {
+    onResume: () => void
+    onStart: () => void
+    resumeActionLabel: string
+  }) => (
+    <div>
+      start
+      <span>{resumeActionLabel}</span>
+      <button onClick={onResume}>resume source</button>
+      <button onClick={onStart}>start source</button>
+    </div>
+  )
 }))
 
 vi.mock('./NewExerciseTrackingPanel', () => ({
@@ -62,7 +79,22 @@ vi.mock('./NewExerciseTrackingPanel', () => ({
 }))
 
 describe('NewExercise', () => {
-  it('updates the current step from the horizontal panel', () => {
+  it('starts on the source panel even when a resume step exists', () => {
+    const store = createTestStore()
+
+    store.dispatch(setCreationResumeStep(Step.Muscles))
+
+    render(
+      <Provider store={store}>
+        <NewExercise />
+      </Provider>
+    )
+
+    expect(screen.getByTestId('horizontal-panel')).toHaveAttribute('data-value', Step.Start)
+    expect(screen.getByText('Resume at muscles')).toBeInTheDocument()
+  })
+
+  it('updates the resume step from the horizontal panel', () => {
     const store = createTestStore()
 
     render(
@@ -73,6 +105,37 @@ describe('NewExercise', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'change step' }))
 
-    expect(selectCreationStep(store.getState())).toBe(Step.Overview)
+    expect(screen.getByTestId('horizontal-panel')).toHaveAttribute('data-value', Step.Overview)
+    expect(selectCreationResumeStep(store.getState())).toBe(Step.Overview)
+  })
+
+  it('resumes the last active panel from the source panel', () => {
+    const store = createTestStore()
+
+    store.dispatch(setCreationResumeStep(Step.Muscles))
+
+    render(
+      <Provider store={store}>
+        <NewExercise />
+      </Provider>
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'resume source' }))
+
+    expect(screen.getByTestId('horizontal-panel')).toHaveAttribute('data-value', Step.Muscles)
+  })
+
+  it('opens the overview panel after starting from the source panel', () => {
+    const store = createTestStore()
+
+    render(
+      <Provider store={store}>
+        <NewExercise />
+      </Provider>
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'start source' }))
+
+    expect(screen.getByTestId('horizontal-panel')).toHaveAttribute('data-value', Step.Overview)
   })
 })

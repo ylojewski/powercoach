@@ -4,11 +4,11 @@ import {
   HorizontalPanelItem,
   HorizontalPanelTrigger
 } from '@powercoach/ui'
-import { type ReactElement } from 'react'
+import { type ReactElement, useState } from 'react'
 
 import { useAppDispatch, useAppSelector } from '@/core'
 
-import { Step, setCreationStep, selectCreationStep } from '../store'
+import { Step, selectCreationResumeStep, setCreationResumeStep } from '../store'
 import { NewExerciseActions } from './NewExerciseActions'
 import { NewExerciseCategorizationPanel } from './NewExerciseCategorizationPanel'
 import { NewExerciseInstructionsPanel } from './NewExerciseInstructionsPanel'
@@ -20,10 +20,24 @@ import { NewExerciseTrackingPanel } from './NewExerciseTrackingPanel'
 
 export function NewExercise(): ReactElement {
   const dispatch = useAppDispatch()
-  const step = useAppSelector(selectCreationStep)
+  const resumeStep = useAppSelector(selectCreationResumeStep)
+  const [step, setStep] = useState(Step.Start)
+  const resumeActionLabel = `Resume at ${resumeStep ?? Step.Overview}`
 
   const onHorizontalPanelValueChange = ([newStep = Step.Start]: Step[]) => {
-    dispatch(setCreationStep(newStep))
+    setStep(newStep)
+
+    if (newStep !== Step.Start) {
+      dispatch(setCreationResumeStep(newStep))
+    }
+  }
+
+  const resume = () => {
+    setStep(resumeStep ?? Step.Overview)
+  }
+
+  const start = () => {
+    setStep(Step.Overview)
   }
 
   return (
@@ -37,7 +51,11 @@ export function NewExercise(): ReactElement {
           <HorizontalPanelItem value={Step.Start}>
             <HorizontalPanelTrigger>start</HorizontalPanelTrigger>
             <HorizontalPanelContent>
-              <NewExerciseSourcePanel />
+              <NewExerciseSourcePanel
+                onResume={resume}
+                onStart={start}
+                resumeActionLabel={resumeActionLabel}
+              />
             </HorizontalPanelContent>
           </HorizontalPanelItem>
           <HorizontalPanelItem value={Step.Overview}>

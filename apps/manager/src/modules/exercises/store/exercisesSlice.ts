@@ -29,7 +29,7 @@ export interface Creation {
 export interface CreationState {
   current: Creation | null
   initial: Creation | null
-  step: Step
+  resumeStep: Step | null
 }
 
 export interface State {
@@ -40,7 +40,7 @@ const initialState: State = {
   creation: {
     current: null,
     initial: null,
-    step: Step.Start
+    resumeStep: null
   }
 }
 
@@ -53,8 +53,8 @@ const exercisesSlice = createSlice({
         state.creation.current.exercise.title = action.payload
       }
     },
-    setCreationStep(state, action: PayloadAction<Step>) {
-      state.creation.step = action.payload
+    setCreationResumeStep(state, action: PayloadAction<Step>) {
+      state.creation.resumeStep = action.payload
     },
     startCreation(state, action: PayloadAction<Creation>) {
       state.creation.current = {
@@ -65,14 +65,15 @@ const exercisesSlice = createSlice({
         exercise: { ...action.payload.exercise },
         method: action.payload.method
       }
-      state.creation.step = Step.Overview
+      state.creation.resumeStep = Step.Overview
     }
   }
 })
 
 reducer.inject(exercisesSlice)
 
-export const { setCreationExerciseTitle, setCreationStep, startCreation } = exercisesSlice.actions
+export const { setCreationExerciseTitle, setCreationResumeStep, startCreation } =
+  exercisesSlice.actions
 
 export function selectCurrentCreation(state: RootState): Creation | null {
   return state.exercises?.creation.current ?? initialState.creation.current
@@ -82,6 +83,6 @@ export function selectInitialCreation(state: RootState): Creation | null {
   return state.exercises?.creation.initial ?? initialState.creation.initial
 }
 
-export function selectCreationStep(state: RootState): Step {
-  return state.exercises?.creation.step ?? initialState.creation.step
+export function selectCreationResumeStep(state: RootState): Step | null {
+  return state.exercises?.creation.resumeStep ?? initialState.creation.resumeStep
 }
