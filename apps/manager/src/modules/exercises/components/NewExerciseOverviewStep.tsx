@@ -5,7 +5,7 @@ import { useAppDispatch, useAppSelector } from '@/core'
 
 import { selectCurrentCreation, setCreationExerciseTitle } from '../store'
 
-export function NewExerciseOverviewPanel(): ReactElement {
+export function NewExerciseOverviewStep(): ReactElement {
   const dispatch = useAppDispatch()
   const { exercise } = useAppSelector(selectCurrentCreation) ?? {}
   const [title, setTitle] = useState(exercise?.title ?? '')

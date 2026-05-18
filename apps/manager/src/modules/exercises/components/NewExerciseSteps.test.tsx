@@ -6,12 +6,12 @@ import { createTestStore } from '@/test/utils/store'
 import { CreationMethod, selectCurrentCreation, startCreation } from '../store'
 import { NewExercise } from './NewExercise'
 import { NewExerciseActions } from './NewExerciseActions'
-import { NewExerciseCategorizationPanel } from './NewExerciseCategorizationPanel'
-import { NewExerciseInstructionsPanel } from './NewExerciseInstructionsPanel'
-import { NewExerciseMusclesPanel } from './NewExerciseMusclesPanel'
-import { NewExerciseOverviewPanel } from './NewExerciseOverviewPanel'
-import { NewExerciseReviewPanel } from './NewExerciseReviewPanel'
-import { NewExerciseTrackingPanel } from './NewExerciseTrackingPanel'
+import { NewExerciseCategorizationStep } from './NewExerciseCategorizationStep'
+import { NewExerciseInstructionsStep } from './NewExerciseInstructionsStep'
+import { NewExerciseMusclesStep } from './NewExerciseMusclesStep'
+import { NewExerciseOverviewStep } from './NewExerciseOverviewStep'
+import { NewExerciseReviewStep } from './NewExerciseReviewStep'
+import { NewExerciseTrackingStep } from './NewExerciseTrackingStep'
 
 const exercise = {
   archivedAt: null,
@@ -32,21 +32,21 @@ const exercise = {
   videoUrl: null
 } as const
 
-describe('NewExercise panels', () => {
+describe('NewExercise steps', () => {
   it.each([
     ['actions', NewExerciseActions, 'Actions'],
-    ['categorization', NewExerciseCategorizationPanel, 'Categorization'],
-    ['instructions', NewExerciseInstructionsPanel, 'Instructions'],
-    ['review', NewExerciseReviewPanel, 'Review'],
-    ['tracking', NewExerciseTrackingPanel, 'Tracking']
-  ])('renders the %s panel', (_, Panel, text) => {
-    render(<Panel />)
+    ['categorization', NewExerciseCategorizationStep, 'Categorization'],
+    ['instructions', NewExerciseInstructionsStep, 'Instructions'],
+    ['review', NewExerciseReviewStep, 'Review'],
+    ['tracking', NewExerciseTrackingStep, 'Tracking']
+  ])('renders the %s step', (_, StepComponent, text) => {
+    render(<StepComponent />)
 
     expect(screen.getByText(text)).toBeInTheDocument()
   })
 
-  it('renders the muscle panel and trigger', () => {
-    render(<NewExerciseMusclesPanel />)
+  it('renders the muscle step and trigger', () => {
+    render(<NewExerciseMusclesStep />)
 
     expect(screen.getByText('Muscles')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Add muscles' })).toBeInTheDocument()
@@ -55,7 +55,7 @@ describe('NewExercise panels', () => {
   it('renders a fallback when the overview has no current creation', () => {
     render(
       <Provider store={createTestStore()}>
-        <NewExerciseOverviewPanel />
+        <NewExerciseOverviewStep />
       </Provider>
     )
 
@@ -69,7 +69,7 @@ describe('NewExercise panels', () => {
 
     render(
       <Provider store={store}>
-        <NewExerciseOverviewPanel />
+        <NewExerciseOverviewStep />
       </Provider>
     )
 

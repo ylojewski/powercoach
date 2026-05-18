@@ -6,7 +6,7 @@ import { useReferences } from '@/modules/references'
 import { createTestStore } from '@/test/utils/store'
 
 import { CreationMethod, setCreationExerciseTitle, startCreation, Step } from '../store'
-import { NewExerciseSourcePanel } from './NewExerciseSourcePanel'
+import { NewExerciseStartStep } from './NewExerciseStartStep'
 
 vi.mock('@/modules/references', () => ({
   useReferences: vi.fn()
@@ -86,7 +86,7 @@ function getCompetitionSquat() {
   return exercise
 }
 
-function renderSourcePanel(
+function renderStartStep(
   setupStore?: (store: ReturnType<typeof createTestStore>) => void
 ): ReturnType<typeof createTestStore> {
   const store = createTestStore()
@@ -95,7 +95,7 @@ function renderSourcePanel(
 
   render(
     <Provider store={store}>
-      <NewExerciseSourcePanel
+      <NewExerciseStartStep
         onResume={onResume}
         onStart={onStart}
         resumeActionLabel="Resume at muscles"
@@ -106,7 +106,7 @@ function renderSourcePanel(
   return store
 }
 
-describe('NewExerciseSourcePanel', () => {
+describe('NewExerciseStartStep', () => {
   beforeEach(() => {
     onResume = vi.fn()
     onStart = vi.fn()
@@ -123,7 +123,7 @@ describe('NewExerciseSourcePanel', () => {
   })
 
   it('only enables the clone action after selecting a valid exercise', async () => {
-    const store = renderSourcePanel()
+    const store = renderStartStep()
 
     expect(screen.getByText('clone an exercise')).toBeInTheDocument()
 
@@ -176,7 +176,7 @@ describe('NewExerciseSourcePanel', () => {
   })
 
   it('initializes the local source state from the current creation without prompting on resume', () => {
-    const store = renderSourcePanel((createdStore) => {
+    const store = renderStartStep((createdStore) => {
       createdStore.dispatch(
         startCreation({
           exercise: getCompetitionSquat(),
@@ -198,7 +198,7 @@ describe('NewExerciseSourcePanel', () => {
   })
 
   it('offers to reset a dirty blank creation', () => {
-    const store = renderSourcePanel((createdStore) => {
+    const store = renderStartStep((createdStore) => {
       createdStore.dispatch(
         startCreation({
           exercise: {
@@ -227,7 +227,7 @@ describe('NewExerciseSourcePanel', () => {
   })
 
   it('resumes a blank creation without resetting it', () => {
-    const store = renderSourcePanel((createdStore) => {
+    const store = renderStartStep((createdStore) => {
       createdStore.dispatch(
         startCreation({
           exercise: {
@@ -249,7 +249,7 @@ describe('NewExerciseSourcePanel', () => {
   })
 
   it('keeps the clone reset action available after activating another source', () => {
-    renderSourcePanel((createdStore) => {
+    renderStartStep((createdStore) => {
       createdStore.dispatch(
         startCreation({
           exercise: getCompetitionSquat(),
@@ -265,7 +265,7 @@ describe('NewExerciseSourcePanel', () => {
   })
 
   it('confirms before resetting an in-progress creation from a next action', async () => {
-    const store = renderSourcePanel()
+    const store = renderStartStep()
     const blankNextButton = screen.getAllByRole('button', { name: 'Next' }).at(0)
     const cloneNextButton = screen.getAllByRole('button', { name: 'Next' }).at(1)
 

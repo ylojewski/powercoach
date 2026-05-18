@@ -2,7 +2,7 @@ import { cn } from '@powercoach/ui'
 import { type LucideIcon } from 'lucide-react'
 import { type PropsWithChildren, type ReactElement } from 'react'
 
-export interface NewExerciseSourcePanelCardProps {
+export interface NewExerciseStartStepCardProps {
   active: boolean
   description: string
   icon: LucideIcon
@@ -10,14 +10,14 @@ export interface NewExerciseSourcePanelCardProps {
   title: string
 }
 
-export function NewExerciseSourcePanelCard({
+export function NewExerciseStartStepCard({
   active,
   children,
   description,
   icon: Icon,
   onActivate,
   title
-}: PropsWithChildren<NewExerciseSourcePanelCardProps>): ReactElement {
+}: PropsWithChildren<NewExerciseStartStepCardProps>): ReactElement {
   return (
     <div
       className={cn(

@@ -10,17 +10,17 @@ import {
 import { TriangleAlertIcon } from 'lucide-react'
 import { ComponentProps, type ReactElement } from 'react'
 
-export interface NewExerciseSourcePanelResetDrawerProps extends ComponentProps<typeof Drawer> {
+export interface NewExerciseStartStepResetDrawerProps extends ComponentProps<typeof Drawer> {
   confirmText: string
   onConfirm: () => void
 }
 
-export function NewExerciseSourcePanelResetDrawer({
+export function NewExerciseStartStepResetDrawer({
   confirmText,
   handle,
   onConfirm,
   ...props
-}: NewExerciseSourcePanelResetDrawerProps): ReactElement<ComponentProps<typeof Drawer>> {
+}: NewExerciseStartStepResetDrawerProps): ReactElement<ComponentProps<typeof Drawer>> {
   return (
     <Drawer handle={handle} position="bottom" {...props}>
       <DrawerPopup showBar showCloseButton className="min-h-[calc(100dvh-4.75rem)] rounded-none">

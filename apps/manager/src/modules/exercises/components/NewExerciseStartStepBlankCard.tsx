@@ -3,30 +3,30 @@ import { SparklesIcon } from 'lucide-react'
 import { ComponentProps, type ReactElement } from 'react'
 
 import {
-  NewExerciseSourcePanelCard,
-  type NewExerciseSourcePanelCardProps
-} from './NewExerciseSourcePanelCard'
+  NewExerciseStartStepCard,
+  type NewExerciseStartStepCardProps
+} from './NewExerciseStartStepCard'
 
-export interface NewExerciseSourcePanelBlankCardProps
-  extends Omit<NewExerciseSourcePanelCardProps, 'description' | 'icon' | 'title'> {
+export interface NewExerciseStartStepBlankCardProps
+  extends Omit<NewExerciseStartStepCardProps, 'description' | 'icon' | 'title'> {
   actionLabel: string
   onNext: () => void
   onReset?: () => void
   resetLabel?: string
 }
 
-export function NewExerciseSourcePanelBlankCard({
+export function NewExerciseStartStepBlankCard({
   actionLabel,
   active,
   onNext,
   onReset,
   resetLabel,
   ...props
-}: NewExerciseSourcePanelBlankCardProps): ReactElement<
-  ComponentProps<typeof NewExerciseSourcePanelCard>
+}: NewExerciseStartStepBlankCardProps): ReactElement<
+  ComponentProps<typeof NewExerciseStartStepCard>
 > {
   return (
-    <NewExerciseSourcePanelCard
+    <NewExerciseStartStepCard
       active={active}
       icon={SparklesIcon}
       title="from scratch"
@@ -48,6 +48,6 @@ export function NewExerciseSourcePanelBlankCard({
           </Button>
         )}
       </div>
-    </NewExerciseSourcePanelCard>
+    </NewExerciseStartStepCard>
   )
 }

@@ -1,5 +1,5 @@
 import { type ReactElement } from 'react'
 
-export function NewExerciseTrackingPanel(): ReactElement {
+export function NewExerciseTrackingStep(): ReactElement {
   return <>Tracking</>
 }

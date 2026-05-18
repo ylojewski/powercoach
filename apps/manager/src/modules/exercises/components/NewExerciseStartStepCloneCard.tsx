@@ -17,12 +17,12 @@ import { type Exercise } from '@/core'
 import { type ExerciseGroupItemByPattern, useReferences } from '@/modules/references'
 
 import {
-  NewExerciseSourcePanelCard,
-  type NewExerciseSourcePanelCardProps
-} from './NewExerciseSourcePanelCard'
+  NewExerciseStartStepCard,
+  type NewExerciseStartStepCardProps
+} from './NewExerciseStartStepCard'
 
-export interface NewExerciseSourcePanelCloneCardProps
-  extends Omit<NewExerciseSourcePanelCardProps, 'description' | 'icon' | 'title'> {
+export interface NewExerciseStartStepCloneCardProps
+  extends Omit<NewExerciseStartStepCardProps, 'description' | 'icon' | 'title'> {
   actionLabel: string
   exercise: Exercise | null
   onExerciseChange: (exercise: Exercise | null) => void
@@ -31,7 +31,7 @@ export interface NewExerciseSourcePanelCloneCardProps
   resetLabel?: string
 }
 
-export function NewExerciseSourcePanelCloneCard({
+export function NewExerciseStartStepCloneCard({
   actionLabel,
   active,
   exercise,
@@ -40,8 +40,8 @@ export function NewExerciseSourcePanelCloneCard({
   onReset,
   resetLabel,
   ...props
-}: NewExerciseSourcePanelCloneCardProps): ReactElement<
-  ComponentProps<typeof NewExerciseSourcePanelCard>
+}: NewExerciseStartStepCloneCardProps): ReactElement<
+  ComponentProps<typeof NewExerciseStartStepCard>
 > {
   const { exerciseGroupItemsByPattern } = useReferences()
   const [localExercise, setLocalExercise] = useState(exercise)
@@ -52,7 +52,7 @@ export function NewExerciseSourcePanelCloneCard({
   }
 
   return (
-    <NewExerciseSourcePanelCard
+    <NewExerciseStartStepCard
       active={active}
       icon={CopyPlusIcon}
       title="clone an exercise"
@@ -111,6 +111,6 @@ export function NewExerciseSourcePanelCloneCard({
           </Button>
         )}
       </div>
-    </NewExerciseSourcePanelCard>
+    </NewExerciseStartStepCard>
   )
 }

@@ -6,21 +6,21 @@ import { useAppDispatch, useAppSelector } from '@/core'
 import { useExercises } from '../hooks'
 import { CreationMethod, selectInitialCreation, startCreation } from '../store'
 import { createBlankExercise } from '../utils'
-import { NewExerciseSourcePanelBlankCard } from './NewExerciseSourcePanelBlankCard'
-import { NewExerciseSourcePanelCloneCard } from './NewExerciseSourcePanelCloneCard'
-import { NewExerciseSourcePanelResetDrawer } from './NewExerciseSourcePanelResetDrawer'
+import { NewExerciseStartStepBlankCard } from './NewExerciseStartStepBlankCard'
+import { NewExerciseStartStepCloneCard } from './NewExerciseStartStepCloneCard'
+import { NewExerciseStartStepResetDrawer } from './NewExerciseStartStepResetDrawer'
 
-interface NewExerciseSourcePanelProps {
+interface NewExerciseStartStepProps {
   onResume: () => void
   onStart: () => void
   resumeActionLabel: string
 }
 
-export function NewExerciseSourcePanel({
+export function NewExerciseStartStep({
   onResume,
   onStart,
   resumeActionLabel
-}: NewExerciseSourcePanelProps): ReactElement {
+}: NewExerciseStartStepProps): ReactElement {
   const dispatch = useAppDispatch()
   const resetDrawerHandle = useMemo(() => DrawerPrimitive.createHandle(), [])
   const initialCreation = useAppSelector(selectInitialCreation)
@@ -66,7 +66,7 @@ export function NewExerciseSourcePanel({
   return (
     <>
       <div className="grid h-full min-w-0 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-stretch overflow-hidden">
-        <NewExerciseSourcePanelBlankCard
+        <NewExerciseStartStepBlankCard
           actionLabel={!submitted && shouldResumeBlankCreation ? resumeActionLabel : 'Next'}
           active={method === CreationMethod.Blank}
           onActivate={() => setMethod(CreationMethod.Blank)}
@@ -75,7 +75,7 @@ export function NewExerciseSourcePanel({
           resetLabel="Start over"
         />
         <Separator orientation="vertical" />
-        <NewExerciseSourcePanelCloneCard
+        <NewExerciseStartStepCloneCard
           actionLabel={
             !submitted && shouldResumeCloneCreation(exercise) ? resumeActionLabel : 'Next'
           }
@@ -88,7 +88,7 @@ export function NewExerciseSourcePanel({
           resetLabel="Start over"
         />
       </div>
-      <NewExerciseSourcePanelResetDrawer
+      <NewExerciseStartStepResetDrawer
         confirmText={
           method === CreationMethod.Blank
             ? 'Discard and create from scratch'

@@ -1,5 +1,5 @@
 import { type ReactElement } from 'react'
 
-export function NewExerciseInstructionsPanel(): ReactElement {
+export function NewExerciseInstructionsStep(): ReactElement {
   return <>Instructions</>
 }

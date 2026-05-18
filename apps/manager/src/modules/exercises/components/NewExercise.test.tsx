@@ -35,28 +35,28 @@ vi.mock('./NewExerciseActions', () => ({
   NewExerciseActions: () => <div>actions</div>
 }))
 
-vi.mock('./NewExerciseCategorizationPanel', () => ({
-  NewExerciseCategorizationPanel: () => <div>categorization</div>
+vi.mock('./NewExerciseCategorizationStep', () => ({
+  NewExerciseCategorizationStep: () => <div>categorization</div>
 }))
 
-vi.mock('./NewExerciseInstructionsPanel', () => ({
-  NewExerciseInstructionsPanel: () => <div>instructions</div>
+vi.mock('./NewExerciseInstructionsStep', () => ({
+  NewExerciseInstructionsStep: () => <div>instructions</div>
 }))
 
-vi.mock('./NewExerciseMusclesPanel', () => ({
-  NewExerciseMusclesPanel: () => <div>muscles</div>
+vi.mock('./NewExerciseMusclesStep', () => ({
+  NewExerciseMusclesStep: () => <div>muscles</div>
 }))
 
-vi.mock('./NewExerciseOverviewPanel', () => ({
-  NewExerciseOverviewPanel: () => <div>overview</div>
+vi.mock('./NewExerciseOverviewStep', () => ({
+  NewExerciseOverviewStep: () => <div>overview</div>
 }))
 
-vi.mock('./NewExerciseReviewPanel', () => ({
-  NewExerciseReviewPanel: () => <div>review</div>
+vi.mock('./NewExerciseReviewStep', () => ({
+  NewExerciseReviewStep: () => <div>review</div>
 }))
 
-vi.mock('./NewExerciseSourcePanel', () => ({
-  NewExerciseSourcePanel: ({
+vi.mock('./NewExerciseStartStep', () => ({
+  NewExerciseStartStep: ({
     onResume,
     onStart,
     resumeActionLabel
@@ -68,18 +68,18 @@ vi.mock('./NewExerciseSourcePanel', () => ({
     <div>
       start
       <span>{resumeActionLabel}</span>
-      <button onClick={onResume}>resume source</button>
-      <button onClick={onStart}>start source</button>
+      <button onClick={onResume}>resume start step</button>
+      <button onClick={onStart}>start from start step</button>
     </div>
   )
 }))
 
-vi.mock('./NewExerciseTrackingPanel', () => ({
-  NewExerciseTrackingPanel: () => <div>tracking</div>
+vi.mock('./NewExerciseTrackingStep', () => ({
+  NewExerciseTrackingStep: () => <div>tracking</div>
 }))
 
 describe('NewExercise', () => {
-  it('starts on the source panel even when a resume step exists', () => {
+  it('starts on the start step even when a resume step exists', () => {
     const store = createTestStore()
 
     store.dispatch(setCreationResumeStep(Step.Muscles))
@@ -109,7 +109,7 @@ describe('NewExercise', () => {
     expect(selectCreationResumeStep(store.getState())).toBe(Step.Overview)
   })
 
-  it('resumes the last active panel from the source panel', () => {
+  it('resumes the last active step from the start step', () => {
     const store = createTestStore()
 
     store.dispatch(setCreationResumeStep(Step.Muscles))
@@ -120,12 +120,12 @@ describe('NewExercise', () => {
       </Provider>
     )
 
-    fireEvent.click(screen.getByRole('button', { name: 'resume source' }))
+    fireEvent.click(screen.getByRole('button', { name: 'resume start step' }))
 
     expect(screen.getByTestId('horizontal-panel')).toHaveAttribute('data-value', Step.Muscles)
   })
 
-  it('opens the overview panel after starting from the source panel', () => {
+  it('opens the overview step after starting from the start step', () => {
     const store = createTestStore()
 
     render(
@@ -134,7 +134,7 @@ describe('NewExercise', () => {
       </Provider>
     )
 
-    fireEvent.click(screen.getByRole('button', { name: 'start source' }))
+    fireEvent.click(screen.getByRole('button', { name: 'start from start step' }))
 
     expect(screen.getByTestId('horizontal-panel')).toHaveAttribute('data-value', Step.Overview)
   })

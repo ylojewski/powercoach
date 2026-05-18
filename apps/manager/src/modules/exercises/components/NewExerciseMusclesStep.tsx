@@ -3,7 +3,7 @@ import { type ReactElement } from 'react'
 
 import { NewExerciseMuscleSelectorDrawer } from './NewExerciseMuscleSelectorDrawer'
 
-export function NewExerciseMusclesPanel(): ReactElement {
+export function NewExerciseMusclesStep(): ReactElement {
   const drawerHandle = DrawerPrimitive.createHandle()
   return (
     <>

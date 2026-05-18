@@ -1,5 +1,5 @@
 import { type ReactElement } from 'react'
 
-export function NewExerciseCategorizationPanel(): ReactElement {
+export function NewExerciseCategorizationStep(): ReactElement {
   return <>Categorization</>
 }
