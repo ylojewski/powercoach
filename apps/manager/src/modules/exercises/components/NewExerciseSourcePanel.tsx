@@ -22,7 +22,7 @@ export function NewExerciseSourcePanel(): ReactElement {
   const initialCreation = useAppSelector(selectInitialCreation)
   const [method, setMethod] = useState(initialCreation?.method ?? null)
   const [exercise, setExercise] = useState(
-    initialCreation?.method === CreationMethod.Clone ? (initialCreation?.exercise ?? null) : null
+    initialCreation?.method === CreationMethod.Clone ? initialCreation.exercise : null
   )
   const {
     isCurrentCreationDirty,
@@ -88,7 +88,7 @@ export function NewExerciseSourcePanel(): ReactElement {
           method === CreationMethod.Blank
             ? 'Discard and create from scratch'
             : method === CreationMethod.Clone
-              ? `Discard and clone ${exercise?.title.toLowerCase() ?? 'exercise'}`
+              ? `Discard & clone ${exercise?.title.toLowerCase()}`
               : 'Discard'
         }
         handle={resetDrawerHandle}

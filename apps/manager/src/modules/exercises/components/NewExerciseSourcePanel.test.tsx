@@ -1,12 +1,17 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import { Provider } from 'react-redux'
 
 import { type GetReferencesApiResponse } from '@/core'
 import { useReferences } from '@/modules/references'
 import { createTestStore } from '@/test/utils/store'
 
-import { startCreatingExercise } from '../store'
-import { ExercisePanel } from '../types'
+import {
+  CreationMethod,
+  setCreationExerciseTitle,
+  setCreationStep,
+  startCreation,
+  Step
+} from '../store'
 import { NewExerciseSourcePanel } from './NewExerciseSourcePanel'
 
 vi.mock('@/modules/references', () => ({
@@ -132,7 +137,7 @@ describe('NewExerciseSourcePanel', () => {
     fireEvent.click(input)
 
     expect(await screen.findByText('Competition squat')).toBeInTheDocument()
-    expect(store.getState().exercises?.creating.method).toBeNull()
+    expect(store.getState().exercises?.creation.current).toBeNull()
     expect(cloneNextButton).toBeDisabled()
 
     fireEvent.change(input, { target: { value: 'Competition squat' } })
@@ -156,39 +161,107 @@ describe('NewExerciseSourcePanel', () => {
     expect(input).toHaveAttribute('aria-expanded', 'false')
     expect(cloneNextButton).toBeEnabled()
 
-    expect(store.getState().exercises?.creating.method).toBeNull()
+    expect(store.getState().exercises?.creation.current).toBeNull()
 
     fireEvent.click(cloneNextButton)
 
-    expect(store.getState().exercises?.creating.method).toBe('clone')
-    expect(store.getState().exercises?.creating.exercise?.code).toBe('competition_squat')
-    expect(store.getState().exercises?.creating.panel).toBe(ExercisePanel.Overview)
+    expect(store.getState().exercises?.creation.current?.method).toBe(CreationMethod.Clone)
+    expect(store.getState().exercises?.creation.current?.exercise.code).toBe('competition_squat')
+    expect(store.getState().exercises?.creation.initial?.method).toBe(CreationMethod.Clone)
+    expect(store.getState().exercises?.creation.initial?.exercise.code).toBe('competition_squat')
+    expect(store.getState().exercises?.creation.step).toBe(Step.Overview)
   })
 
-  it('initializes the local source state from the current creation without prompting on same next', () => {
+  it('initializes the local source state from the current creation without prompting on resume', () => {
     const store = renderSourcePanel((createdStore) => {
       createdStore.dispatch(
-        startCreatingExercise({
+        startCreation({
           exercise: getCompetitionSquat(),
-          method: 'clone'
+          method: CreationMethod.Clone
         })
       )
+      createdStore.dispatch(setCreationStep(Step.Start))
     })
-    const cloneNextButton = screen.getAllByRole('button', { name: 'Next' }).at(1)
-
-    if (!cloneNextButton) {
-      throw new Error('Expected the clone source next button to render')
-    }
+    const cloneResumeButton = screen.getByRole('button', { name: 'Resume' })
 
     expect(screen.getByPlaceholderText('Exercise to clone')).toHaveValue('Competition squat')
-    expect(cloneNextButton).toBeEnabled()
+    expect(cloneResumeButton).toBeEnabled()
 
-    fireEvent.click(cloneNextButton)
+    fireEvent.click(cloneResumeButton)
 
-    expect(screen.queryByText('Creation already in progress')).not.toBeInTheDocument()
-    expect(store.getState().exercises?.creating.method).toBe('clone')
-    expect(store.getState().exercises?.creating.exercise?.code).toBe('competition_squat')
-    expect(store.getState().exercises?.creating.panel).toBe(ExercisePanel.Overview)
+    expect(screen.queryByText('creation already in progress')).not.toBeInTheDocument()
+    expect(store.getState().exercises?.creation.current?.method).toBe(CreationMethod.Clone)
+    expect(store.getState().exercises?.creation.current?.exercise.code).toBe('competition_squat')
+    expect(store.getState().exercises?.creation.step).toBe(Step.Overview)
+  })
+
+  it('offers to reset a dirty blank creation', () => {
+    const store = renderSourcePanel((createdStore) => {
+      createdStore.dispatch(
+        startCreation({
+          exercise: {
+            ...getCompetitionSquat(),
+            code: '',
+            title: ''
+          },
+          method: CreationMethod.Blank
+        })
+      )
+      createdStore.dispatch(setCreationExerciseTitle('Dirty title'))
+      createdStore.dispatch(setCreationStep(Step.Start))
+    })
+
+    expect(screen.getByRole('button', { name: 'Resume' })).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'start over' }))
+
+    expect(screen.getByText('creation already in progress')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Discard and create from scratch' }))
+
+    expect(store.getState().exercises?.creation.current?.method).toBe(CreationMethod.Blank)
+    expect(store.getState().exercises?.creation.current?.exercise.title).toBe('')
+    expect(store.getState().exercises?.creation.step).toBe(Step.Overview)
+  })
+
+  it('resumes a blank creation without resetting it', () => {
+    const store = renderSourcePanel((createdStore) => {
+      createdStore.dispatch(
+        startCreation({
+          exercise: {
+            ...getCompetitionSquat(),
+            code: '',
+            title: ''
+          },
+          method: CreationMethod.Blank
+        })
+      )
+      createdStore.dispatch(setCreationExerciseTitle('Dirty title'))
+      createdStore.dispatch(setCreationStep(Step.Start))
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Resume' }))
+
+    expect(screen.queryByText('creation already in progress')).not.toBeInTheDocument()
+    expect(store.getState().exercises?.creation.current?.exercise.title).toBe('Dirty title')
+    expect(store.getState().exercises?.creation.step).toBe(Step.Overview)
+  })
+
+  it('keeps the clone reset action available after activating another source', () => {
+    renderSourcePanel((createdStore) => {
+      createdStore.dispatch(
+        startCreation({
+          exercise: getCompetitionSquat(),
+          method: CreationMethod.Clone
+        })
+      )
+      createdStore.dispatch(setCreationExerciseTitle('Dirty title'))
+      createdStore.dispatch(setCreationStep(Step.Start))
+    })
+
+    fireEvent.click(screen.getByText('from scratch'))
+
+    expect(screen.getByRole('button', { name: 'start over' })).toHaveClass('opacity-30')
   })
 
   it('confirms before resetting an in-progress creation from a next action', async () => {
@@ -203,8 +276,13 @@ describe('NewExerciseSourcePanel', () => {
     fireEvent.click(screen.getByText('from scratch'))
     fireEvent.click(blankNextButton)
 
-    expect(store.getState().exercises?.creating.method).toBe('blank')
-    expect(store.getState().exercises?.creating.exercise?.code).toBe('')
+    expect(store.getState().exercises?.creation.current?.method).toBe(CreationMethod.Blank)
+    expect(store.getState().exercises?.creation.current?.exercise.code).toBe('')
+
+    act(() => {
+      store.dispatch(setCreationStep(Step.Start))
+      store.dispatch(setCreationExerciseTitle('Dirty title'))
+    })
 
     const input = screen.getByPlaceholderText('Exercise to clone')
 
@@ -215,12 +293,14 @@ describe('NewExerciseSourcePanel', () => {
     fireEvent.click(cloneNextButton)
 
     expect(screen.getByText('creation already in progress')).toBeInTheDocument()
-    expect(store.getState().exercises?.creating.method).toBe('blank')
+    expect(store.getState().exercises?.creation.current?.method).toBe(CreationMethod.Blank)
 
-    fireEvent.click(screen.getByRole('button', { name: 'Clone competition squat' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Discard & clone competition squat' }))
 
-    expect(store.getState().exercises?.creating.method).toBe('clone')
-    expect(store.getState().exercises?.creating.exercise?.code).toBe('competition_squat')
-    expect(store.getState().exercises?.creating.panel).toBe(ExercisePanel.Overview)
+    expect(store.getState().exercises?.creation.current?.method).toBe(CreationMethod.Clone)
+    expect(store.getState().exercises?.creation.current?.exercise.code).toBe('competition_squat')
+    expect(store.getState().exercises?.creation.initial?.method).toBe(CreationMethod.Clone)
+    expect(store.getState().exercises?.creation.initial?.exercise.code).toBe('competition_squat')
+    expect(store.getState().exercises?.creation.step).toBe(Step.Overview)
   })
 })

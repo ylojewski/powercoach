@@ -42,9 +42,11 @@ function PathnameProbe(): ReactElement {
 }
 
 async function renderRouteDrawer({
-  initialEntries = ['/items']
+  initialEntries = ['/items'],
+  path = '/items'
 }: {
   initialEntries?: InitialEntries
+  path?: string
 } = {}): Promise<ReturnType<typeof createMemoryRouter>> {
   const router = createMemoryRouter(
     [
@@ -52,11 +54,7 @@ async function renderRouteDrawer({
         element: (
           <>
             <PathnameProbe />
-            <RouteDrawer
-              drawer={<Drawer position="bottom" />}
-              fallbackPath="/fallback"
-              path="/items"
-            >
+            <RouteDrawer drawer={<Drawer position="bottom" />} fallbackPath="/fallback" path={path}>
               <div>drawer content</div>
             </RouteDrawer>
           </>
@@ -93,6 +91,15 @@ describe('RouteDrawer', () => {
   it('matches descendant routes', async () => {
     await renderRouteDrawer({
       initialEntries: ['/items/new']
+    })
+
+    expectDrawerOpen(true)
+  })
+
+  it('matches descendants from the root route', async () => {
+    await renderRouteDrawer({
+      initialEntries: ['/items'],
+      path: '/'
     })
 
     expectDrawerOpen(true)
