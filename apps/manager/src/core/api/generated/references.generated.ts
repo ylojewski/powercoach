@@ -37,6 +37,7 @@ export type ExerciseMuscle = {
 }
 export type ExercisePattern = {
   exerciseId: number
+  isPrimary: boolean
   patternId: number
 }
 export type ExerciseRelationship = {

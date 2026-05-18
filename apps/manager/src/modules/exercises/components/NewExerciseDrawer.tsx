@@ -17,7 +17,7 @@ export function NewExerciseDrawer({
         <DrawerTitle>New exercise</DrawerTitle>
         <DrawerDescription>Create a new catalog exercise.</DrawerDescription>
       </DrawerHeader>
-      <DrawerPanel scrollable={false} className="flex flex-1 flex-col">
+      <DrawerPanel className="flex min-h-full flex-col" data-base-ui-swipe-ignore="" scrollable>
         <NewExercise />
       </DrawerPanel>
     </ReferencesDrawer>

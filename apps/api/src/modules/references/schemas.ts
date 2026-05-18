@@ -48,6 +48,7 @@ export const exerciseMuscleSchema = Type.Object(
 export const exercisePatternSchema = Type.Object(
   {
     exerciseId: Type.Number(),
+    isPrimary: Type.Boolean(),
     patternId: Type.Number()
   },
   {

@@ -17,7 +17,7 @@ export function ExercisesDrawer({
         <DrawerTitle>Exercise</DrawerTitle>
         <DrawerDescription>Browse the exercise catalog.</DrawerDescription>
       </DrawerHeader>
-      <DrawerPanel className="min-h-full" scrollable>
+      <DrawerPanel className="min-h-full" data-base-ui-swipe-ignore="" scrollable>
         <Exercises />
       </DrawerPanel>
     </ReferencesDrawer>

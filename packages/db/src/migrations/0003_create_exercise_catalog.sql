@@ -25,6 +25,7 @@ CREATE TABLE "exercise_muscles" (
 --> statement-breakpoint
 CREATE TABLE "exercise_patterns" (
 	"exercise_id" integer NOT NULL,
+	"is_primary" boolean DEFAULT false NOT NULL,
 	"pattern_id" integer NOT NULL,
 	CONSTRAINT "exercise_patterns_exercise_id_pattern_id_pk" PRIMARY KEY("exercise_id","pattern_id")
 );

@@ -20,12 +20,13 @@ import {
 export interface Config extends VitestConfig {
   api?: boolean | string
   lib?: boolean | string
+  ngrok?: string
   plugins?: PluginOption[]
 }
 
 export function buildConfig(importUrl: string, config?: Config): UserConfigFnObject {
   return defineConfig(({ mode }) => {
-    const { api, lib, plugins } = config ?? {}
+    const { api, lib, ngrok, plugins } = config ?? {}
 
     const importPath = fileURLToPath(importUrl)
     const importDir = dirname(importPath)
@@ -79,6 +80,7 @@ export function buildConfig(importUrl: string, config?: Config): UserConfigFnObj
         }
       },
       server: {
+        ...(ngrok && { allowedHosts: [`${ngrok}.ngrok-free.app`] }),
         host: 'localhost',
         port: 3000,
         proxy: { ...apiProxy },

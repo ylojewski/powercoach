@@ -477,6 +477,13 @@
           "primaryKey": false,
           "type": "integer"
         },
+        "is_primary": {
+          "default": false,
+          "name": "is_primary",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "boolean"
+        },
         "pattern_id": {
           "name": "pattern_id",
           "notNull": true,

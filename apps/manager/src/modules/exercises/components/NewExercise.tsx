@@ -8,8 +8,7 @@ import { type ReactElement } from 'react'
 
 import { useAppDispatch, useAppSelector } from '@/core'
 
-import { selectCreatingPanel, setCreatingPanel } from '../store'
-import { ExercisePanel } from '../types'
+import { Step, setCreationStep, selectCreationStep } from '../store'
 import { NewExerciseActions } from './NewExerciseActions'
 import { NewExerciseCategorizationPanel } from './NewExerciseCategorizationPanel'
 import { NewExerciseInstructionsPanel } from './NewExerciseInstructionsPanel'
@@ -21,57 +20,57 @@ import { NewExerciseTrackingPanel } from './NewExerciseTrackingPanel'
 
 export function NewExercise(): ReactElement {
   const dispatch = useAppDispatch()
-  const panel = useAppSelector(selectCreatingPanel) ?? ExercisePanel.Source
+  const step = useAppSelector(selectCreationStep)
 
-  const handleOnPanelValueChange = ([newPanel = ExercisePanel.Source]: ExercisePanel[]) => {
-    dispatch(setCreatingPanel(newPanel))
+  const onHorizontalPanelValueChange = ([newStep = Step.Start]: Step[]) => {
+    dispatch(setCreationStep(newStep))
   }
 
   return (
     <div className="flex flex-1 flex-col" data-testid="new-exercise">
       <div className="relative min-h-0 flex-1 border-y border-r">
-        <HorizontalPanel<ExercisePanel>
+        <HorizontalPanel<Step>
           collapsible={false}
-          onValueChange={handleOnPanelValueChange}
-          value={[panel]}
+          onValueChange={onHorizontalPanelValueChange}
+          value={[step]}
         >
-          <HorizontalPanelItem value={ExercisePanel.Source}>
-            <HorizontalPanelTrigger>source</HorizontalPanelTrigger>
+          <HorizontalPanelItem value={Step.Start}>
+            <HorizontalPanelTrigger>start</HorizontalPanelTrigger>
             <HorizontalPanelContent>
               <NewExerciseSourcePanel />
             </HorizontalPanelContent>
           </HorizontalPanelItem>
-          <HorizontalPanelItem value={ExercisePanel.Overview}>
+          <HorizontalPanelItem value={Step.Overview}>
             <HorizontalPanelTrigger>overview</HorizontalPanelTrigger>
             <HorizontalPanelContent>
               <NewExerciseOverviewPanel />
             </HorizontalPanelContent>
           </HorizontalPanelItem>
-          <HorizontalPanelItem value={ExercisePanel.Categorization}>
+          <HorizontalPanelItem value={Step.Categorization}>
             <HorizontalPanelTrigger>categorization</HorizontalPanelTrigger>
             <HorizontalPanelContent>
               <NewExerciseCategorizationPanel />
             </HorizontalPanelContent>
           </HorizontalPanelItem>
-          <HorizontalPanelItem value={ExercisePanel.Tracking}>
+          <HorizontalPanelItem value={Step.Tracking}>
             <HorizontalPanelTrigger>tracking</HorizontalPanelTrigger>
             <HorizontalPanelContent>
               <NewExerciseTrackingPanel />
             </HorizontalPanelContent>
           </HorizontalPanelItem>
-          <HorizontalPanelItem value={ExercisePanel.Muscles}>
+          <HorizontalPanelItem value={Step.Muscles}>
             <HorizontalPanelTrigger>muscles</HorizontalPanelTrigger>
             <HorizontalPanelContent>
               <NewExerciseMusclesPanel />
             </HorizontalPanelContent>
           </HorizontalPanelItem>
-          <HorizontalPanelItem value={ExercisePanel.Instructions}>
+          <HorizontalPanelItem value={Step.Instructions}>
             <HorizontalPanelTrigger>instructions</HorizontalPanelTrigger>
             <HorizontalPanelContent>
               <NewExerciseInstructionsPanel />
             </HorizontalPanelContent>
           </HorizontalPanelItem>
-          <HorizontalPanelItem value={ExercisePanel.Review}>
+          <HorizontalPanelItem value={Step.Review}>
             <HorizontalPanelTrigger>review</HorizontalPanelTrigger>
             <HorizontalPanelContent>
               <NewExerciseReviewPanel />

@@ -1,4 +1,4 @@
-import { index, integer, pgTable, primaryKey } from 'drizzle-orm/pg-core'
+import { boolean, index, integer, pgTable, primaryKey } from 'drizzle-orm/pg-core'
 
 import { exercises } from './exercises'
 import { patterns } from './patterns'
@@ -9,6 +9,7 @@ export const exercisePatterns = pgTable(
     exerciseId: integer('exercise_id')
       .notNull()
       .references(() => exercises.id),
+    isPrimary: boolean('is_primary').notNull().default(false),
     patternId: integer('pattern_id')
       .notNull()
       .references(() => patterns.id)

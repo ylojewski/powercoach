@@ -10,7 +10,28 @@ import { useReferences } from './useReferences'
 const referencesResponse = {
   disciplines: [],
   exerciseMuscles: [],
-  exercisePatterns: [],
+  exercisePatterns: [
+    {
+      exerciseId: 1,
+      isPrimary: true,
+      patternId: 2
+    },
+    {
+      exerciseId: 1,
+      isPrimary: false,
+      patternId: 1
+    },
+    {
+      exerciseId: 2,
+      isPrimary: true,
+      patternId: 1
+    },
+    {
+      exerciseId: 3,
+      isPrimary: true,
+      patternId: 2
+    }
+  ],
   exerciseRelationships: [],
   exerciseRoles: [],
   exercises: [
@@ -31,13 +52,79 @@ const referencesResponse = {
       title: 'Competition squat',
       updatedAt: '2024-01-01T00:00:00.000Z',
       videoUrl: null
+    },
+    {
+      archivedAt: null,
+      bodyweightCoefficient: null,
+      code: 'bench_press',
+      createdAt: '2024-01-01T00:00:00.000Z',
+      descriptionMarkdown: null,
+      id: 2,
+      imageUrl: null,
+      isSystem: true,
+      isUnilateral: false,
+      loadingTypeId: 1,
+      publicationStatus: 'published',
+      shortInstructionsMarkdown: null,
+      subtitle: null,
+      title: 'Bench press',
+      updatedAt: '2024-01-01T00:00:00.000Z',
+      videoUrl: null
+    },
+    {
+      archivedAt: null,
+      bodyweightCoefficient: null,
+      code: 'back_squat',
+      createdAt: '2024-01-01T00:00:00.000Z',
+      descriptionMarkdown: null,
+      id: 3,
+      imageUrl: null,
+      isSystem: true,
+      isUnilateral: false,
+      loadingTypeId: 1,
+      publicationStatus: 'published',
+      shortInstructionsMarkdown: null,
+      subtitle: null,
+      title: 'Back squat',
+      updatedAt: '2024-01-01T00:00:00.000Z',
+      videoUrl: null
     }
   ],
   loadingTypes: [],
   muscleRoles: [],
   muscles: [],
-  patterns: []
+  patterns: [
+    {
+      code: 'squat',
+      createdAt: '2024-01-01T00:00:00.000Z',
+      description: '',
+      id: 2,
+      name: 'Squat',
+      updatedAt: '2024-01-01T00:00:00.000Z'
+    },
+    {
+      code: 'press',
+      createdAt: '2024-01-01T00:00:00.000Z',
+      description: '',
+      id: 1,
+      name: 'Press',
+      updatedAt: '2024-01-01T00:00:00.000Z'
+    }
+  ]
 } satisfies GetReferencesApiResponse
+
+const exerciseGroupItemsByPattern = [
+  {
+    code: 'press',
+    items: [referencesResponse.exercises[1]],
+    value: 'Press'
+  },
+  {
+    code: 'squat',
+    items: [referencesResponse.exercises[2], referencesResponse.exercises[0]],
+    value: 'Squat'
+  }
+]
 
 function createReferencesResponse(): Response {
   return new Response(JSON.stringify(referencesResponse), {
@@ -58,6 +145,7 @@ describe('useReferences', () => {
   afterEach(() => {
     vi.resetAllMocks()
     vi.unstubAllGlobals()
+    vi.useRealTimers()
   })
 
   it('exposes the loading state before references are loaded', async () => {
@@ -76,6 +164,7 @@ describe('useReferences', () => {
 
     await waitFor(() => {
       expect(result.current).toStrictEqual({
+        exerciseGroupItemsByPattern: [],
         load: expect.any(Function),
         loading: true,
         references: null
@@ -90,16 +179,51 @@ describe('useReferences', () => {
       wrapper: createWrapper()
     })
 
+    let unloadReferences: VoidFunction | undefined
+
     act(() => {
-      result.current.load()
+      unloadReferences = result.current.load()
     })
 
     await waitFor(() => {
       expect(result.current).toStrictEqual({
+        exerciseGroupItemsByPattern,
         load: expect.any(Function),
         loading: false,
         references: referencesResponse
       })
+    })
+
+    act(() => {
+      unloadReferences?.()
+    })
+  })
+
+  it('shares loaded references between hook instances', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(createReferencesResponse()))
+
+    const { result } = renderHook(
+      () => ({
+        loader: useReferences(),
+        reader: useReferences()
+      }),
+      {
+        wrapper: createWrapper()
+      }
+    )
+
+    let unloadReferences: VoidFunction | undefined
+
+    act(() => {
+      unloadReferences = result.current.loader.load()
+    })
+
+    await waitFor(() => {
+      expect(result.current.reader.references).toStrictEqual(referencesResponse)
+    })
+
+    act(() => {
+      unloadReferences?.()
     })
   })
 
@@ -111,6 +235,7 @@ describe('useReferences', () => {
     })
 
     expect(result.current).toStrictEqual({
+      exerciseGroupItemsByPattern: [],
       load: expect.any(Function),
       loading: false,
       references: null
@@ -132,12 +257,18 @@ describe('useReferences', () => {
       wrapper: createWrapper()
     })
 
+    let unloadReferences: VoidFunction | undefined
+
     act(() => {
-      result.current.load()
+      unloadReferences = result.current.load()
     })
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false)
+    })
+
+    act(() => {
+      unloadReferences?.()
     })
   })
 })

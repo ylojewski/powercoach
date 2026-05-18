@@ -1,25 +1,33 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 
-import { type GetReferencesApiResponse, referencesApi } from '@/core'
+import { type GetReferencesApiResponse, referencesApi, useAppDispatch } from '@/core'
+
+import { type ExerciseGroupItemByPattern, groupExercisesByPatternItem } from '../utils'
 
 interface UseReferencesResult {
+  exerciseGroupItemsByPattern: ExerciseGroupItemByPattern[]
   load: () => VoidFunction
   loading: boolean
   references: GetReferencesApiResponse | null
 }
 
 export function useReferences(): UseReferencesResult {
-  const [trigger, { data, isLoading, isFetching }] = referencesApi.endpoints.getReferences.useLazyQuery()
-  const references = data ?? null
-  const loading = isLoading || isFetching
+  const dispatch = useAppDispatch()
+  const referencesQuery = referencesApi.endpoints.getReferences.useQueryState()
+  const references = referencesQuery.data ?? null
+  const loading = references === null && (referencesQuery.isLoading || referencesQuery.isFetching)
+
+  const exerciseGroupItemsByPattern = useMemo((): ExerciseGroupItemByPattern[] => {
+    return references ? groupExercisesByPatternItem(references) : []
+  }, [references])
 
   const load = useCallback((): VoidFunction => {
-    const query = trigger(undefined, true)
+    const query = dispatch(referencesApi.endpoints.getReferences.initiate())
+
     return () => {
-      query.abort()
       query.unsubscribe()
     }
-  }, [trigger])
+  }, [dispatch])
 
-  return { load, loading, references }
+  return { exerciseGroupItemsByPattern, load, loading, references }
 }

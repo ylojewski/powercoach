@@ -27,6 +27,7 @@ const useReferencesMock = vi.mocked(useReferences)
 
 function mockReferences(loading = false): void {
   useReferencesMock.mockReturnValue({
+    exerciseGroupItemsByPattern: [],
     load: loadReferencesMock,
     loading,
     references: null

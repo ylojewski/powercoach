@@ -222,6 +222,7 @@ var exercisePatterns = pgTable(
   "exercise_patterns",
   {
     exerciseId: integer("exercise_id").notNull().references(() => exercises.id),
+    isPrimary: boolean("is_primary").notNull().default(false),
     patternId: integer("pattern_id").notNull().references(() => patterns.id)
   },
   (table) => [

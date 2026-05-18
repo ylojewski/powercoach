@@ -580,6 +580,23 @@ declare const exercisePatterns: drizzle_orm_pg_core.PgTableWithColumns<{
             identity: undefined;
             generated: undefined;
         }, {}, {}>;
+        isPrimary: drizzle_orm_pg_core.PgColumn<{
+            name: "is_primary";
+            tableName: "exercise_patterns";
+            dataType: "boolean";
+            columnType: "PgBoolean";
+            data: boolean;
+            driverParam: boolean;
+            notNull: true;
+            hasDefault: true;
+            isPrimaryKey: false;
+            isAutoincrement: false;
+            hasRuntimeDefault: false;
+            enumValues: undefined;
+            baseColumn: never;
+            identity: undefined;
+            generated: undefined;
+        }, {}, {}>;
         patternId: drizzle_orm_pg_core.PgColumn<{
             name: "pattern_id";
             tableName: "exercise_patterns";

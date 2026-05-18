@@ -53,6 +53,7 @@ describe('GET /v1/references references route', () => {
       expect.arrayContaining([
         expect.objectContaining({
           exerciseId: expect.any(Number),
+          isPrimary: expect.any(Boolean),
           patternId: expect.any(Number)
         })
       ])

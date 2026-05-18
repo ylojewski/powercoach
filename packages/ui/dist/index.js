@@ -23949,7 +23949,10 @@ const tw = /* @__PURE__ */ c.forwardRef(function(t, n) {
   });
 });
 process.env.NODE_ENV !== "production" && (tw.displayName = "Form");
-function bj({ className: e, ...t }) {
+function bj({
+  className: e,
+  ...t
+}) {
   return /* @__PURE__ */ x.jsx(
     tw,
     {
