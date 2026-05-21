@@ -546,7 +546,7 @@ export { FieldsetPrimitive }
 
 export declare const FieldValidity: typeof FieldPrimitive.Validity;
 
-export declare function Form<FormValues extends FormPrimitive.Values = FormPrimitive.Values>({ className, ...props }: FormPrimitive.Props<FormValues>): default_2.ReactElement;
+export declare function Form({ className, ...props }: FormPrimitive.Props): default_2.ReactElement;
 
 export { FormPrimitive }
 

@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react'
 
-import { type GetReferencesApiResponse, referencesApi, useAppDispatch } from '@/core'
+import { type GetReferencesApiResponse, api, useAppDispatch } from '@/core'
 
 import { type ExerciseGroupItemByPattern, groupExercisesByPatternItem } from '../utils'
 
@@ -13,7 +13,7 @@ interface UseReferencesResult {
 
 export function useReferences(): UseReferencesResult {
   const dispatch = useAppDispatch()
-  const referencesQuery = referencesApi.endpoints.getReferences.useQueryState()
+  const referencesQuery = api.endpoints.getReferences.useQueryState()
   const references = referencesQuery.data ?? null
   const loading = references === null && (referencesQuery.isLoading || referencesQuery.isFetching)
 
@@ -22,7 +22,7 @@ export function useReferences(): UseReferencesResult {
   }, [references])
 
   const load = useCallback((): VoidFunction => {
-    const query = dispatch(referencesApi.endpoints.getReferences.initiate())
+    const query = dispatch(api.endpoints.getReferences.initiate())
 
     return () => {
       query.unsubscribe()

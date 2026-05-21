@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 
-import { type Loadable, getLoadableStatusFromQuery, useAppDispatch, settingsApi } from '@/core'
+import { type Loadable, getLoadableStatusFromQuery, useAppDispatch, api } from '@/core'
 
 interface UseSettingsResult extends Loadable {
   defaultOrganizationId: number | null
@@ -8,12 +8,12 @@ interface UseSettingsResult extends Loadable {
 
 export function useSettings(): UseSettingsResult {
   const dispatch = useAppDispatch()
-  const settingsQuery = settingsApi.endpoints.getCurrentSettings.useQueryState()
+  const settingsQuery = api.endpoints.getCurrentSettings.useQueryState()
   const status = getLoadableStatusFromQuery(settingsQuery)
   const defaultOrganizationId = settingsQuery.data?.defaultOrganizationId ?? null
 
   const load = useCallback((): VoidFunction => {
-    const query = dispatch(settingsApi.endpoints.getCurrentSettings.initiate())
+    const query = dispatch(api.endpoints.getCurrentSettings.initiate())
 
     return () => {
       query.unsubscribe()

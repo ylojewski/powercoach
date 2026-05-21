@@ -24,7 +24,7 @@ export function NewExerciseStartStep({
   const dispatch = useAppDispatch()
   const resetDrawerHandle = useMemo(() => DrawerPrimitive.createHandle(), [])
   const initialCreation = useAppSelector(selectInitialCreation)
-  const [method, setMethod] = useState(initialCreation?.method ?? null)
+  const [method, setMethod] = useState(initialCreation?.method ?? CreationMethod.Blank)
   const [exercise, setExercise] = useState(
     initialCreation?.method === CreationMethod.Clone ? initialCreation.exercise : null
   )
@@ -65,7 +65,7 @@ export function NewExerciseStartStep({
 
   return (
     <>
-      <div className="grid h-full min-w-0 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-stretch overflow-hidden">
+      <div className="grid h-full min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-stretch overflow-hidden">
         <NewExerciseStartStepBlankCard
           actionLabel={!submitted && shouldResumeBlankCreation ? resumeActionLabel : 'Next'}
           active={method === CreationMethod.Blank}
@@ -74,7 +74,6 @@ export function NewExerciseStartStep({
           onNext={() => (shouldResumeBlankCreation ? onResume() : preventNext())}
           resetLabel="Start over"
         />
-        <Separator orientation="vertical" />
         <NewExerciseStartStepCloneCard
           actionLabel={
             !submitted && shouldResumeCloneCreation(exercise) ? resumeActionLabel : 'Next'

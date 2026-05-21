@@ -1,21 +1,19 @@
 const mocks = vi.hoisted(() => ({
-  appendFileSync: vi.fn(),
   createRequire: vi.fn(),
   existsSync: vi.fn(),
   generateEndpoints: vi.fn(),
   mkdirSync: vi.fn(),
-  readFileSync: vi.fn(),
   requireResolve: vi.fn(),
-  rmSync: vi.fn()
+  rmSync: vi.fn(),
+  writeFileSync: vi.fn()
 }))
 
 vi.mock('node:fs', () => {
   const fs = {
-    appendFileSync: mocks.appendFileSync,
     existsSync: mocks.existsSync,
     mkdirSync: mocks.mkdirSync,
-    readFileSync: mocks.readFileSync,
-    rmSync: mocks.rmSync
+    rmSync: mocks.rmSync,
+    writeFileSync: mocks.writeFileSync
   }
 
   return {
@@ -42,45 +40,6 @@ vi.mock('@rtk-query/codegen-openapi', () => ({
 const RESOLVED_API_FILE = '/virtual/apps/manager/src/core/api/index.ts' as const
 const RESOLVED_GENERATED_DIR = '/virtual/apps/manager/src/core/api/generated' as const
 const RESOLVED_OPENAPI_FILE = '/virtual/apps/api/dist/openapi.json' as const
-
-const OPENAPI = JSON.stringify({
-  openapi: '3.0.0',
-  paths: {
-    '/blorbo': {
-      get: {
-        operationId: 'listBlorbo',
-        tags: ['blorbo']
-      },
-      post: {
-        operationId: 'createBlorbo',
-        tags: ['blorbo']
-      }
-    },
-    '/blorbo/duplicate': {
-      get: {
-        operationId: 'listBlorbo',
-        tags: ['blorbo']
-      }
-    },
-    '/ignored': {
-      delete: {
-        operationId: 'deleteBlorbo'
-      },
-      patch: {
-        tags: ['blorbo']
-      }
-    },
-    '/ref': {
-      $ref: '#/components/pathItems/ref'
-    },
-    '/zindle': {
-      get: {
-        operationId: 'getZindle',
-        tags: ['zindle']
-      }
-    }
-  }
-})
 
 const GENERATE_ENDPOINTS_HOOKS = {
   lazyQueries: true,
@@ -110,7 +69,6 @@ describe('generate', () => {
       throw new Error(`Unexpected resolve: ${id}`)
     })
     mocks.existsSync.mockReturnValue(true)
-    mocks.readFileSync.mockReturnValue(OPENAPI)
     mocks.generateEndpoints.mockResolvedValue(undefined)
   })
 
@@ -119,10 +77,9 @@ describe('generate', () => {
     vi.unstubAllEnvs()
   })
 
-  it('generates endpoint files from openapi tags', async () => {
+  it('generates a single endpoint file for all tags', async () => {
     await import('./generate')
 
-    expect(mocks.readFileSync).toHaveBeenCalledExactlyOnceWith(RESOLVED_OPENAPI_FILE, 'utf8')
     expect(mocks.existsSync).toHaveBeenCalledExactlyOnceWith(RESOLVED_OPENAPI_FILE)
     expect(mocks.rmSync).toHaveBeenCalledExactlyOnceWith(RESOLVED_GENERATED_DIR, {
       force: true,
@@ -130,46 +87,23 @@ describe('generate', () => {
     })
     expect(mocks.mkdirSync).toHaveBeenCalledExactlyOnceWith(RESOLVED_GENERATED_DIR)
 
-    expect(mocks.generateEndpoints).toHaveBeenCalledTimes(2)
-    expect(mocks.generateEndpoints).toHaveBeenNthCalledWith(
-      1,
-      expect.objectContaining({
-        apiFile: './src/core/api/api.ts',
-        apiImport: 'api',
-        exportName: 'blorboApi',
-        filterEndpoints: ['listBlorbo', 'createBlorbo'],
-        hooks: GENERATE_ENDPOINTS_HOOKS,
-        outputFile: `${RESOLVED_GENERATED_DIR}/blorbo.generated.ts`,
-        schemaFile: RESOLVED_OPENAPI_FILE
-      })
-    )
-    expect(mocks.generateEndpoints).toHaveBeenNthCalledWith(
-      2,
-      expect.objectContaining({
-        apiFile: './src/core/api/api.ts',
-        apiImport: 'api',
-        exportName: 'zindleApi',
-        filterEndpoints: ['getZindle'],
-        hooks: GENERATE_ENDPOINTS_HOOKS,
-        outputFile: `${RESOLVED_GENERATED_DIR}/zindle.generated.ts`,
-        schemaFile: RESOLVED_OPENAPI_FILE
-      })
-    )
+    expect(mocks.generateEndpoints).toHaveBeenCalledExactlyOnceWith({
+      apiFile: './src/core/api/apiSlice.ts',
+      apiImport: 'apiSlice',
+      exportName: 'api',
+      hooks: GENERATE_ENDPOINTS_HOOKS,
+      outputFile: `${RESOLVED_GENERATED_DIR}/index.generated.ts`,
+      schemaFile: RESOLVED_OPENAPI_FILE
+    })
 
-    expect(console.info).toHaveBeenNthCalledWith(1, '✅ src/core/api/generated/blorbo.generated.ts')
-    expect(console.info).toHaveBeenNthCalledWith(2, '✅ src/core/api/generated/zindle.generated.ts')
-
-    expect(mocks.appendFileSync).toHaveBeenNthCalledWith(
-      1,
+    expect(mocks.writeFileSync).toHaveBeenCalledExactlyOnceWith(
       `${RESOLVED_GENERATED_DIR}/index.ts`,
-      "export * from './blorbo.generated'\n",
+      "export * from './index.generated'\n",
       'utf-8'
     )
-    expect(mocks.appendFileSync).toHaveBeenNthCalledWith(
-      2,
-      `${RESOLVED_GENERATED_DIR}/index.ts`,
-      "export * from './zindle.generated'\n",
-      'utf-8'
+
+    expect(console.info).toHaveBeenCalledExactlyOnceWith(
+      '✅ src/core/api/generated/index.generated.ts'
     )
   })
 
@@ -192,7 +126,6 @@ describe('generate', () => {
     )
 
     expect(mocks.existsSync).not.toHaveBeenCalled()
-    expect(mocks.readFileSync).not.toHaveBeenCalled()
     expect(mocks.generateEndpoints).not.toHaveBeenCalled()
   })
 
@@ -203,7 +136,6 @@ describe('generate', () => {
       `Missing @powercoach/api/openapi.json. Run "pnpm --filter @powercoach/api openapi:generate" before generating the manager store.`
     )
 
-    expect(mocks.readFileSync).not.toHaveBeenCalled()
     expect(mocks.generateEndpoints).not.toHaveBeenCalled()
   })
 })

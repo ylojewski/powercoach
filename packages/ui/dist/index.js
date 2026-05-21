@@ -23853,7 +23853,7 @@ function gj({
   return /* @__PURE__ */ x.jsx(
     qf,
     {
-      className: U("flex w-full max-w-64 flex-col gap-6", e),
+      className: U("flex w-full flex-col gap-6", e),
       "data-slot": "fieldset",
       ...t
     }
@@ -23949,10 +23949,7 @@ const tw = /* @__PURE__ */ c.forwardRef(function(t, n) {
   });
 });
 process.env.NODE_ENV !== "production" && (tw.displayName = "Form");
-function bj({
-  className: e,
-  ...t
-}) {
+function bj({ className: e, ...t }) {
   return /* @__PURE__ */ x.jsx(
     tw,
     {
@@ -24012,7 +24009,7 @@ function wj({
   return /* @__PURE__ */ x.jsx(
     "div",
     {
-      className: U("text-sm font-semibold", e),
+      className: U("px-5 py-1 font-heading text-xl", e),
       "data-slot": "frame-panel-title",
       ...t
     }
@@ -36387,8 +36384,7 @@ function JL({
   ...r
 }) {
   const s = Ve.Children.toArray(e).filter(Ve.isValidElement).length, i = {
-    "--horizontal-panel-collapsed-width": "calc(var(--horizontal-panel-item-count) * (var(--horizontal-panel-trigger-width) + var(--horizontal-panel-item-border-width)))",
-    "--horizontal-panel-item-border-width": "1px",
+    "--horizontal-panel-collapsed-width": "calc(var(--horizontal-panel-item-count) * (var(--horizontal-panel-trigger-width)))",
     "--horizontal-panel-item-count": String(s),
     "--horizontal-panel-trigger-label-hover-size": "1.125rem",
     "--horizontal-panel-trigger-label-size": "1rem",
@@ -36415,7 +36411,7 @@ function e2({
     cl,
     {
       className: U(
-        "flex h-full border-l [border-left-width:var(--horizontal-panel-item-border-width)] border-gray-200 dark:border-gray-700",
+        "flex h-full",
         e
       ),
       "data-slot": "accordion-item",
@@ -36492,7 +36488,7 @@ function n2({
       ),
       "data-slot": "accordion-panel",
       ...n,
-      children: /* @__PURE__ */ x.jsx("div", { className: "h-full w-[calc(100cqw-var(--horizontal-panel-collapsed-width))] border-l [border-left-width:var(--horizontal-panel-item-border-width)] border-gray-200 bg-background dark:border-gray-700", children: t })
+      children: /* @__PURE__ */ x.jsx("div", { className: "h-full w-[calc(100cqw-var(--horizontal-panel-collapsed-width))]", children: t })
     }
   );
 }

@@ -2,6 +2,7 @@ import { type FastifyInstance } from 'fastify'
 import { type MockedFunction } from 'vitest'
 
 import { REQUEST_MODULE_NAME } from '@/src/app'
+import { schemasPlugin } from '@/src/plugins'
 import { buildDummyApp } from '@/test/utils'
 
 import {
@@ -53,7 +54,7 @@ describe('referencesModule', () => {
     beforeAll(async () => {
       getReferencesMock = vi.spyOn(service, 'getReferences')
       dummyApp = await buildDummyApp({
-        plugins: [referencesModule],
+        plugins: [schemasPlugin, referencesModule],
         spies: ['addSchema', 'route'],
         withDb: true
       })
@@ -65,7 +66,7 @@ describe('referencesModule', () => {
     })
 
     it('registers the reference schemas and GET / route wiring', () => {
-      expect(dummyApp.addSchema).toHaveBeenCalledTimes(referenceSchemas.length)
+      expect(dummyApp.addSchema).toHaveBeenCalledTimes(referenceSchemas.length + 1)
       referenceSchemas.forEach((schema) => {
         expect(dummyApp.addSchema).toHaveBeenCalledWith(schema)
       })

@@ -48,6 +48,16 @@ const exercisesSlice = createSlice({
   initialState,
   name: 'exercises',
   reducers: {
+    setCreationExerciseCode(state, action: PayloadAction<string>) {
+      if (state.creation.current) {
+        state.creation.current.exercise.code = action.payload
+      }
+    },
+    setCreationExerciseSubtitle(state, action: PayloadAction<string | null>) {
+      if (state.creation.current) {
+        state.creation.current.exercise.subtitle = action.payload
+      }
+    },
     setCreationExerciseTitle(state, action: PayloadAction<string>) {
       if (state.creation.current) {
         state.creation.current.exercise.title = action.payload
@@ -72,8 +82,13 @@ const exercisesSlice = createSlice({
 
 reducer.inject(exercisesSlice)
 
-export const { setCreationExerciseTitle, setCreationResumeStep, startCreation } =
-  exercisesSlice.actions
+export const {
+  setCreationExerciseCode,
+  setCreationExerciseSubtitle,
+  setCreationExerciseTitle,
+  setCreationResumeStep,
+  startCreation
+} = exercisesSlice.actions
 
 export function selectCurrentCreation(state: RootState): Creation | null {
   return state.exercises?.creation.current ?? initialState.creation.current

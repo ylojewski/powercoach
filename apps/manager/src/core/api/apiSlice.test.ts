@@ -1,6 +1,6 @@
 import { createStore } from '@/app'
 
-import { api, AUTHENTICATED_COACH_EMAIL, COACH_EMAIL_HEADER } from './api'
+import { apiSlice, AUTHENTICATED_COACH_EMAIL, COACH_EMAIL_HEADER } from './apiSlice'
 
 const PROBE_RESPONSE = { ok: true } as const
 
@@ -16,7 +16,7 @@ describe('api', () => {
   it('prefixes requests with /api and seeds the authenticated coach header', async () => {
     const {
       endpoints: { getManagerProbe }
-    } = api.injectEndpoints({
+    } = apiSlice.injectEndpoints({
       endpoints: (build) => ({
         getManagerProbe: build.query<{ ok: boolean }, undefined>({
           query: () => ({ url: '/v1/manager-probe' })
@@ -59,12 +59,12 @@ describe('api', () => {
 
     vi.stubGlobal('fetch', fetchMock)
 
-    const apiModule = await import('./api')
+    const apiModule = await import('./apiSlice')
     const appModule = await import('@/app')
 
     const {
       endpoints: { getFallbackManagerProbe }
-    } = apiModule.api.injectEndpoints({
+    } = apiModule.apiSlice.injectEndpoints({
       endpoints: (build) => ({
         getFallbackManagerProbe: build.query<{ ok: boolean }, undefined>({
           query: () => ({ url: '/v1/manager-probe' })

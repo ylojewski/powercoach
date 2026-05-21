@@ -1,8 +1,22 @@
-import { timestamp } from 'drizzle-orm/pg-core'
+import { sql } from 'drizzle-orm'
+import { customType } from 'drizzle-orm/pg-core'
 
-export const archivedAt = timestamp('archived_at', { withTimezone: true })
+const isoTimestamp = customType<{ data: string; driverData: string }>({
+  dataType() {
+    return 'timestamp with time zone'
+  },
+  fromDriver(value: string): string {
+    return new Date(value).toISOString()
+  }
+})
+
+export const archivedAt = isoTimestamp('archived_at')
 
 export const timestamps = {
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
+  createdAt: isoTimestamp('created_at')
+    .notNull()
+    .default(sql`now()`),
+  updatedAt: isoTimestamp('updated_at')
+    .notNull()
+    .default(sql`now()`)
 }

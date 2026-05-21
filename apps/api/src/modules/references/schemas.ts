@@ -1,22 +1,17 @@
-import { Type, type Static, type TSchema } from '@sinclair/typebox'
+import { Type, type Static } from '@sinclair/typebox'
+
+import { exerciseSchema, nullable, timestampSchema } from '@/src/schemas'
 
 export const DISCIPLINE_SCHEMA_ID = 'Discipline' as const
 export const EXERCISE_MUSCLE_SCHEMA_ID = 'ExerciseMuscle' as const
 export const EXERCISE_PATTERN_SCHEMA_ID = 'ExercisePattern' as const
 export const EXERCISE_RELATIONSHIP_SCHEMA_ID = 'ExerciseRelationship' as const
 export const EXERCISE_ROLE_SCHEMA_ID = 'ExerciseRole' as const
-export const EXERCISE_SCHEMA_ID = 'Exercise' as const
 export const LOADING_TYPE_SCHEMA_ID = 'LoadingType' as const
 export const MUSCLE_ROLE_SCHEMA_ID = 'MuscleRole' as const
 export const MUSCLE_SCHEMA_ID = 'Muscle' as const
 export const PATTERN_SCHEMA_ID = 'Pattern' as const
 export const REFERENCES_RESPONSE_SCHEMA_ID = 'ReferencesResponse' as const
-
-function nullable<T extends TSchema>(schema: T) {
-  return Type.Union([schema, Type.Null()])
-}
-
-const timestampSchema = Type.String({ format: 'date-time' })
 
 const referenceEntityProperties = {
   code: Type.String(),
@@ -79,31 +74,6 @@ export const exerciseRoleSchema = Type.Object(referenceEntityProperties, {
   additionalProperties: false
 })
 
-export const exerciseSchema = Type.Object(
-  {
-    archivedAt: nullable(timestampSchema),
-    bodyweightCoefficient: nullable(Type.Number()),
-    code: Type.String(),
-    createdAt: timestampSchema,
-    descriptionMarkdown: nullable(Type.String()),
-    id: Type.Number(),
-    imageUrl: nullable(Type.String()),
-    isSystem: Type.Boolean(),
-    isUnilateral: Type.Boolean(),
-    loadingTypeId: nullable(Type.Number()),
-    publicationStatus: Type.String(),
-    shortInstructionsMarkdown: nullable(Type.String()),
-    subtitle: nullable(Type.String()),
-    title: Type.String(),
-    updatedAt: timestampSchema,
-    videoUrl: nullable(Type.String())
-  },
-  {
-    $id: EXERCISE_SCHEMA_ID,
-    additionalProperties: false
-  }
-)
-
 export const loadingTypeSchema = Type.Object(referenceEntityProperties, {
   $id: LOADING_TYPE_SCHEMA_ID,
   additionalProperties: false
@@ -162,7 +132,6 @@ export const referenceSchemas = [
   exercisePatternSchema,
   exerciseRelationshipSchema,
   exerciseRoleSchema,
-  exerciseSchema,
   loadingTypeSchema,
   muscleRoleSchema,
   muscleSchema,
@@ -175,7 +144,6 @@ export type ExerciseMuscle = Static<typeof exerciseMuscleSchema>
 export type ExercisePattern = Static<typeof exercisePatternSchema>
 export type ExerciseRelationship = Static<typeof exerciseRelationshipSchema>
 export type ExerciseRole = Static<typeof exerciseRoleSchema>
-export type Exercise = Static<typeof exerciseSchema>
 export type LoadingType = Static<typeof loadingTypeSchema>
 export type MuscleRole = Static<typeof muscleRoleSchema>
 export type Muscle = Static<typeof muscleSchema>

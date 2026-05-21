@@ -380,9 +380,9 @@ declare const disciplines: drizzle_orm_pg_core.PgTableWithColumns<{
         createdAt: drizzle_orm_pg_core.PgColumn<{
             name: "created_at";
             tableName: "disciplines";
-            dataType: "date";
-            columnType: "PgTimestamp";
-            data: Date;
+            dataType: "custom";
+            columnType: "PgCustomColumn";
+            data: string;
             driverParam: string;
             notNull: true;
             hasDefault: true;
@@ -393,13 +393,15 @@ declare const disciplines: drizzle_orm_pg_core.PgTableWithColumns<{
             baseColumn: never;
             identity: undefined;
             generated: undefined;
-        }, {}, {}>;
+        }, {}, {
+            pgColumnBuilderBrand: "PgCustomColumnBuilderBrand";
+        }>;
         updatedAt: drizzle_orm_pg_core.PgColumn<{
             name: "updated_at";
             tableName: "disciplines";
-            dataType: "date";
-            columnType: "PgTimestamp";
-            data: Date;
+            dataType: "custom";
+            columnType: "PgCustomColumn";
+            data: string;
             driverParam: string;
             notNull: true;
             hasDefault: true;
@@ -410,7 +412,9 @@ declare const disciplines: drizzle_orm_pg_core.PgTableWithColumns<{
             baseColumn: never;
             identity: undefined;
             generated: undefined;
-        }, {}, {}>;
+        }, {}, {
+            pgColumnBuilderBrand: "PgCustomColumnBuilderBrand";
+        }>;
         code: drizzle_orm_pg_core.PgColumn<{
             name: "code";
             tableName: "disciplines";
@@ -625,9 +629,9 @@ declare const exerciseRelationships: drizzle_orm_pg_core.PgTableWithColumns<{
         createdAt: drizzle_orm_pg_core.PgColumn<{
             name: "created_at";
             tableName: "exercise_relationships";
-            dataType: "date";
-            columnType: "PgTimestamp";
-            data: Date;
+            dataType: "custom";
+            columnType: "PgCustomColumn";
+            data: string;
             driverParam: string;
             notNull: true;
             hasDefault: true;
@@ -638,13 +642,15 @@ declare const exerciseRelationships: drizzle_orm_pg_core.PgTableWithColumns<{
             baseColumn: never;
             identity: undefined;
             generated: undefined;
-        }, {}, {}>;
+        }, {}, {
+            pgColumnBuilderBrand: "PgCustomColumnBuilderBrand";
+        }>;
         updatedAt: drizzle_orm_pg_core.PgColumn<{
             name: "updated_at";
             tableName: "exercise_relationships";
-            dataType: "date";
-            columnType: "PgTimestamp";
-            data: Date;
+            dataType: "custom";
+            columnType: "PgCustomColumn";
+            data: string;
             driverParam: string;
             notNull: true;
             hasDefault: true;
@@ -655,7 +661,9 @@ declare const exerciseRelationships: drizzle_orm_pg_core.PgTableWithColumns<{
             baseColumn: never;
             identity: undefined;
             generated: undefined;
-        }, {}, {}>;
+        }, {}, {
+            pgColumnBuilderBrand: "PgCustomColumnBuilderBrand";
+        }>;
         defaultTransferCoefficient: drizzle_orm_pg_core.PgColumn<{
             name: "default_transfer_coefficient";
             tableName: "exercise_relationships";
@@ -769,9 +777,9 @@ declare const exerciseRoles: drizzle_orm_pg_core.PgTableWithColumns<{
         createdAt: drizzle_orm_pg_core.PgColumn<{
             name: "created_at";
             tableName: "exercise_roles";
-            dataType: "date";
-            columnType: "PgTimestamp";
-            data: Date;
+            dataType: "custom";
+            columnType: "PgCustomColumn";
+            data: string;
             driverParam: string;
             notNull: true;
             hasDefault: true;
@@ -782,13 +790,15 @@ declare const exerciseRoles: drizzle_orm_pg_core.PgTableWithColumns<{
             baseColumn: never;
             identity: undefined;
             generated: undefined;
-        }, {}, {}>;
+        }, {}, {
+            pgColumnBuilderBrand: "PgCustomColumnBuilderBrand";
+        }>;
         updatedAt: drizzle_orm_pg_core.PgColumn<{
             name: "updated_at";
             tableName: "exercise_roles";
-            dataType: "date";
-            columnType: "PgTimestamp";
-            data: Date;
+            dataType: "custom";
+            columnType: "PgCustomColumn";
+            data: string;
             driverParam: string;
             notNull: true;
             hasDefault: true;
@@ -799,7 +809,9 @@ declare const exerciseRoles: drizzle_orm_pg_core.PgTableWithColumns<{
             baseColumn: never;
             identity: undefined;
             generated: undefined;
-        }, {}, {}>;
+        }, {}, {
+            pgColumnBuilderBrand: "PgCustomColumnBuilderBrand";
+        }>;
         code: drizzle_orm_pg_core.PgColumn<{
             name: "code";
             tableName: "exercise_roles";
@@ -879,9 +891,9 @@ declare const exercises: drizzle_orm_pg_core.PgTableWithColumns<{
         createdAt: drizzle_orm_pg_core.PgColumn<{
             name: "created_at";
             tableName: "exercises";
-            dataType: "date";
-            columnType: "PgTimestamp";
-            data: Date;
+            dataType: "custom";
+            columnType: "PgCustomColumn";
+            data: string;
             driverParam: string;
             notNull: true;
             hasDefault: true;
@@ -892,13 +904,15 @@ declare const exercises: drizzle_orm_pg_core.PgTableWithColumns<{
             baseColumn: never;
             identity: undefined;
             generated: undefined;
-        }, {}, {}>;
+        }, {}, {
+            pgColumnBuilderBrand: "PgCustomColumnBuilderBrand";
+        }>;
         updatedAt: drizzle_orm_pg_core.PgColumn<{
             name: "updated_at";
             tableName: "exercises";
-            dataType: "date";
-            columnType: "PgTimestamp";
-            data: Date;
+            dataType: "custom";
+            columnType: "PgCustomColumn";
+            data: string;
             driverParam: string;
             notNull: true;
             hasDefault: true;
@@ -909,13 +923,15 @@ declare const exercises: drizzle_orm_pg_core.PgTableWithColumns<{
             baseColumn: never;
             identity: undefined;
             generated: undefined;
-        }, {}, {}>;
+        }, {}, {
+            pgColumnBuilderBrand: "PgCustomColumnBuilderBrand";
+        }>;
         archivedAt: drizzle_orm_pg_core.PgColumn<{
             name: "archived_at";
             tableName: "exercises";
-            dataType: "date";
-            columnType: "PgTimestamp";
-            data: Date;
+            dataType: "custom";
+            columnType: "PgCustomColumn";
+            data: string;
             driverParam: string;
             notNull: false;
             hasDefault: false;
@@ -926,7 +942,9 @@ declare const exercises: drizzle_orm_pg_core.PgTableWithColumns<{
             baseColumn: never;
             identity: undefined;
             generated: undefined;
-        }, {}, {}>;
+        }, {}, {
+            pgColumnBuilderBrand: "PgCustomColumnBuilderBrand";
+        }>;
         bodyweightCoefficient: drizzle_orm_pg_core.PgColumn<{
             name: "bodyweight_coefficient";
             tableName: "exercises";
@@ -1159,9 +1177,9 @@ declare const loadingTypes: drizzle_orm_pg_core.PgTableWithColumns<{
         createdAt: drizzle_orm_pg_core.PgColumn<{
             name: "created_at";
             tableName: "loading_types";
-            dataType: "date";
-            columnType: "PgTimestamp";
-            data: Date;
+            dataType: "custom";
+            columnType: "PgCustomColumn";
+            data: string;
             driverParam: string;
             notNull: true;
             hasDefault: true;
@@ -1172,13 +1190,15 @@ declare const loadingTypes: drizzle_orm_pg_core.PgTableWithColumns<{
             baseColumn: never;
             identity: undefined;
             generated: undefined;
-        }, {}, {}>;
+        }, {}, {
+            pgColumnBuilderBrand: "PgCustomColumnBuilderBrand";
+        }>;
         updatedAt: drizzle_orm_pg_core.PgColumn<{
             name: "updated_at";
             tableName: "loading_types";
-            dataType: "date";
-            columnType: "PgTimestamp";
-            data: Date;
+            dataType: "custom";
+            columnType: "PgCustomColumn";
+            data: string;
             driverParam: string;
             notNull: true;
             hasDefault: true;
@@ -1189,7 +1209,9 @@ declare const loadingTypes: drizzle_orm_pg_core.PgTableWithColumns<{
             baseColumn: never;
             identity: undefined;
             generated: undefined;
-        }, {}, {}>;
+        }, {}, {
+            pgColumnBuilderBrand: "PgCustomColumnBuilderBrand";
+        }>;
         code: drizzle_orm_pg_core.PgColumn<{
             name: "code";
             tableName: "loading_types";
@@ -1328,9 +1350,9 @@ declare const muscleRoles: drizzle_orm_pg_core.PgTableWithColumns<{
         createdAt: drizzle_orm_pg_core.PgColumn<{
             name: "created_at";
             tableName: "muscle_roles";
-            dataType: "date";
-            columnType: "PgTimestamp";
-            data: Date;
+            dataType: "custom";
+            columnType: "PgCustomColumn";
+            data: string;
             driverParam: string;
             notNull: true;
             hasDefault: true;
@@ -1341,13 +1363,15 @@ declare const muscleRoles: drizzle_orm_pg_core.PgTableWithColumns<{
             baseColumn: never;
             identity: undefined;
             generated: undefined;
-        }, {}, {}>;
+        }, {}, {
+            pgColumnBuilderBrand: "PgCustomColumnBuilderBrand";
+        }>;
         updatedAt: drizzle_orm_pg_core.PgColumn<{
             name: "updated_at";
             tableName: "muscle_roles";
-            dataType: "date";
-            columnType: "PgTimestamp";
-            data: Date;
+            dataType: "custom";
+            columnType: "PgCustomColumn";
+            data: string;
             driverParam: string;
             notNull: true;
             hasDefault: true;
@@ -1358,7 +1382,9 @@ declare const muscleRoles: drizzle_orm_pg_core.PgTableWithColumns<{
             baseColumn: never;
             identity: undefined;
             generated: undefined;
-        }, {}, {}>;
+        }, {}, {
+            pgColumnBuilderBrand: "PgCustomColumnBuilderBrand";
+        }>;
         code: drizzle_orm_pg_core.PgColumn<{
             name: "code";
             tableName: "muscle_roles";
@@ -1438,9 +1464,9 @@ declare const muscles: drizzle_orm_pg_core.PgTableWithColumns<{
         createdAt: drizzle_orm_pg_core.PgColumn<{
             name: "created_at";
             tableName: "muscles";
-            dataType: "date";
-            columnType: "PgTimestamp";
-            data: Date;
+            dataType: "custom";
+            columnType: "PgCustomColumn";
+            data: string;
             driverParam: string;
             notNull: true;
             hasDefault: true;
@@ -1451,13 +1477,15 @@ declare const muscles: drizzle_orm_pg_core.PgTableWithColumns<{
             baseColumn: never;
             identity: undefined;
             generated: undefined;
-        }, {}, {}>;
+        }, {}, {
+            pgColumnBuilderBrand: "PgCustomColumnBuilderBrand";
+        }>;
         updatedAt: drizzle_orm_pg_core.PgColumn<{
             name: "updated_at";
             tableName: "muscles";
-            dataType: "date";
-            columnType: "PgTimestamp";
-            data: Date;
+            dataType: "custom";
+            columnType: "PgCustomColumn";
+            data: string;
             driverParam: string;
             notNull: true;
             hasDefault: true;
@@ -1468,7 +1496,9 @@ declare const muscles: drizzle_orm_pg_core.PgTableWithColumns<{
             baseColumn: never;
             identity: undefined;
             generated: undefined;
-        }, {}, {}>;
+        }, {}, {
+            pgColumnBuilderBrand: "PgCustomColumnBuilderBrand";
+        }>;
         chain: drizzle_orm_pg_core.PgColumn<{
             name: "chain";
             tableName: "muscles";
@@ -1641,9 +1671,9 @@ declare const patterns: drizzle_orm_pg_core.PgTableWithColumns<{
         createdAt: drizzle_orm_pg_core.PgColumn<{
             name: "created_at";
             tableName: "patterns";
-            dataType: "date";
-            columnType: "PgTimestamp";
-            data: Date;
+            dataType: "custom";
+            columnType: "PgCustomColumn";
+            data: string;
             driverParam: string;
             notNull: true;
             hasDefault: true;
@@ -1654,13 +1684,15 @@ declare const patterns: drizzle_orm_pg_core.PgTableWithColumns<{
             baseColumn: never;
             identity: undefined;
             generated: undefined;
-        }, {}, {}>;
+        }, {}, {
+            pgColumnBuilderBrand: "PgCustomColumnBuilderBrand";
+        }>;
         updatedAt: drizzle_orm_pg_core.PgColumn<{
             name: "updated_at";
             tableName: "patterns";
-            dataType: "date";
-            columnType: "PgTimestamp";
-            data: Date;
+            dataType: "custom";
+            columnType: "PgCustomColumn";
+            data: string;
             driverParam: string;
             notNull: true;
             hasDefault: true;
@@ -1671,7 +1703,9 @@ declare const patterns: drizzle_orm_pg_core.PgTableWithColumns<{
             baseColumn: never;
             identity: undefined;
             generated: undefined;
-        }, {}, {}>;
+        }, {}, {
+            pgColumnBuilderBrand: "PgCustomColumnBuilderBrand";
+        }>;
         code: drizzle_orm_pg_core.PgColumn<{
             name: "code";
             tableName: "patterns";
@@ -1744,10 +1778,31 @@ declare const patterns: drizzle_orm_pg_core.PgTableWithColumns<{
     dialect: "pg";
 }>;
 
-declare const archivedAt: drizzle_orm_pg_core.PgTimestampBuilderInitial<"archived_at">;
+declare const archivedAt: drizzle_orm_pg_core.PgCustomColumnBuilder<{
+    name: "archived_at";
+    dataType: "custom";
+    columnType: "PgCustomColumn";
+    data: string;
+    driverParam: string;
+    enumValues: undefined;
+}>;
 declare const timestamps: {
-    createdAt: drizzle_orm.HasDefault<drizzle_orm.NotNull<drizzle_orm_pg_core.PgTimestampBuilderInitial<"created_at">>>;
-    updatedAt: drizzle_orm.HasDefault<drizzle_orm.NotNull<drizzle_orm_pg_core.PgTimestampBuilderInitial<"updated_at">>>;
+    createdAt: drizzle_orm.HasDefault<drizzle_orm.NotNull<drizzle_orm_pg_core.PgCustomColumnBuilder<{
+        name: "created_at";
+        dataType: "custom";
+        columnType: "PgCustomColumn";
+        data: string;
+        driverParam: string;
+        enumValues: undefined;
+    }>>>;
+    updatedAt: drizzle_orm.HasDefault<drizzle_orm.NotNull<drizzle_orm_pg_core.PgCustomColumnBuilder<{
+        name: "updated_at";
+        dataType: "custom";
+        columnType: "PgCustomColumn";
+        data: string;
+        driverParam: string;
+        enumValues: undefined;
+    }>>>;
 };
 
 export { type CreateClientOptions, type Env, archivedAt, athleteDisciplines, athletes, coachOrganizations, coachSettings, coaches, createClient, disciplines, envSchema, exerciseMuscles, exercisePatterns, exerciseRelationships, exerciseRoles, exercises, loadEnv, loadingTypes, metadata, muscleRoles, muscles, organizations, patterns, resetCachedEnv, timestamps };

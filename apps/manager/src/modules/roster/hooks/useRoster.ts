@@ -8,7 +8,7 @@ import {
   type Athlete,
   type Coach,
   type Organization,
-  rosterApi,
+  api,
   useBackgroundParams
 } from '@/core'
 import { useSettings } from '@/modules/settings'
@@ -26,7 +26,7 @@ interface UseRosterResult extends Loadable {
 export function useRoster(): UseRosterResult {
   const dispatch = useAppDispatch()
   const storedActivatedAthlete = useAppSelector(selectActivatedAthlete)
-  const rosterQuery = rosterApi.endpoints.getCurrentRoster.useQueryState({})
+  const rosterQuery = api.endpoints.getCurrentRoster.useQueryState({})
   const status = getLoadableStatusFromQuery(rosterQuery)
   const { athleteSlug } = useBackgroundParams()
   const { defaultOrganizationId } = useSettings()
@@ -41,7 +41,7 @@ export function useRoster(): UseRosterResult {
   const defaultOrganization = organizations.find(({ id }) => id === defaultOrganizationId) ?? null
 
   const load = useCallback((): VoidFunction => {
-    const query = dispatch(rosterApi.endpoints.getCurrentRoster.initiate({}))
+    const query = dispatch(api.endpoints.getCurrentRoster.initiate({}))
 
     return () => {
       query.unsubscribe()

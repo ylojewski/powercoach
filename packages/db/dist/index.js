@@ -2,7 +2,7 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { Client } from 'pg';
 import { envSchema as envSchema$1, createEnvLoader } from '@powercoach/util-env';
 import { z } from 'zod';
-import { pgTable, text, serial, integer, primaryKey, foreignKey, timestamp, index, boolean, real, check, uniqueIndex } from 'drizzle-orm/pg-core';
+import { pgTable, text, serial, integer, primaryKey, foreignKey, customType, index, boolean, real, check, uniqueIndex } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 
 var __defProp = Object.defineProperty;
@@ -74,10 +74,18 @@ var athletes = pgTable(
     })
   ]
 );
-var archivedAt = timestamp("archived_at", { withTimezone: true });
+var isoTimestamp = customType({
+  dataType() {
+    return "timestamp with time zone";
+  },
+  fromDriver(value) {
+    return new Date(value).toISOString();
+  }
+});
+var archivedAt = isoTimestamp("archived_at");
 var timestamps = {
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
+  createdAt: isoTimestamp("created_at").notNull().default(sql`now()`),
+  updatedAt: isoTimestamp("updated_at").notNull().default(sql`now()`)
 };
 
 // src/schema/disciplines.ts

@@ -9,8 +9,7 @@ import {
   AUTHENTICATED_COACH_EMAIL,
   type GetCurrentRosterApiResponse,
   type GetCurrentSettingsApiResponse,
-  rosterApi,
-  settingsApi
+  api
 } from '@/core'
 
 import { activateAthlete, selectActivatedAthlete } from '../store'
@@ -99,7 +98,7 @@ describe('useRoster', () => {
     let unloadRoster: VoidFunction | undefined
 
     act(() => {
-      store.dispatch(settingsApi.endpoints.getCurrentSettings.initiate())
+      store.dispatch(api.endpoints.getCurrentSettings.initiate())
       unloadRoster = result.current.load()
     })
 
@@ -124,7 +123,7 @@ describe('useRoster', () => {
     })
 
     act(() => {
-      store.dispatch(settingsApi.endpoints.getCurrentSettings.initiate())
+      store.dispatch(api.endpoints.getCurrentSettings.initiate())
       result.current.load()
     })
 
@@ -174,7 +173,7 @@ describe('useRoster', () => {
     store.dispatch(activateAthlete(firstAthlete))
 
     await act(async () => {
-      await store.dispatch(rosterApi.util.upsertQueryData('getCurrentRoster', {}, rosterResponse))
+      await store.dispatch(api.util.upsertQueryData('getCurrentRoster', {}, rosterResponse))
     })
 
     const { result } = renderHook(() => useRoster(), {

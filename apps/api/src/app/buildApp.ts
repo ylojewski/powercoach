@@ -13,8 +13,14 @@ import Fastify, {
 import { Client } from 'pg'
 
 import { type Env, buildLoggerOptions, loadEnv, envSchema } from '@/src/core'
-import { healthModule, referencesModule, rosterModule, settingsModule } from '@/src/modules'
-import { errorPlugin, helmetPlugin, sensiblePlugin } from '@/src/plugins'
+import {
+  exercisesModule,
+  healthModule,
+  referencesModule,
+  rosterModule,
+  settingsModule
+} from '@/src/modules'
+import { errorPlugin, helmetPlugin, schemasPlugin, sensiblePlugin } from '@/src/plugins'
 
 import { ajvOptions } from './ajvOptions'
 import { REQUEST_ID_HEADER, REQUEST_ID_LOG_LABEL } from './constants'
@@ -64,9 +70,11 @@ export async function registerCorePlugins(app: AppFastifyInstance): Promise<void
   await app.register(helmetPlugin)
   await app.register(sensiblePlugin)
   await app.register(errorPlugin)
+  await app.register(schemasPlugin)
 }
 
 export async function registerCoreModules(app: AppFastifyInstance): Promise<void> {
+  await app.register(exercisesModule, { prefix: '/v1/exercises' })
   await app.register(referencesModule, { prefix: '/v1/references' })
   await app.register(rosterModule, { prefix: '/v1/roster' })
   await app.register(settingsModule, { prefix: '/v1/settings' })

@@ -1,5 +1,6 @@
 export * from './findAthletesByCoachIdAndOrganizationId'
 export * from './findCoachOrganizationsByCoachId'
 export * from './findCoachSettingsByCoachId'
+export * from './findExerciseByCode'
 export * from './findReferences'
 export * from './isDatabaseOk'

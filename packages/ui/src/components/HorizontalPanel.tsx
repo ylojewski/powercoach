@@ -6,7 +6,6 @@ import { cn } from '@/src/coss/lib/utils'
 
 interface HorizontalPanelStyle extends React.CSSProperties {
   '--horizontal-panel-collapsed-width'?: string
-  '--horizontal-panel-item-border-width'?: string
   '--horizontal-panel-item-count'?: string
   '--horizontal-panel-trigger-label-hover-size'?: string
   '--horizontal-panel-trigger-label-size'?: string
@@ -34,8 +33,7 @@ export function HorizontalPanel<Value = unknown>({
 
   const horizontalPanelStyle: HorizontalPanelStyle = {
     '--horizontal-panel-collapsed-width':
-      'calc(var(--horizontal-panel-item-count) * (var(--horizontal-panel-trigger-width) + var(--horizontal-panel-item-border-width)))',
-    '--horizontal-panel-item-border-width': '1px',
+      'calc(var(--horizontal-panel-item-count) * (var(--horizontal-panel-trigger-width)))',
     '--horizontal-panel-item-count': String(panelCount),
     '--horizontal-panel-trigger-label-hover-size': '1.125rem',
     '--horizontal-panel-trigger-label-size': '1rem',
@@ -66,7 +64,7 @@ export function HorizontalPanelItem({
   return (
     <Accordion.Item
       className={cn(
-        'flex h-full border-l [border-left-width:var(--horizontal-panel-item-border-width)] border-gray-200 dark:border-gray-700',
+        'flex h-full',
         className
       )}
       data-slot="accordion-item"
@@ -146,7 +144,7 @@ export function HorizontalPanelContent({
       data-slot="accordion-panel"
       {...props}
     >
-      <div className="h-full w-[calc(100cqw-var(--horizontal-panel-collapsed-width))] border-l [border-left-width:var(--horizontal-panel-item-border-width)] border-gray-200 bg-background dark:border-gray-700">
+      <div className="h-full w-[calc(100cqw-var(--horizontal-panel-collapsed-width))]">
         {children}
       </div>
     </Accordion.Panel>

@@ -21,9 +21,9 @@ export function NewExerciseStartStepCard({
   return (
     <div
       className={cn(
-        'relative flex min-w-0 cursor-pointer flex-col items-center justify-center text-center transition-[background] hover:bg-gray-100',
-        'after:pointer-events-none after:absolute after:inset-0 after:border-black after:transition-[border-width] after:duration-200',
-        active ? 'cursor-auto bg-gray-100 after:border-8' : 'after:border-0'
+        'relative flex min-w-0 cursor-pointer flex-col items-center justify-center text-center transition-[background] hover:bg-background-100 dark:hover:bg-foreground-800',
+        'after:pointer-events-none after:absolute after:inset-0 after:border-background after:transition-[border-width] after:duration-200 dark:after:border-background',
+        active ? 'cursor-auto bg-gray-100 dark:bg-gray-800 after:border-8' : 'after:border-0'
       )}
       onClick={onActivate}
     >

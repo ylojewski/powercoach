@@ -42,7 +42,7 @@ export function NewExercise(): ReactElement {
 
   return (
     <div className="flex flex-1 flex-col" data-testid="new-exercise">
-      <div className="relative min-h-0 flex-1 border-y border-r">
+      <div className="relative min-h-0 flex-1 border">
         <HorizontalPanel<Step>
           collapsible={false}
           onValueChange={onHorizontalPanelValueChange}

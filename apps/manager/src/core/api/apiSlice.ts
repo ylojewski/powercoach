@@ -8,7 +8,7 @@ const apiBaseUrl =
     ? 'http://localhost/api'
     : new URL('/api', window.location.origin).toString()
 
-export const api = createApi({
+export const apiSlice = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: apiBaseUrl,
     prepareHeaders: (headers) => {

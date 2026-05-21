@@ -3,6 +3,7 @@ import { type FastifyPluginAsync } from 'fastify'
 import fastifyPlugin from 'fastify-plugin'
 
 import {
+  EXERCISES_MODULE_TAG,
   HEALTH_MODULE_TAG,
   REFERENCES_MODULE_TAG,
   ROSTER_MODULE_TAG,
@@ -25,6 +26,7 @@ export const swaggerPluginCore: FastifyPluginAsync = async (app) => {
         version
       },
       tags: [
+        { description: 'Exercise catalog endpoints', name: EXERCISES_MODULE_TAG },
         { description: 'Reference data endpoints', name: REFERENCES_MODULE_TAG },
         { description: 'Roster endpoints', name: ROSTER_MODULE_TAG },
         { description: 'Coach settings endpoints', name: SETTINGS_MODULE_TAG },
