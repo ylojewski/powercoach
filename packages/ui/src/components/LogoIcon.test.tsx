@@ -20,7 +20,7 @@ describe('LogoIcon', () => {
         aria-label="Powercoach icon"
         className="custom-class"
         data-testid="logo-icon"
-        variant="white"
+        variant="foreground"
       />
     )
 
@@ -31,5 +31,14 @@ describe('LogoIcon', () => {
     expect(className).toContain('custom-class')
     expect(className).toContain('[&_.container]:fill-white')
     expect(className).toContain('dark:[&_.container]:fill-black')
+  })
+
+  it('applies the background variant styles', () => {
+    render(<LogoIcon variant="background" />)
+
+    const logoIcon = screen.getByTestId('logo-icon')
+    const className = logoIcon.getAttribute('class') ?? ''
+
+    expect(className).toContain('[&_.container]:fill-background')
   })
 })

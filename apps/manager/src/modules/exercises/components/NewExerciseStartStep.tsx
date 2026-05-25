@@ -1,7 +1,7 @@
-import { DrawerPrimitive, Separator } from '@powercoach/ui'
+import { DrawerPrimitive } from '@powercoach/ui'
 import { type ReactElement, useMemo, useState } from 'react'
 
-import { useAppDispatch, useAppSelector } from '@/core'
+import { type Exercise, useAppDispatch, useAppSelector } from '@/core'
 
 import { useExercises } from '../hooks'
 import { CreationMethod, selectInitialCreation, startCreation } from '../store'
@@ -25,10 +25,13 @@ export function NewExerciseStartStep({
   const resetDrawerHandle = useMemo(() => DrawerPrimitive.createHandle(), [])
   const initialCreation = useAppSelector(selectInitialCreation)
   const [method, setMethod] = useState(initialCreation?.method ?? CreationMethod.Blank)
+  const isBlank = method === CreationMethod.Blank
+  const isClone = method === CreationMethod.Clone
   const [exercise, setExercise] = useState(
     initialCreation?.method === CreationMethod.Clone ? initialCreation.exercise : null
   )
   const {
+    cloneExercise,
     isCurrentCreationDirty,
     shouldResetBlankCreation,
     shouldResetCloneCreation,
@@ -46,17 +49,22 @@ export function NewExerciseStartStep({
   }
 
   function next() {
-    if (method === CreationMethod.Blank) {
-      setSubmitted(true)
-      dispatch(startCreation({ exercise: createBlankExercise(), method }))
-      onStart()
+    let currentExercise: Exercise
+    let initialExercise: Exercise
+
+    if (isBlank) {
+      currentExercise = createBlankExercise()
+      initialExercise = createBlankExercise()
+    } else if (isClone && exercise) {
+      currentExercise = cloneExercise(exercise)
+      initialExercise = { ...exercise }
+    } else {
       return
     }
-    if (method === CreationMethod.Clone && exercise) {
-      setSubmitted(true)
-      dispatch(startCreation({ exercise, method }))
-      onStart()
-    }
+
+    dispatch(startCreation({ currentExercise, initialExercise, method }))
+    setSubmitted(true)
+    onStart()
   }
 
   function openResetDrawer() {
@@ -68,7 +76,7 @@ export function NewExerciseStartStep({
       <div className="grid h-full min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-stretch overflow-hidden">
         <NewExerciseStartStepBlankCard
           actionLabel={!submitted && shouldResumeBlankCreation ? resumeActionLabel : 'Next'}
-          active={method === CreationMethod.Blank}
+          active={isBlank}
           onActivate={() => setMethod(CreationMethod.Blank)}
           {...(shouldResetBlankCreation && { onReset: openResetDrawer })}
           onNext={() => (shouldResumeBlankCreation ? onResume() : preventNext())}
@@ -78,7 +86,7 @@ export function NewExerciseStartStep({
           actionLabel={
             !submitted && shouldResumeCloneCreation(exercise) ? resumeActionLabel : 'Next'
           }
-          active={method === CreationMethod.Clone}
+          active={isClone}
           exercise={exercise}
           onExerciseChange={setExercise}
           onActivate={() => setMethod(CreationMethod.Clone)}
@@ -88,13 +96,11 @@ export function NewExerciseStartStep({
         />
       </div>
       <NewExerciseStartStepResetDrawer
-        confirmText={
-          method === CreationMethod.Blank
-            ? 'Discard and create from scratch'
-            : method === CreationMethod.Clone
-              ? `Discard & clone ${exercise?.title.toLowerCase()}`
-              : 'Discard'
-        }
+        confirmText={(() => {
+          if (isBlank) return 'Create from scratch anyway'
+          if (isClone) return `Clone ${exercise?.title.toLowerCase()} anyway`
+          return 'Discard'
+        })()}
         handle={resetDrawerHandle}
         onConfirm={next}
       />

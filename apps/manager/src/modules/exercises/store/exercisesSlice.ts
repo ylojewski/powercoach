@@ -48,47 +48,39 @@ const exercisesSlice = createSlice({
   initialState,
   name: 'exercises',
   reducers: {
-    setCreationExerciseCode(state, action: PayloadAction<string>) {
-      if (state.creation.current) {
-        state.creation.current.exercise.code = action.payload
-      }
-    },
-    setCreationExerciseSubtitle(state, action: PayloadAction<string | null>) {
-      if (state.creation.current) {
-        state.creation.current.exercise.subtitle = action.payload
-      }
-    },
-    setCreationExerciseTitle(state, action: PayloadAction<string>) {
-      if (state.creation.current) {
-        state.creation.current.exercise.title = action.payload
-      }
-    },
     setCreationResumeStep(state, action: PayloadAction<Step>) {
       state.creation.resumeStep = action.payload
     },
-    startCreation(state, action: PayloadAction<Creation>) {
+    startCreation(
+      state,
+      action: PayloadAction<{
+        initialExercise: Exercise
+        currentExercise: Exercise
+        method: CreationMethod
+      }>
+    ) {
       state.creation.current = {
-        exercise: { ...action.payload.exercise },
+        exercise: { ...action.payload.currentExercise },
         method: action.payload.method
       }
       state.creation.initial = {
-        exercise: { ...action.payload.exercise },
+        exercise: { ...action.payload.initialExercise },
         method: action.payload.method
       }
       state.creation.resumeStep = Step.Overview
+    },
+    updateCreationExercise(state, action: PayloadAction<Partial<Exercise>>) {
+      if (state.creation.current) {
+        Object.assign(state.creation.current.exercise, action.payload)
+      }
     }
   }
 })
 
 reducer.inject(exercisesSlice)
 
-export const {
-  setCreationExerciseCode,
-  setCreationExerciseSubtitle,
-  setCreationExerciseTitle,
-  setCreationResumeStep,
-  startCreation
-} = exercisesSlice.actions
+export const { setCreationResumeStep, startCreation, updateCreationExercise } =
+  exercisesSlice.actions
 
 export function selectCurrentCreation(state: RootState): Creation | null {
   return state.exercises?.creation.current ?? initialState.creation.current

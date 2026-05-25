@@ -6,12 +6,10 @@ import {
   selectCreationResumeStep,
   selectCurrentCreation,
   selectInitialCreation,
-  setCreationExerciseTitle,
-  setCreationExerciseCode,
-  setCreationExerciseSubtitle,
   setCreationResumeStep,
   startCreation,
-  Step
+  Step,
+  updateCreationExercise
 } from './exercisesSlice'
 
 function createExercise(overrides: Partial<Exercise> = {}): Exercise {
@@ -36,6 +34,14 @@ function createExercise(overrides: Partial<Exercise> = {}): Exercise {
   }
 }
 
+function startExerciseCreation(
+  store: ReturnType<typeof createTestStore>,
+  exercise: Exercise,
+  method: CreationMethod
+): void {
+  store.dispatch(startCreation({ currentExercise: exercise, initialExercise: exercise, method }))
+}
+
 describe('exercisesSlice', () => {
   it('starts without an active creation', () => {
     const state = createTestStore().getState()
@@ -57,7 +63,7 @@ describe('exercisesSlice', () => {
     const store = createTestStore()
     const exercise = createExercise()
 
-    store.dispatch(startCreation({ exercise, method: CreationMethod.Clone }))
+    startExerciseCreation(store, exercise, CreationMethod.Clone)
 
     const state = store.getState()
     const currentCreation = selectCurrentCreation(state)
@@ -80,8 +86,8 @@ describe('exercisesSlice', () => {
   it('updates only the current exercise title', () => {
     const store = createTestStore()
 
-    store.dispatch(startCreation({ exercise: createExercise(), method: CreationMethod.Blank }))
-    store.dispatch(setCreationExerciseTitle('Custom squat'))
+    startExerciseCreation(store, createExercise(), CreationMethod.Blank)
+    store.dispatch(updateCreationExercise({ title: 'Custom squat' }))
 
     const state = store.getState()
 
@@ -92,8 +98,8 @@ describe('exercisesSlice', () => {
   it('updates only the current exercise code', () => {
     const store = createTestStore()
 
-    store.dispatch(startCreation({ exercise: createExercise(), method: CreationMethod.Blank }))
-    store.dispatch(setCreationExerciseCode('custom_squat'))
+    startExerciseCreation(store, createExercise(), CreationMethod.Blank)
+    store.dispatch(updateCreationExercise({ code: 'custom_squat' }))
 
     const state = store.getState()
 
@@ -104,8 +110,8 @@ describe('exercisesSlice', () => {
   it('updates only the current exercise subtitle', () => {
     const store = createTestStore()
 
-    store.dispatch(startCreation({ exercise: createExercise(), method: CreationMethod.Blank }))
-    store.dispatch(setCreationExerciseSubtitle('Paused variation'))
+    startExerciseCreation(store, createExercise(), CreationMethod.Blank)
+    store.dispatch(updateCreationExercise({ subtitle: 'Paused variation' }))
 
     const state = store.getState()
 
@@ -116,7 +122,7 @@ describe('exercisesSlice', () => {
   it('updates the creation resume step independently from the creation snapshot', () => {
     const store = createTestStore()
 
-    store.dispatch(startCreation({ exercise: createExercise(), method: CreationMethod.Clone }))
+    startExerciseCreation(store, createExercise(), CreationMethod.Clone)
     store.dispatch(setCreationResumeStep(Step.Muscles))
 
     const state = store.getState()
@@ -128,7 +134,7 @@ describe('exercisesSlice', () => {
   it('ignores title updates when no creation is active', () => {
     const store = createTestStore()
 
-    store.dispatch(setCreationExerciseTitle('Custom squat'))
+    store.dispatch(updateCreationExercise({ title: 'Custom squat' }))
 
     expect(selectCurrentCreation(store.getState())).toBeNull()
   })
@@ -136,8 +142,8 @@ describe('exercisesSlice', () => {
   it('ignores code and subtitle updates when no creation is active', () => {
     const store = createTestStore()
 
-    store.dispatch(setCreationExerciseCode('custom_squat'))
-    store.dispatch(setCreationExerciseSubtitle('Paused variation'))
+    store.dispatch(updateCreationExercise({ code: 'custom_squat' }))
+    store.dispatch(updateCreationExercise({ subtitle: 'Paused variation' }))
 
     expect(selectCurrentCreation(store.getState())).toBeNull()
   })

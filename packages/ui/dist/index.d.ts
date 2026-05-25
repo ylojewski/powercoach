@@ -8,6 +8,7 @@ import { ClassProp } from 'class-variance-authority/types';
 import { ClassValue } from 'clsx';
 import { Collapsible as CollapsiblePrimitive } from '@base-ui/react/collapsible';
 import { Combobox as ComboboxPrimitive } from '@base-ui/react/combobox';
+import { ComponentPropsWithoutRef } from 'react';
 import { DayPicker } from 'react-day-picker';
 import { default as default_2 } from 'react';
 import { Dialog as Dialog_2 } from '@base-ui/react/dialog';
@@ -17,6 +18,7 @@ import { Fieldset as FieldsetPrimitive } from '@base-ui/react/fieldset';
 import { Form as FormPrimitive } from '@base-ui/react/form';
 import { OTPInput as InputOTPPrimitive } from 'input-otp';
 import { Input as InputPrimitive } from '@base-ui/react/input';
+import { Key } from 'react';
 import { Loader2Icon } from 'lucide-react';
 import { Menu as MenuPrimitive } from '@base-ui/react/menu';
 import { Meter as MeterPrimitive } from '@base-ui/react/meter';
@@ -27,6 +29,8 @@ import { Progress as ProgressPrimitive } from '@base-ui/react/progress';
 import { RadioGroup as RadioGroupPrimitive } from '@base-ui/react/radio-group';
 import { Radio as RadioPrimitive } from '@base-ui/react/radio';
 import * as React_2 from 'react';
+import { ReactElement } from 'react';
+import { ReactNode } from 'react';
 import { ScrollArea as ScrollAreaPrimitive } from '@base-ui/react/scroll-area';
 import { Select as SelectPrimitive } from '@base-ui/react/select';
 import { Separator as SeparatorPrimitive } from '@base-ui/react/separator';
@@ -53,7 +57,7 @@ export { AccordionPrimitive }
 
 export declare function AccordionTrigger({ className, children, ...props }: AccordionPrimitive.Trigger.Props): default_2.ReactElement;
 
-export declare function Alert({ className, variant, ...props }: React_2.ComponentProps<'div'> & VariantProps<typeof alertVariants>): React_2.ReactElement;
+export declare function Alert({ className, variant, ...props }: AlertProps): React_2.ReactElement;
 
 export declare function AlertAction({ className, ...props }: React_2.ComponentProps<'div'>): React_2.ReactElement;
 
@@ -93,6 +97,8 @@ export declare function AlertDialogTitle({ className, ...props }: AlertDialogPri
 export declare function AlertDialogTrigger(props: AlertDialogPrimitive.Trigger.Props): default_2.ReactElement;
 
 export declare function AlertDialogViewport({ className, ...props }: AlertDialogPrimitive.Viewport.Props): default_2.ReactElement;
+
+export declare type AlertProps = React_2.ComponentProps<'div'> & VariantProps<typeof alertVariants>;
 
 export declare function AlertTitle({ className, ...props }: React_2.ComponentProps<'div'>): React_2.ReactElement;
 
@@ -654,7 +660,7 @@ export declare interface LogoIconProps extends VariantProps<typeof logoIconVaria
 }
 
 export declare const logoIconVariants: (props?: ({
-    variant?: "black" | "white" | null | undefined;
+    variant?: "foreground" | "background" | null | undefined;
 } & ClassProp) | undefined) => string;
 
 export declare interface LogoProps extends VariantProps<typeof logoVariants>, default_2.SVGProps<SVGSVGElement> {
@@ -1064,6 +1070,18 @@ export declare function SliderValue({ className, ...props }: SliderPrimitive.Val
 export declare function Spinner({ className, ...props }: default_2.ComponentProps<typeof Loader2Icon>): default_2.ReactElement;
 
 export declare function Switch({ className, ...props }: SwitchPrimitive.Root.Props): default_2.ReactElement;
+
+export declare function SwitchAnimation({ children, className, delay, itemClassName, motionKey, orientation, ...props }: SwitchAnimationProps): ReactElement;
+
+export declare type SwitchAnimationOrientation = 'horizontal' | 'vertical';
+
+export declare interface SwitchAnimationProps extends Omit<ComponentPropsWithoutRef<'span'>, 'children'> {
+    children: ReactNode;
+    delay?: number;
+    itemClassName?: string;
+    motionKey: Key;
+    orientation?: SwitchAnimationOrientation;
+}
 
 export { SwitchPrimitive }
 

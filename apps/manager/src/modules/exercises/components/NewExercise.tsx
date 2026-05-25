@@ -1,4 +1,5 @@
 import {
+  cn,
   HorizontalPanel,
   HorizontalPanelContent,
   HorizontalPanelItem,
@@ -42,7 +43,7 @@ export function NewExercise(): ReactElement {
 
   return (
     <div className="flex flex-1 flex-col" data-testid="new-exercise">
-      <div className="relative min-h-0 flex-1 border">
+      <div className={cn('relative min-h-0 flex-1 border-y', step === Step.Review && 'border-r')}>
         <HorizontalPanel<Step>
           collapsible={false}
           onValueChange={onHorizontalPanelValueChange}

@@ -61,7 +61,9 @@ export function LoadingTransition({ children, contained = false, loading }: Prop
         <div
           aria-hidden
           className={cn(
-            contained ? 'absolute inset-0 z-10 bg-white' : 'fixed inset-0 z-2147483646 bg-white'
+            contained
+              ? 'absolute inset-0 z-10 bg-background'
+              : 'fixed inset-0 z-2147483646 bg-background'
           )}
           data-testid="loading-transition-background"
         />

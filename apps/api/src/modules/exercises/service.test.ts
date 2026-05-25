@@ -1,5 +1,5 @@
-import { type Exercise } from '@/src/schemas'
 import { findExerciseByCode } from '@/src/repositories'
+import { type Exercise } from '@/src/schemas'
 
 import { type ExerciseCodeResponse } from './schemas'
 import { getExerciseCode } from './service'
@@ -48,7 +48,10 @@ describe('getExerciseCode', () => {
     const result = await getExerciseCode(request)
 
     expect(findExerciseByCodeMock).toHaveBeenCalledWith(db, 'competition_squat')
-    expect(result).toStrictEqual<ExerciseCodeResponse>({ code: 'competition_squat', exercise: EXERCISE })
+    expect(result).toStrictEqual<ExerciseCodeResponse>({
+      code: 'competition_squat',
+      exercise: EXERCISE
+    })
   })
 
   it('returns the generated code and null exercise when no match is found', async () => {
@@ -57,11 +60,16 @@ describe('getExerciseCode', () => {
     const result = await getExerciseCode(request)
 
     expect(findExerciseByCodeMock).toHaveBeenCalledWith(db, 'competition_squat')
-    expect(result).toStrictEqual<ExerciseCodeResponse>({ code: 'competition_squat', exercise: null })
+    expect(result).toStrictEqual<ExerciseCodeResponse>({
+      code: 'competition_squat',
+      exercise: null
+    })
   })
 
   it('returns an empty code and null exercise when the title produces no code', async () => {
-    request = { ...request, query: { title: '--' } } as unknown as Parameters<typeof getExerciseCode>[0]
+    request = { ...request, query: { title: '--' } } as unknown as Parameters<
+      typeof getExerciseCode
+    >[0]
 
     const result = await getExerciseCode(request)
 

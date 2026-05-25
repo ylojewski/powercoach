@@ -40,7 +40,7 @@ describe('LoadingTransition', () => {
     const overlay = screen.getByLabelText('loading powercoach')
     const overlayContent = overlay.firstElementChild as HTMLElement
 
-    expect(screen.getByTestId('loading-transition-background').className).toContain('bg-white')
+    expect(screen.getByTestId('loading-transition-background').className).toContain('bg-background')
     expect(screen.queryByText('Application content')).not.toBeInTheDocument()
 
     rerender(

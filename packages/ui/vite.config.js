@@ -10,7 +10,10 @@ export default buildConfig(import.meta.url, {
     svgr(),
     tailwindcss(),
     viteStaticCopy({
-      targets: [{ dest: 'assets', rename: { stripBase: true }, src: 'src/assets/favicon-*.svg' }]
+      targets: [
+        { dest: '.', rename: { stripBase: true }, src: 'src/coss/styles/theme.css' },
+        { dest: 'assets', rename: { stripBase: true }, src: 'src/assets/favicon-*.svg' }
+      ]
     })
   ]
 })

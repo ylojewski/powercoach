@@ -5,6 +5,7 @@ import { type Exercise, useAppSelector } from '@/core'
 import { CreationMethod, selectCurrentCreation, selectInitialCreation } from '../store'
 
 interface UseExercisesResult {
+  cloneExercise: (exercise: Exercise) => Exercise
   isCurrentCreationDirty: boolean
   shouldResetBlankCreation: boolean
   shouldResetCloneCreation: (exercise: Exercise | null) => boolean
@@ -56,7 +57,12 @@ export function useExercises(): UseExercisesResult {
     [initialCreation]
   )
 
+  const cloneExercise = useCallback((exercise: Exercise) => {
+    return { ...exercise, title: `${exercise.title} copy` }
+  }, [])
+
   return {
+    cloneExercise,
     isCurrentCreationDirty,
     shouldResetBlankCreation,
     shouldResetCloneCreation,

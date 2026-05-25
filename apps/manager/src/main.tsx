@@ -4,7 +4,7 @@ import { Provider } from 'react-redux'
 
 import './styles'
 
-import { Router, store } from './app'
+import { Router, store, SystemTheme } from './app'
 
 const rootElement = window.document.getElementById('root')
 
@@ -14,6 +14,7 @@ if (!rootElement) {
 
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
+    <SystemTheme />
     <Provider store={store}>
       <Router />
     </Provider>

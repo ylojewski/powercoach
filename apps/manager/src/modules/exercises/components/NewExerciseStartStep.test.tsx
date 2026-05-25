@@ -5,7 +5,7 @@ import { type GetReferencesApiResponse } from '@/core'
 import { useReferences } from '@/modules/references'
 import { createTestStore } from '@/test/utils/store'
 
-import { CreationMethod, setCreationExerciseTitle, startCreation, Step } from '../store'
+import { CreationMethod, startCreation, Step, updateCreationExercise } from '../store'
 import { NewExerciseStartStep } from './NewExerciseStartStep'
 
 vi.mock('@/modules/references', () => ({
@@ -84,6 +84,14 @@ function getCompetitionSquat() {
   }
 
   return exercise
+}
+
+function startExerciseCreation(
+  store: ReturnType<typeof createTestStore>,
+  exercise: ReturnType<typeof getCompetitionSquat>,
+  method: CreationMethod
+): void {
+  store.dispatch(startCreation({ currentExercise: exercise, initialExercise: exercise, method }))
 }
 
 function renderStartStep(
@@ -177,12 +185,7 @@ describe('NewExerciseStartStep', () => {
 
   it('initializes the local source state from the current creation without prompting on resume', () => {
     const store = renderStartStep((createdStore) => {
-      createdStore.dispatch(
-        startCreation({
-          exercise: getCompetitionSquat(),
-          method: CreationMethod.Clone
-        })
-      )
+      startExerciseCreation(createdStore, getCompetitionSquat(), CreationMethod.Clone)
     })
     const cloneResumeButton = screen.getByRole('button', { name: 'Resume at muscles' })
 
@@ -199,17 +202,16 @@ describe('NewExerciseStartStep', () => {
 
   it('offers to reset a dirty blank creation', () => {
     const store = renderStartStep((createdStore) => {
-      createdStore.dispatch(
-        startCreation({
-          exercise: {
-            ...getCompetitionSquat(),
-            code: '',
-            title: ''
-          },
-          method: CreationMethod.Blank
-        })
+      startExerciseCreation(
+        createdStore,
+        {
+          ...getCompetitionSquat(),
+          code: '',
+          title: ''
+        },
+        CreationMethod.Blank
       )
-      createdStore.dispatch(setCreationExerciseTitle('Dirty title'))
+      createdStore.dispatch(updateCreationExercise({ title: 'Dirty title' }))
     })
 
     expect(screen.getByRole('button', { name: 'Resume at muscles' })).toBeInTheDocument()
@@ -218,7 +220,7 @@ describe('NewExerciseStartStep', () => {
 
     expect(screen.getByText('creation already in progress')).toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole('button', { name: 'Discard and create from scratch' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Create from scratch anyway' }))
 
     expect(store.getState().exercises?.creation.current?.method).toBe(CreationMethod.Blank)
     expect(store.getState().exercises?.creation.current?.exercise.title).toBe('')
@@ -228,17 +230,16 @@ describe('NewExerciseStartStep', () => {
 
   it('resumes a blank creation without resetting it', () => {
     const store = renderStartStep((createdStore) => {
-      createdStore.dispatch(
-        startCreation({
-          exercise: {
-            ...getCompetitionSquat(),
-            code: '',
-            title: ''
-          },
-          method: CreationMethod.Blank
-        })
+      startExerciseCreation(
+        createdStore,
+        {
+          ...getCompetitionSquat(),
+          code: '',
+          title: ''
+        },
+        CreationMethod.Blank
       )
-      createdStore.dispatch(setCreationExerciseTitle('Dirty title'))
+      createdStore.dispatch(updateCreationExercise({ title: 'Dirty title' }))
     })
 
     fireEvent.click(screen.getByRole('button', { name: 'Resume at muscles' }))
@@ -250,13 +251,8 @@ describe('NewExerciseStartStep', () => {
 
   it('keeps the clone reset action available after activating another source', () => {
     renderStartStep((createdStore) => {
-      createdStore.dispatch(
-        startCreation({
-          exercise: getCompetitionSquat(),
-          method: CreationMethod.Clone
-        })
-      )
-      createdStore.dispatch(setCreationExerciseTitle('Dirty title'))
+      startExerciseCreation(createdStore, getCompetitionSquat(), CreationMethod.Clone)
+      createdStore.dispatch(updateCreationExercise({ title: 'Dirty title' }))
     })
 
     fireEvent.click(screen.getByText('from scratch'))
@@ -280,7 +276,7 @@ describe('NewExerciseStartStep', () => {
     expect(store.getState().exercises?.creation.current?.exercise.code).toBe('')
 
     act(() => {
-      store.dispatch(setCreationExerciseTitle('Dirty title'))
+      store.dispatch(updateCreationExercise({ title: 'Dirty title' }))
     })
 
     const input = screen.getByPlaceholderText('Exercise to clone')
@@ -294,7 +290,7 @@ describe('NewExerciseStartStep', () => {
     expect(screen.getByText('creation already in progress')).toBeInTheDocument()
     expect(store.getState().exercises?.creation.current?.method).toBe(CreationMethod.Blank)
 
-    fireEvent.click(screen.getByRole('button', { name: 'Discard & clone competition squat' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Clone competition squat anyway' }))
 
     expect(store.getState().exercises?.creation.current?.method).toBe(CreationMethod.Clone)
     expect(store.getState().exercises?.creation.current?.exercise.code).toBe('competition_squat')

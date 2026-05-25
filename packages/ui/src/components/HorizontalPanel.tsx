@@ -63,10 +63,7 @@ export function HorizontalPanelItem({
 }: Accordion.Item.Props): React.ReactElement {
   return (
     <Accordion.Item
-      className={cn(
-        'flex h-full',
-        className
-      )}
+      className={cn('flex h-full', className)}
       data-slot="accordion-item"
       {...props}
     />
@@ -95,27 +92,23 @@ export function HorizontalPanelTrigger({
     <Accordion.Header>
       <Accordion.Trigger
         className={cn(
-          'group relative flex h-full w-[var(--horizontal-panel-trigger-width)] justify-center overflow-hidden bg-background font-heading outline-none focus:outline-none focus-visible:outline-none',
+          'group relative isolate flex h-full w-[var(--horizontal-panel-trigger-width)] justify-center overflow-hidden bg-background font-heading outline-none before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:z-0 before:w-px before:bg-border focus:outline-none focus-visible:outline-none in-[[data-slot=accordion-item]:last-child]:after:pointer-events-none in-[[data-slot=accordion-item]:last-child]:after:absolute in-[[data-slot=accordion-item]:last-child]:after:inset-y-0 in-[[data-slot=accordion-item]:last-child]:after:right-0 in-[[data-slot=accordion-item]:last-child]:after:z-0 in-[[data-slot=accordion-item]:last-child]:after:w-px in-[[data-slot=accordion-item]:last-child]:after:bg-border',
           className
         )}
         data-slot="accordion-trigger"
         onClick={handleClick}
         {...props}
       >
-        <span className="absolute top-[calc(var(--horizontal-panel-trigger-width)/2-var(--horizontal-panel-trigger-label-size))] left-1/2 origin-[0] rotate-90">
+        <span className="absolute top-[calc(var(--horizontal-panel-trigger-width)/2-var(--horizontal-panel-trigger-label-size))] left-1/2 z-10 origin-[0] rotate-90">
           {children}
         </span>
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 overflow-hidden transition-[clip-path] duration-300 ease-in-out [clip-path:inset(0_0_0_100%)] group-hover:[clip-path:inset(0_0_0_0)] group-focus-visible:[clip-path:inset(0_0_0_0)] group-data-[panel-open]:[clip-path:inset(0_0_0_0)]"
+          className="pointer-events-none absolute -inset-px z-20 overflow-hidden bg-foreground text-background transition-[clip-path] duration-300 ease-in-out [clip-path:inset(0_100%_0_0)] group-hover:[clip-path:inset(0_0_0_0)] group-focus-visible:[clip-path:inset(0_0_0_0)] group-data-[panel-open]:[clip-path:inset(0_0_0_0)]"
           data-slot="horizontal-panel-trigger-overlay"
         >
           <span
-            className="absolute inset-0 translate-x-full bg-foreground transition-transform duration-300 ease-in-out group-hover:translate-x-0 group-focus-visible:translate-x-0 group-data-[panel-open]:translate-x-0"
-            data-slot="horizontal-panel-trigger-fill"
-          />
-          <span
-            className="absolute inset-0 overflow-hidden text-background"
+            className="absolute inset-0 overflow-hidden"
             data-slot="horizontal-panel-trigger-label"
           >
             <span className="absolute top-[calc(var(--horizontal-panel-trigger-width)/2-var(--horizontal-panel-trigger-label-hover-size))] left-1/2 origin-[0] rotate-90 font-heading text-xl">

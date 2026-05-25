@@ -5,7 +5,7 @@ import { Provider } from 'react-redux'
 import { type Exercise } from '@/core'
 import { createTestStore } from '@/test/utils/store'
 
-import { CreationMethod, setCreationExerciseTitle, startCreation } from '../store'
+import { CreationMethod, startCreation, updateCreationExercise } from '../store'
 import { useExercises } from './useExercises'
 
 function createExercise(overrides: Partial<Exercise> = {}): Exercise {
@@ -60,7 +60,8 @@ describe('useExercises', () => {
     act(() => {
       store.dispatch(
         startCreation({
-          exercise: createExercise({ code: '', title: '' }),
+          currentExercise: createExercise({ code: '', title: '' }),
+          initialExercise: createExercise({ code: '', title: '' }),
           method: CreationMethod.Blank
         })
       )
@@ -71,7 +72,7 @@ describe('useExercises', () => {
     expect(result.current.shouldResumeBlankCreation).toBe(true)
 
     act(() => {
-      store.dispatch(setCreationExerciseTitle('Custom squat'))
+      store.dispatch(updateCreationExercise({ title: 'Custom squat' }))
     })
 
     expect(result.current.isCurrentCreationDirty).toBe(true)
@@ -91,7 +92,8 @@ describe('useExercises', () => {
     act(() => {
       store.dispatch(
         startCreation({
-          exercise,
+          currentExercise: exercise,
+          initialExercise: exercise,
           method: CreationMethod.Clone
         })
       )
@@ -103,7 +105,7 @@ describe('useExercises', () => {
     expect(result.current.shouldResetCloneCreation(exercise)).toBe(false)
 
     act(() => {
-      store.dispatch(setCreationExerciseTitle('Dirty competition squat'))
+      store.dispatch(updateCreationExercise({ title: 'Dirty competition squat' }))
     })
 
     expect(result.current.isCurrentCreationDirty).toBe(true)

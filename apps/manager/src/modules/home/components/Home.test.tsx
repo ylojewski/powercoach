@@ -41,8 +41,7 @@ describe('Home', () => {
 
     expect(home).toHaveClass('min-h-screen')
     expect(home).toHaveClass('border-l')
-    expect(home).toHaveClass('border-gray-200')
-    expect(home).toHaveClass('dark:border-gray-700')
+    expect(home).toHaveClass('border-border')
   })
 
   it('displays the selected athlete when provided', () => {

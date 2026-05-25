@@ -54,12 +54,12 @@ export function LoadingOverlay({
     >
       <div
         className={cn(
-          'flex h-full w-full items-center justify-center border-8 bg-black text-white dark:bg-white dark:text-black',
+          'flex h-full w-full items-center justify-center border-8 bg-foreground text-background',
           exiting ? 'animate-clip-out-ltr' : 'animate-clip-in-ltr'
         )}
         onAnimationEnd={handleAnimationEnd}
       >
-        <LogoIcon variant="white" />
+        <LogoIcon variant="background" />
       </div>
     </div>
   )

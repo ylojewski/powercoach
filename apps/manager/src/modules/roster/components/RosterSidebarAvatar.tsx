@@ -18,7 +18,7 @@ export function RosterSidebarAvatar({
   return (
     <Avatar
       aria-label={label}
-      className="border-foreground bg-background ring-background size-8 rounded-none border ring-2 transition-shadow duration-150 ease-out hover:ring-3"
+      className="size-8 rounded-none border border-background bg-background ring-2 ring-foreground transition-shadow duration-150 ease-out hover:ring-3 hover:ring-foreground"
       {...(active && { 'data-active': true })}
       role="img"
       title={label}
@@ -26,7 +26,7 @@ export function RosterSidebarAvatar({
       <AvatarFallback
         className={cn(
           active ? activeClassName : className,
-          'font-heading rounded-none text-sm tracking-widest'
+          'rounded-none font-heading text-sm tracking-widest'
         )}
       >
         {initials}

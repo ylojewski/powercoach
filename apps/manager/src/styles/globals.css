@@ -1,7 +1,6 @@
 @import 'tailwindcss';
-@import '@powercoach/ui';
-
-@custom-variant dark (&:where(.dark, .dark *));
+@import '@powercoach/ui/theme.css';
+@import '@powercoach/ui/index.css';
 
 @keyframes fade-in {
   from {

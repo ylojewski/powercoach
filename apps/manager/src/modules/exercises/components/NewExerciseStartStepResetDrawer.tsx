@@ -31,14 +31,14 @@ export function NewExerciseStartStepResetDrawer({
           <div className="flex max-w-md flex-col items-center text-center">
             <TriangleAlertIcon
               aria-hidden="true"
-              className="text-destructive mb-6 size-20 stroke-[1.25]"
+              className="mb-6 size-20 stroke-[1.25] text-destructive"
             />
             <DrawerTitle className="mb-3 text-3xl">creation already in progress</DrawerTitle>
             <DrawerDescription className="mb-3">
               Starting from this source will reset the current wizard and replace the exercise being
               created.
             </DrawerDescription>
-            <p className="text-muted-foreground mb-8 text-sm">
+            <p className="mb-8 text-sm text-muted-foreground">
               Your current changes in the wizard will be discarded.
             </p>
             <div className="flex w-full flex-col items-center justify-center gap-2">

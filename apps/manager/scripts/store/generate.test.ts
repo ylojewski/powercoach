@@ -3,6 +3,7 @@ const mocks = vi.hoisted(() => ({
   existsSync: vi.fn(),
   generateEndpoints: vi.fn(),
   mkdirSync: vi.fn(),
+  readFileSync: vi.fn(),
   requireResolve: vi.fn(),
   rmSync: vi.fn(),
   writeFileSync: vi.fn()
@@ -12,6 +13,7 @@ vi.mock('node:fs', () => {
   const fs = {
     existsSync: mocks.existsSync,
     mkdirSync: mocks.mkdirSync,
+    readFileSync: mocks.readFileSync,
     rmSync: mocks.rmSync,
     writeFileSync: mocks.writeFileSync
   }
@@ -70,6 +72,9 @@ describe('generate', () => {
     })
     mocks.existsSync.mockReturnValue(true)
     mocks.generateEndpoints.mockResolvedValue(undefined)
+    mocks.readFileSync.mockReturnValue(
+      'export const {\n  useGetExerciseCodeQuery,\n  useLazyGetExerciseCodeQuery,\n  useGetReferencesQuery\n} = injectedRtkApi\n'
+    )
   })
 
   afterEach(() => {
@@ -96,9 +101,14 @@ describe('generate', () => {
       schemaFile: RESOLVED_OPENAPI_FILE
     })
 
+    expect(mocks.readFileSync).toHaveBeenCalledExactlyOnceWith(
+      `${RESOLVED_GENERATED_DIR}/index.generated.ts`,
+      'utf-8'
+    )
+
     expect(mocks.writeFileSync).toHaveBeenCalledExactlyOnceWith(
       `${RESOLVED_GENERATED_DIR}/index.ts`,
-      "export * from './index.generated'\n",
+      "import {\n  type useGetExerciseCodeQuery,\n  type useGetReferencesQuery\n} from './index.generated'\n\nexport type GeneratedQueryHook =\n  | typeof useGetExerciseCodeQuery\n  | typeof useGetReferencesQuery\n\nimport { api } from './index.generated'\n\napi.enhanceEndpoints({\n  endpoints: {\n    getExerciseCode: {\n      keepUnusedDataFor: 0\n    }\n  }\n})\n\nexport * from './index.generated'\n",
       'utf-8'
     )
 

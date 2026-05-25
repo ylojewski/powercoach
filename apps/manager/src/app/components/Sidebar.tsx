@@ -5,14 +5,14 @@ import { BackgroundLink, useNavigation } from '@/core'
 import { RosterSidebar } from '@/modules/roster'
 
 function SidebarSeparator(): ReactElement {
-  return <Separator className="bg-gray-200 dark:bg-gray-700" />
+  return <Separator className="bg-border" />
 }
 
 export function Sidebar(): ReactElement {
   const navigation = useNavigation()
 
   return (
-    <aside className="flex min-h-screen w-15 shrink-0 flex-col items-center gap-4 pt-4">
+    <aside className="flex min-h-screen w-15 shrink-0 flex-col items-center gap-4 border-r pt-4">
       <BackgroundLink
         aria-label="Powercoach exercises"
         data-testid="roster-logo"
