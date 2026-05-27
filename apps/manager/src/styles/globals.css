@@ -34,3 +34,15 @@
   --animate-clip-out-ltr: clip-out-ltr 0.4s ease-in-out forwards;
   --animate-clip-in-ltr: clip-in-ltr 0.4s ease-in-out forwards;
 }
+
+@utility bg-hatched {
+  background-color: var(--color-background);
+  background-image: repeating-linear-gradient(
+          135deg,
+          transparent 0px,
+          transparent 3px,
+          color-mix(in oklab, var(--color-foreground) 5%, transparent) 3px,
+          color-mix(in oklab, var(--color-foreground) 5%, transparent) 7px
+  );
+  border: 1px solid var(--color-background);
+}

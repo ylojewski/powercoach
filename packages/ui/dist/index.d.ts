@@ -8,6 +8,7 @@ import { ClassProp } from 'class-variance-authority/types';
 import { ClassValue } from 'clsx';
 import { Collapsible as CollapsiblePrimitive } from '@base-ui/react/collapsible';
 import { Combobox as ComboboxPrimitive } from '@base-ui/react/combobox';
+import { ComponentProps } from 'react';
 import { ComponentPropsWithoutRef } from 'react';
 import { DayPicker } from 'react-day-picker';
 import { default as default_2 } from 'react';
@@ -18,6 +19,7 @@ import { Fieldset as FieldsetPrimitive } from '@base-ui/react/fieldset';
 import { Form as FormPrimitive } from '@base-ui/react/form';
 import { OTPInput as InputOTPPrimitive } from 'input-otp';
 import { Input as InputPrimitive } from '@base-ui/react/input';
+import { JSX } from 'react/jsx-runtime';
 import { Key } from 'react';
 import { Loader2Icon } from 'lucide-react';
 import { Menu as MenuPrimitive } from '@base-ui/react/menu';
@@ -109,6 +111,12 @@ declare const alertVariants: (props?: ({
 export declare const anchoredToastManager: ReturnType<typeof ToastPrimitive.createToastManager>;
 
 export declare function AnchoredToastProvider({ children, ...props }: ToastPrimitive.Provider.Props): default_2.ReactElement;
+
+export declare function AspectRatio({ ratio, className, style, ...props }: AspectRatioProps): ReactElement;
+
+export declare interface AspectRatioProps extends ComponentProps<'div'> {
+    ratio: number;
+}
 
 export declare const Autocomplete: typeof AutocompletePrimitive.Root;
 
@@ -530,6 +538,17 @@ declare const emptyMediaVariants: (props?: ({
 
 export declare function EmptyTitle({ className, ...props }: default_2.ComponentProps<'div'>): default_2.ReactElement;
 
+export declare const FADE_ANIMATION_TRANSITION_SECONDS = 0.2;
+
+export declare function FadeAnimation({ children, show, className, duration }: FadeAnimationProps): JSX.Element;
+
+export declare interface FadeAnimationProps {
+    children: ReactNode;
+    show: boolean;
+    className?: string;
+    duration?: number;
+}
+
 export declare function Field({ className, ...props }: FieldPrimitive.Root.Props): default_2.ReactElement;
 
 export declare const FieldControl: typeof FieldPrimitive.Control;
@@ -660,7 +679,7 @@ export declare interface LogoIconProps extends VariantProps<typeof logoIconVaria
 }
 
 export declare const logoIconVariants: (props?: ({
-    variant?: "foreground" | "background" | null | undefined;
+    variant?: "background" | "foreground" | null | undefined;
 } & ClassProp) | undefined) => string;
 
 export declare interface LogoProps extends VariantProps<typeof logoVariants>, default_2.SVGProps<SVGSVGElement> {

@@ -288,7 +288,7 @@ describe('NewExercise steps', () => {
     expect(screen.queryByRole('button', { name: 'Clone' })).not.toBeInTheDocument()
   })
 
-  it('renders the media preview empty state', () => {
+  it('renders the media gallery', () => {
     const store = createTestStore()
 
     startExerciseCreation(store, exercise, CreationMethod.Clone)
@@ -299,7 +299,10 @@ describe('NewExercise steps', () => {
       </Provider>
     )
 
-    expect(screen.getByText('No media yet')).toBeInTheDocument()
+    expect(screen.getByText('gallery')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Move media 1' })).toHaveTextContent('1')
+    expect(screen.getByRole('button', { name: 'Move media 2' })).toHaveTextContent('2')
+    expect(screen.getByRole('button', { name: 'Move media 3' })).toHaveTextContent('3')
   })
 
   it('renders the horizontal panel shell', () => {

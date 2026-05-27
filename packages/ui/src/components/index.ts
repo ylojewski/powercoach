@@ -1,3 +1,5 @@
+export * from './AspectRatio'
+export * from './FadeAnimation'
 export * from './HorizontalPanel'
 export * from './Logo'
 export * from './LogoIcon'

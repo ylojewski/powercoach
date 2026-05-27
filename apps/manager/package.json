@@ -19,6 +19,11 @@
     "vercel:generate": "tsx scripts/vercel/generate.ts"
   },
   "dependencies": {
+    "@dnd-kit/abstract": "^0.4.0",
+    "@dnd-kit/collision": "^0.4.0",
+    "@dnd-kit/dom": "^0.4.0",
+    "@dnd-kit/helpers": "^0.4.0",
+    "@dnd-kit/react": "^0.4.0",
     "@powercoach/ui": "workspace:*",
     "@reduxjs/toolkit": "^2.11.2",
     "@tailwindcss/vite": "^4.1.18",

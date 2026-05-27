@@ -16,12 +16,13 @@ import {
 } from '@powercoach/ui'
 import { useForm } from '@tanstack/react-form'
 import { BookA, BookText } from 'lucide-react'
-import { useCallback, useState } from 'react'
+import { useState } from 'react'
 
 import { useAppDispatch, useAppSelector } from '@/core'
 
 import { selectCurrentCreation, updateCreationExercise } from '../store'
 import { ExerciseCodeAlert } from './ExerciseCodeAlert'
+import { MediaUploader, MediaUploaderActions } from './MediaUploader'
 
 const CODE_TITLE_DEBOUNCE_MS = 500
 
@@ -44,6 +45,7 @@ export function NewExerciseOverviewStep() {
           setTitle('')
           setIsTitlePending(Boolean(title))
         }
+
         dispatch(
           updateCreationExercise({
             subtitle: subtitle.trim() ? subtitle : null,
@@ -60,15 +62,15 @@ export function NewExerciseOverviewStep() {
 
   return (
     <Form
-      className="grid h-full min-w-0 grid-cols-[minmax(0,2fr)_minmax(0,1fr)] items-stretch gap-0 overflow-hidden"
+      className="grid h-full min-h-0 min-w-0 grid-cols-[minmax(0,2.5fr)_minmax(0,1fr)] items-stretch gap-0 overflow-hidden"
       onSubmit={(event) => {
         event.preventDefault()
         event.stopPropagation()
         void form.handleSubmit()
       }}
     >
-      <ScrollArea>
-        <Frame className="h-full rounded-none p-6">
+      <ScrollArea className="h-full">
+        <Frame className="min-h-full rounded-none p-6">
           <FrameTitle>identity</FrameTitle>
           <FramePanel>
             <Fieldset>
@@ -149,7 +151,13 @@ export function NewExerciseOverviewStep() {
           </FrameFooter>
         </Frame>
       </ScrollArea>
-      <div className="flex h-full flex-col bg-accent">TODO</div>
+      <div className="bg-hatched flex h-full min-h-0 flex-col pt-6">
+        <div className="flex items-center justify-between">
+          <FrameTitle>gallery</FrameTitle>
+          <MediaUploaderActions className="mr-5" />
+        </div>
+        <MediaUploader className="min-h-0 bg-background" />
+      </div>
     </Form>
   )
 }
