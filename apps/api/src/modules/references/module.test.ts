@@ -16,9 +16,9 @@ import * as service from './service'
 
 function createReferencesResponse(): ReferencesResponse {
   return {
+    disciplineMovements: [],
     disciplines: [],
     exerciseMuscles: [],
-    exercisePatterns: [],
     exerciseRelationships: [],
     exerciseRoles: [],
     exercises: [],

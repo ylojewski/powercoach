@@ -3,8 +3,8 @@ import { appTest } from '@/test/utils'
 
 const REFERENCE_COLLECTIONS = [
   'disciplines',
+  'disciplineMovements',
   'exerciseMuscles',
-  'exercisePatterns',
   'exerciseRelationships',
   'exerciseRoles',
   'exercises',
@@ -21,10 +21,10 @@ describe('GET /v1/references references route', () => {
       url: '/v1/references'
     })
     const payload = response.json<ReferencesResponse>()
-    const competitionSquat = payload.exercises.find(({ code }) => code === 'competition_squat')
+    const lowBarSquat = payload.exercises.find(({ code }) => code === 'low_bar_squat')
 
-    if (!competitionSquat) {
-      throw new Error('Expected seeded exercise "competition_squat" to exist')
+    if (!lowBarSquat) {
+      throw new Error('Expected seeded exercise "low_bar_squat" to exist')
     }
 
     expect(response.statusCode).toBe(200)
@@ -39,6 +39,15 @@ describe('GET /v1/references references route', () => {
       })
     )
     expect(payload.loadingTypes).toContainEqual(expect.objectContaining({ code: 'external_load' }))
+    expect(payload.disciplineMovements).toContainEqual(
+      expect.objectContaining({
+        code: 'squat',
+        description: 'The lower-body competition movement built around knee-dominant barbell strength.',
+        disciplineId: expect.any(Number),
+        name: 'Squat',
+        sortOrder: 1
+      })
+    )
     expect(payload.exerciseMuscles).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -49,15 +58,6 @@ describe('GET /v1/references references route', () => {
         })
       ])
     )
-    expect(payload.exercisePatterns).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          exerciseId: expect.any(Number),
-          isPrimary: expect.any(Boolean),
-          patternId: expect.any(Number)
-        })
-      ])
-    )
     expect(payload.exerciseRelationships).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -65,22 +65,26 @@ describe('GET /v1/references references route', () => {
           disciplineId: expect.any(Number),
           roleId: expect.any(Number),
           sourceExerciseId: expect.any(Number),
-          targetExerciseId: expect.any(Number)
+          targetDisciplineMovementId: expect.any(Number)
         })
       ])
     )
-    expect(competitionSquat).toMatchObject({
+    expect(lowBarSquat).toMatchObject({
       archivedAt: null,
-      code: 'competition_squat',
+      code: 'low_bar_squat',
       createdAt: expect.any(String),
       isSystem: true,
       isUnilateral: false,
+      patternId: expect.any(Number),
       publicationStatus: 'published',
-      title: 'Competition squat',
+      title: 'Low bar squat',
       updatedAt: expect.any(String)
     })
-    expect(competitionSquat).not.toHaveProperty('muscles')
-    expect(competitionSquat).not.toHaveProperty('patterns')
-    expect(competitionSquat).not.toHaveProperty('relationships')
+    expect(payload.exercises).not.toContainEqual(
+      expect.objectContaining({ code: 'competition_squat' })
+    )
+    expect(lowBarSquat).not.toHaveProperty('muscles')
+    expect(lowBarSquat).not.toHaveProperty('patterns')
+    expect(lowBarSquat).not.toHaveProperty('relationships')
   })
 })

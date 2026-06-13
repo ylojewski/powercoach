@@ -1,7 +1,7 @@
 import {
   disciplines as disciplinesTable,
+  disciplineMovements as disciplineMovementsTable,
   exerciseMuscles as exerciseMusclesTable,
-  exercisePatterns as exercisePatternsTable,
   exerciseRelationships as exerciseRelationshipsTable,
   exerciseRoles as exerciseRolesTable,
   exercises as exercisesTable,
@@ -15,8 +15,8 @@ import { type NodePgDatabase } from 'drizzle-orm/node-postgres'
 
 export interface ReferenceRows {
   disciplines: (typeof disciplinesTable.$inferSelect)[]
+  disciplineMovements: (typeof disciplineMovementsTable.$inferSelect)[]
   exerciseMuscles: (typeof exerciseMusclesTable.$inferSelect)[]
-  exercisePatterns: (typeof exercisePatternsTable.$inferSelect)[]
   exerciseRelationships: (typeof exerciseRelationshipsTable.$inferSelect)[]
   exerciseRoles: (typeof exerciseRolesTable.$inferSelect)[]
   exercises: (typeof exercisesTable.$inferSelect)[]
@@ -29,8 +29,8 @@ export interface ReferenceRows {
 export async function findReferences(db: NodePgDatabase): Promise<ReferenceRows> {
   const [
     disciplines,
+    disciplineMovements,
     exerciseMuscles,
-    exercisePatterns,
     exerciseRelationships,
     exerciseRoles,
     exercises,
@@ -42,12 +42,16 @@ export async function findReferences(db: NodePgDatabase): Promise<ReferenceRows>
     db.select().from(disciplinesTable).orderBy(asc(disciplinesTable.id)),
     db
       .select()
-      .from(exerciseMusclesTable)
-      .orderBy(asc(exerciseMusclesTable.exerciseId), asc(exerciseMusclesTable.muscleId)),
+      .from(disciplineMovementsTable)
+      .orderBy(
+        asc(disciplineMovementsTable.disciplineId),
+        asc(disciplineMovementsTable.sortOrder),
+        asc(disciplineMovementsTable.id)
+      ),
     db
       .select()
-      .from(exercisePatternsTable)
-      .orderBy(asc(exercisePatternsTable.exerciseId), asc(exercisePatternsTable.patternId)),
+      .from(exerciseMusclesTable)
+      .orderBy(asc(exerciseMusclesTable.exerciseId), asc(exerciseMusclesTable.muscleId)),
     db.select().from(exerciseRelationshipsTable).orderBy(asc(exerciseRelationshipsTable.id)),
     db.select().from(exerciseRolesTable).orderBy(asc(exerciseRolesTable.id)),
     db.select().from(exercisesTable).orderBy(asc(exercisesTable.id)),
@@ -58,9 +62,9 @@ export async function findReferences(db: NodePgDatabase): Promise<ReferenceRows>
   ])
 
   return {
+    disciplineMovements,
     disciplines,
     exerciseMuscles,
-    exercisePatterns,
     exerciseRelationships,
     exerciseRoles,
     exercises,

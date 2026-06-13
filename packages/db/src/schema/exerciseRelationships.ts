@@ -1,6 +1,16 @@
 import { sql } from 'drizzle-orm'
-import { check, index, integer, pgTable, real, serial, uniqueIndex } from 'drizzle-orm/pg-core'
+import {
+  check,
+  foreignKey,
+  index,
+  integer,
+  pgTable,
+  real,
+  serial,
+  uniqueIndex
+} from 'drizzle-orm/pg-core'
 
+import { disciplineMovements } from './disciplineMovements'
 import { disciplines } from './disciplines'
 import { exerciseRoles } from './exerciseRoles'
 import { exercises } from './exercises'
@@ -20,9 +30,9 @@ export const exerciseRelationships = pgTable(
     sourceExerciseId: integer('source_exercise_id')
       .notNull()
       .references(() => exercises.id),
-    targetExerciseId: integer('target_exercise_id')
+    targetDisciplineMovementId: integer('target_discipline_movement_id')
       .notNull()
-      .references(() => exercises.id),
+      .references(() => disciplineMovements.id),
     ...timestamps
   },
   (table) => [
@@ -36,17 +46,24 @@ export const exerciseRelationships = pgTable(
     ),
     index('exercise_relationships_target_role_transfer_idx').on(
       table.disciplineId,
-      table.targetExerciseId,
+      table.targetDisciplineMovementId,
       table.roleId,
       table.defaultTransferCoefficient
     ),
+    foreignKey({
+      columns: [table.targetDisciplineMovementId, table.disciplineId],
+      foreignColumns: [disciplineMovements.id, disciplineMovements.disciplineId],
+      name: 'exercise_relationships_target_discipline_movement_discipline_fk'
+    }),
     index('exercise_relationships_role_id_idx').on(table.roleId),
     index('exercise_relationships_source_exercise_id_idx').on(table.sourceExerciseId),
-    index('exercise_relationships_target_exercise_id_idx').on(table.targetExerciseId),
+    index('exercise_relationships_target_discipline_movement_id_idx').on(
+      table.targetDisciplineMovementId
+    ),
     uniqueIndex('exercise_relationships_discipline_source_target_unique').on(
       table.disciplineId,
       table.sourceExerciseId,
-      table.targetExerciseId
+      table.targetDisciplineMovementId
     )
   ]
 )

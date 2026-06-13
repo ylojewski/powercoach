@@ -13,10 +13,30 @@ vi.mock('@/modules/references', () => ({
 }))
 
 const references = {
-  disciplines: [],
+  disciplineMovements: [],
+  disciplines: [
+    {
+      code: 'powerlifting',
+      createdAt: '2024-01-01T00:00:00.000Z',
+      description: 'Powerlifting',
+      id: 1,
+      name: 'Powerlifting',
+      updatedAt: '2024-01-01T00:00:00.000Z'
+    }
+  ],
   exerciseMuscles: [],
-  exercisePatterns: [],
-  exerciseRelationships: [],
+  exerciseRelationships: [
+    {
+      createdAt: '2024-01-01T00:00:00.000Z',
+      defaultTransferCoefficient: 0.75,
+      disciplineId: 1,
+      id: 1,
+      roleId: 1,
+      sourceExerciseId: 1,
+      targetDisciplineMovementId: 1,
+      updatedAt: '2024-01-01T00:00:00.000Z'
+    }
+  ],
   exerciseRoles: [],
   exercises: [
     {
@@ -30,6 +50,7 @@ const references = {
       isSystem: true,
       isUnilateral: false,
       loadingTypeId: 1,
+      patternId: 1,
       publicationStatus: 'published',
       shortInstructionsMarkdown: null,
       subtitle: null,
@@ -48,6 +69,7 @@ const references = {
       isSystem: true,
       isUnilateral: false,
       loadingTypeId: 1,
+      patternId: 1,
       publicationStatus: 'published',
       shortInstructionsMarkdown: null,
       subtitle: null,
@@ -91,7 +113,15 @@ function startExerciseCreation(
   exercise: ReturnType<typeof getCompetitionSquat>,
   method: CreationMethod
 ): void {
-  store.dispatch(startCreation({ currentExercise: exercise, initialExercise: exercise, method }))
+  store.dispatch(
+    startCreation({
+      currentExercise: exercise,
+      currentExerciseRelationships: [],
+      initialExercise: exercise,
+      initialExerciseRelationships: [],
+      method
+    })
+  )
 }
 
 function renderStartStep(
@@ -179,6 +209,22 @@ describe('NewExerciseStartStep', () => {
     expect(store.getState().exercises?.creation.current?.exercise.code).toBe('competition_squat')
     expect(store.getState().exercises?.creation.initial?.method).toBe(CreationMethod.Clone)
     expect(store.getState().exercises?.creation.initial?.exercise.code).toBe('competition_squat')
+    expect(store.getState().exercises?.creation.current?.exerciseRelationships).toStrictEqual([
+      {
+        defaultTransferCoefficient: 0.75,
+        disciplineCode: 'powerlifting',
+        roleId: 1,
+        targetDisciplineMovementId: 1
+      }
+    ])
+    expect(store.getState().exercises?.creation.initial?.exerciseRelationships).toStrictEqual([
+      {
+        defaultTransferCoefficient: 0.75,
+        disciplineCode: 'powerlifting',
+        roleId: 1,
+        targetDisciplineMovementId: 1
+      }
+    ])
     expect(store.getState().exercises?.creation.resumeStep).toBe(Step.Overview)
     expect(onStart).toHaveBeenCalledTimes(1)
   })
@@ -296,6 +342,14 @@ describe('NewExerciseStartStep', () => {
     expect(store.getState().exercises?.creation.current?.exercise.code).toBe('competition_squat')
     expect(store.getState().exercises?.creation.initial?.method).toBe(CreationMethod.Clone)
     expect(store.getState().exercises?.creation.initial?.exercise.code).toBe('competition_squat')
+    expect(store.getState().exercises?.creation.current?.exerciseRelationships).toStrictEqual([
+      {
+        defaultTransferCoefficient: 0.75,
+        disciplineCode: 'powerlifting',
+        roleId: 1,
+        targetDisciplineMovementId: 1
+      }
+    ])
     expect(store.getState().exercises?.creation.resumeStep).toBe(Step.Overview)
     expect(onStart).toHaveBeenCalledTimes(2)
   })

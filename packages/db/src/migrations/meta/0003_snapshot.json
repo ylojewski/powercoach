@@ -13,6 +13,134 @@
   "schemas": {},
   "sequences": {},
   "tables": {
+    "public.athlete_discipline_movements": {
+      "checkConstraints": {},
+      "columns": {
+        "athlete_id": {
+          "name": "athlete_id",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "integer"
+        },
+        "discipline_id": {
+          "name": "discipline_id",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "integer"
+        },
+        "discipline_movement_id": {
+          "name": "discipline_movement_id",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "integer"
+        },
+        "exercise_id": {
+          "name": "exercise_id",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "integer"
+        }
+      },
+      "compositePrimaryKeys": {
+        "athlete_discipline_movements_athlete_id_discipline_movement_id_pk": {
+          "columns": ["athlete_id", "discipline_movement_id"],
+          "name": "athlete_discipline_movements_athlete_id_discipline_movement_id_pk"
+        }
+      },
+      "foreignKeys": {
+        "athlete_discipline_movements_athlete_discipline_fk": {
+          "columnsFrom": ["athlete_id", "discipline_id"],
+          "columnsTo": ["athlete_id", "discipline_id"],
+          "name": "athlete_discipline_movements_athlete_discipline_fk",
+          "onDelete": "no action",
+          "onUpdate": "no action",
+          "tableFrom": "athlete_discipline_movements",
+          "tableTo": "athlete_disciplines"
+        },
+        "athlete_discipline_movements_athlete_id_athletes_id_fk": {
+          "columnsFrom": ["athlete_id"],
+          "columnsTo": ["id"],
+          "name": "athlete_discipline_movements_athlete_id_athletes_id_fk",
+          "onDelete": "no action",
+          "onUpdate": "no action",
+          "tableFrom": "athlete_discipline_movements",
+          "tableTo": "athletes"
+        },
+        "athlete_discipline_movements_discipline_id_disciplines_id_fk": {
+          "columnsFrom": ["discipline_id"],
+          "columnsTo": ["id"],
+          "name": "athlete_discipline_movements_discipline_id_disciplines_id_fk",
+          "onDelete": "no action",
+          "onUpdate": "no action",
+          "tableFrom": "athlete_discipline_movements",
+          "tableTo": "disciplines"
+        },
+        "athlete_discipline_movements_discipline_movement_id_discipline_movements_id_fk": {
+          "columnsFrom": ["discipline_movement_id"],
+          "columnsTo": ["id"],
+          "name": "athlete_discipline_movements_discipline_movement_id_discipline_movements_id_fk",
+          "onDelete": "no action",
+          "onUpdate": "no action",
+          "tableFrom": "athlete_discipline_movements",
+          "tableTo": "discipline_movements"
+        },
+        "athlete_discipline_movements_exercise_id_exercises_id_fk": {
+          "columnsFrom": ["exercise_id"],
+          "columnsTo": ["id"],
+          "name": "athlete_discipline_movements_exercise_id_exercises_id_fk",
+          "onDelete": "no action",
+          "onUpdate": "no action",
+          "tableFrom": "athlete_discipline_movements",
+          "tableTo": "exercises"
+        },
+        "athlete_discipline_movements_movement_discipline_fk": {
+          "columnsFrom": ["discipline_movement_id", "discipline_id"],
+          "columnsTo": ["id", "discipline_id"],
+          "name": "athlete_discipline_movements_movement_discipline_fk",
+          "onDelete": "no action",
+          "onUpdate": "no action",
+          "tableFrom": "athlete_discipline_movements",
+          "tableTo": "discipline_movements"
+        }
+      },
+      "indexes": {
+        "athlete_discipline_movements_discipline_id_idx": {
+          "columns": [
+            {
+              "asc": true,
+              "expression": "discipline_id",
+              "isExpression": false,
+              "nulls": "last"
+            }
+          ],
+          "concurrently": false,
+          "isUnique": false,
+          "method": "btree",
+          "name": "athlete_discipline_movements_discipline_id_idx",
+          "with": {}
+        },
+        "athlete_discipline_movements_exercise_id_idx": {
+          "columns": [
+            {
+              "asc": true,
+              "expression": "exercise_id",
+              "isExpression": false,
+              "nulls": "last"
+            }
+          ],
+          "concurrently": false,
+          "isUnique": false,
+          "method": "btree",
+          "name": "athlete_discipline_movements_exercise_id_idx",
+          "with": {}
+        }
+      },
+      "isRLSEnabled": false,
+      "name": "athlete_discipline_movements",
+      "policies": {},
+      "schema": "",
+      "uniqueConstraints": {}
+    },
     "public.athlete_disciplines": {
       "checkConstraints": {},
       "columns": {
@@ -314,6 +442,123 @@
         }
       }
     },
+    "public.discipline_movements": {
+      "checkConstraints": {},
+      "columns": {
+        "code": {
+          "name": "code",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "description": {
+          "name": "description",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "discipline_id": {
+          "name": "discipline_id",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "integer"
+        },
+        "id": {
+          "name": "id",
+          "notNull": true,
+          "primaryKey": true,
+          "type": "serial"
+        },
+        "name": {
+          "name": "name",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "text"
+        },
+        "sort_order": {
+          "name": "sort_order",
+          "notNull": true,
+          "primaryKey": false,
+          "type": "integer"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "foreignKeys": {
+        "discipline_movements_discipline_id_disciplines_id_fk": {
+          "columnsFrom": ["discipline_id"],
+          "columnsTo": ["id"],
+          "name": "discipline_movements_discipline_id_disciplines_id_fk",
+          "onDelete": "no action",
+          "onUpdate": "no action",
+          "tableFrom": "discipline_movements",
+          "tableTo": "disciplines"
+        }
+      },
+      "indexes": {
+        "discipline_movements_discipline_id_code_unique": {
+          "columns": [
+            {
+              "asc": true,
+              "expression": "discipline_id",
+              "isExpression": false,
+              "nulls": "last"
+            },
+            {
+              "asc": true,
+              "expression": "code",
+              "isExpression": false,
+              "nulls": "last"
+            }
+          ],
+          "concurrently": false,
+          "isUnique": true,
+          "method": "btree",
+          "name": "discipline_movements_discipline_id_code_unique",
+          "with": {}
+        },
+        "discipline_movements_discipline_id_idx": {
+          "columns": [
+            {
+              "asc": true,
+              "expression": "discipline_id",
+              "isExpression": false,
+              "nulls": "last"
+            }
+          ],
+          "concurrently": false,
+          "isUnique": false,
+          "method": "btree",
+          "name": "discipline_movements_discipline_id_idx",
+          "with": {}
+        },
+        "discipline_movements_id_discipline_id_unique": {
+          "columns": [
+            {
+              "asc": true,
+              "expression": "id",
+              "isExpression": false,
+              "nulls": "last"
+            },
+            {
+              "asc": true,
+              "expression": "discipline_id",
+              "isExpression": false,
+              "nulls": "last"
+            }
+          ],
+          "concurrently": false,
+          "isUnique": true,
+          "method": "btree",
+          "name": "discipline_movements_id_discipline_id_unique",
+          "with": {}
+        }
+      },
+      "isRLSEnabled": false,
+      "name": "discipline_movements",
+      "policies": {},
+      "schema": "",
+      "uniqueConstraints": {}
+    },
     "public.disciplines": {
       "checkConstraints": {},
       "columns": {
@@ -468,78 +713,6 @@
       "schema": "",
       "uniqueConstraints": {}
     },
-    "public.exercise_patterns": {
-      "checkConstraints": {},
-      "columns": {
-        "exercise_id": {
-          "name": "exercise_id",
-          "notNull": true,
-          "primaryKey": false,
-          "type": "integer"
-        },
-        "is_primary": {
-          "default": false,
-          "name": "is_primary",
-          "notNull": true,
-          "primaryKey": false,
-          "type": "boolean"
-        },
-        "pattern_id": {
-          "name": "pattern_id",
-          "notNull": true,
-          "primaryKey": false,
-          "type": "integer"
-        }
-      },
-      "compositePrimaryKeys": {
-        "exercise_patterns_exercise_id_pattern_id_pk": {
-          "columns": ["exercise_id", "pattern_id"],
-          "name": "exercise_patterns_exercise_id_pattern_id_pk"
-        }
-      },
-      "foreignKeys": {
-        "exercise_patterns_exercise_id_exercises_id_fk": {
-          "columnsFrom": ["exercise_id"],
-          "columnsTo": ["id"],
-          "name": "exercise_patterns_exercise_id_exercises_id_fk",
-          "onDelete": "no action",
-          "onUpdate": "no action",
-          "tableFrom": "exercise_patterns",
-          "tableTo": "exercises"
-        },
-        "exercise_patterns_pattern_id_patterns_id_fk": {
-          "columnsFrom": ["pattern_id"],
-          "columnsTo": ["id"],
-          "name": "exercise_patterns_pattern_id_patterns_id_fk",
-          "onDelete": "no action",
-          "onUpdate": "no action",
-          "tableFrom": "exercise_patterns",
-          "tableTo": "patterns"
-        }
-      },
-      "indexes": {
-        "exercise_patterns_pattern_id_idx": {
-          "columns": [
-            {
-              "asc": true,
-              "expression": "pattern_id",
-              "isExpression": false,
-              "nulls": "last"
-            }
-          ],
-          "concurrently": false,
-          "isUnique": false,
-          "method": "btree",
-          "name": "exercise_patterns_pattern_id_idx",
-          "with": {}
-        }
-      },
-      "isRLSEnabled": false,
-      "name": "exercise_patterns",
-      "policies": {},
-      "schema": "",
-      "uniqueConstraints": {}
-    },
     "public.exercise_relationships": {
       "checkConstraints": {
         "exercise_relationships_default_transfer_coefficient_range_check": {
@@ -585,8 +758,8 @@
           "primaryKey": false,
           "type": "integer"
         },
-        "target_exercise_id": {
-          "name": "target_exercise_id",
+        "target_discipline_movement_id": {
+          "name": "target_discipline_movement_id",
           "notNull": true,
           "primaryKey": false,
           "type": "integer"
@@ -628,14 +801,23 @@
           "tableFrom": "exercise_relationships",
           "tableTo": "exercises"
         },
-        "exercise_relationships_target_exercise_id_exercises_id_fk": {
-          "columnsFrom": ["target_exercise_id"],
-          "columnsTo": ["id"],
-          "name": "exercise_relationships_target_exercise_id_exercises_id_fk",
+        "exercise_relationships_target_discipline_movement_discipline_fk": {
+          "columnsFrom": ["target_discipline_movement_id", "discipline_id"],
+          "columnsTo": ["id", "discipline_id"],
+          "name": "exercise_relationships_target_discipline_movement_discipline_fk",
           "onDelete": "no action",
           "onUpdate": "no action",
           "tableFrom": "exercise_relationships",
-          "tableTo": "exercises"
+          "tableTo": "discipline_movements"
+        },
+        "exercise_relationships_target_discipline_movement_id_discipline_movements_id_fk": {
+          "columnsFrom": ["target_discipline_movement_id"],
+          "columnsTo": ["id"],
+          "name": "exercise_relationships_target_discipline_movement_id_discipline_movements_id_fk",
+          "onDelete": "no action",
+          "onUpdate": "no action",
+          "tableFrom": "exercise_relationships",
+          "tableTo": "discipline_movements"
         }
       },
       "indexes": {
@@ -676,7 +858,7 @@
             },
             {
               "asc": true,
-              "expression": "target_exercise_id",
+              "expression": "target_discipline_movement_id",
               "isExpression": false,
               "nulls": "last"
             }
@@ -717,11 +899,11 @@
           "name": "exercise_relationships_source_exercise_id_idx",
           "with": {}
         },
-        "exercise_relationships_target_exercise_id_idx": {
+        "exercise_relationships_target_discipline_movement_id_idx": {
           "columns": [
             {
               "asc": true,
-              "expression": "target_exercise_id",
+              "expression": "target_discipline_movement_id",
               "isExpression": false,
               "nulls": "last"
             }
@@ -729,7 +911,7 @@
           "concurrently": false,
           "isUnique": false,
           "method": "btree",
-          "name": "exercise_relationships_target_exercise_id_idx",
+          "name": "exercise_relationships_target_discipline_movement_id_idx",
           "with": {}
         },
         "exercise_relationships_target_role_transfer_idx": {
@@ -742,7 +924,7 @@
             },
             {
               "asc": true,
-              "expression": "target_exercise_id",
+              "expression": "target_discipline_movement_id",
               "isExpression": false,
               "nulls": "last"
             },
@@ -904,6 +1086,12 @@
           "primaryKey": false,
           "type": "integer"
         },
+        "pattern_id": {
+          "name": "pattern_id",
+          "notNull": false,
+          "primaryKey": false,
+          "type": "integer"
+        },
         "publication_status": {
           "default": "'draft'",
           "name": "publication_status",
@@ -953,6 +1141,15 @@
           "onUpdate": "no action",
           "tableFrom": "exercises",
           "tableTo": "loading_types"
+        },
+        "exercises_pattern_id_patterns_id_fk": {
+          "columnsFrom": ["pattern_id"],
+          "columnsTo": ["id"],
+          "name": "exercises_pattern_id_patterns_id_fk",
+          "onDelete": "no action",
+          "onUpdate": "no action",
+          "tableFrom": "exercises",
+          "tableTo": "patterns"
         }
       },
       "indexes": {
@@ -984,6 +1181,21 @@
           "isUnique": false,
           "method": "btree",
           "name": "exercises_loading_type_id_idx",
+          "with": {}
+        },
+        "exercises_pattern_id_idx": {
+          "columns": [
+            {
+              "asc": true,
+              "expression": "pattern_id",
+              "isExpression": false,
+              "nulls": "last"
+            }
+          ],
+          "concurrently": false,
+          "isUnique": false,
+          "method": "btree",
+          "name": "exercises_pattern_id_idx",
           "with": {}
         },
         "exercises_publication_status_idx": {

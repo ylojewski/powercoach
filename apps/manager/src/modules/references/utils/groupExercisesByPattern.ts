@@ -1,7 +1,7 @@
 import { type Exercise, type GetReferencesApiResponse, type Pattern } from '@/core'
 
-export type ExercisePatternCommon = Pick<Exercise, keyof Exercise & keyof Pattern>
-export type ExercisePatternSortKey = keyof ExercisePatternCommon
+export type PatternGroupCommon = Pick<Exercise, keyof Exercise & keyof Pattern>
+export type PatternGroupSortKey = keyof PatternGroupCommon
 
 export interface ExerciseGroupByPattern extends Pattern {
   exercises: Exercise[]
@@ -14,7 +14,7 @@ export interface ExerciseGroupItemByPattern {
 }
 
 export interface GroupExercisesByPatternOptions {
-  sortKey?: ExercisePatternSortKey
+  sortKey?: PatternGroupSortKey
 }
 
 export function groupExercisesByPattern(
@@ -26,7 +26,7 @@ export function groupExercisesByPattern(
   }
 
   const sortKey = options?.sortKey ?? 'code'
-  const compareCode = (a: ExercisePatternCommon, b: ExercisePatternCommon): number => {
+  const compareCode = (a: PatternGroupCommon, b: PatternGroupCommon): number => {
     return a[sortKey] > b[sortKey] ? 1 : -1
   }
 
@@ -37,11 +37,7 @@ export function groupExercisesByPattern(
     return {
       ...pattern,
       exercises: exercises.filter(
-        (exercise) =>
-          references.exercisePatterns.find(
-            ({ exerciseId, isPrimary, patternId }) =>
-              patternId === pattern.id && exerciseId === exercise.id && isPrimary
-          ) !== undefined
+        (exercise) => exercise.patternId === pattern.id
       )
     }
   }, [])

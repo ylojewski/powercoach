@@ -4,11 +4,11 @@ import { findExerciseByCode } from './findExerciseByCode'
 
 describe('findExerciseByCode repository', () => {
   appTest('returns an exercise by code', async ({ app }) => {
-    const exercise = await findExerciseByCode(app.db, 'competition_squat')
+    const exercise = await findExerciseByCode(app.db, 'low_bar_squat')
 
     expect(exercise).toMatchObject({
-      code: 'competition_squat',
-      title: 'Competition squat'
+      code: 'low_bar_squat',
+      title: 'Low bar squat'
     })
   })
 

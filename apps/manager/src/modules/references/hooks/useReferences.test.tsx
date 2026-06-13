@@ -8,30 +8,9 @@ import { type GetReferencesApiResponse } from '@/core'
 import { useReferences } from './useReferences'
 
 const referencesResponse = {
+  disciplineMovements: [],
   disciplines: [],
   exerciseMuscles: [],
-  exercisePatterns: [
-    {
-      exerciseId: 1,
-      isPrimary: true,
-      patternId: 2
-    },
-    {
-      exerciseId: 1,
-      isPrimary: false,
-      patternId: 1
-    },
-    {
-      exerciseId: 2,
-      isPrimary: true,
-      patternId: 1
-    },
-    {
-      exerciseId: 3,
-      isPrimary: true,
-      patternId: 2
-    }
-  ],
   exerciseRelationships: [],
   exerciseRoles: [],
   exercises: [
@@ -46,6 +25,7 @@ const referencesResponse = {
       isSystem: true,
       isUnilateral: false,
       loadingTypeId: 1,
+      patternId: 2,
       publicationStatus: 'published',
       shortInstructionsMarkdown: null,
       subtitle: null,
@@ -64,6 +44,7 @@ const referencesResponse = {
       isSystem: true,
       isUnilateral: false,
       loadingTypeId: 1,
+      patternId: 1,
       publicationStatus: 'published',
       shortInstructionsMarkdown: null,
       subtitle: null,
@@ -82,6 +63,7 @@ const referencesResponse = {
       isSystem: true,
       isUnilateral: false,
       loadingTypeId: 1,
+      patternId: 2,
       publicationStatus: 'published',
       shortInstructionsMarkdown: null,
       subtitle: null,

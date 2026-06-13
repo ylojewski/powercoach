@@ -12,6 +12,7 @@ export function createBlankExercise(): Exercise {
     isSystem: false,
     isUnilateral: false,
     loadingTypeId: null,
+    patternId: null,
     publicationStatus: 'draft',
     shortInstructionsMarkdown: null,
     subtitle: null,

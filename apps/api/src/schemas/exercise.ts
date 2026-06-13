@@ -16,6 +16,7 @@ export const exerciseSchema = Type.Object(
     isSystem: Type.Boolean(),
     isUnilateral: Type.Boolean(),
     loadingTypeId: nullable(Type.Number()),
+    patternId: nullable(Type.Number()),
     publicationStatus: Type.String(),
     shortInstructionsMarkdown: nullable(Type.String()),
     subtitle: nullable(Type.String()),

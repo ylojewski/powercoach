@@ -38,9 +38,9 @@ export type GetExerciseCodeApiArg = {
   title: string
 }
 export type GetReferencesApiResponse = /** status 200 Default Response */ {
+  disciplineMovements: DisciplineMovement[]
   disciplines: Discipline[]
   exerciseMuscles: ExerciseMuscle[]
-  exercisePatterns: ExercisePattern[]
   exerciseRelationships: ExerciseRelationship[]
   exerciseRoles: ExerciseRole[]
   exercises: Exercise[]
@@ -80,12 +80,21 @@ export type Exercise = {
   isSystem: boolean
   isUnilateral: boolean
   loadingTypeId: number | null
+  patternId: number | null
   publicationStatus: string
   shortInstructionsMarkdown: string | null
   subtitle: string | null
   title: string
   updatedAt: string
   videoUrl: string | null
+}
+export type DisciplineMovement = {
+  code: string
+  description: string
+  disciplineId: number
+  id: number
+  name: string
+  sortOrder: number
 }
 export type Discipline = {
   code: string
@@ -101,11 +110,6 @@ export type ExerciseMuscle = {
   muscleRoleId: number
   weightPercentage: number
 }
-export type ExercisePattern = {
-  exerciseId: number
-  isPrimary: boolean
-  patternId: number
-}
 export type ExerciseRelationship = {
   createdAt: string
   defaultTransferCoefficient: number
@@ -113,7 +117,7 @@ export type ExerciseRelationship = {
   id: number
   roleId: number
   sourceExerciseId: number
-  targetExerciseId: number
+  targetDisciplineMovementId: number
   updatedAt: string
 }
 export type ExerciseRole = {

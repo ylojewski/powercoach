@@ -196,6 +196,82 @@ declare const athleteDisciplines: drizzle_orm_pg_core.PgTableWithColumns<{
     dialect: "pg";
 }>;
 
+declare const athleteDisciplineMovements: drizzle_orm_pg_core.PgTableWithColumns<{
+    name: "athlete_discipline_movements";
+    schema: undefined;
+    columns: {
+        athleteId: drizzle_orm_pg_core.PgColumn<{
+            name: "athlete_id";
+            tableName: "athlete_discipline_movements";
+            dataType: "number";
+            columnType: "PgInteger";
+            data: number;
+            driverParam: string | number;
+            notNull: true;
+            hasDefault: false;
+            isPrimaryKey: false;
+            isAutoincrement: false;
+            hasRuntimeDefault: false;
+            enumValues: undefined;
+            baseColumn: never;
+            identity: undefined;
+            generated: undefined;
+        }, {}, {}>;
+        disciplineId: drizzle_orm_pg_core.PgColumn<{
+            name: "discipline_id";
+            tableName: "athlete_discipline_movements";
+            dataType: "number";
+            columnType: "PgInteger";
+            data: number;
+            driverParam: string | number;
+            notNull: true;
+            hasDefault: false;
+            isPrimaryKey: false;
+            isAutoincrement: false;
+            hasRuntimeDefault: false;
+            enumValues: undefined;
+            baseColumn: never;
+            identity: undefined;
+            generated: undefined;
+        }, {}, {}>;
+        disciplineMovementId: drizzle_orm_pg_core.PgColumn<{
+            name: "discipline_movement_id";
+            tableName: "athlete_discipline_movements";
+            dataType: "number";
+            columnType: "PgInteger";
+            data: number;
+            driverParam: string | number;
+            notNull: true;
+            hasDefault: false;
+            isPrimaryKey: false;
+            isAutoincrement: false;
+            hasRuntimeDefault: false;
+            enumValues: undefined;
+            baseColumn: never;
+            identity: undefined;
+            generated: undefined;
+        }, {}, {}>;
+        exerciseId: drizzle_orm_pg_core.PgColumn<{
+            name: "exercise_id";
+            tableName: "athlete_discipline_movements";
+            dataType: "number";
+            columnType: "PgInteger";
+            data: number;
+            driverParam: string | number;
+            notNull: true;
+            hasDefault: false;
+            isPrimaryKey: false;
+            isAutoincrement: false;
+            hasRuntimeDefault: false;
+            enumValues: undefined;
+            baseColumn: never;
+            identity: undefined;
+            generated: undefined;
+        }, {}, {}>;
+    };
+    dialect: "pg";
+}>;
+
 declare const coachOrganizations: drizzle_orm_pg_core.PgTableWithColumns<{
     name: "coach_organizations";
     schema: undefined;
@@ -487,6 +563,116 @@ declare const disciplines: drizzle_orm_pg_core.PgTableWithColumns<{
     dialect: "pg";
 }>;
 
+declare const disciplineMovements: drizzle_orm_pg_core.PgTableWithColumns<{
+    name: "discipline_movements";
+    schema: undefined;
+    columns: {
+        code: drizzle_orm_pg_core.PgColumn<{
+            name: "code";
+            tableName: "discipline_movements";
+            dataType: "string";
+            columnType: "PgText";
+            data: string;
+            driverParam: string;
+            notNull: true;
+            hasDefault: false;
+            isPrimaryKey: false;
+            isAutoincrement: false;
+            hasRuntimeDefault: false;
+            enumValues: [string, ...string[]];
+            baseColumn: never;
+            identity: undefined;
+            generated: undefined;
+        }, {}, {}>;
+        description: drizzle_orm_pg_core.PgColumn<{
+            name: "description";
+            tableName: "discipline_movements";
+            dataType: "string";
+            columnType: "PgText";
+            data: string;
+            driverParam: string;
+            notNull: true;
+            hasDefault: false;
+            isPrimaryKey: false;
+            isAutoincrement: false;
+            hasRuntimeDefault: false;
+            enumValues: [string, ...string[]];
+            baseColumn: never;
+            identity: undefined;
+            generated: undefined;
+        }, {}, {}>;
+        disciplineId: drizzle_orm_pg_core.PgColumn<{
+            name: "discipline_id";
+            tableName: "discipline_movements";
+            dataType: "number";
+            columnType: "PgInteger";
+            data: number;
+            driverParam: string | number;
+            notNull: true;
+            hasDefault: false;
+            isPrimaryKey: false;
+            isAutoincrement: false;
+            hasRuntimeDefault: false;
+            enumValues: undefined;
+            baseColumn: never;
+            identity: undefined;
+            generated: undefined;
+        }, {}, {}>;
+        id: drizzle_orm_pg_core.PgColumn<{
+            name: "id";
+            tableName: "discipline_movements";
+            dataType: "number";
+            columnType: "PgSerial";
+            data: number;
+            driverParam: number;
+            notNull: true;
+            hasDefault: true;
+            isPrimaryKey: true;
+            isAutoincrement: false;
+            hasRuntimeDefault: false;
+            enumValues: undefined;
+            baseColumn: never;
+            identity: undefined;
+            generated: undefined;
+        }, {}, {}>;
+        name: drizzle_orm_pg_core.PgColumn<{
+            name: "name";
+            tableName: "discipline_movements";
+            dataType: "string";
+            columnType: "PgText";
+            data: string;
+            driverParam: string;
+            notNull: true;
+            hasDefault: false;
+            isPrimaryKey: false;
+            isAutoincrement: false;
+            hasRuntimeDefault: false;
+            enumValues: [string, ...string[]];
+            baseColumn: never;
+            identity: undefined;
+            generated: undefined;
+        }, {}, {}>;
+        sortOrder: drizzle_orm_pg_core.PgColumn<{
+            name: "sort_order";
+            tableName: "discipline_movements";
+            dataType: "number";
+            columnType: "PgInteger";
+            data: number;
+            driverParam: string | number;
+            notNull: true;
+            hasDefault: false;
+            isPrimaryKey: false;
+            isAutoincrement: false;
+            hasRuntimeDefault: false;
+            enumValues: undefined;
+            baseColumn: never;
+            identity: undefined;
+            generated: undefined;
+        }, {}, {}>;
+    };
+    dialect: "pg";
+}>;
+
 declare const exerciseMuscles: drizzle_orm_pg_core.PgTableWithColumns<{
     name: "exercise_muscles";
     schema: undefined;
@@ -547,65 +733,6 @@ declare const exerciseMuscles: drizzle_orm_pg_core.PgTableWithColumns<{
             tableName: "exercise_muscles";
             dataType: "number";
             columnType: "PgReal";
-            data: number;
-            driverParam: string | number;
-            notNull: true;
-            hasDefault: false;
-            isPrimaryKey: false;
-            isAutoincrement: false;
-            hasRuntimeDefault: false;
-            enumValues: undefined;
-            baseColumn: never;
-            identity: undefined;
-            generated: undefined;
-        }, {}, {}>;
-    };
-    dialect: "pg";
-}>;
-
-declare const exercisePatterns: drizzle_orm_pg_core.PgTableWithColumns<{
-    name: "exercise_patterns";
-    schema: undefined;
-    columns: {
-        exerciseId: drizzle_orm_pg_core.PgColumn<{
-            name: "exercise_id";
-            tableName: "exercise_patterns";
-            dataType: "number";
-            columnType: "PgInteger";
-            data: number;
-            driverParam: string | number;
-            notNull: true;
-            hasDefault: false;
-            isPrimaryKey: false;
-            isAutoincrement: false;
-            hasRuntimeDefault: false;
-            enumValues: undefined;
-            baseColumn: never;
-            identity: undefined;
-            generated: undefined;
-        }, {}, {}>;
-        isPrimary: drizzle_orm_pg_core.PgColumn<{
-            name: "is_primary";
-            tableName: "exercise_patterns";
-            dataType: "boolean";
-            columnType: "PgBoolean";
-            data: boolean;
-            driverParam: boolean;
-            notNull: true;
-            hasDefault: true;
-            isPrimaryKey: false;
-            isAutoincrement: false;
-            hasRuntimeDefault: false;
-            enumValues: undefined;
-            baseColumn: never;
-            identity: undefined;
-            generated: undefined;
-        }, {}, {}>;
-        patternId: drizzle_orm_pg_core.PgColumn<{
-            name: "pattern_id";
-            tableName: "exercise_patterns";
-            dataType: "number";
-            columnType: "PgInteger";
             data: number;
             driverParam: string | number;
             notNull: true;
@@ -749,8 +876,8 @@ declare const exerciseRelationships: drizzle_orm_pg_core.PgTableWithColumns<{
             identity: undefined;
             generated: undefined;
         }, {}, {}>;
-        targetExerciseId: drizzle_orm_pg_core.PgColumn<{
-            name: "target_exercise_id";
+        targetDisciplineMovementId: drizzle_orm_pg_core.PgColumn<{
+            name: "target_discipline_movement_id";
             tableName: "exercise_relationships";
             dataType: "number";
             columnType: "PgInteger";
@@ -1066,6 +1193,23 @@ declare const exercises: drizzle_orm_pg_core.PgTableWithColumns<{
         }, {}, {}>;
         loadingTypeId: drizzle_orm_pg_core.PgColumn<{
             name: "loading_type_id";
+            tableName: "exercises";
+            dataType: "number";
+            columnType: "PgInteger";
+            data: number;
+            driverParam: string | number;
+            notNull: false;
+            hasDefault: false;
+            isPrimaryKey: false;
+            isAutoincrement: false;
+            hasRuntimeDefault: false;
+            enumValues: undefined;
+            baseColumn: never;
+            identity: undefined;
+            generated: undefined;
+        }, {}, {}>;
+        patternId: drizzle_orm_pg_core.PgColumn<{
+            name: "pattern_id";
             tableName: "exercises";
             dataType: "number";
             columnType: "PgInteger";
@@ -1805,4 +1949,4 @@ declare const timestamps: {
     }>>>;
 };
 
-export { type CreateClientOptions, type Env, archivedAt, athleteDisciplines, athletes, coachOrganizations, coachSettings, coaches, createClient, disciplines, envSchema, exerciseMuscles, exercisePatterns, exerciseRelationships, exerciseRoles, exercises, loadEnv, loadingTypes, metadata, muscleRoles, muscles, organizations, patterns, resetCachedEnv, timestamps };
+export { type CreateClientOptions, type Env, archivedAt, athleteDisciplineMovements, athleteDisciplines, athletes, coachOrganizations, coachSettings, coaches, createClient, disciplineMovements, disciplines, envSchema, exerciseMuscles, exerciseRelationships, exerciseRoles, exercises, loadEnv, loadingTypes, metadata, muscleRoles, muscles, organizations, patterns, resetCachedEnv, timestamps };

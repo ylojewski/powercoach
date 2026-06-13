@@ -4,8 +4,8 @@ import { type ReferenceRows, findReferences } from './findReferences'
 
 const REFERENCE_COLLECTIONS = [
   'disciplines',
+  'disciplineMovements',
   'exerciseMuscles',
-  'exercisePatterns',
   'exerciseRelationships',
   'exerciseRoles',
   'exercises',
@@ -32,8 +32,16 @@ describe('findReferences repository', () => {
     expect(references.exerciseRoles).toContainEqual(
       expect.objectContaining({ code: 'competition' })
     )
-    expect(references.exercises).toContainEqual(
+    expect(references.exercises).toContainEqual(expect.objectContaining({ code: 'low_bar_squat' }))
+    expect(references.exercises).not.toContainEqual(
       expect.objectContaining({ code: 'competition_squat' })
+    )
+    expect(references.disciplineMovements).toContainEqual(
+      expect.objectContaining({
+        code: 'squat',
+        description: 'The lower-body competition movement built around knee-dominant barbell strength.',
+        name: 'Squat'
+      })
     )
     expect(references.loadingTypes).toContainEqual(
       expect.objectContaining({ code: 'external_load' })

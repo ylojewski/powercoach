@@ -37,6 +37,7 @@
     "class-variance-authority": "^0.7.1",
     "cli-spinner": "^0.2.10",
     "input-otp": "^1.4.2",
+    "lucide-react": "^0.561.0",
     "motion": "^12.40.0",
     "react-day-picker": "^9.14.0"
   },

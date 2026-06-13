@@ -28,6 +28,8 @@
     "@reduxjs/toolkit": "^2.11.2",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/react-form": "^1.32.0",
+    "@uppy/core": "^5.2.0",
+    "@uppy/react": "^5.2.0",
     "lucide-react": "^0.561.0",
     "react": "^19.2.2",
     "react-dom": "^19.2.2",

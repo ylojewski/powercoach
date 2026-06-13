@@ -2,6 +2,7 @@ import { type Exercise } from '@/core'
 import { createTestStore } from '@/test/utils/store'
 
 import {
+  type CreationExerciseRelationship,
   CreationMethod,
   selectCreationResumeStep,
   selectCurrentCreation,
@@ -9,7 +10,8 @@ import {
   setCreationResumeStep,
   startCreation,
   Step,
-  updateCreationExercise
+  updateCreationExercise,
+  upsertCreationExerciseRelationship
 } from './exercisesSlice'
 
 function createExercise(overrides: Partial<Exercise> = {}): Exercise {
@@ -24,6 +26,7 @@ function createExercise(overrides: Partial<Exercise> = {}): Exercise {
     isSystem: true,
     isUnilateral: false,
     loadingTypeId: 1,
+    patternId: 1,
     publicationStatus: 'published',
     shortInstructionsMarkdown: null,
     subtitle: null,
@@ -37,9 +40,18 @@ function createExercise(overrides: Partial<Exercise> = {}): Exercise {
 function startExerciseCreation(
   store: ReturnType<typeof createTestStore>,
   exercise: Exercise,
-  method: CreationMethod
+  method: CreationMethod,
+  exerciseRelationships: CreationExerciseRelationship[] = []
 ): void {
-  store.dispatch(startCreation({ currentExercise: exercise, initialExercise: exercise, method }))
+  store.dispatch(
+    startCreation({
+      currentExercise: exercise,
+      currentExerciseRelationships: exerciseRelationships,
+      initialExercise: exercise,
+      initialExerciseRelationships: exerciseRelationships,
+      method
+    })
+  )
 }
 
 describe('exercisesSlice', () => {
@@ -71,16 +83,48 @@ describe('exercisesSlice', () => {
 
     expect(currentCreation).toStrictEqual({
       exercise,
+      exerciseRelationships: [],
       method: CreationMethod.Clone
     })
     expect(initialCreation).toStrictEqual({
       exercise,
+      exerciseRelationships: [],
       method: CreationMethod.Clone
     })
     expect(currentCreation?.exercise).not.toBe(exercise)
     expect(initialCreation?.exercise).not.toBe(exercise)
     expect(initialCreation?.exercise).not.toBe(currentCreation?.exercise)
     expect(selectCreationResumeStep(state)).toBe(Step.Overview)
+  })
+
+  it('starts a creation by snapshotting current and initial exercise relationships', () => {
+    const store = createTestStore()
+    const exercise = createExercise()
+    const exerciseRelationship = {
+      defaultTransferCoefficient: 0.75,
+      disciplineCode: 'powerlifting',
+      roleId: 1,
+      targetDisciplineMovementId: 1
+    } satisfies CreationExerciseRelationship
+    const invalidExerciseRelationship = {
+      defaultTransferCoefficient: 0.5,
+      disciplineCode: 'strongman',
+      roleId: 2
+    } satisfies CreationExerciseRelationship
+
+    startExerciseCreation(store, exercise, CreationMethod.Clone, [
+      exerciseRelationship,
+      invalidExerciseRelationship
+    ])
+
+    const currentCreation = selectCurrentCreation(store.getState())
+    const initialCreation = selectInitialCreation(store.getState())
+
+    expect(currentCreation?.exerciseRelationships).toStrictEqual([exerciseRelationship])
+    expect(initialCreation?.exerciseRelationships).toStrictEqual([exerciseRelationship])
+    expect(currentCreation?.exerciseRelationships).not.toBe(initialCreation?.exerciseRelationships)
+    expect(currentCreation?.exerciseRelationships[0]).not.toBe(exerciseRelationship)
+    expect(initialCreation?.exerciseRelationships[0]).not.toBe(exerciseRelationship)
   })
 
   it('updates only the current exercise title', () => {
@@ -129,6 +173,120 @@ describe('exercisesSlice', () => {
 
     expect(selectCreationResumeStep(state)).toBe(Step.Muscles)
     expect(selectCurrentCreation(state)?.method).toBe(CreationMethod.Clone)
+  })
+
+  it('upserts current creation exercise relationships by discipline code', () => {
+    const store = createTestStore()
+
+    startExerciseCreation(store, createExercise(), CreationMethod.Blank)
+    store.dispatch(
+      upsertCreationExerciseRelationship({
+        disciplineCode: 'powerlifting',
+        roleId: 2
+      })
+    )
+
+    expect(selectCurrentCreation(store.getState())?.exerciseRelationships).toStrictEqual([])
+
+    store.dispatch(
+      upsertCreationExerciseRelationship({
+        disciplineCode: 'powerlifting',
+        targetDisciplineMovementId: 1
+      })
+    )
+
+    expect(selectCurrentCreation(store.getState())?.exerciseRelationships).toStrictEqual([
+      {
+        defaultTransferCoefficient: 0,
+        disciplineCode: 'powerlifting',
+        targetDisciplineMovementId: 1
+      }
+    ])
+
+    store.dispatch(
+      upsertCreationExerciseRelationship({
+        defaultTransferCoefficient: 0.5,
+        disciplineCode: 'powerlifting',
+        roleId: 2
+      })
+    )
+
+    const state = store.getState()
+
+    expect(selectCurrentCreation(state)?.exerciseRelationships).toStrictEqual([
+      {
+        defaultTransferCoefficient: 0.5,
+        disciplineCode: 'powerlifting',
+        roleId: 2,
+        targetDisciplineMovementId: 1
+      }
+    ])
+    expect(selectInitialCreation(state)?.exerciseRelationships).toStrictEqual([])
+  })
+
+  it('cascades relationship resets from movement and role deselection', () => {
+    const store = createTestStore()
+
+    startExerciseCreation(store, createExercise(), CreationMethod.Blank, [
+      {
+        defaultTransferCoefficient: 0.5,
+        disciplineCode: 'powerlifting',
+        roleId: 2,
+        targetDisciplineMovementId: 1
+      }
+    ])
+
+    store.dispatch(
+      upsertCreationExerciseRelationship({
+        disciplineCode: 'powerlifting',
+        roleId: undefined
+      })
+    )
+
+    expect(selectCurrentCreation(store.getState())?.exerciseRelationships).toStrictEqual([
+      {
+        defaultTransferCoefficient: 0,
+        disciplineCode: 'powerlifting',
+        targetDisciplineMovementId: 1
+      }
+    ])
+
+    store.dispatch(
+      upsertCreationExerciseRelationship({
+        defaultTransferCoefficient: 0.5,
+        disciplineCode: 'powerlifting',
+        roleId: 2
+      })
+    )
+    store.dispatch(
+      upsertCreationExerciseRelationship({
+        disciplineCode: 'powerlifting',
+        targetDisciplineMovementId: undefined
+      })
+    )
+
+    expect(selectCurrentCreation(store.getState())?.exerciseRelationships).toStrictEqual([])
+    expect(selectInitialCreation(store.getState())?.exerciseRelationships).toStrictEqual([
+      {
+        defaultTransferCoefficient: 0.5,
+        disciplineCode: 'powerlifting',
+        roleId: 2,
+        targetDisciplineMovementId: 1
+      }
+    ])
+  })
+
+  it('ignores relationship updates when no creation is active', () => {
+    const store = createTestStore()
+
+    store.dispatch(
+      upsertCreationExerciseRelationship({
+        disciplineCode: 'powerlifting',
+        targetDisciplineMovementId: 1
+      })
+    )
+
+    expect(selectCurrentCreation(store.getState())).toBeNull()
   })
 
   it('ignores title updates when no creation is active', () => {

@@ -2,7 +2,7 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { Client } from 'pg';
 import { envSchema as envSchema$1, createEnvLoader } from '@powercoach/util-env';
 import { z } from 'zod';
-import { pgTable, text, serial, integer, primaryKey, foreignKey, customType, index, boolean, real, check, uniqueIndex } from 'drizzle-orm/pg-core';
+import { pgTable, text, serial, integer, primaryKey, foreignKey, customType, index, uniqueIndex, boolean, real, check } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 
 var __defProp = Object.defineProperty;
@@ -109,22 +109,33 @@ var athleteDisciplines = pgTable(
     primaryKey({ columns: [table.athleteId, table.disciplineId] })
   ]
 );
-var coachSettings = pgTable(
-  "coach_settings",
+var disciplineMovements = pgTable(
+  "discipline_movements",
   {
-    coachId: integer("coach_id").notNull().references(() => coaches.id),
-    defaultOrganizationId: integer("default_organization_id").notNull()
+    code: text("code").notNull(),
+    description: text("description").notNull(),
+    disciplineId: integer("discipline_id").notNull().references(() => disciplines.id),
+    id: serial("id").primaryKey(),
+    name: text("name").notNull(),
+    sortOrder: integer("sort_order").notNull()
   },
   (table) => [
-    foreignKey({
-      columns: [table.coachId, table.defaultOrganizationId],
-      foreignColumns: [coachOrganizations.coachId, coachOrganizations.organizationId],
-      name: "coach_settings_default_organization_fk"
-    }),
-    primaryKey({ columns: [table.coachId] })
+    index("discipline_movements_discipline_id_idx").on(table.disciplineId),
+    uniqueIndex("discipline_movements_discipline_id_code_unique").on(
+      table.disciplineId,
+      table.code
+    ),
+    uniqueIndex("discipline_movements_id_discipline_id_unique").on(table.id, table.disciplineId)
   ]
 );
 var loadingTypes = pgTable("loading_types", {
+  code: text("code").notNull().unique(),
+  description: text("description").notNull(),
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  ...timestamps
+});
+var patterns = pgTable("patterns", {
   code: text("code").notNull().unique(),
   description: text("description").notNull(),
   id: serial("id").primaryKey(),
@@ -145,6 +156,7 @@ var exercises = pgTable(
     isSystem: boolean("is_system").notNull().default(false),
     isUnilateral: boolean("is_unilateral").notNull().default(false),
     loadingTypeId: integer("loading_type_id").references(() => loadingTypes.id),
+    patternId: integer("pattern_id").references(() => patterns.id),
     publicationStatus: text("publication_status").notNull().default("draft"),
     shortInstructionsMarkdown: text("short_instructions_markdown"),
     subtitle: text("subtitle"),
@@ -163,7 +175,49 @@ var exercises = pgTable(
     ),
     index("exercises_archived_at_idx").on(table.archivedAt),
     index("exercises_loading_type_id_idx").on(table.loadingTypeId),
+    index("exercises_pattern_id_idx").on(table.patternId),
     index("exercises_publication_status_idx").on(table.publicationStatus)
+  ]
+);
+
+// src/schema/athleteDisciplineMovements.ts
+var athleteDisciplineMovements = pgTable(
+  "athlete_discipline_movements",
+  {
+    athleteId: integer("athlete_id").notNull().references(() => athletes.id),
+    disciplineId: integer("discipline_id").notNull().references(() => disciplines.id),
+    disciplineMovementId: integer("discipline_movement_id").notNull().references(() => disciplineMovements.id),
+    exerciseId: integer("exercise_id").notNull().references(() => exercises.id)
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.athleteId, table.disciplineId],
+      foreignColumns: [athleteDisciplines.athleteId, athleteDisciplines.disciplineId],
+      name: "athlete_discipline_movements_athlete_discipline_fk"
+    }),
+    foreignKey({
+      columns: [table.disciplineMovementId, table.disciplineId],
+      foreignColumns: [disciplineMovements.id, disciplineMovements.disciplineId],
+      name: "athlete_discipline_movements_movement_discipline_fk"
+    }),
+    index("athlete_discipline_movements_exercise_id_idx").on(table.exerciseId),
+    index("athlete_discipline_movements_discipline_id_idx").on(table.disciplineId),
+    primaryKey({ columns: [table.athleteId, table.disciplineMovementId] })
+  ]
+);
+var coachSettings = pgTable(
+  "coach_settings",
+  {
+    coachId: integer("coach_id").notNull().references(() => coaches.id),
+    defaultOrganizationId: integer("default_organization_id").notNull()
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.coachId, table.defaultOrganizationId],
+      foreignColumns: [coachOrganizations.coachId, coachOrganizations.organizationId],
+      name: "coach_settings_default_organization_fk"
+    }),
+    primaryKey({ columns: [table.coachId] })
   ]
 );
 var muscleRoles = pgTable("muscle_roles", {
@@ -217,27 +271,6 @@ var exerciseMuscles = pgTable(
     primaryKey({ columns: [table.exerciseId, table.muscleId] })
   ]
 );
-var patterns = pgTable("patterns", {
-  code: text("code").notNull().unique(),
-  description: text("description").notNull(),
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  ...timestamps
-});
-
-// src/schema/exercisePatterns.ts
-var exercisePatterns = pgTable(
-  "exercise_patterns",
-  {
-    exerciseId: integer("exercise_id").notNull().references(() => exercises.id),
-    isPrimary: boolean("is_primary").notNull().default(false),
-    patternId: integer("pattern_id").notNull().references(() => patterns.id)
-  },
-  (table) => [
-    index("exercise_patterns_pattern_id_idx").on(table.patternId),
-    primaryKey({ columns: [table.exerciseId, table.patternId] })
-  ]
-);
 var exerciseRoles = pgTable("exercise_roles", {
   code: text("code").notNull().unique(),
   description: text("description").notNull(),
@@ -255,7 +288,7 @@ var exerciseRelationships = pgTable(
     id: serial("id").primaryKey(),
     roleId: integer("role_id").notNull().references(() => exerciseRoles.id),
     sourceExerciseId: integer("source_exercise_id").notNull().references(() => exercises.id),
-    targetExerciseId: integer("target_exercise_id").notNull().references(() => exercises.id),
+    targetDisciplineMovementId: integer("target_discipline_movement_id").notNull().references(() => disciplineMovements.id),
     ...timestamps
   },
   (table) => [
@@ -269,17 +302,24 @@ var exerciseRelationships = pgTable(
     ),
     index("exercise_relationships_target_role_transfer_idx").on(
       table.disciplineId,
-      table.targetExerciseId,
+      table.targetDisciplineMovementId,
       table.roleId,
       table.defaultTransferCoefficient
     ),
+    foreignKey({
+      columns: [table.targetDisciplineMovementId, table.disciplineId],
+      foreignColumns: [disciplineMovements.id, disciplineMovements.disciplineId],
+      name: "exercise_relationships_target_discipline_movement_discipline_fk"
+    }),
     index("exercise_relationships_role_id_idx").on(table.roleId),
     index("exercise_relationships_source_exercise_id_idx").on(table.sourceExerciseId),
-    index("exercise_relationships_target_exercise_id_idx").on(table.targetExerciseId),
+    index("exercise_relationships_target_discipline_movement_id_idx").on(
+      table.targetDisciplineMovementId
+    ),
     uniqueIndex("exercise_relationships_discipline_source_target_unique").on(
       table.disciplineId,
       table.sourceExerciseId,
-      table.targetExerciseId
+      table.targetDisciplineMovementId
     )
   ]
 );
@@ -289,6 +329,6 @@ var metadata = pgTable("metadata", {
   value: text("value").notNull()
 });
 
-export { archivedAt, athleteDisciplines, athletes, coachOrganizations, coachSettings, coaches, createClient, disciplines, envSchema, exerciseMuscles, exercisePatterns, exerciseRelationships, exerciseRoles, exercises, loadEnv, loadingTypes, metadata, muscleRoles, muscles, organizations, patterns, resetCachedEnv, timestamps };
+export { archivedAt, athleteDisciplineMovements, athleteDisciplines, athletes, coachOrganizations, coachSettings, coaches, createClient, disciplineMovements, disciplines, envSchema, exerciseMuscles, exerciseRelationships, exerciseRoles, exercises, loadEnv, loadingTypes, metadata, muscleRoles, muscles, organizations, patterns, resetCachedEnv, timestamps };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map

@@ -22,7 +22,7 @@ import { useAppDispatch, useAppSelector } from '@/core'
 
 import { selectCurrentCreation, updateCreationExercise } from '../store'
 import { ExerciseCodeAlert } from './ExerciseCodeAlert'
-import { MediaUploader, MediaUploaderActions } from './MediaUploader'
+import { MediaUploader, MediaUploaderActions, MediaUploaderProvider } from './MediaUploader'
 
 const CODE_TITLE_DEBOUNCE_MS = 500
 
@@ -151,13 +151,15 @@ export function NewExerciseOverviewStep() {
           </FrameFooter>
         </Frame>
       </ScrollArea>
-      <div className="bg-hatched flex h-full min-h-0 flex-col pt-6">
-        <div className="flex items-center justify-between">
-          <FrameTitle>gallery</FrameTitle>
-          <MediaUploaderActions className="mr-5" />
+      <MediaUploaderProvider>
+        <div className="flex h-full min-h-0 flex-col bg-hatched pt-6 mx-px">
+          <div className="flex items-center justify-between">
+            <FrameTitle>gallery</FrameTitle>
+            <MediaUploaderActions className="mr-5" />
+          </div>
+          <MediaUploader className="min-h-0 bg-background" />
         </div>
-        <MediaUploader className="min-h-0 bg-background" />
-      </div>
+      </MediaUploaderProvider>
     </Form>
   )
 }

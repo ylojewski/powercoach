@@ -26,6 +26,7 @@ function createExercise(overrides: Partial<Exercise> = {}): Exercise {
     isSystem: true,
     isUnilateral: false,
     loadingTypeId: 1,
+    patternId: 1,
     publicationStatus: 'published',
     shortInstructionsMarkdown: null,
     subtitle: null,
@@ -63,7 +64,15 @@ function startExerciseCreation(
   method: CreationMethod,
   initialExercise = currentExercise
 ): void {
-  store.dispatch(startCreation({ currentExercise, initialExercise, method }))
+  store.dispatch(
+    startCreation({
+      currentExercise,
+      currentExerciseRelationships: [],
+      initialExercise,
+      initialExerciseRelationships: [],
+      method
+    })
+  )
 }
 
 describe('NewExercise steps', () => {
@@ -74,7 +83,6 @@ describe('NewExercise steps', () => {
 
   it.each([
     ['actions', NewExerciseActions, 'Actions'],
-    ['categorization', NewExerciseCategorizationStep, 'Categorization'],
     ['instructions', NewExerciseInstructionsStep, 'Instructions'],
     ['review', NewExerciseReviewStep, 'Review'],
     ['tracking', NewExerciseTrackingStep, 'Tracking']
@@ -82,6 +90,31 @@ describe('NewExercise steps', () => {
     render(<StepComponent />)
 
     expect(screen.getByText(text)).toBeInTheDocument()
+  })
+
+  it('renders a fallback when the categorization step has no current creation', () => {
+    render(
+      <Provider store={createTestStore()}>
+        <NewExerciseCategorizationStep />
+      </Provider>
+    )
+
+    expect(screen.getByText('Go back')).toBeInTheDocument()
+  })
+
+  it('renders the categorization step with an active creation', () => {
+    const store = createTestStore()
+
+    startExerciseCreation(store, exercise, CreationMethod.Clone)
+
+    render(
+      <Provider store={store}>
+        <NewExerciseCategorizationStep />
+      </Provider>
+    )
+
+    expect(screen.getByText('pattern')).toBeInTheDocument()
+    expect(screen.getByText('roles')).toBeInTheDocument()
   })
 
   it('renders the muscle step and trigger', () => {

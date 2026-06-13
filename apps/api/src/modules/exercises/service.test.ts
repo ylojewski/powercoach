@@ -19,6 +19,7 @@ const EXERCISE: Exercise = {
   isSystem: true,
   isUnilateral: false,
   loadingTypeId: 1,
+  patternId: 1,
   publicationStatus: 'published',
   shortInstructionsMarkdown: null,
   subtitle: null,

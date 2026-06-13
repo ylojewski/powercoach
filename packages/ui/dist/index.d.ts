@@ -112,9 +112,10 @@ export declare const anchoredToastManager: ReturnType<typeof ToastPrimitive.crea
 
 export declare function AnchoredToastProvider({ children, ...props }: ToastPrimitive.Provider.Props): default_2.ReactElement;
 
-export declare function AspectRatio({ ratio, className, style, ...props }: AspectRatioProps): ReactElement;
+export declare function AspectRatio({ ratio, className, fit, style, ...props }: AspectRatioProps): ReactElement;
 
 export declare interface AspectRatioProps extends ComponentProps<'div'> {
+    fit?: 'contain' | 'cover';
     ratio: number;
 }
 
@@ -913,6 +914,24 @@ export declare function ScrollBar({ className, orientation, ...props }: ScrollAr
 
 export declare const Select: typeof SelectPrimitive.Root;
 
+export declare function SelectableGrid<TItem extends SelectableGridItem>({ descriptionClassName, emptyText, gridClassName, items, itemsToUrlMap, onValueChange, value }: SelectableGridProps<TItem>): ReactElement;
+
+export declare interface SelectableGridItem {
+    code: string;
+    description: string;
+    name: string;
+}
+
+export declare interface SelectableGridProps<TItem extends SelectableGridItem> {
+    descriptionClassName?: string;
+    emptyText: string;
+    gridClassName?: string;
+    items: TItem[];
+    itemsToUrlMap?: Record<string, string>;
+    onValueChange?: (value: TItem | null) => void;
+    value: TItem | null;
+}
+
 export declare function SelectButton({ className, size, render, children, ...props }: SelectButtonProps): React_2.ReactElement;
 
 export declare interface SelectButtonProps extends useRender.ComponentProps<'button'> {
@@ -1087,6 +1106,38 @@ export { SliderPrimitive }
 export declare function SliderValue({ className, ...props }: SliderPrimitive.Value.Props): React_2.ReactElement;
 
 export declare function Spinner({ className, ...props }: default_2.ComponentProps<typeof Loader2Icon>): default_2.ReactElement;
+
+export declare function StackedPanel<Value = unknown>({ children, className, collapsible, defaultValue, empty, listClassName, onValueChange, style, trackClassName, value: valueProp, viewportClassName, ...props }: StackedPanelProps<Value>): default_2.ReactElement;
+
+export declare function StackedPanelContent(_props: StackedPanelContentProps): default_2.ReactElement | null;
+
+export declare type StackedPanelContentProps = default_2.ComponentPropsWithoutRef<'div'>;
+
+export declare function StackedPanelItem<Value = unknown>(_props: StackedPanelItemProps<Value>): default_2.ReactElement | null;
+
+export declare interface StackedPanelItemProps<Value = unknown> {
+    children: default_2.ReactNode;
+    disabled?: boolean;
+    value: Value;
+}
+
+export declare interface StackedPanelProps<Value = unknown> extends Omit<TabsPrimitive.Root.Props, 'children' | 'defaultValue' | 'onValueChange' | 'orientation' | 'value'> {
+    children: default_2.ReactNode;
+    collapsible?: boolean;
+    defaultValue?: Value | null;
+    empty?: default_2.ReactNode;
+    listClassName?: string;
+    onValueChange?: (value: Value | null) => void;
+    trackClassName?: string;
+    value?: Value | null;
+    viewportClassName?: string;
+}
+
+export declare function StackedPanelTrigger(_props: StackedPanelTriggerProps): default_2.ReactElement | null;
+
+export declare interface StackedPanelTriggerProps extends Omit<TabsPrimitive.Tab.Props, 'children' | 'disabled' | 'value'> {
+    children: default_2.ReactNode;
+}
 
 export declare function Switch({ className, ...props }: SwitchPrimitive.Root.Props): default_2.ReactElement;
 

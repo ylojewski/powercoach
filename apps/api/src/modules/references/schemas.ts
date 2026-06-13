@@ -3,8 +3,8 @@ import { Type, type Static } from '@sinclair/typebox'
 import { exerciseSchema, nullable, timestampSchema } from '@/src/schemas'
 
 export const DISCIPLINE_SCHEMA_ID = 'Discipline' as const
+export const DISCIPLINE_MOVEMENT_SCHEMA_ID = 'DisciplineMovement' as const
 export const EXERCISE_MUSCLE_SCHEMA_ID = 'ExerciseMuscle' as const
-export const EXERCISE_PATTERN_SCHEMA_ID = 'ExercisePattern' as const
 export const EXERCISE_RELATIONSHIP_SCHEMA_ID = 'ExerciseRelationship' as const
 export const EXERCISE_ROLE_SCHEMA_ID = 'ExerciseRole' as const
 export const LOADING_TYPE_SCHEMA_ID = 'LoadingType' as const
@@ -27,6 +27,21 @@ export const disciplineSchema = Type.Object(referenceEntityProperties, {
   additionalProperties: false
 })
 
+export const disciplineMovementSchema = Type.Object(
+  {
+    code: Type.String(),
+    description: Type.String(),
+    disciplineId: Type.Number(),
+    id: Type.Number(),
+    name: Type.String(),
+    sortOrder: Type.Number()
+  },
+  {
+    $id: DISCIPLINE_MOVEMENT_SCHEMA_ID,
+    additionalProperties: false
+  }
+)
+
 export const exerciseMuscleSchema = Type.Object(
   {
     exerciseId: Type.Number(),
@@ -40,18 +55,6 @@ export const exerciseMuscleSchema = Type.Object(
   }
 )
 
-export const exercisePatternSchema = Type.Object(
-  {
-    exerciseId: Type.Number(),
-    isPrimary: Type.Boolean(),
-    patternId: Type.Number()
-  },
-  {
-    $id: EXERCISE_PATTERN_SCHEMA_ID,
-    additionalProperties: false
-  }
-)
-
 export const exerciseRelationshipSchema = Type.Object(
   {
     createdAt: timestampSchema,
@@ -60,7 +63,7 @@ export const exerciseRelationshipSchema = Type.Object(
     id: Type.Number(),
     roleId: Type.Number(),
     sourceExerciseId: Type.Number(),
-    targetExerciseId: Type.Number(),
+    targetDisciplineMovementId: Type.Number(),
     updatedAt: timestampSchema
   },
   {
@@ -109,9 +112,9 @@ export const patternSchema = Type.Object(referenceEntityProperties, {
 
 export const referencesResponseSchema = Type.Object(
   {
+    disciplineMovements: Type.Array(Type.Ref(disciplineMovementSchema)),
     disciplines: Type.Array(Type.Ref(disciplineSchema)),
     exerciseMuscles: Type.Array(Type.Ref(exerciseMuscleSchema)),
-    exercisePatterns: Type.Array(Type.Ref(exercisePatternSchema)),
     exerciseRelationships: Type.Array(Type.Ref(exerciseRelationshipSchema)),
     exerciseRoles: Type.Array(Type.Ref(exerciseRoleSchema)),
     exercises: Type.Array(Type.Ref(exerciseSchema)),
@@ -128,8 +131,8 @@ export const referencesResponseSchema = Type.Object(
 
 export const referenceSchemas = [
   disciplineSchema,
+  disciplineMovementSchema,
   exerciseMuscleSchema,
-  exercisePatternSchema,
   exerciseRelationshipSchema,
   exerciseRoleSchema,
   loadingTypeSchema,
@@ -140,8 +143,8 @@ export const referenceSchemas = [
 ] as const
 
 export type Discipline = Static<typeof disciplineSchema>
+export type DisciplineMovement = Static<typeof disciplineMovementSchema>
 export type ExerciseMuscle = Static<typeof exerciseMuscleSchema>
-export type ExercisePattern = Static<typeof exercisePatternSchema>
 export type ExerciseRelationship = Static<typeof exerciseRelationshipSchema>
 export type ExerciseRole = Static<typeof exerciseRoleSchema>
 export type LoadingType = Static<typeof loadingTypeSchema>

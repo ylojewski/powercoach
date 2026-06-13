@@ -14,6 +14,7 @@ function createExercise(overrides: Partial<Exercise> = {}): Exercise {
     isSystem: true,
     isUnilateral: false,
     loadingTypeId: 1,
+    patternId: 2,
     publicationStatus: 'published',
     shortInstructionsMarkdown: null,
     subtitle: null,
@@ -37,30 +38,9 @@ function createPattern(overrides: Partial<Pattern> = {}): Pattern {
 }
 
 const references = {
+  disciplineMovements: [],
   disciplines: [],
   exerciseMuscles: [],
-  exercisePatterns: [
-    {
-      exerciseId: 1,
-      isPrimary: true,
-      patternId: 2
-    },
-    {
-      exerciseId: 1,
-      isPrimary: false,
-      patternId: 1
-    },
-    {
-      exerciseId: 2,
-      isPrimary: true,
-      patternId: 1
-    },
-    {
-      exerciseId: 3,
-      isPrimary: true,
-      patternId: 2
-    }
-  ],
   exerciseRelationships: [],
   exerciseRoles: [],
   exercises: [
@@ -72,6 +52,7 @@ const references = {
     createExercise({
       code: 'bench_press',
       id: 2,
+      patternId: 1,
       title: 'Bench press'
     }),
     createExercise({
@@ -98,7 +79,7 @@ const references = {
 } satisfies GetReferencesApiResponse
 
 describe('groupExercisesByPattern', () => {
-  it('groups only primary exercise patterns and sorts by code by default', () => {
+  it('groups exercises by pattern and sorts by code by default', () => {
     const groups = groupExercisesByPattern(references)
 
     expect(

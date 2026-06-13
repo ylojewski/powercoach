@@ -29,20 +29,60 @@
   }
 }
 
+@keyframes media-uploader-expand-block {
+  from {
+    grid-template-rows: 0fr;
+  }
+  to {
+    grid-template-rows: 1fr;
+  }
+}
+
+@keyframes media-uploader-collapse-block {
+  from {
+    grid-template-rows: 1fr;
+  }
+  to {
+    grid-template-rows: 0fr;
+  }
+}
+
+@keyframes media-uploader-expand-inline {
+  from {
+    grid-template-columns: 0fr;
+  }
+  to {
+    grid-template-columns: 1fr;
+  }
+}
+
+@keyframes media-uploader-collapse-inline {
+  from {
+    grid-template-columns: 1fr;
+  }
+  to {
+    grid-template-columns: 0fr;
+  }
+}
+
 @theme {
   --animate-fade-in: fade-in 0.2s ease-out forwards;
   --animate-clip-out-ltr: clip-out-ltr 0.4s ease-in-out forwards;
   --animate-clip-in-ltr: clip-in-ltr 0.4s ease-in-out forwards;
+  --animate-media-uploader-expand-block: media-uploader-expand-block 0.24s ease-out forwards;
+  --animate-media-uploader-collapse-block: media-uploader-collapse-block 0.2s ease-out forwards;
+  --animate-media-uploader-expand-inline: media-uploader-expand-inline 0.24s ease-out forwards;
+  --animate-media-uploader-collapse-inline: media-uploader-collapse-inline 0.2s ease-out forwards;
 }
 
 @utility bg-hatched {
-  background-color: var(--color-background);
+  background-color: transparent;
   background-image: repeating-linear-gradient(
-          135deg,
-          transparent 0px,
-          transparent 3px,
-          color-mix(in oklab, var(--color-foreground) 5%, transparent) 3px,
-          color-mix(in oklab, var(--color-foreground) 5%, transparent) 7px
+    135deg,
+    transparent 0px,
+    transparent 3px,
+    color-mix(in oklab, var(--color-foreground) 5%, transparent) 3px,
+    color-mix(in oklab, var(--color-foreground) 5%, transparent) 7px
   );
-  border: 1px solid var(--color-background);
+
 }

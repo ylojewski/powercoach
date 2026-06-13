@@ -2,6 +2,7 @@ import { sql } from 'drizzle-orm'
 import { boolean, check, index, integer, pgTable, real, serial, text } from 'drizzle-orm/pg-core'
 
 import { loadingTypes } from './loadingTypes'
+import { patterns } from './patterns'
 import { archivedAt, timestamps } from './timestamps'
 
 export const exercises = pgTable(
@@ -16,6 +17,7 @@ export const exercises = pgTable(
     isSystem: boolean('is_system').notNull().default(false),
     isUnilateral: boolean('is_unilateral').notNull().default(false),
     loadingTypeId: integer('loading_type_id').references(() => loadingTypes.id),
+    patternId: integer('pattern_id').references(() => patterns.id),
     publicationStatus: text('publication_status').notNull().default('draft'),
     shortInstructionsMarkdown: text('short_instructions_markdown'),
     subtitle: text('subtitle'),
@@ -34,6 +36,7 @@ export const exercises = pgTable(
     ),
     index('exercises_archived_at_idx').on(table.archivedAt),
     index('exercises_loading_type_id_idx').on(table.loadingTypeId),
+    index('exercises_pattern_id_idx').on(table.patternId),
     index('exercises_publication_status_idx').on(table.publicationStatus)
   ]
 )
