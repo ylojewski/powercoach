@@ -635,7 +635,7 @@ export function MediaUploaderDropPlaceholder({
   return (
     <div
       className={cn(
-        'grid shrink-0 overflow-hidden text-muted-foreground',
+        'grid shrink-0 overflow-hidden text-muted-foreground bg-background',
         isVertical ? 'grid-rows-[1fr]' : 'grid-cols-[1fr]',
         status === 'entering' &&
           (isVertical
@@ -694,8 +694,9 @@ export function MediaUploaderEmpty({
   return (
     <AspectRatio
       className={cn(
-        'my-px grid place-items-center border border-dashed border-border bg-background transition-colors',
-        isFileDragActive && 'border-primary bg-primary/5 text-primary'
+        'transition-background my-px grid cursor-pointer place-items-center bg-muted/50 duration-300 hover:bg-muted',
+        'before:pointer-events-none before:absolute before:inset-0 before:z-20 before:border-0 before:transition-[border-width,border-color] before:duration-300',
+        isFileDragActive && 'before:border-4 before:border-foreground'
       )}
       ratio={ratio}
     >
@@ -708,12 +709,6 @@ export function MediaUploaderEmpty({
             Drop images here or click to choose them.
           </EmptyDescription>
         </EmptyHeader>
-        <EmptyContent>
-          <Button size="xs" variant="outline">
-            <ImagePlusIcon />
-            Choose images
-          </Button>
-        </EmptyContent>
       </Empty>
     </AspectRatio>
   )

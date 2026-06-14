@@ -8,7 +8,7 @@ interface UseExercisesResult {
 
 export function useExercises(): UseExercisesResult {
   const cloneExercise = useCallback((exercise: Exercise) => {
-    return { ...exercise, title: `${exercise.title} copy` }
+    return { ...exercise, code: '', title: `${exercise.title} copy` }
   }, [])
 
   return {

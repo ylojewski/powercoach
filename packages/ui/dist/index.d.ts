@@ -914,7 +914,7 @@ export declare function ScrollBar({ className, orientation, ...props }: ScrollAr
 
 export declare const Select: typeof SelectPrimitive.Root;
 
-export declare function SelectableGrid<TItem extends SelectableGridItem>({ descriptionClassName, emptyText, gridClassName, items, itemsToUrlMap, onValueChange, value }: SelectableGridProps<TItem>): ReactElement;
+export declare function SelectableGrid<TItem extends SelectableGridItem>({ className, descriptionClassName, emptyText, gridClassName, items, itemsToUrlMap, onValueChange, orientation, value }: SelectableGridProps<TItem>): ReactElement;
 
 export declare interface SelectableGridItem {
     code: string;
@@ -922,13 +922,14 @@ export declare interface SelectableGridItem {
     name: string;
 }
 
-export declare interface SelectableGridProps<TItem extends SelectableGridItem> {
+export declare interface SelectableGridProps<TItem extends SelectableGridItem> extends ComponentProps<'div'> {
     descriptionClassName?: string;
     emptyText: string;
     gridClassName?: string;
     items: TItem[];
     itemsToUrlMap?: Record<string, string>;
     onValueChange?: (value: TItem | null) => void;
+    orientation?: 'horizontal' | 'vertical';
     value: TItem | null;
 }
 

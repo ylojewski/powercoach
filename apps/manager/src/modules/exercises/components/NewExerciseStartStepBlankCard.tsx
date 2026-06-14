@@ -8,19 +8,17 @@ import {
 } from './NewExerciseStartStepCard'
 
 export interface NewExerciseStartStepBlankCardProps
-  extends Omit<NewExerciseStartStepCardProps, 'description' | 'icon' | 'title'> {
-  actionLabel: string
+  extends Omit<NewExerciseStartStepCardProps, 'description' | 'icon' | 'mode' | 'title'> {
+  canNext: boolean
   onNext: () => void
   onReset?: () => void
-  resetLabel?: string
 }
 
 export function NewExerciseStartStepBlankCard({
-  actionLabel,
   active,
+  canNext,
   onNext,
   onReset,
-  resetLabel,
   ...props
 }: NewExerciseStartStepBlankCardProps): ReactElement<
   ComponentProps<typeof NewExerciseStartStepCard>
@@ -29,24 +27,33 @@ export function NewExerciseStartStepBlankCard({
     <NewExerciseStartStepCard
       active={active}
       icon={SparklesIcon}
+      mode="blank"
       title="from scratch"
       description="Create an exercise from scratch. Precise setup, execution, data, muscles, and cues - ready to use."
       {...props}
     >
-      <div className="inline-flex flex-col items-center gap-2">
-        <Button disabled={!active} onClick={onNext} variant={active ? 'default' : 'outline'}>
-          {actionLabel}
-        </Button>
-        {onReset && (
+      <div className="flex w-full min-w-0 items-center justify-between gap-4">
+        <span className="font-heading text-xs text-muted-foreground">blank build</span>
+        <div className="flex shrink-0 items-center gap-2">
           <Button
-            className={!active ? 'opacity-30' : ''}
-            size="xs"
-            variant="link"
-            onClick={onReset}
+            disabled={!active || !canNext}
+            onClick={onNext}
+            size="lg"
+            variant={active && canNext ? 'default' : 'outline'}
           >
-            {resetLabel?.toLowerCase()}
+            Next
           </Button>
-        )}
+          {onReset && (
+            <Button
+              className={!active ? 'opacity-30' : ''}
+              onClick={onReset}
+              size="xs"
+              variant="link"
+            >
+              start over
+            </Button>
+          )}
+        </div>
       </div>
     </NewExerciseStartStepCard>
   )

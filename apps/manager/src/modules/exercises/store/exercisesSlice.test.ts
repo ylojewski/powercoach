@@ -4,12 +4,9 @@ import { createTestStore } from '@/test/utils/store'
 import {
   type CreationExerciseRelationship,
   CreationMethod,
-  selectCreationResumeStep,
   selectCurrentCreation,
   selectInitialCreation,
-  setCreationResumeStep,
   startCreation,
-  Step,
   updateCreationExercise,
   upsertCreationExerciseRelationship
 } from './exercisesSlice'
@@ -60,15 +57,13 @@ describe('exercisesSlice', () => {
 
     expect(selectCurrentCreation(state)).toBeNull()
     expect(selectInitialCreation(state)).toBeNull()
-    expect(selectCreationResumeStep(state)).toBeNull()
   })
 
   it('falls back to the initial state when the slice is missing', () => {
-    const state = {} as Parameters<typeof selectCreationResumeStep>[0]
+    const state = {} as Parameters<typeof selectCurrentCreation>[0]
 
     expect(selectCurrentCreation(state)).toBeNull()
     expect(selectInitialCreation(state)).toBeNull()
-    expect(selectCreationResumeStep(state)).toBeNull()
   })
 
   it('starts a creation by snapshotting current and initial exercise state', () => {
@@ -94,7 +89,6 @@ describe('exercisesSlice', () => {
     expect(currentCreation?.exercise).not.toBe(exercise)
     expect(initialCreation?.exercise).not.toBe(exercise)
     expect(initialCreation?.exercise).not.toBe(currentCreation?.exercise)
-    expect(selectCreationResumeStep(state)).toBe(Step.Overview)
   })
 
   it('starts a creation by snapshotting current and initial exercise relationships', () => {
@@ -161,18 +155,6 @@ describe('exercisesSlice', () => {
 
     expect(selectCurrentCreation(state)?.exercise.subtitle).toBe('Paused variation')
     expect(selectInitialCreation(state)?.exercise.subtitle).toBeNull()
-  })
-
-  it('updates the creation resume step independently from the creation snapshot', () => {
-    const store = createTestStore()
-
-    startExerciseCreation(store, createExercise(), CreationMethod.Clone)
-    store.dispatch(setCreationResumeStep(Step.Muscles))
-
-    const state = store.getState()
-
-    expect(selectCreationResumeStep(state)).toBe(Step.Muscles)
-    expect(selectCurrentCreation(state)?.method).toBe(CreationMethod.Clone)
   })
 
   it('upserts current creation exercise relationships by discipline code', () => {

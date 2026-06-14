@@ -43,7 +43,6 @@ export interface Creation {
 export interface CreationState {
   current: Creation | null
   initial: Creation | null
-  resumeStep: Step | null
 }
 
 export interface State {
@@ -53,8 +52,7 @@ export interface State {
 const initialState: State = {
   creation: {
     current: null,
-    initial: null,
-    resumeStep: null
+    initial: null
   }
 }
 const DEFAULT_CREATION_TRANSFER_COEFFICIENT = 0
@@ -63,9 +61,6 @@ const exercisesSlice = createSlice({
   initialState,
   name: 'exercises',
   reducers: {
-    setCreationResumeStep(state, action: PayloadAction<Step>) {
-      state.creation.resumeStep = action.payload
-    },
     startCreation(
       state,
       action: PayloadAction<{
@@ -90,7 +85,6 @@ const exercisesSlice = createSlice({
         ),
         method: action.payload.method
       }
-      state.creation.resumeStep = Step.Overview
     },
     updateCreationExercise(state, action: PayloadAction<Partial<Exercise>>) {
       if (state.creation.current) {
@@ -153,12 +147,8 @@ const exercisesSlice = createSlice({
 
 reducer.inject(exercisesSlice)
 
-export const {
-  setCreationResumeStep,
-  startCreation,
-  updateCreationExercise,
-  upsertCreationExerciseRelationship
-} = exercisesSlice.actions
+export const { startCreation, updateCreationExercise, upsertCreationExerciseRelationship } =
+  exercisesSlice.actions
 
 export function selectCurrentCreation(state: RootState): Creation | null {
   return state.exercises?.creation.current ?? initialState.creation.current
@@ -166,10 +156,6 @@ export function selectCurrentCreation(state: RootState): Creation | null {
 
 export function selectInitialCreation(state: RootState): Creation | null {
   return state.exercises?.creation.initial ?? initialState.creation.initial
-}
-
-export function selectCreationResumeStep(state: RootState): Step | null {
-  return state.exercises?.creation.resumeStep ?? initialState.creation.resumeStep
 }
 
 function getCreationExerciseRelationshipsWithMovement(

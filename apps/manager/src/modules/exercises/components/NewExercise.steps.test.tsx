@@ -6,12 +6,12 @@ import { createTestStore } from '@/test/utils/store'
 
 import { CreationMethod, selectCurrentCreation, startCreation } from '../store'
 import { NewExercise } from './NewExercise'
-import { NewExerciseActions } from './NewExerciseActions'
 import { NewExerciseCategorizationStep } from './NewExerciseCategorizationStep'
 import { NewExerciseInstructionsStep } from './NewExerciseInstructionsStep'
 import { NewExerciseMusclesStep } from './NewExerciseMusclesStep'
 import { NewExerciseOverviewStep } from './NewExerciseOverviewStep'
 import { NewExerciseReviewStep } from './NewExerciseReviewStep'
+import { NewExerciseStepFooter } from './NewExerciseStepFooter'
 import { NewExerciseTrackingStep } from './NewExerciseTrackingStep'
 
 function createExercise(overrides: Partial<Exercise> = {}): Exercise {
@@ -82,7 +82,6 @@ describe('NewExercise steps', () => {
   })
 
   it.each([
-    ['actions', NewExerciseActions, 'Actions'],
     ['instructions', NewExerciseInstructionsStep, 'Instructions'],
     ['review', NewExerciseReviewStep, 'Review'],
     ['tracking', NewExerciseTrackingStep, 'Tracking']
@@ -90,6 +89,12 @@ describe('NewExercise steps', () => {
     render(<StepComponent />)
 
     expect(screen.getByText(text)).toBeInTheDocument()
+  })
+
+  it('renders the shared next footer', () => {
+    render(<NewExerciseStepFooter canNext onNext={vi.fn()} />)
+
+    expect(screen.getByRole('button', { name: 'Next' })).toBeEnabled()
   })
 
   it('renders a fallback when the categorization step has no current creation', () => {
@@ -105,7 +110,7 @@ describe('NewExercise steps', () => {
   it('renders the categorization step with an active creation', () => {
     const store = createTestStore()
 
-    startExerciseCreation(store, exercise, CreationMethod.Clone)
+    startExerciseCreation(store, createExercise({ code: '', title: '' }), CreationMethod.Blank)
 
     render(
       <Provider store={store}>
@@ -161,7 +166,7 @@ describe('NewExercise steps', () => {
       .mockResolvedValue(createExerciseCodeResponse(uniqueExerciseCodeResponse))
 
     vi.stubGlobal('fetch', fetchMock)
-    startExerciseCreation(store, exercise, CreationMethod.Clone)
+    startExerciseCreation(store, createExercise({ code: '', title: '' }), CreationMethod.Blank)
 
     render(
       <Provider store={store}>
@@ -274,8 +279,35 @@ describe('NewExercise steps', () => {
     )
 
     expect(screen.getAllByText('stored_code')).not.toHaveLength(0)
-    expect(screen.getByText(/is unique/i)).toBeInTheDocument()
+    expect(screen.getByText(/Your code is/i)).toBeInTheDocument()
     expect(Object.keys(store.getState().api.queries)).toHaveLength(0)
+  })
+
+  it('recomputes the code for cloned exercises on mount', async () => {
+    const store = createTestStore()
+
+    startExerciseCreation(
+      store,
+      createExercise({
+        code: 'competition_squat',
+        title: 'Competition squat copy'
+      }),
+      CreationMethod.Clone,
+      exercise
+    )
+    stubExerciseCodeFetch(uniqueExerciseCodeResponse)
+
+    render(
+      <Provider store={store}>
+        <NewExerciseOverviewStep />
+      </Provider>
+    )
+
+    await waitFor(() => {
+      expect(selectCurrentCreation(store.getState())?.exercise.code).toBe(
+        'paused_competition_squat'
+      )
+    })
   })
 
   it('renders the unique generated code state from the server', async () => {
@@ -300,7 +332,7 @@ describe('NewExercise steps', () => {
     await waitFor(() => {
       expect(screen.getAllByText('paused_competition_squat')).not.toHaveLength(0)
     })
-    expect(screen.getByText(/is unique/i)).toBeInTheDocument()
+    expect(screen.getByText(/Your code is/i)).toBeInTheDocument()
   })
 
   it('renders the duplicate code warning', async () => {
@@ -333,9 +365,8 @@ describe('NewExercise steps', () => {
     )
 
     expect(screen.getByText('gallery')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Move media 1' })).toHaveTextContent('1')
-    expect(screen.getByRole('button', { name: 'Move media 2' })).toHaveTextContent('2')
-    expect(screen.getByRole('button', { name: 'Move media 3' })).toHaveTextContent('3')
+    expect(screen.getByRole('button', { name: 'Add gallery images' })).toBeInTheDocument()
+    expect(screen.getByText('Drop images here or click to choose them.')).toBeInTheDocument()
   })
 
   it('renders the horizontal panel shell', () => {
@@ -347,6 +378,6 @@ describe('NewExercise steps', () => {
 
     expect(screen.getByTestId('new-exercise')).toBeInTheDocument()
     expect(screen.getAllByText('start')).toHaveLength(2)
-    expect(screen.getByText('Actions')).toBeInTheDocument()
+    expect(screen.getAllByRole('button', { name: 'Next' })).toHaveLength(2)
   })
 })

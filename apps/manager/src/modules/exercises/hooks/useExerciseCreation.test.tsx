@@ -6,7 +6,7 @@ import { type Exercise, type GetReferencesApiResponse } from '@/core'
 import { useReferences } from '@/modules/references'
 import { createTestStore } from '@/test/utils/store'
 
-import { CreationMethod, startCreation } from '../store'
+import { CreationMethod, startCreation, Step } from '../store'
 import { useExerciseCreation } from './useExerciseCreation'
 
 vi.mock('@/modules/references', () => ({
@@ -137,7 +137,7 @@ describe('useExerciseCreation', () => {
     vi.clearAllMocks()
   })
 
-  it('does not resume or reset without an initialized creation', () => {
+  it('starts without an initialized creation', () => {
     const exercise = createExercise()
     const { result } = renderUseExerciseCreation()
 
@@ -146,8 +146,10 @@ describe('useExerciseCreation', () => {
     expect(result.current.isCurrentCreationDirty).toBe(false)
     expect(result.current.shouldResetBlankCreation).toBe(false)
     expect(result.current.shouldResetCloneCreation(exercise)).toBe(false)
-    expect(result.current.shouldResumeBlankCreation).toBe(false)
-    expect(result.current.shouldResumeCloneCreation(exercise)).toBe(false)
+    expect(result.current.canStartCreation(CreationMethod.Blank, null)).toBe(true)
+    expect(result.current.canStartCreation(CreationMethod.Clone, null)).toBe(false)
+    expect(result.current.canStartCreation(CreationMethod.Clone, exercise)).toBe(true)
+    expect(result.current.canGoToNextStep(Step.Overview)).toBe(false)
   })
 
   it('detects dirty blank creations', () => {
@@ -167,18 +169,25 @@ describe('useExerciseCreation', () => {
 
     expect(result.current.isCurrentCreationDirty).toBe(false)
     expect(result.current.shouldResetBlankCreation).toBe(false)
-    expect(result.current.shouldResumeBlankCreation).toBe(true)
+    expect(result.current.canGoToNextStep(Step.Overview)).toBe(false)
 
     act(() => {
       result.current.updateExercise({ title: 'Custom squat' })
     })
 
     expect(result.current.isCurrentCreationDirty).toBe(true)
+    expect(result.current.canGoToNextStep(Step.Overview)).toBe(false)
+
+    act(() => {
+      result.current.updateExercise({ code: 'custom_squat' })
+    })
+
+    expect(result.current.canGoToNextStep(Step.Overview)).toBe(true)
     expect(result.current.shouldResetBlankCreation).toBe(true)
     expect(result.current.shouldResetCloneCreation(createExercise())).toBe(false)
   })
 
-  it('detects matching clone resume and reset states', () => {
+  it('detects dirty clone creations', () => {
     const exercise = createExercise()
     const otherExercise = createExercise({
       code: 'bench_press',
@@ -199,9 +208,7 @@ describe('useExerciseCreation', () => {
       )
     })
 
-    expect(result.current.shouldResumeBlankCreation).toBe(false)
-    expect(result.current.shouldResumeCloneCreation(exercise)).toBe(true)
-    expect(result.current.shouldResumeCloneCreation(otherExercise)).toBe(false)
+    expect(result.current.isCurrentCreationDirty).toBe(false)
     expect(result.current.shouldResetCloneCreation(exercise)).toBe(false)
 
     act(() => {
@@ -213,7 +220,6 @@ describe('useExerciseCreation', () => {
     expect(result.current.shouldResetCloneCreation(exercise)).toBe(true)
     expect(result.current.shouldResetCloneCreation(otherExercise)).toBe(false)
     expect(result.current.shouldResetCloneCreation(null)).toBe(false)
-    expect(result.current.shouldResumeCloneCreation(null)).toBe(false)
   })
 
   it('derives relationship state and status by discipline', () => {
@@ -317,6 +323,7 @@ describe('useExerciseCreation', () => {
     ])
     expect(result.current.activeDisciplineCode).toBe('powerlifting')
     expect(result.current.completedRelationships[0]).toBe(result.current.createdRelationships[0])
+    expect(result.current.canGoToNextStep(Step.Categorization)).toBe(true)
   })
 
   it('derives and updates the selected pattern', () => {
@@ -335,6 +342,7 @@ describe('useExerciseCreation', () => {
     })
 
     expect(result.current.selectedPattern).toBe(references.patterns[0])
+    expect(result.current.canGoToNextStep(Step.Categorization)).toBe(false)
 
     act(() => {
       result.current.updatePattern(null)

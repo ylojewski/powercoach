@@ -1,5 +1,5 @@
 import { AlertCircleIcon, ArrowRightSquareIcon, SquareCheckIcon } from 'lucide-react'
-import { type CSSProperties, type ReactElement } from 'react'
+import { type ComponentProps, type CSSProperties, type ReactElement } from 'react'
 
 import { cn } from '../coss'
 import { AspectRatio } from './AspectRatio'
@@ -11,33 +11,46 @@ export interface SelectableGridItem {
   name: string
 }
 
-export interface SelectableGridProps<TItem extends SelectableGridItem> {
+export interface SelectableGridProps<TItem extends SelectableGridItem> extends ComponentProps<'div'> {
   descriptionClassName?: string
   emptyText: string
   gridClassName?: string
   items: TItem[]
   itemsToUrlMap?: Record<string, string>
   onValueChange?: (value: TItem | null) => void
+  orientation?: 'horizontal' | 'vertical'
   value: TItem | null
 }
 
 export function SelectableGrid<TItem extends SelectableGridItem>({
+  className,
   descriptionClassName,
   emptyText,
   gridClassName,
   items,
   itemsToUrlMap,
   onValueChange,
+  orientation = 'vertical',
   value
 }: SelectableGridProps<TItem>): ReactElement {
   return (
-    <>
+    <div
+      className={cn(
+        'flex',
+        orientation === 'vertical' ? 'flex-col' : 'flex-row-reverse',
+        className
+      )}
+    >
       <div
         className={cn(
           'grid min-h-0 w-full grid-cols-[repeat(var(--cols),minmax(0,1fr))] gap-0',
           gridClassName
         )}
-        style={{ '--cols': Math.max(items.length, 1) } as CSSProperties}
+        style={
+          {
+            '--cols': Math.max(items.length, 1)
+          } as CSSProperties
+        }
       >
         {items.map((item) => {
           const active = item === value
@@ -94,6 +107,6 @@ export function SelectableGrid<TItem extends SelectableGridItem>({
           </span>
         </SwitchAnimation>
       </div>
-    </>
+    </div>
   )
 }

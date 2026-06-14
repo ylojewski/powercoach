@@ -1,5 +1,15 @@
 import { type ReactElement } from 'react'
 
-export function NewExerciseInstructionsStep(): ReactElement {
-  return <>Instructions</>
+import { NewExerciseStepFooter, type NewExerciseStepFooterProps } from './NewExerciseStepFooter'
+
+export function NewExerciseInstructionsStep({
+  canNext,
+  onNext
+}: NewExerciseStepFooterProps): ReactElement {
+  return (
+    <div className="flex h-full min-h-0 flex-col">
+      <div className="min-h-0 flex-1 p-6">Instructions</div>
+      <NewExerciseStepFooter canNext={canNext} onNext={onNext} />
+    </div>
+  )
 }

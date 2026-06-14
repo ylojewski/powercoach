@@ -34,6 +34,7 @@ describe('useExercises', () => {
 
     expect(result.current.cloneExercise(exercise)).toStrictEqual({
       ...exercise,
+      code: '',
       title: 'Competition squat copy'
     })
   })

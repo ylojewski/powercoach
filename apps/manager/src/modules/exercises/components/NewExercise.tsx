@@ -7,10 +7,8 @@ import {
 } from '@powercoach/ui'
 import { type ReactElement, useState } from 'react'
 
-import { useAppDispatch, useAppSelector } from '@/core'
-
-import { Step, selectCreationResumeStep, setCreationResumeStep } from '../store'
-import { NewExerciseActions } from './NewExerciseActions'
+import { useExerciseCreation } from '../hooks'
+import { Step } from '../store'
 import { NewExerciseCategorizationStep } from './NewExerciseCategorizationStep'
 import { NewExerciseInstructionsStep } from './NewExerciseInstructionsStep'
 import { NewExerciseMusclesStep } from './NewExerciseMusclesStep'
@@ -19,26 +17,43 @@ import { NewExerciseReviewStep } from './NewExerciseReviewStep'
 import { NewExerciseStartStep } from './NewExerciseStartStep'
 import { NewExerciseTrackingStep } from './NewExerciseTrackingStep'
 
+const STEP_ORDER = [
+  Step.Start,
+  Step.Overview,
+  Step.Categorization,
+  Step.Tracking,
+  Step.Muscles,
+  Step.Instructions,
+  Step.Review
+]
+
 export function NewExercise(): ReactElement {
-  const dispatch = useAppDispatch()
-  const resumeStep = useAppSelector(selectCreationResumeStep)
+  const { canGoToNextStep } = useExerciseCreation()
   const [step, setStep] = useState(Step.Start)
-  const resumeActionLabel = `Resume at ${resumeStep ?? Step.Overview}`
 
-  const onHorizontalPanelValueChange = ([newStep = Step.Start]: Step[]) => {
+  const goToStep = (newStep: Step) => {
     setStep(newStep)
-
-    if (newStep !== Step.Start) {
-      dispatch(setCreationResumeStep(newStep))
-    }
   }
 
-  const resume = () => {
-    setStep(resumeStep ?? Step.Overview)
+  const onHorizontalPanelValueChange = ([newStep = Step.Start]: Step[]) => {
+    goToStep(newStep)
   }
 
   const start = () => {
-    setStep(Step.Overview)
+    goToStep(Step.Overview)
+  }
+
+  const next = () => {
+    if (!canGoToNextStep(step)) {
+      return
+    }
+
+    const currentStepIndex = STEP_ORDER.indexOf(step)
+    const nextStep = STEP_ORDER[currentStepIndex + 1]
+
+    if (nextStep) {
+      goToStep(nextStep)
+    }
   }
 
   return (
@@ -52,41 +67,43 @@ export function NewExercise(): ReactElement {
           <HorizontalPanelItem value={Step.Start}>
             <HorizontalPanelTrigger>start</HorizontalPanelTrigger>
             <HorizontalPanelContent>
-              <NewExerciseStartStep
-                onResume={resume}
-                onStart={start}
-                resumeActionLabel={resumeActionLabel}
-              />
+              <NewExerciseStartStep onStart={start} />
             </HorizontalPanelContent>
           </HorizontalPanelItem>
           <HorizontalPanelItem value={Step.Overview}>
             <HorizontalPanelTrigger>overview</HorizontalPanelTrigger>
             <HorizontalPanelContent>
-              <NewExerciseOverviewStep />
+              <NewExerciseOverviewStep canNext={canGoToNextStep(Step.Overview)} onNext={next} />
             </HorizontalPanelContent>
           </HorizontalPanelItem>
           <HorizontalPanelItem value={Step.Categorization}>
             <HorizontalPanelTrigger>categorization</HorizontalPanelTrigger>
             <HorizontalPanelContent>
-              <NewExerciseCategorizationStep />
+              <NewExerciseCategorizationStep
+                canNext={canGoToNextStep(Step.Categorization)}
+                onNext={next}
+              />
             </HorizontalPanelContent>
           </HorizontalPanelItem>
           <HorizontalPanelItem value={Step.Tracking}>
             <HorizontalPanelTrigger>tracking</HorizontalPanelTrigger>
             <HorizontalPanelContent>
-              <NewExerciseTrackingStep />
+              <NewExerciseTrackingStep canNext={canGoToNextStep(Step.Tracking)} onNext={next} />
             </HorizontalPanelContent>
           </HorizontalPanelItem>
           <HorizontalPanelItem value={Step.Muscles}>
             <HorizontalPanelTrigger>muscles</HorizontalPanelTrigger>
             <HorizontalPanelContent>
-              <NewExerciseMusclesStep />
+              <NewExerciseMusclesStep canNext={canGoToNextStep(Step.Muscles)} onNext={next} />
             </HorizontalPanelContent>
           </HorizontalPanelItem>
           <HorizontalPanelItem value={Step.Instructions}>
             <HorizontalPanelTrigger>instructions</HorizontalPanelTrigger>
             <HorizontalPanelContent>
-              <NewExerciseInstructionsStep />
+              <NewExerciseInstructionsStep
+                canNext={canGoToNextStep(Step.Instructions)}
+                onNext={next}
+              />
             </HorizontalPanelContent>
           </HorizontalPanelItem>
           <HorizontalPanelItem value={Step.Review}>
@@ -96,9 +113,6 @@ export function NewExercise(): ReactElement {
             </HorizontalPanelContent>
           </HorizontalPanelItem>
         </HorizontalPanel>
-      </div>
-      <div>
-        <NewExerciseActions />
       </div>
     </div>
   )

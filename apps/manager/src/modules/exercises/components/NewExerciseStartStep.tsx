@@ -12,35 +12,29 @@ import { NewExerciseStartStepCloneCard } from './NewExerciseStartStepCloneCard'
 import { NewExerciseStartStepResetDrawer } from './NewExerciseStartStepResetDrawer'
 
 interface NewExerciseStartStepProps {
-  onResume: () => void
   onStart: () => void
-  resumeActionLabel: string
 }
 
-export function NewExerciseStartStep({
-  onResume,
-  onStart,
-  resumeActionLabel
-}: NewExerciseStartStepProps): ReactElement {
+export function NewExerciseStartStep({ onStart }: NewExerciseStartStepProps): ReactElement {
   const dispatch = useAppDispatch()
   const { references } = useReferences()
   const resetDrawerHandle = useMemo(() => DrawerPrimitive.createHandle(), [])
   const {
     initialCreation,
     isCurrentCreationDirty,
+    canStartCreation,
     shouldResetBlankCreation,
-    shouldResetCloneCreation,
-    shouldResumeBlankCreation,
-    shouldResumeCloneCreation
+    shouldResetCloneCreation
   } = useExerciseCreation()
-  const [method, setMethod] = useState(initialCreation?.method ?? CreationMethod.Blank)
+  const [method, setMethod] = useState(initialCreation?.method)
   const isBlank = method === CreationMethod.Blank
   const isClone = method === CreationMethod.Clone
   const [exercise, setExercise] = useState(
     initialCreation?.method === CreationMethod.Clone ? initialCreation.exercise : null
   )
+  const canStartBlankCreation = canStartCreation(CreationMethod.Blank, null)
+  const canStartCloneCreation = canStartCreation(CreationMethod.Clone, exercise)
   const { cloneExercise } = useExercises()
-  const [submitted, setSubmitted] = useState(false)
 
   function preventNext(): void {
     if (isCurrentCreationDirty) {
@@ -79,8 +73,31 @@ export function NewExerciseStartStep({
         method
       })
     )
-    setSubmitted(true)
     onStart()
+  }
+
+  function isCurrentSourceSelected(): boolean {
+    if (isBlank) {
+      return initialCreation?.method === CreationMethod.Blank
+    }
+
+    if (isClone && exercise) {
+      return (
+        initialCreation?.method === CreationMethod.Clone &&
+        initialCreation.exercise.code === exercise.code
+      )
+    }
+
+    return false
+  }
+
+  function handleNext(): void {
+    if (isCurrentSourceSelected()) {
+      onStart()
+      return
+    }
+
+    preventNext()
   }
 
   function getCloneExerciseRelationships(exercise: Exercise): CreationExerciseRelationship[] {
@@ -116,24 +133,20 @@ export function NewExerciseStartStep({
     <>
       <div className="grid h-full min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-stretch overflow-hidden">
         <NewExerciseStartStepBlankCard
-          actionLabel={!submitted && shouldResumeBlankCreation ? resumeActionLabel : 'Next'}
           active={isBlank}
+          canNext={canStartBlankCreation}
           onActivate={() => setMethod(CreationMethod.Blank)}
           {...(shouldResetBlankCreation && { onReset: openResetDrawer })}
-          onNext={() => (shouldResumeBlankCreation ? onResume() : preventNext())}
-          resetLabel="Start over"
+          onNext={handleNext}
         />
         <NewExerciseStartStepCloneCard
-          actionLabel={
-            !submitted && shouldResumeCloneCreation(exercise) ? resumeActionLabel : 'Next'
-          }
           active={isClone}
+          canNext={canStartCloneCreation}
           exercise={exercise}
           onExerciseChange={setExercise}
           onActivate={() => setMethod(CreationMethod.Clone)}
           {...(shouldResetCloneCreation(exercise) && { onReset: openResetDrawer })}
-          onNext={() => (shouldResumeCloneCreation(exercise) ? onResume() : preventNext())}
-          resetLabel="Start over"
+          onNext={handleNext}
         />
       </div>
       <NewExerciseStartStepResetDrawer

@@ -4,7 +4,7 @@ import { Provider } from 'react-redux'
 
 import { createTestStore } from '@/test/utils/store'
 
-import { selectCreationResumeStep, setCreationResumeStep, Step } from '../store'
+import { CreationMethod, startCreation, Step } from '../store'
 import { NewExercise } from './NewExercise'
 
 vi.mock('@powercoach/ui', async (importOriginal) => {
@@ -31,10 +31,6 @@ vi.mock('@powercoach/ui', async (importOriginal) => {
   }
 })
 
-vi.mock('./NewExerciseActions', () => ({
-  NewExerciseActions: () => <div>actions</div>
-}))
-
 vi.mock('./NewExerciseCategorizationStep', () => ({
   NewExerciseCategorizationStep: () => <div>categorization</div>
 }))
@@ -48,7 +44,14 @@ vi.mock('./NewExerciseMusclesStep', () => ({
 }))
 
 vi.mock('./NewExerciseOverviewStep', () => ({
-  NewExerciseOverviewStep: () => <div>overview</div>
+  NewExerciseOverviewStep: ({ canNext, onNext }: { canNext: boolean; onNext: () => void }) => (
+    <div>
+      overview
+      <button disabled={!canNext} onClick={onNext}>
+        overview next
+      </button>
+    </div>
+  )
 }))
 
 vi.mock('./NewExerciseReviewStep', () => ({
@@ -56,19 +59,9 @@ vi.mock('./NewExerciseReviewStep', () => ({
 }))
 
 vi.mock('./NewExerciseStartStep', () => ({
-  NewExerciseStartStep: ({
-    onResume,
-    onStart,
-    resumeActionLabel
-  }: {
-    onResume: () => void
-    onStart: () => void
-    resumeActionLabel: string
-  }) => (
+  NewExerciseStartStep: ({ onStart }: { onStart: () => void }) => (
     <div>
       start
-      <span>{resumeActionLabel}</span>
-      <button onClick={onResume}>resume start step</button>
       <button onClick={onStart}>start from start step</button>
     </div>
   )
@@ -78,11 +71,31 @@ vi.mock('./NewExerciseTrackingStep', () => ({
   NewExerciseTrackingStep: () => <div>tracking</div>
 }))
 
-describe('NewExercise', () => {
-  it('starts on the start step even when a resume step exists', () => {
-    const store = createTestStore()
+function createExercise() {
+  return {
+    archivedAt: null,
+    bodyweightCoefficient: null,
+    code: 'competition_squat',
+    createdAt: '2024-01-01T00:00:00.000Z',
+    descriptionMarkdown: null,
+    id: 1,
+    imageUrl: null,
+    isSystem: true,
+    isUnilateral: false,
+    loadingTypeId: 1,
+    patternId: 1,
+    publicationStatus: 'published' as const,
+    shortInstructionsMarkdown: null,
+    subtitle: null,
+    title: 'Competition squat',
+    updatedAt: '2024-01-01T00:00:00.000Z',
+    videoUrl: null
+  }
+}
 
-    store.dispatch(setCreationResumeStep(Step.Muscles))
+describe('NewExercise', () => {
+  it('starts on the start step', () => {
+    const store = createTestStore()
 
     render(
       <Provider store={store}>
@@ -91,10 +104,9 @@ describe('NewExercise', () => {
     )
 
     expect(screen.getByTestId('horizontal-panel')).toHaveAttribute('data-value', Step.Start)
-    expect(screen.getByText('Resume at muscles')).toBeInTheDocument()
   })
 
-  it('updates the resume step from the horizontal panel', () => {
+  it('updates the active step from the horizontal panel', () => {
     const store = createTestStore()
 
     render(
@@ -106,23 +118,6 @@ describe('NewExercise', () => {
     fireEvent.click(screen.getByRole('button', { name: 'change step' }))
 
     expect(screen.getByTestId('horizontal-panel')).toHaveAttribute('data-value', Step.Overview)
-    expect(selectCreationResumeStep(store.getState())).toBe(Step.Overview)
-  })
-
-  it('resumes the last active step from the start step', () => {
-    const store = createTestStore()
-
-    store.dispatch(setCreationResumeStep(Step.Muscles))
-
-    render(
-      <Provider store={store}>
-        <NewExercise />
-      </Provider>
-    )
-
-    fireEvent.click(screen.getByRole('button', { name: 'resume start step' }))
-
-    expect(screen.getByTestId('horizontal-panel')).toHaveAttribute('data-value', Step.Muscles)
   })
 
   it('opens the overview step after starting from the start step', () => {
@@ -137,5 +132,34 @@ describe('NewExercise', () => {
     fireEvent.click(screen.getByRole('button', { name: 'start from start step' }))
 
     expect(screen.getByTestId('horizontal-panel')).toHaveAttribute('data-value', Step.Overview)
+  })
+
+  it('moves to the next step from the overview footer', () => {
+    const store = createTestStore()
+    const exercise = createExercise()
+
+    store.dispatch(
+      startCreation({
+        currentExercise: exercise,
+        currentExerciseRelationships: [],
+        initialExercise: exercise,
+        initialExerciseRelationships: [],
+        method: CreationMethod.Blank
+      })
+    )
+
+    render(
+      <Provider store={store}>
+        <NewExercise />
+      </Provider>
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'start from start step' }))
+    fireEvent.click(screen.getByRole('button', { name: 'overview next' }))
+
+    expect(screen.getByTestId('horizontal-panel')).toHaveAttribute(
+      'data-value',
+      Step.Categorization
+    )
   })
 })

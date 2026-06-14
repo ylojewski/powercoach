@@ -17,6 +17,7 @@ import {
   type CreationExerciseRelationship,
   selectCurrentCreation,
   selectInitialCreation,
+  Step,
   updateCreationExercise,
   upsertCreationExerciseRelationship
 } from '../store'
@@ -31,6 +32,8 @@ interface RelationshipStatus {
 
 interface UseExerciseCreationResult {
   activeDisciplineCode: Discipline['code'] | null
+  canGoToNextStep: (step: Step) => boolean
+  canStartCreation: (method: CreationMethod, exercise: Exercise | null) => boolean
   completedRelationships: CreationExerciseRelationship[]
   createdRelationships: CreationExerciseRelationship[]
   currentCreation: Creation | null
@@ -40,8 +43,6 @@ interface UseExerciseCreationResult {
   selectedPattern: Pattern | null
   shouldResetBlankCreation: boolean
   shouldResetCloneCreation: (exercise: Exercise | null) => boolean
-  shouldResumeBlankCreation: boolean
-  shouldResumeCloneCreation: (exercise: Exercise | null) => boolean
   updateExercise: (exercise: Partial<Exercise>) => void
   updatePattern: (pattern: Pattern | null) => void
   upsertRelationship: (relationship: CreationExerciseRelationship) => void
@@ -76,6 +77,12 @@ export function useExerciseCreation(): UseExerciseCreationResult {
   const selectedPattern =
     references?.patterns.find((pattern) => pattern.id === currentCreation?.exercise.patternId) ??
     null
+  const isOverviewComplete = Boolean(
+    currentCreation?.exercise.title.trim() && currentCreation.exercise.code.trim()
+  )
+  const isCategorizationComplete = Boolean(
+    currentCreation?.exercise.patternId != null && completedRelationships.length
+  )
 
   const isCurrentCreationDirty = useMemo((): boolean => {
     return (
@@ -100,6 +107,7 @@ export function useExerciseCreation(): UseExerciseCreationResult {
       if (!initialCreation || !exercise) {
         return false
       }
+
       return (
         initialCreation.method === CreationMethod.Clone &&
         initialCreation.exercise.code === exercise.code &&
@@ -109,19 +117,39 @@ export function useExerciseCreation(): UseExerciseCreationResult {
     [initialCreation, isCurrentCreationDirty]
   )
 
-  const shouldResumeBlankCreation = initialCreation?.method === CreationMethod.Blank
+  const canStartCreation = useCallback(
+    (method: CreationMethod, exercise: Exercise | null): boolean => {
+      if (method === CreationMethod.Blank) {
+        return true
+      }
 
-  const shouldResumeCloneCreation = useCallback(
-    (exercise: Exercise | null) => {
-      if (!initialCreation || !exercise) {
+      return Boolean(exercise)
+    },
+    []
+  )
+
+  const canGoToNextStep = useCallback(
+    (step: Step): boolean => {
+      if (!currentCreation) {
         return false
       }
-      return (
-        initialCreation.method === CreationMethod.Clone &&
-        initialCreation.exercise.code === exercise.code
-      )
+
+      switch (step) {
+        case Step.Start:
+          return true
+        case Step.Overview:
+          return isOverviewComplete
+        case Step.Categorization:
+          return isCategorizationComplete
+        case Step.Tracking:
+        case Step.Muscles:
+        case Step.Instructions:
+          return true
+        case Step.Review:
+          return false
+      }
     },
-    [initialCreation]
+    [currentCreation, isCategorizationComplete, isOverviewComplete]
   )
 
   const getRelationshipStatus = useCallback(
@@ -164,6 +192,8 @@ export function useExerciseCreation(): UseExerciseCreationResult {
 
   return {
     activeDisciplineCode,
+    canGoToNextStep,
+    canStartCreation,
     completedRelationships,
     createdRelationships,
     currentCreation,
@@ -173,8 +203,6 @@ export function useExerciseCreation(): UseExerciseCreationResult {
     selectedPattern,
     shouldResetBlankCreation,
     shouldResetCloneCreation,
-    shouldResumeBlankCreation,
-    shouldResumeCloneCreation,
     updateExercise,
     updatePattern,
     upsertRelationship

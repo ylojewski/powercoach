@@ -13,6 +13,7 @@ import React, { type ReactElement, ReactNode, useEffect, useEffectEvent } from '
 import { usePendingGetExerciseCodeQuery } from '@/core'
 
 export interface ExerciseCodeAlertProps {
+  code?: null | string
   isTitlePending?: boolean
   onCodeChange: (code: string) => void
   title: string
@@ -21,27 +22,34 @@ export interface ExerciseCodeAlertProps {
 type State = 'duplicate' | 'error' | 'idle' | 'loading' | 'missing' | 'unique'
 
 export function ExerciseCodeAlert({
+  code,
   isTitlePending = false,
   onCodeChange,
   title
 }: ExerciseCodeAlertProps): ReactElement {
   const trimmedTitle = title.trim()
+  const currentCode = code?.trim() || null
   const {
     currentData: data,
     isError,
     isFetching: isQueryFetching
   } = usePendingGetExerciseCodeQuery(
     { title: trimmedTitle },
-    { refetchOnMountOrArgChange: true, skip: !trimmedTitle }
+    {
+      refetchOnMountOrArgChange: true,
+      skip: !trimmedTitle || Boolean(currentCode) || isTitlePending
+    }
   )
   const isLoading = isTitlePending || isQueryFetching
-  const isUnique = Boolean(!isLoading && data && !data.exercise)
+  const generatedCode = data?.code ?? currentCode
+  const isUnique = Boolean(!isLoading && ((data && !data.exercise) || currentCode))
   const isDuplicate = Boolean(!isLoading && data && data.exercise)
   const onCodeChangeEvent = useEffectEvent(onCodeChange)
 
   const state: State = (() => {
     if (isLoading) return 'loading'
     if (!trimmedTitle) return 'missing'
+    if (currentCode) return 'unique'
     if (isError) return 'error'
     if (isDuplicate) return 'duplicate'
     if (isUnique) return 'unique'
@@ -76,7 +84,7 @@ export function ExerciseCodeAlert({
         <>
           <Badge variant="warning">
             <Ban aria-hidden="true" />
-            {data?.code}
+            {generatedCode}
           </Badge>
           <span>already exists</span>
         </>
@@ -94,7 +102,7 @@ export function ExerciseCodeAlert({
           <span>Your code is</span>
           <Badge variant="success">
             <Check aria-hidden="true" />
-            {data?.code}
+            {generatedCode}
           </Badge>
         </>
       )
@@ -102,14 +110,14 @@ export function ExerciseCodeAlert({
   )[state]
 
   useEffect(() => {
-    if (data?.code) {
+    if (data?.code && !data.exercise) {
       onCodeChangeEvent(data.code)
     }
-  }, [data?.code, onCodeChange])
+  }, [data?.code, data?.exercise, onCodeChangeEvent])
 
   return (
     <Alert
-      className="transition-[background-color,border-color,color] duration-300 ease-in-out"
+      className="rounded-none px-2.5 transition-[background-color,border-color,color] duration-300 ease-in-out"
       variant={variant}
     >
       <SwitchAnimation
@@ -118,7 +126,9 @@ export function ExerciseCodeAlert({
       >
         {icon}
       </SwitchAnimation>
-      <AlertTitle>Exercise code</AlertTitle>
+      <AlertTitle className="w-fit bg-foreground px-2 py-1 font-heading text-xs/none text-background lowercase">
+        Exercise code
+      </AlertTitle>
       <AlertDescription className="flex flex-col gap-3 text-xs">
         <p>
           Each exercise has a unique code based on its title that serves as its identifier, meaning
@@ -128,7 +138,7 @@ export function ExerciseCodeAlert({
           className="min-h-6 overflow-hidden"
           delay={0.3}
           itemClassName="flex min-w-0 flex-wrap items-center gap-2"
-          motionKey={isDuplicate || isUnique ? state + ':' + (data?.code ?? '') : state}
+          motionKey={isDuplicate || isUnique ? state + ':' + (generatedCode ?? '') : state}
         >
           {description}
         </SwitchAnimation>
