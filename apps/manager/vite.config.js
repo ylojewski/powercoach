@@ -10,7 +10,7 @@ export default buildConfig(import.meta.url, {
   api: true,
   exclude: ['src/core/api/generated', 'src/app/types', 'src/core/types', 'src/**/types/**'],
   include: ['scripts'],
-  ngrok: '153a-2a01-cb18-8684-bb00-506d-7f7b-8d7f-79ff',
+  ngrok: '3bac-2a01-cb18-8684-bb00-58d8-b54e-be3c-609c',
   plugins: [tailwindcss()],
   setup: true
 })

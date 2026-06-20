@@ -12,7 +12,6 @@ import { NewExerciseMusclesStep } from './NewExerciseMusclesStep'
 import { NewExerciseOverviewStep } from './NewExerciseOverviewStep'
 import { NewExerciseReviewStep } from './NewExerciseReviewStep'
 import { NewExerciseStepFooter } from './NewExerciseStepFooter'
-import { NewExerciseTrackingStep } from './NewExerciseTrackingStep'
 
 function createExercise(overrides: Partial<Exercise> = {}): Exercise {
   return {
@@ -83,8 +82,7 @@ describe('NewExercise steps', () => {
 
   it.each([
     ['instructions', NewExerciseInstructionsStep, 'Instructions'],
-    ['review', NewExerciseReviewStep, 'Review'],
-    ['tracking', NewExerciseTrackingStep, 'Tracking']
+    ['review', NewExerciseReviewStep, 'Review']
   ])('renders the %s step', (_, StepComponent, text) => {
     render(<StepComponent />)
 

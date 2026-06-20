@@ -84,7 +84,8 @@ export function StackedPanel<Value = unknown>({
     }
 
     const hasUncontrolledValue =
-      (uncontrolledValue === null && hasEmpty) || items.some((item) => item.value === uncontrolledValue)
+      (uncontrolledValue === null && hasEmpty) ||
+      items.some((item) => item.value === uncontrolledValue)
 
     if (!hasUncontrolledValue) {
       setUncontrolledValue(fallbackValue)
@@ -144,7 +145,9 @@ export function StackedPanel<Value = unknown>({
           const active = activeValue !== null && item.value === activeValue
           const triggerId = getStackedPanelTriggerId(idPrefix, index)
           const contentId = getStackedPanelContentId(idPrefix, index)
-          const onTriggerClick = (event: BaseUIEvent<React.MouseEvent<HTMLButtonElement>>): void => {
+          const onTriggerClick = (
+            event: BaseUIEvent<React.MouseEvent<HTMLButtonElement>>
+          ): void => {
             onClick?.(event)
 
             if (!collapsible || !active || event.defaultPrevented) {
@@ -159,7 +162,7 @@ export function StackedPanel<Value = unknown>({
             <TabsPrimitive.Tab
               aria-controls={contentId}
               className={cn(
-                'group relative isolate flex min-h-0 w-full flex-1 cursor-pointer items-end justify-start overflow-hidden bg-background px-5 py-2 text-left font-heading outline-none before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:z-0 before:h-px before:bg-border focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring data-disabled:pointer-events-none data-disabled:opacity-64 last:after:pointer-events-none last:after:absolute last:after:inset-x-0 last:after:bottom-0 last:after:z-0 last:after:h-px last:after:bg-border',
+                'group relative isolate flex min-h-0 w-full flex-1 cursor-pointer items-end justify-start overflow-hidden bg-background px-5 py-2 text-left font-heading outline-none before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:z-0 before:h-px before:bg-border last:after:pointer-events-none last:after:absolute last:after:inset-x-0 last:after:bottom-0 last:after:z-0 last:after:h-px last:after:bg-border focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none data-disabled:pointer-events-none data-disabled:opacity-64',
                 triggerClassName
               )}
               data-slot="stacked-panel-trigger"
@@ -170,7 +173,7 @@ export function StackedPanel<Value = unknown>({
               value={item.value as TabsPrimitive.Tab.Props['value']}
               {...triggerProps}
             >
-              <span className="relative z-10 text-nowrap text-xs">{triggerChildren}</span>
+              <span className="relative z-10 text-sm text-nowrap">{triggerChildren}</span>
               <span
                 aria-hidden="true"
                 className="pointer-events-none absolute -inset-px z-20 overflow-hidden bg-foreground text-background transition-[clip-path] duration-300 ease-in-out [clip-path:inset(0_100%_0_0)] group-hover:[clip-path:inset(0_0_0_0)] group-focus-visible:[clip-path:inset(0_0_0_0)] group-data-active:[clip-path:inset(0_0_0_0)]"
@@ -180,7 +183,7 @@ export function StackedPanel<Value = unknown>({
                   className="absolute inset-0 flex items-end overflow-hidden px-5 py-2"
                   data-slot="stacked-panel-trigger-label"
                 >
-                  <span className="font-heading text-sm text-nowrap">{triggerChildren}</span>
+                  <span className="font-heading text-nowrap">{triggerChildren}</span>
                 </span>
               </span>
             </TabsPrimitive.Tab>
@@ -212,8 +215,11 @@ export function StackedPanel<Value = unknown>({
             </div>
           )}
           {items.map((item, index) => {
-            const { children: contentChildren, className: contentClassName, ...contentProps } =
-              item.content?.props ?? {}
+            const {
+              children: contentChildren,
+              className: contentClassName,
+              ...contentProps
+            } = item.content?.props ?? {}
             const active = activeValue !== null && item.value === activeValue
             const triggerId = getStackedPanelTriggerId(idPrefix, index)
             const contentId = getStackedPanelContentId(idPrefix, index)
@@ -223,7 +229,10 @@ export function StackedPanel<Value = unknown>({
                 {...contentProps}
                 aria-hidden={active ? undefined : true}
                 aria-labelledby={triggerId}
-                className={cn('h-full min-h-full min-w-0 overflow-auto outline-none', contentClassName)}
+                className={cn(
+                  'h-full min-h-full min-w-0 overflow-auto outline-none',
+                  contentClassName
+                )}
                 data-active={active ? '' : undefined}
                 data-slot="stacked-panel-content"
                 id={contentId}

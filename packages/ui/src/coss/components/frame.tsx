@@ -51,7 +51,7 @@ export function FrameTitle({
 }: React.ComponentProps<'div'>): React.ReactElement {
   return (
     <div
-      className={cn('px-5 py-1 font-heading text-xl', className)}
+      className={cn('px-5 py-1 font-heading text-2xl', className)}
       data-slot="frame-panel-title"
       {...props}
     />

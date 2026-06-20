@@ -1,6 +1,11 @@
 import { usePendingQuery } from './usePendingQuery'
-
-import { useGetExerciseCodeQuery, useGetReferencesQuery, useGetCurrentRosterQuery, useGetCurrentSettingsQuery, useGetHealthStatusQuery } from '../api'
+import {
+  useGetExerciseCodeQuery,
+  useGetReferencesQuery,
+  useGetCurrentRosterQuery,
+  useGetCurrentSettingsQuery,
+  useGetHealthStatusQuery
+} from '../api'
 
 export const usePendingGetExerciseCodeQuery = usePendingQuery(useGetExerciseCodeQuery)
 export const usePendingGetReferencesQuery = usePendingQuery(useGetReferencesQuery)

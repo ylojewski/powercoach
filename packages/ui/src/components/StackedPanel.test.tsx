@@ -1,6 +1,11 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 
-import { StackedPanel, StackedPanelContent, StackedPanelItem, StackedPanelTrigger } from './StackedPanel'
+import {
+  StackedPanel,
+  StackedPanelContent,
+  StackedPanelItem,
+  StackedPanelTrigger
+} from './StackedPanel'
 
 describe('StackedPanel', () => {
   it('derives slide variables from the active item', () => {
@@ -106,7 +111,12 @@ describe('StackedPanel', () => {
 
   it('collapses the active item when collapsible', () => {
     render(
-      <StackedPanel collapsible data-testid="stacked-panel" defaultValue="metrics" empty={<div>Choose a panel</div>}>
+      <StackedPanel
+        collapsible
+        data-testid="stacked-panel"
+        defaultValue="metrics"
+        empty={<div>Choose a panel</div>}
+      >
         <StackedPanelItem value="metrics">
           <StackedPanelTrigger>metrics</StackedPanelTrigger>
           <StackedPanelContent>Metrics content</StackedPanelContent>

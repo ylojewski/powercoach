@@ -71,7 +71,48 @@ const references = {
     }
   ],
   exercises: [],
-  loadingTypes: [],
+  loadingTypes: [
+    {
+      code: 'external_load',
+      createdAt: '2024-01-01T00:00:00.000Z',
+      description: 'Use when the entered load is the external load moved by the athlete.',
+      id: 1,
+      name: 'External load',
+      updatedAt: '2024-01-01T00:00:00.000Z'
+    },
+    {
+      code: 'bodyweight',
+      createdAt: '2024-01-01T00:00:00.000Z',
+      description: 'Use when the athlete moves bodyweight without added or assisted external load.',
+      id: 2,
+      name: 'Bodyweight',
+      updatedAt: '2024-01-01T00:00:00.000Z'
+    },
+    {
+      code: 'bodyweight_plus_external',
+      createdAt: '2024-01-01T00:00:00.000Z',
+      description: 'Use when the athlete moves bodyweight plus an added external load.',
+      id: 3,
+      name: 'Bodyweight plus external load',
+      updatedAt: '2024-01-01T00:00:00.000Z'
+    },
+    {
+      code: 'assisted_bodyweight',
+      createdAt: '2024-01-01T00:00:00.000Z',
+      description: 'Use when assistance reduces the bodyweight moved by the athlete.',
+      id: 4,
+      name: 'Assisted bodyweight',
+      updatedAt: '2024-01-01T00:00:00.000Z'
+    },
+    {
+      code: 'no_load',
+      createdAt: '2024-01-01T00:00:00.000Z',
+      description: 'Use when tonnage should not be calculated from load.',
+      id: 5,
+      name: 'No load',
+      updatedAt: '2024-01-01T00:00:00.000Z'
+    }
+  ],
   muscleRoles: [],
   muscles: [],
   patterns: [
@@ -109,6 +150,16 @@ function createExercise(overrides: Partial<Exercise> = {}): Exercise {
     videoUrl: null,
     ...overrides
   }
+}
+
+function getLoadingType(code: string) {
+  const loadingType = references.loadingTypes.find((loadingType) => loadingType.code === code)
+
+  if (!loadingType) {
+    throw new Error(`Missing loading type ${code}`)
+  }
+
+  return loadingType
 }
 
 function renderUseExerciseCreation() {
@@ -256,9 +307,9 @@ describe('useExerciseCreation', () => {
     })
 
     expect(result.current.activeDisciplineCode).toBe('powerlifting')
-    expect(result.current.completedRelationships).toStrictEqual([])
+    expect(result.current.completedRelationships[0]).toBe(result.current.createdRelationships[0])
     expect(result.current.getRelationshipStatus('powerlifting')).toMatchObject({
-      completed: false,
+      completed: true,
       movement: references.disciplineMovements[0],
       relationship: result.current.createdRelationships[0],
       role: references.exerciseRoles[0],
@@ -274,8 +325,9 @@ describe('useExerciseCreation', () => {
       })
     })
 
-    expect(result.current.activeDisciplineCode).toBe('strongman')
-    expect(result.current.completedRelationships[0]).toBe(result.current.createdRelationships[1])
+    expect(result.current.activeDisciplineCode).toBe('powerlifting')
+    expect(result.current.completedRelationships[0]).toBe(result.current.createdRelationships[0])
+    expect(result.current.completedRelationships[1]).toBe(result.current.createdRelationships[1])
     expect(result.current.getRelationshipStatus('strongman')).toMatchObject({
       completed: true,
       movement: references.disciplineMovements[1],
@@ -292,6 +344,12 @@ describe('useExerciseCreation', () => {
     })
 
     expect(result.current.completedRelationships).toStrictEqual([
+      {
+        defaultTransferCoefficient: 0,
+        disciplineCode: 'powerlifting',
+        roleId: 1,
+        targetDisciplineMovementId: 1
+      },
       {
         defaultTransferCoefficient: 0.5,
         disciplineCode: 'strongman',
@@ -324,6 +382,15 @@ describe('useExerciseCreation', () => {
     expect(result.current.activeDisciplineCode).toBe('powerlifting')
     expect(result.current.completedRelationships[0]).toBe(result.current.createdRelationships[0])
     expect(result.current.canGoToNextStep(Step.Categorization)).toBe(true)
+
+    act(() => {
+      result.current.upsertRelationship({
+        defaultTransferCoefficient: 0.75,
+        disciplineCode: 'powerlifting'
+      })
+    })
+
+    expect(result.current.getRelationshipStatus('powerlifting').transferPercentage).toBe(75)
   })
 
   it('derives and updates the selected pattern', () => {
@@ -350,6 +417,112 @@ describe('useExerciseCreation', () => {
 
     expect(result.current.currentCreation?.exercise.patternId).toBeNull()
     expect(result.current.selectedPattern).toBeNull()
+  })
+
+  it('derives and updates loading type state', () => {
+    const externalLoad = getLoadingType('external_load')
+    const bodyweight = getLoadingType('bodyweight')
+    const noLoad = getLoadingType('no_load')
+    const { result, store } = renderUseExerciseCreation()
+
+    act(() => {
+      store.dispatch(
+        startCreation({
+          currentExercise: createExercise({ bodyweightCoefficient: null, loadingTypeId: 1 }),
+          currentExerciseRelationships: [],
+          initialExercise: createExercise({ bodyweightCoefficient: null, loadingTypeId: 1 }),
+          initialExerciseRelationships: [],
+          method: CreationMethod.Blank
+        })
+      )
+    })
+
+    expect(result.current.selectedLoadingType).toBe(externalLoad)
+    expect(result.current.shouldShowBodyweightCoefficient).toBe(false)
+    expect(result.current.currentCreation?.exercise.bodyweightCoefficient).toBeNull()
+
+    act(() => {
+      result.current.updateLoadingType(bodyweight)
+    })
+
+    expect(result.current.selectedLoadingType).toBe(bodyweight)
+    expect(result.current.shouldShowBodyweightCoefficient).toBe(true)
+    expect(result.current.currentCreation?.exercise.loadingTypeId).toBe(2)
+    expect(result.current.currentCreation?.exercise.bodyweightCoefficient).toBe(1)
+    expect(result.current.bodyweightPercentage).toBe(100)
+
+    act(() => {
+      result.current.updateBodyweightCoefficient(0.35)
+    })
+
+    expect(result.current.currentCreation?.exercise.bodyweightCoefficient).toBe(0.35)
+    expect(result.current.bodyweightPercentage).toBe(35)
+
+    act(() => {
+      result.current.updateLoadingType(noLoad)
+    })
+
+    expect(result.current.selectedLoadingType).toBe(noLoad)
+    expect(result.current.shouldShowBodyweightCoefficient).toBe(false)
+    expect(result.current.currentCreation?.exercise.loadingTypeId).toBe(5)
+    expect(result.current.currentCreation?.exercise.bodyweightCoefficient).toBeNull()
+  })
+
+  it('preserves existing bodyweight coefficient when switching between bodyweight loading types', () => {
+    const bodyweightPlusExternal = getLoadingType('bodyweight_plus_external')
+    const assistedBodyweight = getLoadingType('assisted_bodyweight')
+    const { result, store } = renderUseExerciseCreation()
+
+    act(() => {
+      store.dispatch(
+        startCreation({
+          currentExercise: createExercise({ bodyweightCoefficient: 0.6, loadingTypeId: 2 }),
+          currentExerciseRelationships: [],
+          initialExercise: createExercise({ bodyweightCoefficient: 0.6, loadingTypeId: 2 }),
+          initialExerciseRelationships: [],
+          method: CreationMethod.Blank
+        })
+      )
+    })
+
+    expect(result.current.shouldShowBodyweightCoefficient).toBe(true)
+    expect(result.current.bodyweightPercentage).toBe(60)
+
+    act(() => {
+      result.current.updateLoadingType(bodyweightPlusExternal)
+    })
+
+    expect(result.current.selectedLoadingType).toBe(bodyweightPlusExternal)
+    expect(result.current.currentCreation?.exercise.bodyweightCoefficient).toBe(0.6)
+
+    act(() => {
+      result.current.updateLoadingType(assistedBodyweight)
+    })
+
+    expect(result.current.selectedLoadingType).toBe(assistedBodyweight)
+    expect(result.current.currentCreation?.exercise.bodyweightCoefficient).toBe(0.6)
+  })
+
+  it('updates unilateral tracking state', () => {
+    const { result, store } = renderUseExerciseCreation()
+
+    act(() => {
+      store.dispatch(
+        startCreation({
+          currentExercise: createExercise({ isUnilateral: false }),
+          currentExerciseRelationships: [],
+          initialExercise: createExercise({ isUnilateral: false }),
+          initialExerciseRelationships: [],
+          method: CreationMethod.Blank
+        })
+      )
+    })
+
+    act(() => {
+      result.current.updateIsUnilateral(true)
+    })
+
+    expect(result.current.currentCreation?.exercise.isUnilateral).toBe(true)
   })
 
   it('marks creation dirty when exercise relationships change', () => {

@@ -8,7 +8,6 @@ import {
   Button,
   cn,
   Empty,
-  EmptyContent,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
@@ -635,7 +634,7 @@ export function MediaUploaderDropPlaceholder({
   return (
     <div
       className={cn(
-        'grid shrink-0 overflow-hidden text-muted-foreground bg-background',
+        'grid shrink-0 overflow-hidden bg-background text-muted-foreground',
         isVertical ? 'grid-rows-[1fr]' : 'grid-cols-[1fr]',
         status === 'entering' &&
           (isVertical
@@ -694,8 +693,8 @@ export function MediaUploaderEmpty({
   return (
     <AspectRatio
       className={cn(
-        'transition-background my-px grid cursor-pointer place-items-center bg-muted/50 duration-300 hover:bg-muted',
-        'before:pointer-events-none before:absolute before:inset-0 before:z-20 before:border-0 before:transition-[border-width,border-color] before:duration-300',
+        'transition-background grid cursor-pointer place-items-center bg-muted duration-300 hover:bg-sidebar-foreground/25',
+        'before:pointer-events-none before:absolute before:inset-0 before:z-20 before:border before:border-transparent before:transition-[border-width,border-color] before:duration-300',
         isFileDragActive && 'before:border-4 before:border-foreground'
       )}
       ratio={ratio}

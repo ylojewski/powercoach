@@ -81,89 +81,89 @@ export function NewExerciseOverviewStep({
           <ScrollArea className="min-h-0 flex-1">
             <div className="min-h-full pt-6">
               <FrameTitle>identity</FrameTitle>
-              <div>
-                <form.Field
-                  listeners={{
-                    onChange: ({ value }) => {
-                      setTitle(value)
-                      setIsTitlePending(false)
-                    },
-                    onChangeDebounceMs: CODE_TITLE_DEBOUNCE_MS
-                  }}
-                  name="title"
-                >
-                  {(field) => (
-                    <Field className="gap-3 p-5" name={field.name}>
-                      <FieldLabel className="font-heading lowercase after:content-['*']">
-                        Title
-                      </FieldLabel>
-                      <div className={IDENTITY_CONTROL_CLASS}>
-                        <span className={IDENTITY_INPUT_ICON_CLASS}>
-                          <BookA aria-hidden="true" />
-                        </span>
-                        <InputGroupInput
-                          className={IDENTITY_INPUT_CONTROL_CLASS}
-                          onBlur={field.handleBlur}
-                          onChange={(event) => {
-                            field.handleChange(event.currentTarget.value)
-                          }}
-                          required
-                          size="lg"
-                          type="text"
-                          value={field.state.value ?? ''}
-                        />
-                      </div>
-                      <FieldDescription className="text-xs">
-                        The title as athletes will see it. Examples: "Competition deadlift", "Cable
-                        triceps extension"
-                      </FieldDescription>
-                    </Field>
-                  )}
-                </form.Field>
-                <form.Field name="subtitle">
-                  {(field) => (
-                    <Field className="gap-3 p-5 pt-0" name={field.name}>
-                      <FieldLabel className="font-heading lowercase">Subtitle</FieldLabel>
-                      <div className={IDENTITY_CONTROL_CLASS}>
-                        <span className={IDENTITY_INPUT_ICON_CLASS}>
-                          <BookText aria-hidden="true" />
-                        </span>
-                        <InputGroupTextarea
-                          className={IDENTITY_TEXTAREA_CONTROL_CLASS}
-                          onBlur={field.handleBlur}
-                          onChange={(event) => {
-                            field.handleChange(event.currentTarget.value)
-                          }}
-                          size="lg"
-                          value={field.state.value ?? ''}
-                        />
-                      </div>
-                      <FieldDescription className="text-xs">
-                        A short description associated with the title. Example: "Standard deadlift
-                        performed according to powerlifting competition rules"
-                      </FieldDescription>
-                    </Field>
-                  )}
-                </form.Field>
-                <div className="p-5 pt-0">
-                  <ExerciseCodeAlert
-                    code={displayedCode}
-                    isTitlePending={isTitlePending}
-                    onCodeChange={(code: string) => dispatch(updateCreationExercise({ code }))}
-                    title={title}
-                  />
-                </div>
+
+              <form.Field
+                listeners={{
+                  onChange: ({ value }) => {
+                    setTitle(value)
+                    setIsTitlePending(false)
+                  },
+                  onChangeDebounceMs: CODE_TITLE_DEBOUNCE_MS
+                }}
+                name="title"
+              >
+                {(field) => (
+                  <Field className="gap-3 p-5" name={field.name}>
+                    <FieldLabel className="font-heading lowercase after:content-['*']">
+                      Title
+                    </FieldLabel>
+                    <div className={IDENTITY_CONTROL_CLASS}>
+                      <span className={IDENTITY_INPUT_ICON_CLASS}>
+                        <BookA aria-hidden="true" />
+                      </span>
+                      <InputGroupInput
+                        className={IDENTITY_INPUT_CONTROL_CLASS}
+                        onBlur={field.handleBlur}
+                        onChange={(event) => {
+                          field.handleChange(event.currentTarget.value)
+                        }}
+                        required
+                        size="lg"
+                        type="text"
+                        value={field.state.value ?? ''}
+                      />
+                    </div>
+                    <FieldDescription className="text-xs">
+                      The title as athletes will see it. Examples: "Competition deadlift", "Cable
+                      triceps extension"
+                    </FieldDescription>
+                  </Field>
+                )}
+              </form.Field>
+              <div className="p-5 pt-0">
+                <ExerciseCodeAlert
+                  code={displayedCode}
+                  isTitlePending={isTitlePending}
+                  onCodeChange={(code: string) => dispatch(updateCreationExercise({ code }))}
+                  title={title}
+                />
               </div>
+
+              <form.Field name="subtitle">
+                {(field) => (
+                  <Field className="gap-3 p-5" name={field.name}>
+                    <FieldLabel className="font-heading lowercase">Subtitle</FieldLabel>
+                    <div className={IDENTITY_CONTROL_CLASS}>
+                      <span className={IDENTITY_INPUT_ICON_CLASS}>
+                        <BookText aria-hidden="true" />
+                      </span>
+                      <InputGroupTextarea
+                        className={IDENTITY_TEXTAREA_CONTROL_CLASS}
+                        onBlur={field.handleBlur}
+                        onChange={(event) => {
+                          field.handleChange(event.currentTarget.value)
+                        }}
+                        size="lg"
+                        value={field.state.value ?? ''}
+                      />
+                    </div>
+                    <FieldDescription className="text-xs">
+                      A short description associated with the title. Example: "Standard deadlift
+                      performed according to powerlifting competition rules"
+                    </FieldDescription>
+                  </Field>
+                )}
+              </form.Field>
             </div>
           </ScrollArea>
         </div>
         <MediaUploaderProvider>
-          <div className="flex h-full min-h-0 flex-col bg-hatched pt-6">
+          <div className="flex h-full min-h-0 flex-col border-l bg-hatched-xl pt-6">
             <div className="flex items-center justify-between">
               <FrameTitle>gallery</FrameTitle>
               <MediaUploaderActions className="mr-5" />
             </div>
-            <MediaUploader className="min-h-0 p-2" />
+            <MediaUploader className="min-h-0" />
           </div>
         </MediaUploaderProvider>
       </div>

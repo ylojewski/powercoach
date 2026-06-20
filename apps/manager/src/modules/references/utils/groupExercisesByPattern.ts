@@ -36,9 +36,7 @@ export function groupExercisesByPattern(
   return patterns.map((pattern) => {
     return {
       ...pattern,
-      exercises: exercises.filter(
-        (exercise) => exercise.patternId === pattern.id
-      )
+      exercises: exercises.filter((exercise) => exercise.patternId === pattern.id)
     }
   }, [])
 }

@@ -32,11 +32,11 @@ ON CONFLICT ("discipline_id", "code") DO NOTHING;
 --> statement-breakpoint
 INSERT INTO "loading_types" ("code", "name", "description")
 VALUES
-  ('external_load', 'External load', 'Use when the entered load is the external load moved by the athlete.'),
+  ('external_load', 'External', 'Use when the load entered is the external load moved by the athlete. Bodyweight is not included.'),
   ('bodyweight', 'Bodyweight', 'Use when the athlete moves bodyweight without added or assisted external load.'),
-  ('bodyweight_plus_external', 'Bodyweight plus external load', 'Use when the athlete moves bodyweight plus an added external load.'),
-  ('assisted_bodyweight', 'Assisted bodyweight', 'Use when assistance reduces the bodyweight moved by the athlete.'),
-  ('no_load', 'No load', 'Use when tonnage should not be calculated from load.')
+  ('bodyweight_plus_external', 'Full', 'Use when the athlete moves bodyweight plus an added external load.'),
+  ('assisted_bodyweight', 'Assisted', 'Use when assistance reduces the bodyweight moved by the athlete.'),
+  ('no_load', 'None', 'Use when tonnage should not be calculated from load.')
 ON CONFLICT ("code") DO NOTHING;
 --> statement-breakpoint
 INSERT INTO "muscle_roles" ("code", "name", "description")

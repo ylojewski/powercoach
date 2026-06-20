@@ -4,14 +4,9 @@ import {
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
-  Field,
-  FieldDescription,
-  FieldLabel,
   FrameTitle,
   ScrollArea,
   SelectableGrid,
-  Slider,
-  SliderValue,
   StackedPanel,
   StackedPanelContent,
   StackedPanelItem,
@@ -33,9 +28,6 @@ import athletePatternSquatUrl from '@/src/assets/athlete_pattern_squat.png'
 
 import { useExerciseCreation } from '../hooks'
 import { NewExerciseStepFooter, type NewExerciseStepFooterProps } from './NewExerciseStepFooter'
-
-const STACKED_PANEL_TRIGGER_WIDTH_CLASS = 'ms-px w-[calc((100%_-_1px)/3)] shrink-0'
-const STACKED_PANEL_CONTENT_WIDTH_CLASS = 'min-w-0 basis-0 flex-1'
 
 export function NewExerciseCategorizationStep({
   canNext,
@@ -66,9 +58,9 @@ export function NewExerciseCategorizationStep({
             <FrameTitle>pattern</FrameTitle>
             <SelectableGrid
               className="w-full"
-              descriptionClassName={STACKED_PANEL_TRIGGER_WIDTH_CLASS}
+              descriptionClassName="w-[calc((100%_-_1px)/3)] shrink-0"
               emptyText="Please select a pattern"
-              gridClassName={STACKED_PANEL_CONTENT_WIDTH_CLASS}
+              gridClassName="min-w-0 basis-0 flex-1"
               items={references?.patterns ?? []}
               itemsToUrlMap={{
                 carry: athletePatternCarryUrl,
@@ -79,9 +71,8 @@ export function NewExerciseCategorizationStep({
                 push: athletePatternPushUrl,
                 squat: athletePatternSquatUrl
               }}
-              onValueChange={(pattern) => {
-                updatePattern(pattern)
-              }}
+              layout="horizontal"
+              onValueChange={updatePattern}
               orientation="horizontal"
               value={selectedPattern}
             />
@@ -103,7 +94,7 @@ export function NewExerciseCategorizationStep({
                       </EmptyMedia>
                       <EmptyTitle>select a discipline</EmptyTitle>
                       <EmptyDescription>
-                        Choose at least one discipline to assign its movement and role.
+                        Choose a discipline on your left to assign its movement and role.
                       </EmptyDescription>
                     </EmptyHeader>
                   </Empty>
@@ -117,12 +108,11 @@ export function NewExerciseCategorizationStep({
                     const {
                       completed,
                       movement: selectedMovement,
-                      role: selectedRole,
-                      transferPercentage
+                      role: selectedRole
                     } = getRelationshipStatus(disciplineCode)
-                    const disciplineMovementItems = references.disciplineMovements.filter(
-                      (movement) => movement.disciplineId === disciplineId
-                    )
+                    const disciplineMovementItems = references.disciplineMovements
+                      .filter((movement) => movement.disciplineId === disciplineId)
+                      .slice(0, 3)
 
                     return (
                       <StackedPanelItem key={disciplineCode} value={disciplineCode}>
@@ -140,81 +130,55 @@ export function NewExerciseCategorizationStep({
                             <span className="min-w-0 truncate">{disciplineLabel}</span>
                           </span>
                         </StackedPanelTrigger>
-                        <StackedPanelContent className="flex flex-col justify-between gap-2 border bg-background p-6">
-                          <SelectableGrid
-                            emptyText={`Please select a ${disciplineLabel} movement`}
-                            items={disciplineMovementItems}
-                            onValueChange={(movement) => {
-                              upsertRelationship({
-                                disciplineCode,
-                                targetDisciplineMovementId: movement?.id
-                              })
-                            }}
-                            value={selectedMovement}
-                          />
-                          <SwitchAnimation
-                            className="w-full"
-                            motionKey={selectedMovement ? 'movement' : 'movement-none'}
-                          >
-                            {selectedMovement && (
-                              <SelectableGrid
-                                emptyText={`Please select a ${disciplineLabel} role`}
-                                items={references.exerciseRoles}
-                                onValueChange={(role) => {
-                                  upsertRelationship({
-                                    disciplineCode,
-                                    roleId: role?.id
-                                  })
-                                }}
-                                value={selectedRole}
-                              />
-                            )}
-                          </SwitchAnimation>
-                          <SwitchAnimation
-                            className="w-full flex-1"
-                            motionKey={
-                              selectedMovement && selectedRole ? 'transfer' : 'transfer-none'
-                            }
-                          >
-                            {selectedMovement && selectedRole && (
-                              <div className="flex size-full flex-col">
-                                <Field className="size-full border bg-background px-4 py-3">
-                                  <Slider
-                                    defaultValue={transferPercentage}
-                                    key={`${disciplineCode}:${transferPercentage}`}
-                                    max={100}
-                                    min={0}
-                                    onValueCommitted={(value) => {
-                                      const percentage =
-                                        typeof value === 'number' ? value : (value[0] ?? 0)
+                        <StackedPanelContent className="grid min-h-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)] border bg-background">
+                          <div className="flex min-h-0 min-w-0 flex-col border-r p-6">
+                            <div className="font-heading text-xl lowercase">movement</div>
+                            <SelectableGrid
+                              className="mt-4 min-h-0 flex-1"
+                              descriptionClassName="flex-1"
+                              emptyText={`Please select a ${disciplineLabel} movement`}
+                              items={disciplineMovementItems}
+                              onValueChange={(movement) => {
+                                const nextMovementId = movement?.id
 
+                                upsertRelationship({
+                                  disciplineCode,
+                                  targetDisciplineMovementId: nextMovementId,
+                                  ...(nextMovementId !== selectedMovement?.id
+                                    ? { roleId: undefined }
+                                    : {})
+                                })
+                              }}
+                              value={selectedMovement}
+                            />
+                          </div>
+                          <div className="flex min-h-0 min-w-0 flex-col p-6">
+                            <SwitchAnimation
+                              className="min-h-0 flex-1"
+                              itemClassName="flex min-h-0 flex-col"
+                              motionKey={selectedMovement ? 'movement' : 'movement-none'}
+                            >
+                              {selectedMovement && (
+                                <>
+                                  <div className="font-heading text-xl lowercase">role</div>
+                                  <SelectableGrid
+                                    allowDeselect
+                                    className="mt-4 min-h-0 flex-1"
+                                    descriptionClassName="flex-1"
+                                    emptyText={`Please select a ${disciplineLabel} role`}
+                                    items={references.exerciseRoles}
+                                    onValueChange={(role) => {
                                       upsertRelationship({
-                                        defaultTransferCoefficient: Math.min(
-                                          1,
-                                          Math.max(0, percentage / 100)
-                                        ),
-                                        disciplineCode
+                                        disciplineCode,
+                                        roleId: role?.id
                                       })
                                     }}
-                                  >
-                                    <div className="mb-3 flex min-w-0 items-end justify-between gap-4">
-                                      <FieldLabel className="font-heading lowercase">
-                                        transfer
-                                      </FieldLabel>
-                                      <SliderValue className="font-heading text-2xl leading-none text-foreground">
-                                        {(_, values) => `${values[0] ?? transferPercentage}%`}
-                                      </SliderValue>
-                                    </div>
-                                  </Slider>
-                                  <FieldDescription>
-                                    Default transfer to {disciplineLabel}{' '}
-                                    {selectedMovement.name.toLowerCase()} as{' '}
-                                    {selectedRole.name.toLowerCase()}.
-                                  </FieldDescription>
-                                </Field>
-                              </div>
-                            )}
-                          </SwitchAnimation>
+                                    value={selectedRole}
+                                  />
+                                </>
+                              )}
+                            </SwitchAnimation>
+                          </div>
                         </StackedPanelContent>
                       </StackedPanelItem>
                     )

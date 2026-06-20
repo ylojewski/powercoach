@@ -5,6 +5,7 @@ import {
   type DisciplineMovement,
   type Exercise,
   type ExerciseRole,
+  type LoadingType,
   type Pattern,
   useAppDispatch,
   useAppSelector
@@ -32,6 +33,7 @@ interface RelationshipStatus {
 
 interface UseExerciseCreationResult {
   activeDisciplineCode: Discipline['code'] | null
+  bodyweightPercentage: number
   canGoToNextStep: (step: Step) => boolean
   canStartCreation: (method: CreationMethod, exercise: Exercise | null) => boolean
   completedRelationships: CreationExerciseRelationship[]
@@ -41,12 +43,24 @@ interface UseExerciseCreationResult {
   initialCreation: Creation | null
   isCurrentCreationDirty: boolean
   selectedPattern: Pattern | null
+  selectedLoadingType: LoadingType | null
   shouldResetBlankCreation: boolean
   shouldResetCloneCreation: (exercise: Exercise | null) => boolean
+  shouldShowBodyweightCoefficient: boolean
+  updateBodyweightCoefficient: (coefficient: NonNullable<Exercise['bodyweightCoefficient']>) => void
   updateExercise: (exercise: Partial<Exercise>) => void
+  updateIsUnilateral: (isUnilateral: Exercise['isUnilateral']) => void
+  updateLoadingType: (loadingType: LoadingType | null) => void
   updatePattern: (pattern: Pattern | null) => void
   upsertRelationship: (relationship: CreationExerciseRelationship) => void
 }
+
+const BODYWEIGHT_LOADING_TYPE_CODES = new Set([
+  'assisted_bodyweight',
+  'bodyweight',
+  'bodyweight_plus_external'
+])
+const DEFAULT_BODYWEIGHT_COEFFICIENT = 1
 
 export function useExerciseCreation(): UseExerciseCreationResult {
   const dispatch = useAppDispatch()
@@ -77,6 +91,14 @@ export function useExerciseCreation(): UseExerciseCreationResult {
   const selectedPattern =
     references?.patterns.find((pattern) => pattern.id === currentCreation?.exercise.patternId) ??
     null
+  const selectedLoadingType =
+    references?.loadingTypes.find(
+      (loadingType) => loadingType.id === currentCreation?.exercise.loadingTypeId
+    ) ?? null
+  const shouldShowBodyweightCoefficient = isBodyweightLoadingType(selectedLoadingType)
+  const bodyweightPercentage = Math.round(
+    (currentCreation?.exercise.bodyweightCoefficient ?? DEFAULT_BODYWEIGHT_COEFFICIENT) * 100
+  )
   const isOverviewComplete = Boolean(
     currentCreation?.exercise.title.trim() && currentCreation.exercise.code.trim()
   )
@@ -176,6 +198,39 @@ export function useExerciseCreation(): UseExerciseCreationResult {
     [dispatch]
   )
 
+  const updateLoadingType = useCallback(
+    (loadingType: LoadingType | null) => {
+      if (!loadingType) {
+        dispatch(updateCreationExercise({ bodyweightCoefficient: null, loadingTypeId: null }))
+        return
+      }
+
+      dispatch(
+        updateCreationExercise({
+          bodyweightCoefficient: isBodyweightLoadingType(loadingType)
+            ? (currentCreation?.exercise.bodyweightCoefficient ?? DEFAULT_BODYWEIGHT_COEFFICIENT)
+            : null,
+          loadingTypeId: loadingType.id
+        })
+      )
+    },
+    [currentCreation?.exercise.bodyweightCoefficient, dispatch]
+  )
+
+  const updateBodyweightCoefficient = useCallback(
+    (bodyweightCoefficient: NonNullable<Exercise['bodyweightCoefficient']>) => {
+      dispatch(updateCreationExercise({ bodyweightCoefficient }))
+    },
+    [dispatch]
+  )
+
+  const updateIsUnilateral = useCallback(
+    (isUnilateral: Exercise['isUnilateral']) => {
+      dispatch(updateCreationExercise({ isUnilateral }))
+    },
+    [dispatch]
+  )
+
   const updatePattern = useCallback(
     (pattern: Pattern | null) => {
       dispatch(updateCreationExercise({ patternId: pattern?.id ?? null }))
@@ -192,6 +247,7 @@ export function useExerciseCreation(): UseExerciseCreationResult {
 
   return {
     activeDisciplineCode,
+    bodyweightPercentage,
     canGoToNextStep,
     canStartCreation,
     completedRelationships,
@@ -200,22 +256,26 @@ export function useExerciseCreation(): UseExerciseCreationResult {
     getRelationshipStatus,
     initialCreation,
     isCurrentCreationDirty,
+    selectedLoadingType,
     selectedPattern,
     shouldResetBlankCreation,
     shouldResetCloneCreation,
+    shouldShowBodyweightCoefficient,
+    updateBodyweightCoefficient,
     updateExercise,
+    updateIsUnilateral,
+    updateLoadingType,
     updatePattern,
     upsertRelationship
   }
 }
 
+function isBodyweightLoadingType(loadingType: LoadingType | null): boolean {
+  return Boolean(loadingType && BODYWEIGHT_LOADING_TYPE_CODES.has(loadingType.code))
+}
+
 function isCreationExerciseRelationshipComplete(
   relationship: CreationExerciseRelationship
 ): boolean {
-  return (
-    relationship.defaultTransferCoefficient !== undefined &&
-    relationship.defaultTransferCoefficient > 0 &&
-    relationship.roleId !== undefined &&
-    relationship.targetDisciplineMovementId !== undefined
-  )
+  return relationship.roleId !== undefined && relationship.targetDisciplineMovementId !== undefined
 }

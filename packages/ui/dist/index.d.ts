@@ -22,6 +22,7 @@ import { Input as InputPrimitive } from '@base-ui/react/input';
 import { JSX } from 'react/jsx-runtime';
 import { Key } from 'react';
 import { Loader2Icon } from 'lucide-react';
+import { LucideIcon } from 'lucide-react';
 import { Menu as MenuPrimitive } from '@base-ui/react/menu';
 import { Meter as MeterPrimitive } from '@base-ui/react/meter';
 import { NumberField as NumberFieldPrimitive } from '@base-ui/react/number-field';
@@ -914,7 +915,7 @@ export declare function ScrollBar({ className, orientation, ...props }: ScrollAr
 
 export declare const Select: typeof SelectPrimitive.Root;
 
-export declare function SelectableGrid<TItem extends SelectableGridItem>({ className, descriptionClassName, emptyText, gridClassName, items, itemsToUrlMap, onValueChange, orientation, value }: SelectableGridProps<TItem>): ReactElement;
+export declare function SelectableGrid<TItem extends SelectableGridItem>({ allowDeselect, className, descriptionClassName, disabled, emptyText, gridClassName, items, itemsToIconMap, itemsToUrlMap, layout, onValueChange, orientation, ratio, ratioClassName, value }: SelectableGridProps<TItem>): ReactElement;
 
 export declare interface SelectableGridItem {
     code: string;
@@ -924,12 +925,18 @@ export declare interface SelectableGridItem {
 
 export declare interface SelectableGridProps<TItem extends SelectableGridItem> extends ComponentProps<'div'> {
     descriptionClassName?: string;
+    disabled?: boolean;
+    allowDeselect?: boolean;
     emptyText: string;
     gridClassName?: string;
     items: TItem[];
+    itemsToIconMap?: Record<string, LucideIcon>;
     itemsToUrlMap?: Record<string, string>;
+    layout?: 'horizontal' | 'vertical';
     onValueChange?: (value: TItem | null) => void;
     orientation?: 'horizontal' | 'vertical';
+    ratio?: number;
+    ratioClassName?: string;
     value: TItem | null;
 }
 
