@@ -1,0 +1,4 @@
+interface:
+  display_name: "Powercoach UI"
+  short_description: "Reference public Powercoach UI."
+  default_prompt: "Use $powercoach-ui to check public UI contracts for manager work."

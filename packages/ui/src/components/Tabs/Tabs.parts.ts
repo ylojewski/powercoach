@@ -1,0 +1,5 @@
+export { TabsIndicator as Indicator } from './components/TabsIndicator'
+export { TabsList as List } from './components/TabsList'
+export { TabsPanel as Panel } from './components/TabsPanel'
+export { TabsRoot as Root } from './components/TabsRoot'
+export { TabsTab as Tab } from './components/TabsTab'

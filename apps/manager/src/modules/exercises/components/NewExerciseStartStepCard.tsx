@@ -23,9 +23,9 @@ export function NewExerciseStartStepCard({
   return (
     <div
       className={cn(
-        'group relative isolate flex min-w-0 cursor-pointer flex-col overflow-hidden bg-background transition-colors hover:bg-accent/60',
+        'm-3 border group relative isolate flex min-w-0 cursor-pointer flex-col overflow-hidden bg-background transition-colors hover:bg-accent/60',
         'before:pointer-events-none before:absolute before:inset-0 before:z-20 before:border-0 before:transition-[border-width,border-color] before:duration-200',
-        !active && 'first:before:border-r first:before:border-border',
+
         active && 'before:border-8 before:border-foreground',
         active ? 'cursor-auto' : 'bg-muted/20'
       )}

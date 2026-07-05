@@ -1,0 +1,4 @@
+interface:
+  display_name: "Design System Review"
+  short_description: "Review Powercoach UI code against project rules"
+  default_prompt: "Use $design-system-review to review a Powercoach UI implementation against its specification, tests, and coding conventions."

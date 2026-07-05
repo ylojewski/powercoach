@@ -15,5 +15,6 @@ export default buildConfig(import.meta.url, {
         { dest: 'assets', rename: { stripBase: true }, src: 'src/assets/favicon-*.svg' }
       ]
     })
-  ]
+  ],
+  setup: true
 })

@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "baseUrl": "./",
+    "jsx": "react-jsx",
+    "outDir": "dist",
+    "paths": {
+      "@/app": ["src/app"],
+      "@/app/*": ["src/app/*"],
+      "@/core": ["src/core"],
+      "@/core/*": ["src/core/*"],
+      "@/modules/*": ["src/modules/*"],
+      "@/scripts/*": ["scripts/*"],
+      "@/src/*": ["src/*"],
+      "@/test/*": ["test/*"]
+    },
+    "rootDir": "./",
+    "types": ["vite/client"]
+  },
+  "exclude": [
+    "dist",
+    "node_modules",
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx",
+    "scripts/**/*.test.ts",
+    "test"
+  ],
+  "extends": "@powercoach/config/tsconfig.src.json",
+  "include": ["src", "scripts"]
+}

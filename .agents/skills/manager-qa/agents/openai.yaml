@@ -1,0 +1,4 @@
+interface:
+  display_name: "Manager QA"
+  short_description: "QA manager in real Chrome."
+  default_prompt: "Use $manager-qa to inspect manager behavior in Chrome."

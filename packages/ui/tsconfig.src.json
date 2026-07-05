@@ -12,7 +12,9 @@
     "node_modules",
     "src/**/*.test.ts",
     "src/**/*.test.tsx",
-    "scripts/**/*.test.ts"
+    "scripts/**/*.test.ts",
+    "test/**/*.ts",
+    "test/**/*.tsx"
   ],
   "extends": "@powercoach/config/tsconfig.src.json",
   "include": ["src", "scripts", ".storybook/**/*.ts"]

@@ -16,6 +16,12 @@
       "persistent": true,
       "with": ["@powercoach/api#dev"]
     },
+    "@powercoach/manager-revamp#dev": {
+      "cache": false,
+      "dependsOn": ["@powercoach/db#dev"],
+      "persistent": true,
+      "with": ["@powercoach/api#dev"]
+    },
     "build": {
       "dependsOn": ["^build"],
       "inputs": [

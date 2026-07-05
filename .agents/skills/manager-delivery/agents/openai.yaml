@@ -1,0 +1,4 @@
+interface:
+  display_name: "Manager Delivery"
+  short_description: "Orchestrate manager delivery."
+  default_prompt: "Use $manager-delivery to run the manager delivery loop for a PM intent."

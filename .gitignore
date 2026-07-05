@@ -1,9 +1,11 @@
 # Artefacts
+.artifacts
 .turbo
 coverage
 /deploy
 node_modules
 apps/**/dist
+packages/ui/.artifacts
 
 # IDE
 .idea

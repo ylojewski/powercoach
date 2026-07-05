@@ -6,9 +6,9 @@ import {
 } from 'lucide-react'
 import { type ComponentProps, type CSSProperties, type ReactElement } from 'react'
 
+import { SwitchAnimation } from '../animations'
 import { cn } from '../coss'
 import { AspectRatio } from './AspectRatio'
-import { SwitchAnimation } from './SwitchAnimation'
 
 export interface SelectableGridItem {
   code: string
@@ -188,8 +188,11 @@ export function SelectableGrid<TItem extends SelectableGridItem>({
           descriptionClassName
         )}
       >
-        <SwitchAnimation motionKey={value?.code ?? 'unknown'}>
-          <span className="flex items-start gap-1 bg-background px-0.5 text-xs text-muted-foreground">
+        <SwitchAnimation contentMode="phrasing">
+          <span
+            key={value?.code ?? 'unknown'}
+            className="flex items-start gap-1 bg-background px-0.5 text-xs text-muted-foreground"
+          >
             <span className="ms-1 flex h-lh shrink-0 items-center">
               {value && <ArrowRightSquareIcon size={12} />}
               {!value && <AlertCircleIcon size={12} />}

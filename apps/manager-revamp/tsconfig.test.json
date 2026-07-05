@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "baseUrl": "./",
+    "jsx": "react-jsx",
+    "paths": {
+      "@/app": ["src/app"],
+      "@/app/*": ["src/app/*"],
+      "@/core": ["src/core"],
+      "@/core/*": ["src/core/*"],
+      "@/modules/*": ["src/modules/*"],
+      "@/scripts/*": ["scripts/*"],
+      "@/src/*": ["src/*"],
+      "@/test/*": ["test/*"]
+    },
+    "rootDir": "./",
+    "types": ["vite/client", "vitest/globals"]
+  },
+  "exclude": ["dist", "node_modules"],
+  "extends": "@powercoach/config/tsconfig.test.json",
+  "include": [
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx",
+    "test/**/*.ts",
+    "test/**/*.tsx",
+    "scripts/**/*.test.ts"
+  ]
+}

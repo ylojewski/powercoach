@@ -7,9 +7,8 @@ export function Exercises(): ReactElement {
   const navigation = useNavigation()
 
   return (
-    <section className="flex flex-col gap-2" data-testid="exercise-catalog">
-      <p>Exercise catalog</p>
-      <Button render={<BackgroundLink to={navigation.newExercise()} />}>New exercise</Button>
-    </section>
+    <Button revealAnimation render={<a type="button" />}>
+      New exercise
+    </Button>
   )
 }

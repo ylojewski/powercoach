@@ -1,0 +1,4 @@
+interface:
+  display_name: "Manager PO"
+  short_description: "Author manager specs and UI needs."
+  default_prompt: "Use $manager-po to turn a manager PM intent into a product spec."

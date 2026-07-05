@@ -1,0 +1,4 @@
+interface:
+  display_name: "Manager Review"
+  short_description: "Review manager delivery work."
+  default_prompt: "Use $manager-review to review a manager implementation."

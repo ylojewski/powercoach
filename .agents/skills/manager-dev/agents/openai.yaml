@@ -1,0 +1,4 @@
+interface:
+  display_name: "Manager Dev"
+  short_description: "Advise on or implement manager features."
+  default_prompt: "Use $manager-dev for manager PM advice, technical advice, or implementation."

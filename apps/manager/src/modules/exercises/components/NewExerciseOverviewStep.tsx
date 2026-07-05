@@ -4,6 +4,7 @@ import {
   FieldLabel,
   Form,
   FrameTitle,
+  Hint,
   InputGroupInput,
   InputGroupTextarea,
   ScrollArea
@@ -93,8 +94,8 @@ export function NewExerciseOverviewStep({
                 name="title"
               >
                 {(field) => (
-                  <Field className="gap-3 p-5" name={field.name}>
-                    <FieldLabel className="font-heading lowercase after:content-['*']">
+                  <Field className="gap-1 p-5" name={field.name}>
+                    <FieldLabel className="mb-2 font-heading lowercase after:content-['*']">
                       Title
                     </FieldLabel>
                     <div className={IDENTITY_CONTROL_CLASS}>
@@ -113,9 +114,21 @@ export function NewExerciseOverviewStep({
                         value={field.state.value ?? ''}
                       />
                     </div>
-                    <FieldDescription className="text-xs">
-                      The title as athletes will see it. Examples: "Competition deadlift", "Cable
-                      triceps extension"
+                    <FieldDescription className="w-full">
+                      <Hint
+                        hints={[
+                          {
+                            condition: Boolean(field.state.value),
+                            content: 'Pouet',
+                            key: 'pouet'
+                          }
+                        ]}
+                        textProps={{ intent: field.state.value ? 'destructive' : undefined }}
+                        waitingContent={
+                          'The title as athletes will see it. Examples: "Competition deadlift", "Cable triceps extension"'
+                        }
+                        waitingKey="title-hint"
+                      />
                     </FieldDescription>
                   </Field>
                 )}

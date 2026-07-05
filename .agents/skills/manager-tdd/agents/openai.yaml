@@ -1,0 +1,4 @@
+interface:
+  display_name: "Manager TDD"
+  short_description: "Write manager executable tests."
+  default_prompt: "Use $manager-tdd to translate a manager spec into tests."
