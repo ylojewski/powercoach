@@ -54,6 +54,7 @@ jobs:
           deploy-target: ${{ steps.context.outputs.deploy-target }}
           pull-event: ${{ steps.context.outputs.pull-event }}
           pull-slug: ${{ steps.context.outputs.pull-slug }}
+          push-event: ${{ steps.context.outputs.push-event }}
 
       - uses: ./.github/actions/core/cd/api
         if: steps.context.outputs.cd-action == 'true'

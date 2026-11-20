@@ -14,6 +14,9 @@ inputs:
   pull-slug:
     description: Slugified linked issue found in the PR commit messages
     required: false
+  push-event:
+    description: Whether it is a push event
+    required: true
 
 outputs:
   database-url:
@@ -40,7 +43,8 @@ runs:
             "Branch SHA": "${{ inputs.branch-sha }}",
             "Deploy target": "${{ inputs.deploy-target }}",
             "Pull event": "${{ inputs.pull-event }}",
-            "Pull slug": "${{ inputs.pull-slug }}"
+            "Pull slug": "${{ inputs.pull-slug }}",
+            "Push event": "${{ inputs.push-event }}"
           }
 
     - name: Find branch
@@ -58,12 +62,21 @@ runs:
           echo "drop=true" >> "$GITHUB_OUTPUT"
           echo "deploy=false" >> "$GITHUB_OUTPUT"
           echo "migrate=true" >> "$GITHUB_OUTPUT"
+          echo "seed=true" >> "$GITHUB_OUTPUT"
         fi
 
         if -t "${{ inputs.pull-event }}" && -f "${{ steps.find.outputs.found }}"; then
           echo "drop=false" >> "$GITHUB_OUTPUT"
           echo "deploy=true" >> "$GITHUB_OUTPUT"
           echo "migrate=true" >> "$GITHUB_OUTPUT"
+          echo "seed=true" >> "$GITHUB_OUTPUT"
+        fi
+
+        if -t "${{ inputs.push-event }}" && -e "${{ inputs.deploy-target }}" "production"; then
+          echo "drop=false" >> "$GITHUB_OUTPUT"
+          echo "deploy=false" >> "$GITHUB_OUTPUT"
+          echo "migrate=true" >> "$GITHUB_OUTPUT"
+          echo "seed=false" >> "$GITHUB_OUTPUT"
         fi
 
     - name: Deploy
@@ -91,9 +104,21 @@ runs:
         pnpm db:drop
         echo "ok=true" >> "$GITHUB_OUTPUT"
 
-    - name: Migrate & seed database
+    - name: Migrate database
       id: migrate
       if: steps.actions.outputs.migrate == 'true'
+      shell: bash
+      env:
+        DATABASE_URL: ${{ steps.database-url.outputs.value }}
+        NODE_ENV: 'production'
+      working-directory: packages/db
+      run: |
+        pnpm db:migrate
+        echo "ok=true" >> "$GITHUB_OUTPUT"
+
+    - name: Seed database
+      id: seed
+      if: steps.actions.outputs.seed == 'true'
       shell: bash
       env:
         DATABASE_URL: ${{ steps.database-url.outputs.value }}
@@ -101,7 +126,6 @@ runs:
         PULL_SLUG: ${{ inputs.pull-slug }}
       working-directory: packages/db
       run: |
-        pnpm db:migrate
         pnpm db:seed
         echo "ok=true" >> "$GITHUB_OUTPUT"
 
@@ -118,7 +142,9 @@ runs:
             "actions.deploy": "${{ steps.actions.outputs.deploy }}",
             "actions.drop": "${{ steps.actions.outputs.drop }}",
             "actions.migrate": "${{ steps.actions.outputs.migrate }}",
+            "actions.seed": "${{ steps.actions.outputs.seed }}",
             "deploy.id": "${{ steps.deploy.outputs.id }}",
             "drop.ok": "${{ steps.drop.outputs.ok }}",
-            "migrate.ok": "${{ steps.migrate.outputs.ok }}"
+            "migrate.ok": "${{ steps.migrate.outputs.ok }}",
+            "seed.ok": "${{ steps.seed.outputs.ok }}"
           }

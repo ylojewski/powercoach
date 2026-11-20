@@ -4,7 +4,7 @@ import { MemoryRouter, Route, Routes } from 'react-router'
 
 import { PathnameProbe } from './PathnameProbe'
 
-export interface RenderWithRouterOptions extends Omit<RenderOptions, 'wrapper'> {
+export interface RenderWithRouterOptions extends RenderOptions {
   initialEntry?: string
   path?: string
   pathnameProbe?: boolean | string

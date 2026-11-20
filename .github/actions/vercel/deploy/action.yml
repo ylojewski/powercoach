@@ -72,6 +72,7 @@ runs:
             --arg manager_metadata "${{ steps.metadata.outputs.manager-long-camel }}" \
             --arg production "${{ inputs.deploy-target == 'production' }}" \
             --arg project "$VCL_PROJECT" \
+            --arg node_version "$(jq -r '.engines.node' "$GITHUB_WORKSPACE/package.json")" \
             '. as $files
               | {
                  files: $files,
@@ -80,7 +81,8 @@ runs:
                    ($manager_metadata): $manager_sha
                  },
                  name: $project,
-                 project: $project
+                 project: $project,
+                 projectSettings: { nodeVersion: $node_version }
                }
               | if $production == "true" then . + { target: "production" } else . end
             '

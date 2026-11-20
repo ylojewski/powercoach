@@ -5,10 +5,12 @@
     "jsx": "react-jsx",
     "outDir": "dist",
     "paths": {
-      "@/core": ["src/features/core"],
-      "@/roster": ["src/features/roster"],
+      "@/app": ["src/app"],
+      "@/app/*": ["src/app/*"],
+      "@/core": ["src/core"],
+      "@/core/*": ["src/core/*"],
+      "@/modules/*": ["src/modules/*"],
       "@/scripts/*": ["scripts/*"],
-      "@/settings": ["src/features/settings"],
       "@/src/*": ["src/*"],
       "@/test/*": ["test/*"]
     },

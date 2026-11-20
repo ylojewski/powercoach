@@ -68,11 +68,14 @@ function buildTypescriptConfig(project) {
       ...strictRules,
       ...stylisticRules,
       "@typescript-eslint/await-thenable": "error",
+      "@typescript-eslint/no-empty-object-type": ["error", { allowInterfaces: "always" }],
+      "@typescript-eslint/no-redeclare": "error",
       "@typescript-eslint/no-unused-vars": [
         "error",
         { argsIgnorePattern: "^_", caughtErrors: "none" }
       ],
-      "@typescript-eslint/return-await": ["error", "never"]
+      "@typescript-eslint/return-await": ["error", "never"],
+      "no-redeclare": "off"
     }
   };
 }

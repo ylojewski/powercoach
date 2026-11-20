@@ -4,8 +4,8 @@ Fastify HTTP API that powers Powercoach services. The server is written in TypeS
 
 ## Prerequisites
 
-- Node.js 20+
-- pnpm 9+
+- Node.js 26 (see the root `.nvmrc`)
+- pnpm 10.20.0
 
 ## Installation
 

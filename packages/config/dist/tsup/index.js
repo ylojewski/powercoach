@@ -19,7 +19,7 @@ function buildConfig(pkg) {
     outDir: "dist",
     sourcemap: true,
     splitting: false,
-    target: "node20",
+    target: "node26",
     treeshake: true,
     tsconfig: "./tsconfig.src.json"
   };

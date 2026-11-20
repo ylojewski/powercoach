@@ -35,7 +35,7 @@
     "@eslint/js": "9.38.0",
     "@powercoach/config": "workspace:*",
     "@powercoach/util-test": "workspace:*",
-    "@types/node": "^24.9.2",
+    "@types/node": "^26.6.6",
     "@types/pg": "^8.15.6",
     "@typescript-eslint/eslint-plugin": "^8.46.2",
     "@typescript-eslint/parser": "^8.46.2",
@@ -53,7 +53,7 @@
   },
   "types": "dist/index.d.ts",
   "engines": {
-    "node": "20"
+    "node": "26.x"
   },
   "files": ["dist", "node_modules"],
   "main": "dist/index.js",

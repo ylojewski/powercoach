@@ -1,0 +1,8 @@
+@layer base {
+  :where([data-motion='switch']) {
+    --switch-animation-distance: 15px;
+    --switch-animation-duration: 200ms;
+    --switch-animation-easing: ease-in-out;
+    --switch-animation-stagger: 50ms;
+  }
+}

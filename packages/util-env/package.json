@@ -23,7 +23,7 @@
     "@powercoach/config": "workspace:*",
     "@powercoach/util-fixture": "workspace:*",
     "@powercoach/util-test": "workspace:*",
-    "@types/node": "^24.9.2",
+    "@types/node": "^26.6.6",
     "@typescript-eslint/eslint-plugin": "^8.46.2",
     "@typescript-eslint/parser": "^8.46.2",
     "@vitest/coverage-v8": "^4.0.6",
@@ -37,7 +37,7 @@
   },
   "types": "dist/index.d.ts",
   "engines": {
-    "node": "20"
+    "node": "26.x"
   },
   "files": ["dist", "node_modules"],
   "main": "dist/index.js",

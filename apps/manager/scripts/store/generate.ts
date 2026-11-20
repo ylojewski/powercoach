@@ -1,77 +1,85 @@
-import { readFileSync, appendFileSync, rmSync, mkdirSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { join, dirname } from 'node:path'
 
 import { generateEndpoints } from '@rtk-query/codegen-openapi'
-import { OpenAPIV3 as OpenAPI } from 'openapi-types'
 
-const HTTP_METHODS = ['get', 'put', 'post', 'delete', 'patch'] as const
 const OPENAPI_FILE = '@powercoach/api/openapi.json' as const
 
 const require = createRequire(import.meta.url)
-const resolvedApiDir = dirname(require.resolve('@/src/api'))
-const resolvedGeneratedDir = join(resolvedApiDir, 'generated')
-const resolvedOpenapiFile = require.resolve(OPENAPI_FILE)
+const resolvedApiDir = dirname(require.resolve('@/core/api'))
+const resolvedHooksDir = dirname(require.resolve('@/core/hooks'))
+const resolvedGeneratedApiDir = join(resolvedApiDir, 'generated')
+const resolvedGeneratedPendingQueriesFile = join(resolvedHooksDir, 'usePendingQuery.generated.ts')
 
-const openapi = JSON.parse(readFileSync(resolvedOpenapiFile, 'utf8')) as OpenAPI.Document
+function generatePendingQueriesContent(content: string): string {
+  const match = content.matchAll(/\buse(?!Lazy)[A-Z]\w+Query\b/g)
+  const hooks = Array.from(match, ([hook]) => hook)
 
-const operationIdsByTag = ((): Record<string, string[]> => {
-  const result: Record<string, string[]> = {}
-
-  for (const pathItem of Object.values(openapi.paths)) {
-    if (!pathItem || '$ref' in pathItem) {
-      continue
-    }
-
-    for (const method of HTTP_METHODS) {
-      const operation = pathItem[method]
-
-      if (!operation?.operationId || !operation.tags) {
-        continue
-      }
-
-      for (const tag of operation.tags) {
-        result[tag] ??= []
-        if (!result[tag].includes(operation.operationId)) {
-          result[tag].push(operation.operationId)
-        }
-      }
-    }
+  if (!hooks.length) {
+    return 'export type GeneratedQueryHook = never\n'
   }
 
-  return result
+  const importHookString = `import { usePendingQuery } from './usePendingQuery'`
+  const importApiHooksString = `import { ${hooks.join(', ')} } from '../api'`
+
+  const pendingQueriesHooks = hooks.map((hook) => {
+    return `export const usePending${hook.replace('use', '')} = usePendingQuery(${hook})`
+  })
+
+  return [[importHookString, importApiHooksString].join('\n'), pendingQueriesHooks.join('\n')].join(
+    '\n\n'
+  )
+}
+
+const resolvedOpenapiFile = (() => {
+  try {
+    const file = require.resolve(OPENAPI_FILE)
+    return existsSync(file) ? file : undefined
+  } catch {
+    return undefined
+  }
 })()
 
-rmSync(resolvedGeneratedDir, { force: true, recursive: true })
-mkdirSync(resolvedGeneratedDir)
+if (!resolvedOpenapiFile) {
+  throw new Error(
+    `Missing ${OPENAPI_FILE}. Run "pnpm --filter @powercoach/api openapi:generate" before generating the manager store.`
+  )
+}
 
-const generatedFiles = await Promise.all(
-  Object.entries(operationIdsByTag).map(async ([tag, operationIds]) => {
-    const generatedFile = `${tag}.generated.ts`
+rmSync(resolvedGeneratedApiDir, { force: true, recursive: true })
+rmSync(resolvedGeneratedPendingQueriesFile, { force: true, recursive: true })
 
-    await generateEndpoints({
-      apiFile: '@/src/api/api.ts',
-      apiImport: 'api',
-      exportName: `${tag}Api`,
-      filterEndpoints: operationIds,
-      hooks: {
-        lazyQueries: true,
-        mutations: true,
-        queries: true
-      },
-      outputFile: join(resolvedGeneratedDir, generatedFile),
-      schemaFile: resolvedOpenapiFile
-    })
+mkdirSync(resolvedGeneratedApiDir)
 
-    if (!process.argv.includes('--quiet')) {
-      console.info(`✅ src/api/generated/${tag}.generated.ts`)
-    }
+const apiIndexFile = join(resolvedGeneratedApiDir, 'index.generated.ts')
 
-    return generatedFile
-  })
+await generateEndpoints({
+  apiFile: './src/core/api/apiSlice.ts',
+  apiImport: 'apiSlice',
+  exportName: 'api',
+  hooks: {
+    lazyQueries: true,
+    mutations: true,
+    queries: true
+  },
+  outputFile: apiIndexFile,
+  schemaFile: resolvedOpenapiFile
+})
+
+writeFileSync(
+  resolvedGeneratedPendingQueriesFile,
+  generatePendingQueriesContent(readFileSync(apiIndexFile, 'utf-8') ?? ''),
+  'utf-8'
 )
 
-generatedFiles.forEach((generatedFile) => {
-  const file = generatedFile.slice(0, -3)
-  appendFileSync(join(resolvedGeneratedDir, 'index.ts'), `export * from './${file}'\n`, 'utf-8')
-})
+writeFileSync(
+  join(resolvedGeneratedApiDir, 'index.ts'),
+  "export * from './index.generated'",
+  'utf-8'
+)
+
+if (!process.argv.includes('--quiet')) {
+  console.info('✅ src/core/api/generated/index.generated.ts')
+  console.info('✅ src/core/hooks/usePendingQuery.generated.ts')
+}

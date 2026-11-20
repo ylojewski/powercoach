@@ -1,7 +1,13 @@
 import swagger from '@fastify/swagger'
 import { MockedFunction } from 'vitest'
 
-import { HEALTH_MODULE_TAG, ROSTER_MODULE_TAG, SETTINGS_MODULE_TAG } from '@/src/modules'
+import {
+  EXERCISES_MODULE_TAG,
+  HEALTH_MODULE_TAG,
+  REFERENCES_MODULE_TAG,
+  ROSTER_MODULE_TAG,
+  SETTINGS_MODULE_TAG
+} from '@/src/modules'
 import { buildDummyApp } from '@/test/utils'
 
 import { SWAGGER_PLUGIN_NAME, swaggerPlugin } from './swagger.plugin'
@@ -39,6 +45,8 @@ describe('swaggerPlugin', () => {
           version: packageJson.version
         },
         tags: [
+          { description: 'Exercise catalog endpoints', name: EXERCISES_MODULE_TAG },
+          { description: 'Reference data endpoints', name: REFERENCES_MODULE_TAG },
           { description: 'Roster endpoints', name: ROSTER_MODULE_TAG },
           { description: 'Coach settings endpoints', name: SETTINGS_MODULE_TAG },
           { description: 'Application health endpoints', name: HEALTH_MODULE_TAG }

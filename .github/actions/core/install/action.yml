@@ -48,6 +48,11 @@ runs:
         }
         EOF
 
+    - name: Use Node.js
+      uses: actions/setup-node@v6
+      with:
+        node-version-file: .nvmrc
+
     - name: Setup pnpm
       uses: pnpm/action-setup@v4
       with:
@@ -66,20 +71,15 @@ runs:
         restore-keys: |
           pnpm-store-${{ runner.os }}-
 
-    - name: Use Node.js
-      uses: actions/setup-node@v6
-      with:
-        node-version-file: package.json
-
     - name: Cache Turbo
       uses: actions/cache@v4
       with:
         path: |
           node_modules/.cache/turbo
           .turbo
-        key: turbo-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'turbo.json') }}
+        key: turbo-${{ runner.os }}-${{ hashFiles('.nvmrc') }}-${{ hashFiles('pnpm-lock.yaml', 'turbo.json') }}
         restore-keys: |
-          turbo-${{ runner.os }}-
+          turbo-${{ runner.os }}-${{ hashFiles('.nvmrc') }}-
 
     - name: Install dependencies
       shell: bash

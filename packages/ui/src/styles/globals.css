@@ -1,1 +1,35 @@
 @source '../**/*.{ts,tsx}';
+
+:root {
+  --hard-shadow: 0.25rem 0.25rem 0 0 var(--color-foreground);
+}
+
+@utility focus-geometry {
+  @apply outline-2 outline-offset-1;
+}
+
+:where(.tiles-layout-defaults) {
+  --tiles-layout-duration: 200ms;
+  --tiles-layout-easing: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@utility field-emphasis {
+  --field-emphasis-offset: --spacing(0.5);
+  --field-emphasis-shadow-offset: --spacing(1);
+  --hard-shadow: var(--field-emphasis-shadow-offset) var(--field-emphasis-shadow-offset) 0 0
+    var(--color-foreground);
+  @apply transition-[translate,border-color,box-shadow] duration-150 ease-out motion-reduce:duration-0;
+
+  &:focus-within {
+    @apply border-foreground shadow-(--hard-shadow);
+    translate: calc(var(--field-emphasis-offset) * -1) calc(var(--field-emphasis-offset) * -1);
+  }
+
+  & [data-field-addon] {
+    @apply transition-[background-color,color,border-color] duration-150 ease-out motion-reduce:duration-0;
+  }
+
+  &:focus-within [data-field-addon] {
+    @apply border-foreground bg-foreground text-background;
+  }
+}
