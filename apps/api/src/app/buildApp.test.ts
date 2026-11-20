@@ -1,24 +1,31 @@
 import { type Options } from '@fastify/ajv-compiler'
 import { flushAsync, spyOnConsole, spyOnStdout, stubEnv } from '@powercoach/util-test'
 import { type FastifyRequest } from 'fastify'
+import { Client } from 'pg'
 import { z } from 'zod'
 
 import { type Env, resetCachedEnv } from '@/src/core'
 import {
+  EXERCISES_MODULE_NAME,
   HEALTH_MODULE_NAME,
+  REFERENCES_MODULE_NAME,
   ROSTER_MODULE_NAME,
   SETTINGS_MODULE_NAME,
+  exercisesModule,
   healthModule,
+  referencesModule,
   rosterModule,
   settingsModule
 } from '@/src/modules'
 import {
   ERROR_PLUGIN_NAME,
   HELMET_PLUGIN_NAME,
+  SCHEMAS_PLUGIN_NAME,
   SENSIBLE_PLUGIN_NAME,
   SWAGGER_PLUGIN_NAME,
   errorPlugin,
   helmetPlugin,
+  schemasPlugin,
   sensiblePlugin
 } from '@/src/plugins'
 import { createRealEnv, invalidEnv, testEnv } from '@/test/fixtures'
@@ -77,10 +84,15 @@ describe('buildApp', () => {
       await expect(buildApp({ env: invalidEnv })).rejects.toThrow(/^Invalid environment/i)
     })
 
-    it('fails if connexion to database can not be established', async () => {
-      await expect(buildApp({ env: testEnv })).rejects.toThrow(
-        expect.objectContaining({ code: 'ECONNREFUSED' })
-      )
+    it('fails if connection to database cannot be established', async () => {
+      const error = Object.assign(new Error('Connection refused'), { code: 'ECONNREFUSED' })
+      const connectSpy = vi.spyOn(Client.prototype, 'connect').mockRejectedValueOnce(error)
+
+      try {
+        await expect(buildApp({ env: testEnv })).rejects.toBe(error)
+      } finally {
+        connectSpy.mockRestore()
+      }
     })
   })
 
@@ -99,11 +111,16 @@ describe('buildApp', () => {
       await expect(buildApp()).rejects.toThrow(/^Invalid environment/i)
     })
 
-    it('fails if connexion to database can not be established', async () => {
+    it('fails if connection to database cannot be established', async () => {
       stubEnv(testEnv)
-      await expect(buildApp({ env: testEnv })).rejects.toThrow(
-        expect.objectContaining({ code: 'ECONNREFUSED' })
-      )
+      const error = Object.assign(new Error('Connection refused'), { code: 'ECONNREFUSED' })
+      const connectSpy = vi.spyOn(Client.prototype, 'connect').mockRejectedValueOnce(error)
+
+      try {
+        await expect(buildApp()).rejects.toBe(error)
+      } finally {
+        connectSpy.mockRestore()
+      }
     })
   })
 
@@ -127,9 +144,12 @@ describe('buildApp', () => {
       expect(app.hasPlugin(HELMET_PLUGIN_NAME)).toBe(true)
       expect(app.hasPlugin(SENSIBLE_PLUGIN_NAME)).toBe(true)
       expect(app.hasPlugin(ERROR_PLUGIN_NAME)).toBe(true)
+      expect(app.hasPlugin(SCHEMAS_PLUGIN_NAME)).toBe(true)
+      expect(app.hasPlugin(EXERCISES_MODULE_NAME)).toBe(true)
       expect(app.hasPlugin(ROSTER_MODULE_NAME)).toBe(true)
       expect(app.hasPlugin(SETTINGS_MODULE_NAME)).toBe(true)
       expect(app.hasPlugin(HEALTH_MODULE_NAME)).toBe(true)
+      expect(app.hasPlugin(REFERENCES_MODULE_NAME)).toBe(true)
     })
 
     it('generates a reliable request id if none is given', async () => {
@@ -201,10 +221,11 @@ describe('registerCorePlugins', () => {
 
     await registerCorePlugins(app)
 
-    expect(app.register).toHaveBeenCalledTimes(3)
+    expect(app.register).toHaveBeenCalledTimes(4)
     expect(app.register).toHaveBeenCalledWith(helmetPlugin)
     expect(app.register).toHaveBeenCalledWith(sensiblePlugin)
     expect(app.register).toHaveBeenCalledWith(errorPlugin)
+    expect(app.register).toHaveBeenCalledWith(schemasPlugin)
   })
 })
 
@@ -216,7 +237,9 @@ describe('registerCoreModules', () => {
 
     await registerCoreModules(app)
 
-    expect(app.register).toHaveBeenCalledTimes(3)
+    expect(app.register).toHaveBeenCalledTimes(5)
+    expect(app.register).toHaveBeenCalledWith(exercisesModule, { prefix: '/v1/exercises' })
+    expect(app.register).toHaveBeenCalledWith(referencesModule, { prefix: '/v1/references' })
     expect(app.register).toHaveBeenCalledWith(rosterModule, { prefix: '/v1/roster' })
     expect(app.register).toHaveBeenCalledWith(settingsModule, { prefix: '/v1/settings' })
     expect(app.register).toHaveBeenCalledWith(healthModule, { prefix: '/v1/health' })

@@ -1,3 +1,5 @@
+export * from './exercises'
+export * from './references'
 export * from './roster'
 export * from './settings'
 export * from './health'

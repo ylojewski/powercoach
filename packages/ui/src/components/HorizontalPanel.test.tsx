@@ -32,15 +32,12 @@ describe('HorizontalPanel', () => {
     expect(
       horizontalPanel.style.getPropertyValue('--horizontal-panel-trigger-label-hover-size')
     ).toBe('1.125rem')
-    expect(horizontalPanel.style.getPropertyValue('--horizontal-panel-item-border-width')).toBe(
-      '1px'
-    )
     expect(horizontalPanel.style.getPropertyValue('--horizontal-panel-collapsed-width')).toBe(
-      'calc(var(--horizontal-panel-item-count) * (var(--horizontal-panel-trigger-width) + var(--horizontal-panel-item-border-width)))'
+      'calc(var(--horizontal-panel-item-count) * (var(--horizontal-panel-trigger-width)))'
     )
   })
 
-  it('reuses the border width variable for panel borders', () => {
+  it('renders fused trigger border layers without layout borders', () => {
     render(
       <HorizontalPanel data-testid="horizontal-panel" value={['metrics']}>
         <HorizontalPanelItem value="metrics">
@@ -50,21 +47,18 @@ describe('HorizontalPanel', () => {
       </HorizontalPanel>
     )
 
-    const item = screen
-      .getByRole('button', { name: 'metrics' })
-      .closest('[data-slot="accordion-item"]')
-    const content = item?.querySelector('[data-slot="accordion-panel"] > div')
-    const itemClassName = item?.getAttribute('class') ?? ''
-    const contentClassName = content?.getAttribute('class') ?? ''
+    const trigger = screen.getByRole('button', { name: 'metrics' })
+    const triggerClassName = trigger.getAttribute('class') ?? ''
 
-    expect(itemClassName).toContain('[border-left-width:var(--horizontal-panel-item-border-width)]')
-    expect(contentClassName).toContain('bg-background')
-    expect(contentClassName).toContain(
-      '[border-left-width:var(--horizontal-panel-item-border-width)]'
-    )
+    expect(triggerClassName).toContain('before:bg-border')
+    expect(triggerClassName).toContain('before:w-px')
+    expect(triggerClassName).toContain('in-[[data-slot=accordion-item]:last-child]:after:bg-border')
+    expect(triggerClassName).toContain('in-[[data-slot=accordion-item]:last-child]:after:w-px')
+    expect(triggerClassName).not.toContain('border-l')
+    expect(triggerClassName).not.toContain('border-r')
   })
 
-  it('renders a reverse overlay for hover, focus-visible, and active states', () => {
+  it('renders a left-to-right overlay for hover, focus-visible, and active states', () => {
     render(
       <HorizontalPanel data-testid="horizontal-panel" value={['metrics']}>
         <HorizontalPanelItem value="metrics">
@@ -80,7 +74,6 @@ describe('HorizontalPanel', () => {
     const label = trigger.querySelector('[data-slot="horizontal-panel-trigger-label"]')
     const baseLabel = trigger.querySelector('span:not([aria-hidden="true"])')
     const overlayClassName = overlay?.getAttribute('class') ?? ''
-    const fillClassName = fill?.getAttribute('class') ?? ''
     const labelClassName = label?.getAttribute('class') ?? ''
     const overlayLabelClassName = label?.firstElementChild?.getAttribute('class') ?? ''
     const baseLabelClassName = baseLabel?.getAttribute('class') ?? ''
@@ -91,17 +84,15 @@ describe('HorizontalPanel', () => {
     expect(trigger.getAttribute('class') ?? '').toContain('focus-visible:outline-none')
     expect(overlay?.getAttribute('aria-hidden')).toBe('true')
     expect(overlayClassName).toContain('overflow-hidden')
-    expect(overlayClassName).toContain('inset-0')
-    expect(overlayClassName).toContain('[clip-path:inset(0_0_0_100%)]')
+    expect(overlayClassName).toContain('-inset-px')
+    expect(overlayClassName).toContain('bg-foreground')
+    expect(overlayClassName).toContain('text-background')
+    expect(overlayClassName).toContain('[clip-path:inset(0_100%_0_0)]')
     expect(overlayClassName).toContain('group-hover:[clip-path:inset(0_0_0_0)]')
     expect(overlayClassName).toContain('group-focus-visible:[clip-path:inset(0_0_0_0)]')
     expect(overlayClassName).toContain('group-data-[panel-open]:[clip-path:inset(0_0_0_0)]')
-    expect(fillClassName).toContain('bg-foreground')
-    expect(fillClassName).toContain('translate-x-full')
-    expect(fillClassName).toContain('group-hover:translate-x-0')
-    expect(fillClassName).toContain('group-focus-visible:translate-x-0')
-    expect(fillClassName).toContain('group-data-[panel-open]:translate-x-0')
-    expect(labelClassName).toContain('text-background')
+    expect(fill).toBeNull()
+    expect(labelClassName).toContain('overflow-hidden')
     expect(overlayLabelClassName).toContain(
       'top-[calc(var(--horizontal-panel-trigger-width)/2-var(--horizontal-panel-trigger-label-hover-size))]'
     )
@@ -114,6 +105,7 @@ describe('HorizontalPanel', () => {
       'top-[calc(var(--horizontal-panel-trigger-width)/2-var(--horizontal-panel-trigger-label-size))]'
     )
     expect(baseLabelClassName).toContain('left-1/2')
+    expect(baseLabelClassName).toContain('z-10')
     expect(baseLabelClassName).toContain('origin-[0]')
     expect(baseLabelClassName).toContain('rotate-90')
     expect(baseLabelClassName).not.toContain('text-xl')

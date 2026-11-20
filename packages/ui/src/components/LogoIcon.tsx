@@ -6,12 +6,12 @@ import { cn } from '@/src/coss'
 
 export const logoIconVariants = cva('', {
   defaultVariants: {
-    variant: 'black'
+    variant: 'foreground'
   },
   variants: {
     variant: {
-      black: '[&_.container]:fill-black dark:[&_.container]:fill-white',
-      white: '[&_.container]:fill-white dark:[&_.container]:fill-black'
+      background: '[&_.container]:fill-background',
+      foreground: '[&_.container]:fill-foreground'
     }
   }
 })
@@ -22,7 +22,7 @@ export interface LogoIconProps
 
 export function LogoIcon({
   className,
-  variant = 'black',
+  variant = 'foreground',
   ...props
 }: LogoIconProps): React.ReactElement {
   return (

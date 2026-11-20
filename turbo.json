@@ -1,6 +1,22 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": [".nvmrc"],
   "tasks": {
+    "@powercoach/api#dev": {
+      "cache": false,
+      "dependsOn": ["@powercoach/db#dev"],
+      "persistent": true
+    },
+    "@powercoach/db#dev": {
+      "cache": false,
+      "persistent": false
+    },
+    "@powercoach/manager#dev": {
+      "cache": false,
+      "dependsOn": ["@powercoach/db#dev"],
+      "persistent": true,
+      "with": ["@powercoach/api#dev"]
+    },
     "build": {
       "dependsOn": ["^build"],
       "inputs": [

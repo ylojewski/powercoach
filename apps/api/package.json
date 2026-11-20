@@ -43,7 +43,7 @@
     "@powercoach/util-fixture": "workspace:*",
     "@powercoach/util-test": "workspace:*",
     "@testcontainers/postgresql": "^11.9.0",
-    "@types/node": "^24.9.2",
+    "@types/node": "^26.6.6",
     "@types/pg": "^8.15.6",
     "@typescript-eslint/eslint-plugin": "^8.46.2",
     "@typescript-eslint/parser": "^8.46.2",
@@ -60,7 +60,7 @@
     "vitest": "^4.0.6"
   },
   "engines": {
-    "node": "20"
+    "node": "26.x"
   },
   "files": ["dist", "node_modules"],
   "main": "dist/index.js",

@@ -59,7 +59,7 @@ __name(buildConfig, "buildConfig");
 // src/vite/buildConfig.ts
 function buildConfig2(importUrl, config) {
   return defineConfig(({ mode }) => {
-    const { api, lib, plugins } = config ?? {};
+    const { api, lib, ngrok, plugins } = config ?? {};
     const importPath = fileURLToPath(importUrl);
     const importDir = dirname(importPath);
     const apiTarget = api === true ? loadEnv(mode, importDir).VITE_API_BASE_URL ?? "" : api || "";
@@ -109,6 +109,7 @@ function buildConfig2(importUrl, config) {
         }
       },
       server: {
+        ...ngrok && { allowedHosts: [`${ngrok}.ngrok-free.app`] },
         host: "localhost",
         port: 3e3,
         proxy: { ...apiProxy },

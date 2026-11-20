@@ -1,4 +1,4 @@
-FROM node:20-slim AS runner
+FROM node:26-slim AS runner
 
 ENV NODE_ENV=production
 

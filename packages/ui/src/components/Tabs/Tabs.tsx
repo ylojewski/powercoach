@@ -1,0 +1,6 @@
+export * from './components/TabsIndicator'
+export * from './components/TabsList'
+export * from './components/TabsPanel'
+export * from './components/TabsRoot'
+export * from './components/TabsTab'
+export * as Tabs from './Tabs.parts'

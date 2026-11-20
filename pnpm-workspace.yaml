@@ -1,6 +1,5 @@
 packages:
   - apps/*
   - packages/*
-
 overrides:
   '@microsoft/api-extractor>typescript': 5.9.3

@@ -8,9 +8,11 @@
     "commitlint": "commitlint",
     "db:studio": "pnpm --filter @powercoach/db db:studio",
     "deploy:api": "pnpm deploy --legacy --filter @powercoach/api --prod --ignore-scripts deploy/api",
-    "dev": "turbo dev",
+    "dev": "turbo dev --filter=@powercoach/manager --filter=@powercoach/ui",
     "format": "prettier . --check && turbo format --concurrency=1",
     "format:write": "prettier . --write --list-different && turbo format:write --concurrency=1",
+    "issue:checkout": "bash scripts/issue-checkout.sh",
+    "issue:commit": "bash scripts/issue-commit.sh",
     "lint": "turbo lint --concurrency=1",
     "lint-staged": "lint-staged",
     "lint:fix": "turbo lint --concurrency=1 -- --fix",
@@ -31,7 +33,7 @@
     "turbo": "^2.6.0"
   },
   "engines": {
-    "node": "20.x"
+    "node": "26.x"
   },
   "packageManager": "pnpm@10.20.0",
   "private": true

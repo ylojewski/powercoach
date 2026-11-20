@@ -1,6 +1,6 @@
 # Powercoach Monorepo
 
-Turborepo-powered workspace that hosts the Powercoach backend, frontend manager, and shared tooling packages. Everything runs on Node 20, pnpm, and TypeScript with reproducible developer workflows.
+Turborepo-powered workspace that hosts the Powercoach backend, frontend manager, and shared tooling packages. Everything runs on Node 26, pnpm, and TypeScript with reproducible developer workflows.
 
 [![CI](https://github.com/ylojewski/powercoach/actions/workflows/ci.yml/badge.svg)](https://github.com/ylojewski/powercoach/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
@@ -13,7 +13,7 @@ This repository is managed with [Turborepo](https://turbo.build/). The root pack
 ### Applications
 
 - [`@powercoach/api`](./apps/api) – Fastify HTTP API that exposes health checks and future service endpoints.
-- [`@powercoach/manager`](./apps/manager) – React + Vite frontend that consumes the API (currently displaying backend health).
+- [`@powercoach/manager`](./apps/manager) – Active React + Vite manager, built from the revamp.
 
 ### Shared packages
 
@@ -24,8 +24,11 @@ This repository is managed with [Turborepo](https://turbo.build/). The root pack
 
 ## Getting started
 
-1. Install dependencies:
+1. Use the project's Node version and install dependencies:
    ```sh
+   nvm install
+   nvm use
+   npm install --global pnpm@10.20.0
    pnpm install --frozen-lockfile
    ```
 2. Start development tasks with Turbo:
