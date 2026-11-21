@@ -1,6 +1,6 @@
 ---
 name: design-system-component
-description: Advise on public Powercoach UI specification contracts or implement, migrate, and refactor component and reusable animation families in packages/ui using React 19, Base UI 1.6, Tailwind CSS 4, CSS or Motion animation engines, and package-local conventions.
+description: Advise on public Powercoach UI specification contracts or implement, migrate, and refactor component and reusable animation families in packages/ui using React 19, Base UI, Tailwind CSS 4, CSS or Motion animation engines, and package-local conventions.
 ---
 
 # Design System Dev

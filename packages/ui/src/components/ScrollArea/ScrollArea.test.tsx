@@ -327,8 +327,11 @@ describe('ScrollArea', () => {
     expect(verticalScrollbar).toHaveAttribute('data-orientation', 'vertical')
     expect(horizontalThumb).toHaveAttribute('data-orientation', 'horizontal')
     expect(verticalThumb).toHaveAttribute('data-orientation', 'vertical')
-    expect(cornerVariables.getPropertyValue('--scroll-area-corner-height')).toBe('24px')
-    expect(cornerVariables.getPropertyValue('--scroll-area-corner-width')).toBe('24px')
+
+    await waitFor(() => {
+      expect(cornerVariables.getPropertyValue('--scroll-area-corner-height')).toBe('24px')
+      expect(cornerVariables.getPropertyValue('--scroll-area-corner-width')).toBe('24px')
+    })
   })
 
   it('UC-004 - exposes the idle and hover interaction states on both axes', async () => {
@@ -384,6 +387,7 @@ describe('ScrollArea', () => {
     const viewport = getViewport(root)
     const verticalScrollbar = getScrollbar(root, 'vertical')
 
+    fireEvent.pointerDown(viewport, { button: 0, buttons: 1, pointerId: 1, pointerType: 'touch' })
     fireEvent.touchMove(viewport)
     viewport.scrollTop = 40
     fireEvent.scroll(viewport)
@@ -413,8 +417,8 @@ describe('ScrollArea', () => {
     const verticalThumb = getThumb(verticalScrollbar)
 
     fireEvent.pointerEnter(root, { pointerType: 'mouse' })
-    fireEvent.pointerDown(verticalThumb, { button: 0, clientY: 24, pointerId: 1 })
-    fireEvent.pointerMove(verticalThumb, { clientY: 48, pointerId: 1 })
+    fireEvent.pointerDown(verticalThumb, { button: 0, buttons: 1, clientY: 24, pointerId: 1 })
+    fireEvent.pointerMove(verticalThumb, { buttons: 1, clientY: 48, pointerId: 1 })
 
     await waitFor(() => expect(verticalScrollbar).toHaveAttribute('data-scrolling'))
 

@@ -36,7 +36,7 @@ export function AvatarMenuLink({
           iconPosition="start"
           render={
             typeof render === 'function'
-              ? (surfaceProps) => render(surfaceProps, state)
+              ? (surfaceProps) => render(surfaceProps as ComponentPropsWithRef<'a'>, state)
               : (render ?? <a />)
           }
           reveal={state.active ? true : undefined}

@@ -11,7 +11,7 @@ Il me faudrait un composant Autocomplete qui serait l'exacte copie de celui de B
 
 Je te conseille une **copie contractuelle de Base UI, pas une copie de son code** : même anatomie, mêmes props, mêmes événements et même accessibilité, avec des styles Powercoach appliqués par défaut.
 
-Le package utilise déjà Base UI 1.6.0, donc l’alignement peut être exact.
+Le package utilise déjà Base UI, donc l’alignement peut être exact.
 
 ### Contrat recommandé
 

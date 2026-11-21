@@ -151,7 +151,7 @@ When a user-centric use case depends on a named visual pattern, assert its publi
 
 ## Base UI Data Attributes
 
-When testing a Base UI wrapper, read the relevant Base UI component docs from `$design-system-base-ui` local snapshot (`references/base-ui-1.6/index.md`) before asserting data attributes.
+When testing a Base UI wrapper, read the relevant Base UI component docs from `$design-system-base-ui` local snapshot (`references/base-ui-1.9/index.md`) before asserting data attributes.
 
 Reproduce Base UI public state attributes when Powercoach UI wraps the primitive, for example `data-disabled`, `data-open`, `data-closed`, `data-pressed`, `data-selected`, or component-specific attributes documented by Base UI.
 

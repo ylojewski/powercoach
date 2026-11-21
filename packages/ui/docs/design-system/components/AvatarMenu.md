@@ -12,7 +12,7 @@ and whose shared popup contains a leading full-name group label followed by Icon
 plus Text links for the currently open avatar. The rail is vertical by default
 and also supports horizontal orientation.
 
-AvatarMenu wraps Base UI Navigation Menu 1.6. Base UI owns navigation-menu
+AvatarMenu wraps Base UI Navigation Menu. Base UI owns navigation-menu
 semantics, controlled and uncontrolled value, trigger and link interaction,
 focus movement, event reasons and cancellation, portal lifecycle, active
 content movement into Viewport, positioning, collision handling, and transition

@@ -1782,7 +1782,7 @@ describe('AvatarMenu', () => {
               </AvatarMenu.List>
               <AvatarMenu.Portal keepMounted>
                 <AvatarMenu.Positioner>
-                  <AvatarMenu.Popup>
+                  <AvatarMenu.Popup data-testid="unmounting-content-popup">
                     <AvatarMenu.Viewport />
                   </AvatarMenu.Popup>
                 </AvatarMenu.Positioner>
@@ -1795,11 +1795,14 @@ describe('AvatarMenu', () => {
       render(<ContentUnmountProbe />)
 
       const content = await screen.findByTestId('unmounting-content')
+      const popup = screen.getByTestId('unmounting-content-popup')
 
-      Object.defineProperty(content, 'getAnimations', {
-        configurable: true,
-        value: vi.fn(() => [{ finished: exitFinished }])
-      })
+      for (const element of [popup, content]) {
+        Object.defineProperty(element, 'getAnimations', {
+          configurable: true,
+          value: vi.fn(() => [{ finished: exitFinished }])
+        })
+      }
 
       fireEvent.click(screen.getByRole('button', { name: 'Close content' }))
 
@@ -1850,7 +1853,7 @@ describe('AvatarMenu', () => {
             </AvatarMenu.List>
             <AvatarMenu.Portal keepMounted>
               <AvatarMenu.Positioner>
-                <AvatarMenu.Popup>
+                <AvatarMenu.Popup data-testid="kept-content-popup">
                   <AvatarMenu.Viewport />
                 </AvatarMenu.Popup>
               </AvatarMenu.Positioner>
@@ -1863,11 +1866,14 @@ describe('AvatarMenu', () => {
     render(<KeptContentProbe />)
 
     const content = await screen.findByTestId('kept-content')
+    const popup = screen.getByTestId('kept-content-popup')
 
-    Object.defineProperty(content, 'getAnimations', {
-      configurable: true,
-      value: vi.fn(() => [{ finished: exitFinished }])
-    })
+    for (const element of [popup, content]) {
+      Object.defineProperty(element, 'getAnimations', {
+        configurable: true,
+        value: vi.fn(() => [{ finished: exitFinished }])
+      })
+    }
 
     fireEvent.click(screen.getByRole('button', { name: 'Close kept content' }))
 
