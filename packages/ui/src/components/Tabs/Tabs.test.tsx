@@ -317,6 +317,35 @@ function mockTabRects(rectsByTestId: Record<string, TabRect>) {
 
     return createTabRect(rectsByTestId[testId ?? ''] ?? { height: 0, left: 0, width: 0 })
   })
+  vi.spyOn(HTMLElement.prototype, 'offsetParent', 'get').mockImplementation(function (
+    this: HTMLElement
+  ) {
+    return this.getAttribute('role') === 'tab' ? this.closest('[role="tablist"]') : null
+  })
+  vi.spyOn(HTMLElement.prototype, 'offsetLeft', 'get').mockImplementation(function (
+    this: HTMLElement
+  ) {
+    const parent = this.offsetParent
+
+    return Math.round(
+      this.getBoundingClientRect().left -
+        (parent?.getBoundingClientRect().left ?? 0) +
+        (parent?.scrollLeft ?? 0) -
+        (parent?.clientLeft ?? 0)
+    )
+  })
+  vi.spyOn(HTMLElement.prototype, 'offsetTop', 'get').mockImplementation(function (
+    this: HTMLElement
+  ) {
+    const parent = this.offsetParent
+
+    return Math.round(
+      this.getBoundingClientRect().top -
+        (parent?.getBoundingClientRect().top ?? 0) +
+        (parent?.scrollTop ?? 0) -
+        (parent?.clientTop ?? 0)
+    )
+  })
   vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockImplementation(function (
     this: HTMLElement
   ) {
@@ -511,16 +540,24 @@ function IndicatorBoundaryTabsProbe() {
 }
 
 function HydrationTabsProbe({ value }: { value: TabsValue }) {
+  // JSDOM leaves these computed initial values empty.
+  const untransformedTabStyle = {
+    rotate: 'none',
+    scale: 'none',
+    transform: 'none',
+    translate: 'none'
+  }
+
   return (
     <Tabs.Root value={value} onValueChange={() => undefined}>
       <Tabs.List
         data-testid="hydration-list"
         style={{ '--tabs-border-width': '3px' } as CSSProperties}
       >
-        <Tabs.Tab data-testid="hydration-overview" value="overview">
+        <Tabs.Tab data-testid="hydration-overview" style={untransformedTabStyle} value="overview">
           Overview
         </Tabs.Tab>
-        <Tabs.Tab data-testid="hydration-projects" value="projects">
+        <Tabs.Tab data-testid="hydration-projects" style={untransformedTabStyle} value="projects">
           Projects
         </Tabs.Tab>
         <Tabs.Indicator data-testid="hydration-indicator" renderBeforeHydration />

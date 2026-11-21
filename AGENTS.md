@@ -10,7 +10,7 @@ For `packages/ui` design-system work, use the relevant root capability:
 
 - Read `.agents/skills/shared/powercoach-ui-contract.md` as the common authority contract for every delivery role.
 
-- `design-system-base-ui` for local Base UI 1.6 docs, API, accessibility, data attributes, animation lifecycle, render overrides, and utilities.
+- `design-system-base-ui` for local Base UI 1.9 docs, API, accessibility, data attributes, animation lifecycle, render overrides, and utilities.
 - `design-system-specifications` for spec authoring in `ds-po` and independent implementation QA in `ds-qa`.
 - `design-system-test` for `.test.tsx` executable contracts from specs.
 - `design-system-component` for implementation, Storybook stories, and component-family work.

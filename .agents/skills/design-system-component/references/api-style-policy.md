@@ -4,18 +4,18 @@
 
 Use Base UI documentation as the API, accessibility, and behavior source of truth:
 
-- Use `$design-system-base-ui` local snapshot (`references/base-ui-1.6/index.md`) as the official Base UI entry point.
+- Use `$design-system-base-ui` local snapshot (`references/base-ui-1.9/index.md`) as the official Base UI entry point.
 - For each Base UI primitive involved, read the linked component page and every relevant handbook page before designing or implementing.
 - Compose accessible primitives 1:1 where possible.
 - Preserve useful Base UI state attributes.
 - Preserve useful Base UI CSS variables for runtime layout and motion.
 - Preserve render override semantics, including the second `state` argument when the primitive exposes it.
 - Expose a Powercoach naming layer without weakening Base UI semantics.
-- For animated Base UI parts, follow `$design-system-base-ui` local animation handbook (`references/base-ui-1.6/react/handbook/animation.md`).
+- For animated Base UI parts, follow `$design-system-base-ui` local animation handbook (`references/base-ui-1.9/react/handbook/animation.md`).
 
 Do not rely on memory for Base UI behavior. If the docs and an existing Powercoach component disagree, treat the docs as the default source of truth and make any intentional divergence explicit.
 
-Target Base UI 1.6+ behavior. If `package.json` still contains an older `@base-ui/react` version, verify API availability before implementation and report the mismatch if it matters.
+If the version of `@base-ui/react` resolved in `pnpm-lock.yaml` differs from the local snapshot, verify the needed API and behavior in the resolved version before implementation. Report mismatches that affect the work.
 
 Base UI alignment imports documented semantics, accessibility, keyboard behavior, state attributes, CSS variables, and render override behavior. It does not import example styling, visual effects, or motion that the approved Powercoach spec does not request.
 

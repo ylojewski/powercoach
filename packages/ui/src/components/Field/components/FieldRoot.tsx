@@ -73,8 +73,8 @@ export function FieldRoot(props: FieldRootProps): ReactElement {
 
           const validationGeneration = validationGenerationRef.current
           const validationResult = validate(...args)
-          const trackValidationResult = (result: string | string[] | null) => {
-            const message = Array.isArray(result) ? result.join('\n') : result
+          const trackValidationResult = (result: Awaited<ReturnType<typeof validate>>) => {
+            const message = Array.isArray(result) ? result.join('\n') : (result ?? null)
 
             if (validationGeneration === validationGenerationRef.current) {
               ownedValidationMessageRef.current = message

@@ -9,8 +9,8 @@ date: 2026-08-10
 
 Autocomplete renders a Powercoach free-form text field whose current input may
 be completed from a filtered suggestion popup. It preserves Base UI
-Autocomplete 1.6 semantics, accessibility, generic item inference, state,
-events, filtering, positioning, render composition, and transition lifecycle.
+Autocomplete semantics, accessibility, generic item inference, state, events,
+filtering, positioning, render composition, and transition lifecycle.
 
 Autocomplete is not a strict selection control. A submitted value may be text
 that does not match an item. Use Combobox instead when the product requires a
@@ -1605,9 +1605,9 @@ automatic branch with children omitted or undefined. It renders no owned
 element. Within Group, omitted children automatically render conforming
 AutocompleteItemOption leaves using the same Item algorithm as List. A function
 child remains authoritative and renders the group's filtered items. Collection
-does not accept a ReactNode child form. Base UI 1.6 does not contextually infer
-the callback item type across JSX from Root; consumers annotate callback
-parameters when needed.
+does not accept a ReactNode child form. Base UI does not contextually infer the
+callback item type across JSX from Root. Consumers annotate callback parameters
+when needed.
 
 ## Hooks
 

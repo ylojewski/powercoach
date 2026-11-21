@@ -47,7 +47,7 @@ export function AutocompletePositioner({
       const inputElement = inputElementRef?.current ?? null
 
       return positionerElement.contains(inputElement)
-        ? (triggerElementRef?.current ?? null)
+        ? triggerElementRef?.current
         : (inputGroupElementRef?.current ?? inputElement)
     }
     const syncGap = () => {

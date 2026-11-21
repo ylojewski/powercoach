@@ -1172,6 +1172,7 @@ describe('Tiles', () => {
     expect(scrollableTile.style.getPropertyValue('--scroll-area-corner-width')).toMatch(/px$/)
     expect(scrollableTile).not.toHaveAttribute('data-scrolling')
 
+    fireEvent.pointerDown(viewport, { button: 0, buttons: 1, pointerId: 1, pointerType: 'touch' })
     fireEvent.touchMove(viewport)
     viewport.scrollLeft = 96
     viewport.scrollTop = 72
@@ -1209,6 +1210,12 @@ describe('Tiles', () => {
 
     const nestedScroller = screen.getByTestId('nested-native-scroller')
 
+    fireEvent.pointerDown(nestedScroller, {
+      button: 0,
+      buttons: 1,
+      pointerId: 1,
+      pointerType: 'touch'
+    })
     fireEvent.touchMove(nestedScroller)
     nestedScroller.scrollTop = 48
     fireEvent.scroll(nestedScroller)

@@ -194,7 +194,7 @@ export function AutocompleteRoot<ItemValue>({
     inline,
     items,
     itemToStringValue: resolvedItemToStringValue,
-    onOpenChange: (nextOpen: boolean, details: BaseUiAutocomplete.Root.ChangeEventDetails) => {
+    onOpenChange: (nextOpen: boolean, details: BaseUiAutocomplete.Root.OpenChangeEventDetails) => {
       const pendingAutomaticItem = pendingAutomaticItemRef.current
 
       if (
